@@ -819,7 +819,7 @@ Verify L3out {{ l3out_name }} BGP Protocol Profile
 
 Verify L3out {{ l3out_name }} Import Route Map
     {% if l3out.import_route_map.name is defined %}
-        ${route_map}=   Set Variable   $..l3extOut.children[?(@.rtctrlProfile.attributes.name=={{ l3out.import_route_map.name }})]
+        ${route_map}=   Set Variable   $..l3extOut.children[?(@.rtctrlProfile.attributes.name=='{{ l3out.import_route_map.name }}')]
         Should Be Equal Value Json String   ${r.json()}   ${route_map}..rtctrlProfile.attributes.name   {{ l3out.import_route_map.name }}
     {% else %}
         ${route_map}=   Set Variable   $..l3extOut.children[?(@.rtctrlProfile.attributes.name=='default-import')]
@@ -832,7 +832,7 @@ Verify L3out {{ l3out_name }} Import Route Map
 
 Verify L3out {{ l3out_name }} Import Route Map Context {{ context_name }}
     {% if l3out.import_route_map.name is defined %}
-        ${route_map}=   Set Variable   $..l3extOut.children[?(@.rtctrlProfile.attributes.name=={{ l3out.import_route_map.name }})]
+        ${route_map}=   Set Variable   $..l3extOut.children[?(@.rtctrlProfile.attributes.name=='{{ l3out.import_route_map.name }}')]
     {% else %}
         ${route_map}=   Set Variable   $..l3extOut.children[?(@.rtctrlProfile.attributes.name=='default-import')]
     {% endif %}
@@ -861,7 +861,7 @@ Verify L3out {{ l3out_name }} Import Route Map Context {{ context_name }}
 
 Verify L3out {{ l3out_name }} Export Route Map
     {% if l3out.export_route_map.name is defined %}
-        ${route_map}=   Set Variable   $..l3extOut.children[?(@.rtctrlProfile.attributes.name=={{ l3out.export_route_map.name }})]
+        ${route_map}=   Set Variable   $..l3extOut.children[?(@.rtctrlProfile.attributes.name=='{{ l3out.export_route_map.name }}')]
         Should Be Equal Value Json String   ${r.json()}   ${route_map}..rtctrlProfile.attributes.name   {{ l3out.export_route_map.name }}
     {% else %}
         ${route_map}=   Set Variable   $..l3extOut.children[?(@.rtctrlProfile.attributes.name=='default-export')]
@@ -874,7 +874,7 @@ Verify L3out {{ l3out_name }} Export Route Map
 
 Verify L3out {{ l3out_name }} Export Route Map Context {{ context_name }}
     {% if l3out.export_route_map.name is defined %}
-        ${route_map}=   Set Variable   $..l3extOut.children[?(@.rtctrlProfile.attributes.name=={{ l3out.export_route_map.name }})]
+        ${route_map}=   Set Variable   $..l3extOut.children[?(@.rtctrlProfile.attributes.name=='{{ l3out.export_route_map.name }}')]
     {% else %}
         ${route_map}=   Set Variable   $..l3extOut.children[?(@.rtctrlProfile.attributes.name=='default-export')]
     {% endif %}
