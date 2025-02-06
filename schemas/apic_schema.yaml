@@ -25,8 +25,8 @@ apic:
   expected_state: include('expected_state', required=False) # @no_external_doc() @name(APIC Expected State) @sheet_hidden()
 
 bootstrap:
-  admin_username: str(required=False)
-  admin_password: str()
+  admin_username: str(required=False) # @sensitive()
+  admin_password: str() # @sensitive()
   snapshot_policy: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
   objects_to_delete: list(include('t_objects_to_delete'), required=False) # @sheet_hidden()
 
@@ -43,7 +43,7 @@ fabric_policies:
   spine_interface_profile_name: str(min=1, max=64, required=False)
   pod_profile_name: str(min=1, max=64, required=False)
   pod_profile_pod_selector_name: str(min=1, max=64, required=False)
-  config_passphrase: str(min=0, max=32, required=False)
+  config_passphrase: str(min=0, max=32, required=False) # @sensitive()
   apic_conn_pref: enum('inband', 'ooband', required=False)
   banners: include('fp_banners', required=False)
   ep_loop_protection: include('fp_ep_loop_protection', required=False)
@@ -185,7 +185,7 @@ fp_ntp_servers:
 
 fp_ntp_keys:
   id: int(min=1, max=65535)
-  key: str(min=0, max=40)
+  key: str(min=0, max=40) # @sensitive()
   auth_type: enum('md5', 'sha1')
   trusted: any(bool(), enum('yes', 'no'))
 
@@ -209,9 +209,9 @@ fp_snmp_policy_user:
   name: regex('^[a-zA-Z0-9_.:-]{1,64}$')
   description: regex('^[a-zA-Z0-9\\\\!#$%()*,-./:;@ _{|}~?&+]{1,128}$', required=False)
   privacy_type: enum('none', 'des', 'aes-128', required=False)
-  privacy_key: str(min=8, max=130, required=False)
+  privacy_key: str(min=8, max=130, required=False) # @sensitive()
   authorization_type: enum('hmac-md5-96', 'hmac-sha1-96', 'hmac-sha2-224', 'hmac-sha2-256', 'hmac-sha2-384', 'hmac-sha2-512', required=False)
-  authorization_key: str(min=8, max=130)
+  authorization_key: str(min=8, max=130) # @sensitive()
 
 fp_snmp_policy_trap_forwarder:
   ip: ip(required=False)
@@ -428,7 +428,7 @@ fp_external_connectivity_policy:
   fabric_id: int(min=0, max=1000, required=False)
   site_id: int(min=0, max=1000, required=False)
   peering_type: enum('full_mesh', 'route_reflector', required=False)
-  bgp_password: str(required=False)
+  bgp_password: str(required=False) # @sensitive()
   route_target: str(required=False)
   routing_profiles: list(include('fp_external_connectivity_policy_routing_profiles'), required=False) # @name(Ext Conn Policy Route Profiles) @ref_name(External Conn Policy Route Profile) @sheet_hidden()
   expected_state: include('fp_external_connectivity_policy_expected_state', required=False) # @no_external_doc() @name(Ext Conn Policy Expected State) @sheet_hidden()
@@ -487,8 +487,8 @@ fp_vmware_vmm_domains_vswitch_elag:
 
 fp_vmware_vmm_domains_credential_policies:
   name: regex('^[a-zA-Z0-9_.:-]{1,64}$')
-  username: regex('[a-zA-Z0-9\\\\!#$%()*,-./:;@ _{|}~?&+]{1,128}$')
-  password: str()
+  username: regex('[a-zA-Z0-9\\\\!#$%()*,-./:;@ _{|}~?&+]{1,128}$') # @sensitive()
+  password: str() # @sensitive()
 
 fp_vmware_vmm_domains_vcenters:
   name: regex('^[a-zA-Z0-9_.:-]{1,64}$')
@@ -554,13 +554,13 @@ fp_aaa_radius_providers:
   description: regex('^[a-zA-Z0-9\\\\!#$%()*,-./:;@ _{|}~?&+]{1,128}$', required=False)
   port: int(min=0, max=65535, required=False)
   protocol: enum('pap', 'chap', 'mschap', required=False)
-  key: str(required=False)
+  key: str(required=False) # @sensitive()
   timeout: int(min=0, max=60, required=False)
   retries: int(min=0, max=5, required=False)
   mgmt_epg: enum('inb', 'oob', required=False)
   monitoring: bool(required=False)
-  monitoring_username: regex('^[a-zA-Z0-9][a-zA-Z0-9_.@-]{0,31}$', required=False)
-  monitoring_password: str(required=False)
+  monitoring_username: regex('^[a-zA-Z0-9][a-zA-Z0-9_.@-]{0,31}$', required=False) # @sensitive()
+  monitoring_password: str(required=False) # @sensitive()
   expected_state: include('fp_aaa_radius_providers_expected_state', required=False) # @no_external_doc() @name(Radius Provider Expected State) @sheet_hidden()
 
 fp_aaa_radius_providers_expected_state:
@@ -574,13 +574,13 @@ fp_aaa_tacacs_providers:
   description: regex('^[a-zA-Z0-9\\\\!#$%()*,-./:;@ _{|}~?&+]{1,128}$', required=False)
   port: int(min=0, max=65535, required=False)
   protocol: enum('pap', 'chap', 'mschap', required=False)
-  key: str(required=False)
+  key: str(required=False) # @sensitive()
   timeout: int(min=0, max=60, required=False)
   retries: int(min=0, max=5, required=False)
   mgmt_epg: enum('inb', 'oob', required=False)
   monitoring: any(bool(), enum('enabled', 'disabled'), required=False)
-  monitoring_username: regex('^[a-zA-Z0-9][a-zA-Z0-9_.@-]{0,31}$', required=False)
-  monitoring_password: str(required=False)
+  monitoring_username: regex('^[a-zA-Z0-9][a-zA-Z0-9_.@-]{0,31}$', required=False) # @sensitive()
+  monitoring_password: str(required=False) # @sensitive()
   expected_state: include('fp_aaa_tacacs_providers_expected_state', required=False) # @no_external_doc() @name(Tacacs Provider Expected State) @sheet_hidden()
 
 fp_aaa_tacacs_providers_expected_state:
@@ -590,8 +590,8 @@ fp_aaa_tacacs_providers_expected_state:
   maximum_minor_faults: int(min=0, required=False)
 
 fp_aaa_users:
-  username: regex('^[a-zA-Z0-9_.-]{1,31}$')
-  password: str(min=1, max=256)
+  username: regex('^[a-zA-Z0-9_.-]{1,31}$') # @sensitive()
+  password: str(min=1, max=256) # @sensitive()
   first_name: str(min=1, max=32, required=False)
   last_name: str(min=1, max=32, required=False)
   phone: str(min=1, max=16, required=False)
@@ -615,11 +615,11 @@ fp_aaa_users_domains_roles:
 
 fp_aaa_users_certificates:
   name: regex('^[a-zA-Z0-9_.:-]{1,64}$')
-  data: str()
+  data: str() # @sensitive()
 
 fp_aaa_users_ssh_keys:
   name: regex('^[a-zA-Z0-9_.:-]{1,64}$')
-  data: regex('^[a-zA-Z0-9=\n\r/+ _.@-]{1,16384}$')
+  data: regex('^[a-zA-Z0-9=\n\r/+ _.@-]{1,16384}$') # @sensitive()
 
 fp_aaa_login_domains:
   name: regex('^[a-zA-Z0-9_.:-]{1,64}$')
@@ -656,10 +656,10 @@ fp_ca_certificate:
 fp_key_ring:
   name: regex('^[a-zA-Z0-9_.:-]{1,64}$')
   description: regex('^[a-zA-Z0-9\\\\!#$%()*,-./:;@ _{|}~?&+]{1,128}$', required=False)
-  certificate: regex('^[a-zA-Z0-9=\n\r/+ _.@-]{1,16384}$', required=False)
+  certificate: regex('^[a-zA-Z0-9=\n\r/+ _.@-]{1,16384}$', required=False) # @sensitive()
   modulus: enum('mod512', 'mod1024', 'mod2048', required=False)
-  ca_certificate: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
-  private_key: regex('^[a-zA-Z0-9=\n\r/+ _.@-]{1,16384}$', required=False)
+  ca_certificate: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False) # @sensitive()
+  private_key: regex('^[a-zA-Z0-9=\n\r/+ _.@-]{1,16384}$', required=False) # @sensitive()
 
 fp_aaa_ldap:
   providers: list(include('fp_aa_ldap_providers'), required=False) # @name(LDAP Providers) @sheet_hidden()
@@ -672,7 +672,7 @@ fp_aa_ldap_providers:
   port: int(min=0, max=65535, required=False)
   bind_dn: str(required=False)
   base_dn: str(required=False)
-  password: str(required=False)
+  password: str(required=False) # @sensitive()
   timeout: int(min=5, max=60, required=False)
   retries: int(min=0, max=5, required=False)
   enable_ssl: bool(required=False)
@@ -681,8 +681,8 @@ fp_aa_ldap_providers:
   ssl_validation_level: enum('permissive', 'strict', required=False)
   mgmt_epg: enum('inb', 'oob', required=False)
   server_monitoring: bool(required=False)
-  monitoring_username: regex('^[a-zA-Z0-9][a-zA-Z0-9_.@-]{0,31}$', required=False)
-  monitoring_password: str(required=False)
+  monitoring_username: regex('^[a-zA-Z0-9][a-zA-Z0-9_.@-]{0,31}$', required=False) # @sensitive()
+  monitoring_password: str(required=False) # @sensitive()
   expected_state: include('fp_aa_ldap_providers_expected_state', required=False) # @no_external_doc() @name(LDAP Provider Exp State) @sheet_hidden()
 
 fp_aa_ldap_providers_expected_state:
@@ -753,11 +753,11 @@ fp_remote_locations:
   path: str(min=0, max=512, required=False)
   port: int(min=0, max=65535, required=False)
   auth_type: enum('password', 'ssh_keys', required=False)
-  username: regex('^[a-zA-Z0-9][a-zA-Z0-9_.@\\\\-]{0,31}$')
-  password: str(required=False)
-  ssh_public_key: str(required=False)
-  ssh_private_key: str(required=False)
-  ssh_passphrase: str(min=1, max=512, required=False)
+  username: regex('^[a-zA-Z0-9][a-zA-Z0-9_.@\\\\-]{0,31}$') # @sensitive()
+  password: str(required=False) # @sensitive()
+  ssh_public_key: str(required=False) # @sensitive()
+  ssh_private_key: str(required=False) # @sensitive()
+  ssh_passphrase: str(min=1, max=512, required=False) # @sensitive()
   mgmt_epg: enum('inb', 'oob', required=False)
   expected_state: include('fp_remote_locations_expected_state', required=False) # @no_external_doc() @name(Remote Location Expected State) @sheet_hidden()
 
@@ -809,7 +809,7 @@ fp_monitoring_snmp_traps_destinations:
   hostname_ip: any(regex('^[a-zA-Z0-9:][a-zA-Z0-9.:-]{0,254}$'), ip())
   port: int(min=1, max=65535, required=False)
   version: enum('v1', 'v2c', 'v3', required=False)
-  community: str(min=1, max=32)
+  community: str(min=1, max=32) # @sensitive()
   security: enum('noauth', 'auth', 'priv', required=False)
   mgmt_epg: enum('inb', 'oob', required=False)
 
@@ -847,8 +847,8 @@ fp_monitoring_callhomes:
   admin_state: bool(required=False)
   port: int(min=1, max=65535, required=False)
   smtp_server: str()
-  smtp_username: str(required=False)
-  smtp_password: str(required=False)
+  smtp_username: str(required=False) # @sensitive()
+  smtp_password: str(required=False) # @sensitive()
   mgmt_epg: enum('inb', 'oob', required=False)
   from_email: str(required=False)
   reply_to_email: str(required=False)
@@ -876,8 +876,8 @@ fp_monitoring_smart_callhomes:
   admin_state: bool(required=False)
   port: int(min=1, max=65535, required=False)
   smtp_server: str()
-  smtp_username: str(required=False)
-  smtp_password: str(required=False)
+  smtp_username: str(required=False) # @sensitive()
+  smtp_password: str(required=False) # @sensitive()
   mgmt_epg: enum('inb', 'oob', required=False)
   from_email: str(required=False)
   reply_to_email: str(required=False)
@@ -1110,7 +1110,7 @@ ap_mcp:
   initial_delay: int(min=0, max=1800, required=False)
   loop_detection: int(min=1, max=255, required=False)
   per_vlan: any(bool(), enum('enabled', 'disabled'), required=False)
-  key: str()
+  key: str() # @sensitive()
 
 ap_qos:
   preserve_cos: any(bool(), enum('enabled', 'disabled'), required=False)
@@ -1521,7 +1521,7 @@ ap_macsec_keychain_policy_key_policy:
   name: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
   description: regex('^[a-zA-Z0-9\\\\!#$%()*,-./:;@ _{|}~?&+]{1,128}$', required=False)
   key_name: regex('^[a-fA-F0-9]{0,64}$')
-  pre_shared_key: regex('^[a-fA-F0-9]{0,64}$')
+  pre_shared_key: regex('^[a-fA-F0-9]{0,64}$') # @sensitive()
   start_time: any(enum('now'), regex('^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}[+-]\d{2}:\d{2}$'), required=False)
   end_time: any(enum('infinite'), regex('^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}[+-]\d{2}:\d{2}$'), required=False)
 
@@ -2397,7 +2397,7 @@ ten_l3outs_ospf:
   area_control_summary: any(bool(), required=False)
   area_control_suppress_fa: any(bool(), required=False)
   auth_type: enum('none', 'simple', 'md5', required=False)
-  auth_key: str(required=False)
+  auth_key: str(required=False) # @sensitive()
   auth_key_id: int(min=1, max=255, required=False)
   policy: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
 
@@ -2416,7 +2416,7 @@ ten_l3outs_bgp_peers:
   next_hop_self: any(bool(), enum('yes', 'no'), required=False)
   send_community: any(bool(), enum('yes', 'no'), required=False)
   send_ext_community: any(bool(), enum('yes', 'no'), required=False)
-  password: str(required=False)
+  password: str(required=False) # @sensitive()
   allowed_self_as_count: int(min=1, max=10, required=False)
   bfd: any(bool(), enum('yes', 'no'), required=False)
   disable_connected_check: any(bool(), enum('yes', 'no'), required=False)
@@ -2494,7 +2494,7 @@ ten_l3outs_nodes_interfaces_bgp_peers:
   next_hop_self: any(bool(), enum('yes', 'no'), required=False)
   send_community: any(bool(), enum('yes', 'no'), required=False)
   send_ext_community: any(bool(), enum('yes', 'no'), required=False)
-  password: str(required=False)
+  password: str(required=False) # @sensitive()
   allowed_self_as_count: int(min=1, max=10, required=False)
   bfd: any(bool(), enum('yes', 'no'), required=False)
   disable_connected_check: any(bool(), enum('yes', 'no'), required=False)
@@ -2550,7 +2550,7 @@ ten_l3outs_node_profiles_bgp_peers:
   next_hop_self: any(bool(), enum('yes', 'no'), required=False)
   send_community: any(bool(), enum('yes', 'no'), required=False)
   send_ext_community: any(bool(), enum('yes', 'no'), required=False)
-  password: str(required=False)
+  password: str(required=False) # @sensitive()
   allowed_self_as_count: int(min=1, max=10, required=False)
   bfd: any(bool(), enum('yes', 'no'), required=False)
   disable_connected_check: any(bool(), enum('yes', 'no'), required=False)
@@ -2610,7 +2610,7 @@ ten_l3outs_node_profiles_interface_profiles:
 ten_l3outs_node_profiles_interface_profiles_ospf:
   ospf_interface_profile_name: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
   auth_type: enum('none', 'simple', 'md5', required=False)
-  auth_key: str(required=False)
+  auth_key: str(required=False) # @sensitive()
   auth_key_id: int(min=1, max=255, required=False)
   policy: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
 ten_l3outs_node_profiles_interface_profiles_eigrp:
@@ -2655,7 +2655,7 @@ ten_l3outs_node_profiles_interface_profiles_interfaces_bgp_peers:
   next_hop_self: any(bool(), enum('yes', 'no'), required=False)
   send_community: any(bool(), enum('yes', 'no'), required=False)
   send_ext_community: any(bool(), enum('yes', 'no'), required=False)
-  password: str(required=False)
+  password: str(required=False) # @sensitive()
   allowed_self_as_count: int(min=1, max=10, required=False)
   bfd: any(bool(), enum('yes', 'no'), required=False)
   disable_connected_check: any(bool(), enum('yes', 'no'), required=False)
@@ -2897,7 +2897,7 @@ ten_sr_mpls_l3outs_node_profiles_evpn_connectivity:
   disable_peer_as_check: any(bool(), enum('yes', 'no'), required=False)
   ttl: int(min=1, max=255, required=False)
   bfd: bool(required=False)
-  password: str(required=False)
+  password: str(required=False) # @sensitive()
   peer_prefix_policy: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
   admin_state: bool(required=False)
   local_as: int(min=0, max=4294967295, required=False)
@@ -2929,7 +2929,7 @@ ten_sr_mpls_l3outs_node_profiles_interface_profiles_interfaces_bgp_peers:
   allow_self_as: bool(required=False)
   send_community: bool(required=False)
   send_ext_community: bool(required=False)
-  password: str(required=False)
+  password: str(required=False) # @sensitive()
   bfd: bool(required=False)
   unicast_address_family: bool(required=False)
   admin_state: bool(required=False)
@@ -3232,7 +3232,7 @@ ten_multicast_route_maps_expected_state:
 
 ten_pim_policies:
   name: regex('^[a-zA-Z0-9_.:-]{1,64}$')
-  auth_key: any(str(min=1, max=130), required=False)
+  auth_key: any(str(min=1, max=130), required=False) # @sensitive()
   auth_type: enum('none', 'ah-md5', required=False)
   designated_router_delay: int(min=1, max=65535, required=False)
   designated_router_priority: int(min=1, max=4294967295, required=False)

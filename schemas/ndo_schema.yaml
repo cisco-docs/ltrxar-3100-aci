@@ -29,16 +29,16 @@ remote_locations:
   protocol: enum('scp', 'sftp', required=False)
   path: str(required=False)
   authentication: enum('password', 'sshKey', required=False)
-  username: str(required=False)
-  password: any(str(), null(), required=False)
-  ssh_key: any(str(), null(), required=False)
-  passphrase: any(str(), null(), required=False)
+  username: str(required=False) # @sensitive()
+  password: any(str(), null(), required=False) # @sensitive()
+  ssh_key: any(str(), null(), required=False) # @sensitive()
+  passphrase: any(str(), null(), required=False) # @sensitive()
 
 sites:
   name: str()
   apic_urls: list(str()) # @ref_name(URL)
-  username: str(required=False)
-  password: any(str(), null(), required=False)
+  username: str(required=False) # @sensitive()
+  password: any(str(), null(), required=False) # @sensitive()
   id: int(min=1, required=False)
   location: include('sites_location', required=False) # @flatten()
   multisite: any(bool(), enum('enabled', 'disabled'), required=False)
@@ -55,7 +55,7 @@ sites_location:
 
 sites_bgp:
   as: int(min=1, max=4294967295, required=False) # @name(BGP AS)
-  password: any(str(), null(), required=False) # @name(BGP Password)
+  password: any(str(), null(), required=False) # @name(BGP Password) @sensitive()
 
 sites_ospf:
   area_id: any(int(min=0, max=4294967295), enum('backbone'), ip(), required=False) # @name(OSPF Area ID)
@@ -98,7 +98,7 @@ sites_pods_spines_interfaces:
 sites_pods_spines_interfaces_ospf:
   policy: regex('^[a-zA-Z0-9_.:-]{1,64}$') # @name(OSPF Policy)
   authentication_type: enum('none', 'simple', 'md5', required=False) # @name(OSPF Authentication Type)
-  authentication_key: any(str(), null(), required=False) # @name(OSPF Authentication Key)
+  authentication_key: any(str(), null(), required=False) # @name(OSPF Authentication Key) @sensitive()
   authentication_key_id: int(min=1, max=255, required=False) # @name(OSPF Authentication Key ID)
 
 fabric_connectivity:
