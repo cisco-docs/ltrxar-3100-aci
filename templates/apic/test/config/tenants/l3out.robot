@@ -1005,7 +1005,7 @@ Verify L3out {{ l3out_name }} External EPG {{ eepg_name }} Subnet {{ subnet.pref
 {% elif subnet.ospf_route_summarization | default(defaults.apic.tenants.l3outs.external_endpoint_groups.subnets.ospf_route_summarization) %}
     Should Be Equal Value Json String   ${r.json()}   ${subnet}..l3extRsSubnetToRtSumm.attributes.tDn   uni/tn-common/ospfrtsumm-default
 {% elif subnet.eigrp_route_summarization | default(defaults.apic.tenants.l3outs.external_endpoint_groups.subnets.eigrp_route_summarization) %}
-    Should Be Equal Value Json String   ${r.json()}   ${subnet}..l3extRsSubnetToRtSumm.attributes.tDn   uni/tn-common/eigrprtsumm-eigrp_pol
+    Should Be Equal Value Json String   ${r.json()}   ${subnet}..l3extRsSubnetToRtSumm.attributes.tDn   uni/tn-{{ tenant.name }}/eigrprtsumm-eigrp_pol
 {% endif %}
 
 {% for route_control_profile in subnet.route_control_profiles | default([]) %}
