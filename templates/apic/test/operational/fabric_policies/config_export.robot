@@ -11,10 +11,13 @@ Resource        ../../apic_common.resource
 Verify Config Export {{ policy_name }} Job Status
     ${r}=   GET On Session   apic   /api/mo/uni/backupst/jobs-[uni/fabric/configexp-{{ policy_name }}].json   params=rsp-subtree=full
     ${jobs}=   Get Value From Json   ${r.json()}   $..configJobCont.children
-    FOR   ${job}   IN   @{jobs}
-        ${state}=   Get Value From Json   ${r.json()}   ${job}..configJob.attributes.operSt
-        Run Keyword If   ${state} != "success"   Run Keyword And Continue On Failure
-        ...   Fail  "Export Policy {{ policy_name }}: Job ${job}..configJob.attributes.name not successful"
+    IF   @{jobs}
+        FOR   ${job}   IN   @{jobs[0]}
+            ${state}=   Get Value From Json   ${job}   $..configJob.attributes.operSt
+            ${job_name}=   Get Value From Json   ${job}   $..configJob.attributes.name
+            Run Keyword If   "${state}[0]" != "success"   Run Keyword And Continue On Failure
+            ...   Fail  "Export Policy {{ policy_name }}: Job ${job_name} not successful"
+        END
     END
 
 {% endfor %}

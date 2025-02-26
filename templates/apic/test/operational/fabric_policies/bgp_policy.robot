@@ -12,12 +12,18 @@ Resource        ../../apic_common.resource
 Verify BGP Route Reflector {{ rr }} Peerings
     ${r}=   GET On Session   apic   /api/mo/uni/controller/setuppol/setupp-{{ pod }}.json
     ${tep_pool}=   Get Value From Json   ${r.json()}   $..fabricSetupP.attributes.tepPool
+    ${r}=   GET On Session   apic   api/node/class/fabricNode.json
 {% for node in apic.node_policies.nodes | default([]) %}
 {% if node.role == "leaf" and node.pod | default(defaults.apic.node_policies.nodes.pod) == pod %}
-    ${r}=   GET On Session   apic   api/node/class/fabricNode.json
     ${node_ip}=   Get Value From Json   ${r.json()}   $..imdata[?(@.fabricNode.attributes.id=='{{ node.id }}')].fabricNode.attributes.address
-    ${r}=   GET On Session   apic   /api/node/mo/topology/pod-{{ pod }}/node-{{ rr }}/sys/bgp/inst/dom-overlay-1/peer-[${tep_pool}[0]]/ent-[${node_ip}[0]].json
-    ${bgp_state}=   Get Value From Json   ${r.json()}   $..bgpPeerEntry.attributes.operSt
+{% if node.type | default() == "remote-leaf-wan" %}
+    ${r2}=   GET On Session   apic   /api/mo/uni/controller/setuppol/setupp-{{ pod }}/extsetupp-{{ node.remote_pool_id }}.json
+    ${ext_tep_pool}=   Get Value From Json   ${r2.json()}   $..fabricExtSetupP.attributes.tepPool
+    ${r2}=   GET On Session   apic   /api/node/mo/topology/pod-{{ pod }}/node-{{ rr }}/sys/bgp/inst/dom-overlay-1/peer-[${ext_tep_pool}[0]]/ent-[${node_ip}[0]].json
+{% else %}
+    ${r2}=   GET On Session   apic   /api/node/mo/topology/pod-{{ pod }}/node-{{ rr }}/sys/bgp/inst/dom-overlay-1/peer-[${tep_pool}[0]]/ent-[${node_ip}[0]].json
+{% endif %}
+    ${bgp_state}=   Get Value From Json   ${r2.json()}   $..bgpPeerEntry.attributes.operSt
     Run Keyword If   "${bgp_state}[0]" != "established"   Run Keyword And Continue On Failure
     ...   Fail  "Node {{ node.id }}: BGP is not established"
 {% endif %}
