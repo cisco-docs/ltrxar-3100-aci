@@ -47,6 +47,26 @@ Verify SPAN Source Group {{ span_name }} Source {{ source_name }}
     ${path}=   Set Variable   ${source}.children[?(@.spanRsSrcToPathEp.attributes.tDn=='topology/pod-{{ pod }}/paths-{{ path.node_id }}/pathep-[eth{{ path.module | default(defaults.apic.access_policies.span.source_groups.sources.access_paths.module) }}/{{ path.port }}]')].spanRsSrcToPathEp
     Should Be Equal Value Json String   ${r.json()}    ${path}.attributes.tDn   topology/pod-{{ pod }}/paths-{{ path.node_id }}/pathep-[eth{{ path.module | default(defaults.apic.access_policies.span.source_groups.sources.access_paths.module) }}/{{ path.port }}]
     {% endif %}                                                    
+{% elif apic.interface_policies is not defined and path.channel is defined and path.node_id is defined %}
+    {% set policy_group_name = path.channel ~ defaults.apic.access_policies.leaf_interface_policy_groups.name_suffix %}
+    {% set query = "leaf_interface_policy_groups[?name==`" ~ path.channel ~ "`].type" %}
+    {% set type = (apic.access_policies | community.general.json_query(query))[0] | default('vpc' if path.node2_id is defined else 'pc') %}
+    {% if path.type is defined %}
+        {% set type = path.type %}
+    {% else %}
+        {% set type = (apic.access_policies | community.general.json_query(query))[0] | default('vpc' if path.node2_id is defined else 'pc') %}
+    {% endif %}
+    {% set node = path.node_id %}
+    {% set query = "nodes[?id==`" ~ node ~ "`].pod" %}
+    {% set pod = path.pod_id | default(((apic.node_policies | default()) | community.general.json_query(query))[0] | default(defaults.apic.access_policies.span.source_groups.sources.access_paths.pod_id)) %}
+    {% if type == 'vpc' %}
+        {% set node2 = path.node2_id %}
+    ${path}=   Set Variable   ${source}.children[?(@.spanRsSrcToPathEp.attributes.tDn=='topology/pod-{{ pod }}/protpaths-{{ node }}-{{ node2 }}/pathep-[{{ policy_group_name }}]')].spanRsSrcToPathEp
+    Should Be Equal Value Json String   ${r.json()}    ${path}.attributes.tDn   topology/pod-{{ pod }}/protpaths-{{ node }}-{{ node2 }}/pathep-[{{ policy_group_name }}]
+    {% else %}
+    ${path}=   Set Variable   ${source}.children[?(@.spanRsSrcToPathEp.attributes.tDn=='topology/pod-{{ pod }}/paths-{{ node }}/pathep-[{{ policy_group_name }}]')].spanRsSrcToPathEp
+    Should Be Equal Value Json String   ${r.json()}    ${path}.attributes.tDn   topology/pod-{{ pod }}/paths-{{ node }}/pathep-[{{ policy_group_name }}]
+    {% endif %}                                           
 {% else %}
     {% set policy_group_name = path.channel ~ defaults.apic.access_policies.leaf_interface_policy_groups.name_suffix %}
     {% set query = "leaf_interface_policy_groups[?name==`" ~ path.channel ~ "`].type" %}
