@@ -334,6 +334,7 @@ apic:
                   igmp_interface_policy: IGMP_IF1
                   qos_class: level3
                   custom_qos_policy: TEST_QOS_POLICY
+                  nd_interface_policy: ND_INT1
                   interfaces:
                     - node_id: 101
                       port: 11

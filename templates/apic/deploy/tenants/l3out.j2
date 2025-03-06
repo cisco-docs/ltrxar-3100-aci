@@ -369,6 +369,17 @@
                                                     }
                                                 }
                                                 {%- endif %}
+                                                {%- if l3out.nd_interface_policy is defined %}{{ comma4() }}
+                                                {% set nd_interface_policy_name = l3out.nd_interface_policy ~ defaults.apic.tenants.policies.nd_interface_policies.name_suffix %}
+                                                {
+                                                    "l3extRsNdIfPol": {
+                                                        "attributes": {
+                                                            "annotation": "orchestrator:aac",
+                                                            "tnNdIfPolName": "{{ nd_interface_policy_name }}"
+                                                        }
+                                                    }
+                                                }
+                                                {%- endif %}
                                                 {%- for node in l3out.nodes | default([]) %}
                                                 {%- for int in node.interfaces | default([]) %}{{ comma4() }}
                                                 {% if int.port is defined or int.floating_svi | default(defaults.apic.tenants.l3outs.nodes.interfaces.floating_svi) | cisco.aac.aac_bool("yes") == 'yes' %}
@@ -1068,6 +1079,17 @@
                                                         "attributes": {
                                                             "annotation": "orchestrator:aac",
                                                             "tnQosCustomPolName": "{{ custom_qos_policy_name }}"
+                                                        }
+                                                    }
+                                                }
+                                                {%- endif %}
+                                                {%- if ip.nd_interface_policy is defined %}{{ comma4() }}
+                                                {% set nd_interface_policy_name = ip.nd_interface_policy ~ defaults.apic.tenants.policies.nd_interface_policies.name_suffix %}
+                                                {
+                                                    "l3extRsNdIfPol": {
+                                                        "attributes": {
+                                                            "annotation": "orchestrator:aac",
+                                                            "tnNdIfPolName": "{{ nd_interface_policy_name }}"
                                                         }
                                                     }
                                                 }

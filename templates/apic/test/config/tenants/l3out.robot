@@ -95,6 +95,10 @@ Verify L3out {{ l3out_name }} Profiles
 {% set custom_qos_policy_name = l3out.custom_qos_policy ~ defaults.apic.tenants.policies.custom_qos.name_suffix %}
     Should Be Equal Value Json String   ${r.json()}   $..l3extRsLIfPCustQosPol.attributes.tnQosCustomPolName   {{ custom_qos_policy_name }}
 {% endif %}
+{% if l3out.nd_interface_policy is defined %}
+    {% set nd_interface_policy_name = l3out.nd_interface_policy ~ defaults.apic.tenants.policies.nd_interface_policies.name_suffix %}
+    Should Be Equal Value Json String   ${r.json()}   $..l3extRsNdIfPol.attributes.tnNdIfPolName   {{ nd_interface_policy_name }}
+{% endif %}
 
 {% for node in l3out.nodes | default([]) %}
 {% set query = "nodes[?id==`" ~ node.node_id ~ "`].pod" %}
@@ -579,6 +583,11 @@ Verify L3out {{ l3out_name }} Node Profile {{ l3out_np_name }} Interface Profile
     {% set custom_qos_policy_name = ip.custom_qos_policy ~ defaults.apic.tenants.policies.custom_qos.name_suffix %}
     Should Be Equal Value Json String   ${r.json()}   ${ip}..l3extRsLIfPCustQosPol.attributes.tnQosCustomPolName   {{ custom_qos_policy_name }}
 {% endif %}
+{% if ip.nd_interface_policy is defined %}
+    {% set nd_interface_policy_name = ip.nd_interface_policy ~ defaults.apic.tenants.policies.nd_interface_policies.name_suffix %}
+    Should Be Equal Value Json String   ${r.json()}   ${ip}..l3extRsNdIfPol.attributes.tnNdIfPolName   {{ nd_interface_policy_name }}
+{% endif %}
+
 
 {% for int in ip.interfaces | default([]) %}
 
