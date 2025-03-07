@@ -51,6 +51,8 @@ apic:
             policy_group: VPC2
           - port: 7
             fex_id: 101
+          - port: 8
+            shutdown: true
           - port: 54
             policy_group: ACC1
             type: uplink
@@ -59,3 +61,5 @@ apic:
             interfaces:
               - port: 1
                 policy_group: VPC4
+              - port: 2
+                shutdown: true

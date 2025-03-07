@@ -705,6 +705,17 @@ objects:
       - config
     paths:
       - apic.interface_policies.nodes.interfaces.type
+  - name: Interface Shutdown
+    template: interface_shutdown
+    folder: fabric_policies
+    aci_classes:
+      - fabricRsOosPath
+    test_types:
+      - config
+    paths:
+      - apic.interface_policies.nodes.interfaces.shutdown
+      - apic.interface_policies.nodes.interfaces.sub_ports.shutdown
+      - apic.interface_policies.nodes.fexes.interfaces.shutdown
   - name: Access Leaf Switch Profile
     template: ap_leaf_switch_profile
     folder: access_policies

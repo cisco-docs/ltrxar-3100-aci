@@ -118,6 +118,7 @@ nav:
               - Fabric SPAN Source Group: data_model/apic/fabric_policies/fp_span_source_group.md
               - Fabric SPAN Destination Group: data_model/apic/fabric_policies/fp_span_destination_group.md
               - Interface Type: data_model/apic/fabric_policies/interface_type.md
+              - Interface Shutdown: data_model/apic/fabric_policies/interface_shutdown.md
               - Smart Licensing: data_model/apic/fabric_policies/smart_licensing.md
               - LDAP: data_model/apic/fabric_policies/ldap.md
               - System Performance: data_model/apic/fabric_policies/system_performance.md

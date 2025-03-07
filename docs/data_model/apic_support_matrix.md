@@ -66,6 +66,7 @@ This table provides an overview of which object is supported in combination with
 [Vmware VMM Domain](./apic/fabric_policies/vmw_vmm_domain.md) | :material-check: | :material-check: | :material-check: | :material-check:
 [Geolocation Policy](./apic/fabric_policies/geolocation.md) | :material-check: | :material-check: | :material-check: | :material-check:
 [Interface type](./apic/fabric_policies/interface_type.md) | :material-check: | :material-check: | :material-check: |
+[Interface shutdown](./apic/fabric_policies/interface_shutdown.md) | :material-check: | :material-check: | :material-check: |
 [Fabric SPAN Source Group](./apic/fabric_policies/fp_span_source_group.md) | :material-check: | :material-check: | :material-check: |
 [Fabric SPAN Destination Group](./apic/fabric_policies/fp_span_destination_group.md) | :material-check: | :material-check: | :material-check: |
 
