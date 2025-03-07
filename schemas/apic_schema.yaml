@@ -3471,7 +3471,7 @@ ten_endpoint_mac_tags:
   mac: mac()
   bridge_domain: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
   vrf: regex('^[a-zA-Z0-9_.:-]{1,64}$')
-  tags: list(include('ten_endpoint_mac_tags_values'), required=False)
+  tags: list(include('ten_endpoint_mac_tags_values'), required=False) # @name(MAC Tags) @sheet_hidden()
 
 ten_endpoint_mac_tags_values:
   key: regex('^[a-zA-Z0-9_.:-]{1,64}$')
@@ -3480,7 +3480,7 @@ ten_endpoint_mac_tags_values:
 ten_endpoint_ip_tags:
   ip: ip()
   vrf: regex('^[a-zA-Z0-9_.:-]{1,64}$')
-  tags: list(include('ten_endpoint_ip_tags_values'), required=False)
+  tags: list(include('ten_endpoint_ip_tags_values'), required=False)  # @name(IP Tags) @sheet_hidden()
 
 ten_endpoint_ip_tags_values:
   key: regex('^[a-zA-Z0-9_.:-]{1,64}$')
