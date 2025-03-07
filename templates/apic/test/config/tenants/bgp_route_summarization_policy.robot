@@ -13,15 +13,16 @@ Resource        ../../../apic_common.resource
 {% if brs.as_set | default(defaults.apic.tenants.policies.bgp_route_summarization_policies.as_set) %}{% set ctrl = ctrl + [("as-set")] %}{% endif %}
 {% if brs.summary_only | default(defaults.apic.tenants.policies.bgp_route_summarization_policies.summary_only) %}{% set ctrl = ctrl + [("summary-only")] %}{% endif %}
 {% set addrTCtrl = [] %}
-{% if brs.af_mcast | default(defaults.apic.tenants.policies.bgp_route_summarization_policies.af_mcast) %}{% set addrTCtrl = addrTCtrl + [("af-mcast")] %}{% endif %}
-{% if brs.af_ucast | default(defaults.apic.tenants.policies.bgp_route_summarization_policies.af_ucast) %}{% set addrTCtrl = addrTCtrl + [("af-ucast")] %}{% endif %}
+{# uncomment when 4.2 is out of support #}
+{# {% if brs.af_mcast | default(defaults.apic.tenants.policies.bgp_route_summarization_policies.af_mcast) %}{% set addrTCtrl = addrTCtrl + [("af-mcast")] %}{% endif %} #}
+{# {% if brs.af_ucast | default(defaults.apic.tenants.policies.bgp_route_summarization_policies.af_ucast) %}{% set addrTCtrl = addrTCtrl + [("af-ucast")] %}{% endif %} #}
 
 Verify BGP Route Summarization Policy {{ policy_name }}
     ${r}=   GET On Session   apic   /api/mo/uni/tn-{{ tenant.name }}/bgprtsum-{{ policy_name }}.json
     Should Be Equal Value Json String   ${r.json()}   $..bgpRtSummPol.attributes.name   {{ policy_name }}
     Should Be Equal Value Json String   ${r.json()}   $..bgpRtSummPol.attributes.descr   {{ brs.description | default() }}
     Should Be Equal Value Json String   ${r.json()}   $..bgpRtSummPol.attributes.ctrl   {{ ctrl | join(',') }}
-{% if brs.af_mcast is not defined and brs.af_ucast is not defined %}
+{% if brs.af_mcast or brs.af_ucast %}
     Should Be Equal Value Json String   ${r.json()}   $..bgpRtSummPol.attributes.addrTCtrl   {{ addrTCtrl | join(',') }}
 {% endif %}
 {% endfor %}

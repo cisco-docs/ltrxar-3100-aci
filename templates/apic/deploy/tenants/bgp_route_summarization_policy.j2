@@ -14,8 +14,11 @@
             {% if brs.as_set | default(defaults.apic.tenants.policies.bgp_route_summarization_policies.as_set) %}{% set ctrl = ctrl + [("as-set")] %}{% endif %}
             {% if brs.summary_only | default(defaults.apic.tenants.policies.brs.bgp_route_summarization_policies) %}{% set ctrl = ctrl + [("summary-only")] %}{% endif %}
             {% set addrTCtrl = [] %}
-            {% if brs.af_mcast | default(defaults.apic.tenants.policies.bgp_route_summarization_policies.af_mcast) %}{% set addrTCtrl = addrTCtrl + [("af-mcast")] %}{% endif %}
-            {% if brs.af_ucast | default(defaults.apic.tenants.policies.bgp_route_summarization_policies.af_ucast) %}{% set addrTCtrl = addrTCtrl + [("af-ucast")] %}{% endif %}
+{# uncomment when 4.2 is out of support #}
+{#            {% if brs.af_mcast | default(defaults.apic.tenants.policies.bgp_route_summarization_policies.af_mcast) %}{% set addrTCtrl = addrTCtrl + [("af-mcast")] %}{% endif %} #}
+{#            {% if brs.af_ucast | default(defaults.apic.tenants.policies.bgp_route_summarization_policies.af_ucast) %}{% set addrTCtrl = addrTCtrl + [("af-ucast")] %}{% endif %} #}
+            {% if brs.af_mcast | default() %}{% set addrTCtrl = addrTCtrl + [("af-mcast")] %}{% endif %}
+            {% if brs.af_ucast | default() %}{% set addrTCtrl = addrTCtrl + [("af-ucast")] %}{% endif %}
             {
 
                 "bgpRtSummPol": {
@@ -24,7 +27,7 @@
                         "name": "{{ bgp_route_summarization_name }}",
                         "descr": "{{ brs.description | default() }}",
                         "dn": "uni/tn-{{ tenant.name }}/bgprtsum-{{ bgp_route_summarization_name }}",
-                        {% if brs.af_mcast is not defined and brs.af_ucast is not defined %}
+                        {% if brs.af_mcast or brs.af_ucast %}
                         "addrTCtrl": "{{ addrTCtrl | join(',') }}",
                         {% endif %}
                         "ctrl": "{{ ctrl | join(',') }}"   
