@@ -116,3 +116,33 @@ apic:
                   - device: DEV1
                     interface_name: INT2
 ```
+
+Example for GoTo with firewall behind vPC as a concrete device, using vlan-812 as encap with explicit interface configuration (port-channel not created in access_policies.yaml requires providing both node ids): 
+
+```yaml
+apic:
+  tenants:
+    - name: ABC
+      services:
+        l4l7_devices:
+          - name: FW-vl812
+            type: PHYSICAL
+            function: GoTo
+            service_type: FW
+            physical_domain: firewalldom
+            concrete_devices:
+              - name: FW-vl812
+                interfaces:
+                - name: FW
+                  pod_id: 2
+                  node_id: 131
+                  node2_id: 132
+                  channel: fw-vpc
+            logical_interfaces:
+              - name: FW-vl812
+                vlan: 812
+                concrete_interfaces:
+                  - device: FW-vl812
+                    interface_name: FW
+
+```
