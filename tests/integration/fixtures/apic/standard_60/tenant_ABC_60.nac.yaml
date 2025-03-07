@@ -60,5 +60,5 @@ apic:
             description: BGP_Route_Summarization_Policy
             as_set: true
             summary_only: false
-            af_mcast: false
+            af_mcast: true
             af_ucast: true
