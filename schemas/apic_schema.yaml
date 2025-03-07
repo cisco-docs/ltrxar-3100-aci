@@ -2994,6 +2994,8 @@ ten_policies:
   nd_ra_prefix_policies: list(include('ten_nd_ra_prefix_policies'), required=False) # @sheet_hidden()
   track_lists: list(include('ten_track_lists'), required=False) # @sheet_hidden()
   track_members: list(include('ten_track_members'), required=False) # @sheet_hidden()
+  endpoint_mac_tags: list(include('ten_endpoint_mac_tags'), required=False) # @sheet_hidden()
+  endpoint_ip_tags: list(include('ten_endpoint_ip_tags'), required=False) # @sheet_hidden()
 
 ten_ospf_interface_policies:
   name: regex('^[a-zA-Z0-9_.:-]{1,64}$')
@@ -3464,6 +3466,25 @@ ten_track_members:
   scope_type: enum('l3out','bd')
   scope: str()
   ip_sla_policy: regex('^[a-zA-Z0-9_.:-]{1,64}$')
+
+ten_endpoint_mac_tags:
+  mac: mac()
+  bridge_domain: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
+  vrf: regex('^[a-zA-Z0-9_.:-]{1,64}$')
+  tags: list(include('ten_endpoint_mac_tags_values'), required=False)
+
+ten_endpoint_mac_tags_values:
+  key: regex('^[a-zA-Z0-9_.:-]{1,64}$')
+  value: regex('^[a-zA-Z0-9_.:-]{1,128}$')
+
+ten_endpoint_ip_tags:
+  ip: ip()
+  vrf: regex('^[a-zA-Z0-9_.:-]{1,64}$')
+  tags: list(include('ten_endpoint_ip_tags_values'), required=False)
+
+ten_endpoint_ip_tags_values:
+  key: regex('^[a-zA-Z0-9_.:-]{1,64}$')
+  value: regex('^[a-zA-Z0-9_.:-]{1,128}$')
 
 ten_services:
   l4l7_devices: list(include('ten_ser_l4l7_devices'), required=False) # @ref_name(L4L7 Device) @sheet_hidden()

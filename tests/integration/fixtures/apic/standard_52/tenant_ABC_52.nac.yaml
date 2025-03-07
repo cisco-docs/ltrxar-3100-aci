@@ -154,6 +154,27 @@ apic:
         set_rules:
           - name: SET3
             multipath: true
+        endpoint_mac_tags:
+          - mac: 00:01:02:03:04:05
+            vrf: VRF1
+            bridge_domain: BD3
+            tags:
+              - key: Environment
+                value: Prod
+              - key: OS
+                value: Linux
+          - mac: 00:00:00:AA:BB:CC
+            vrf: VRF1
+        endpoint_ip_tags:
+          - ip: 10.1.1.1
+            vrf: VRF1
+            tags:
+              - key: Environment
+                value: Test
+              - key: OS
+                value: Linux
+          - ip: 10.1.1.2
+            vrf: VRF1
       services:
         l4l7_devices:
           - name: DEV3

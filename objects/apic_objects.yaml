@@ -1752,6 +1752,28 @@ tenant_objects:
       - health
     paths:
       - apic.tenants.policies.span.destination_groups
+  - name: Tenant Endpoint MAC Tag
+    template: endpoint_mac_tag
+    folder: tenants
+    aci_classes:
+      - fvEpMacTag
+    scope:
+      - user
+    test_types:
+      - config
+    paths:
+      - apic.tenants.policies.endpoint_mac_tags
+  - name: Tenant Endpoint IP Tag
+    template: endpoint_ip_tag
+    folder: tenants
+    aci_classes:
+      - fvEpIpTag
+    scope:
+      - user
+    test_types:
+      - config
+    paths:
+      - apic.tenants.policies.endpoint_ip_tags
   - name: Redirect Policy
     template: redirect_policy
     folder: tenants
