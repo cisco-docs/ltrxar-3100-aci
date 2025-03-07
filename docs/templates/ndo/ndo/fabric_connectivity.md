@@ -36,6 +36,8 @@ ndo:
       pods:
         - id: 1
           unicast_tep: 3.4.5.6
+          external_tep_pools:
+            - ip: 10.10.10.0/24
           spines:
             - id: 1001
               name: SPINE1001

@@ -75,6 +75,10 @@ Verify Fabric Connectivity Site {{ site.name }} Pod {{ pod.id | default(defaults
     Should Be Equal Value Json String   ${r.json()}   ${pod}.name   pod-{{ pod.id | default(defaults.sites.pods.id) }}
     Should Be Equal Value Json String   ${r.json()}   ${pod}.msiteDataPlaneUnicastTep   {{ pod.unicast_tep | default() }}
 
+    {% for external_tep_pool in pod.external_tep_pools | default([])  %}
+        Should Be Equal Value Json String   ${r.json()}   $..msiteDataPlaneRoutableTEPPools[?(@.ip =='{{ external_tep_pool.ip }}')]
+    {% endfor %}
+
 {% for spine in pod.spines | default([]) %}
 
 Verify Fabric Connectivity Site {{ site.name }} Pod {{ pod.id | default(defaults.sites.pods.id) }} Spine {{ spine.id }}

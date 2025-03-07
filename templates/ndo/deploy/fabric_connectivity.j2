@@ -92,7 +92,17 @@
                         {%- endfor %}
 
                     ],
+                    {% if pod.external_tep_pools is not defined %}
                     "msiteDataPlaneRoutableTEPPools": [],
+                    {% else %}
+                    "msiteDataPlaneRoutableTEPPools": [
+                        {%- set comma5 = joiner(",") %}
+                        {%- for external_tep_pool in pod.external_tep_pools %}{{ comma5() }}
+                            "{{ external_tep_pool.ip }}"
+                        {%- endfor %}
+
+                    ],
+                    {% endif %}
                     "faults": []
                 }
                 {%- endfor %}

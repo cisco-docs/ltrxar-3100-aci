@@ -79,6 +79,10 @@ sites_pods:
   id: int(min=1, max=255)
   unicast_tep: ip(required=False)
   spines: list(include('sites_pods_spines'), required=False) # @ref_name(Spine) @key(id)
+  external_tep_pools: list(include('sites_pods_external_tep_pools'), required=False)
+
+sites_pods_external_tep_pools:
+  ip: ip()
 
 sites_pods_spines:
   id: int(min=1, max=4000)
