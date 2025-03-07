@@ -24,8 +24,10 @@
                         "name": "{{ bgp_route_summarization_name }}",
                         "descr": "{{ brs.description | default() }}",
                         "dn": "uni/tn-{{ tenant.name }}/bgprtsum-{{ bgp_route_summarization_name }}",
-                        "ctrl": "{{ ctrl | join(',') }}",
-                        "addrTCtrl": "{{ addrTCtrl | join(',') }}"
+                        {% if brs.af_mcast is not defined and brs.af_ucast is not defined %}
+                        "addrTCtrl": "{{ addrTCtrl | join(',') }}",
+                        {% endif %}
+                        "ctrl": "{{ ctrl | join(',') }}"   
                     }
                 }
             }

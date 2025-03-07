@@ -1029,6 +1029,10 @@ apic:
             ibgp_max_ecmp: 19
             enable_host_route_leak: true
           - name: BGP-AFC2
+        bgp_route_summarization_policies:
+          - name: BGP_SUMMARY
+            description: BGP Summarization policy
+            as_set: true
         bfd_interface_policies:
           - name: BFD1
             description: descr

@@ -21,6 +21,7 @@ Verify BGP Route Summarization Policy {{ policy_name }}
     Should Be Equal Value Json String   ${r.json()}   $..bgpRtSummPol.attributes.name   {{ policy_name }}
     Should Be Equal Value Json String   ${r.json()}   $..bgpRtSummPol.attributes.descr   {{ brs.description | default() }}
     Should Be Equal Value Json String   ${r.json()}   $..bgpRtSummPol.attributes.ctrl   {{ ctrl | join(',') }}
+{% if brs.af_mcast is not defined and brs.af_ucast is not defined %}
     Should Be Equal Value Json String   ${r.json()}   $..bgpRtSummPol.attributes.addrTCtrl   {{ addrTCtrl | join(',') }}
-
+{% endif %}
 {% endfor %}
