@@ -435,6 +435,8 @@ def extract_class_paths(schema, paths):
                 schema_name = element.include_name
             elif element.tag == "list":
                 schema_name = element.validators[0].include_name
+            if class_path not in class_paths:
+                class_paths.append(class_path)
             if schema_name and schema_name in schema_names:
                 continue
             schema_names.append(schema_name)
