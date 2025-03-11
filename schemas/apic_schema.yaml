@@ -2518,6 +2518,7 @@ ten_l3outs_nodes_interfaces_paths:
   vmware_vmm_domain: regex('^[a-zA-Z0-9_.:-]{1,64}$',required=False)
   elag: regex('^[a-zA-Z0-9_.:-]{1,64}$',required=False)
   floating_ip: ip()
+  vlan: int(min=1, max=4096, required=False)
 
 ten_l3outs_nodes_interfaces_expected_state:
   ospf_neighbors: list(include('ten_l3outs_nodes_interfaces_expected_state_ospf_neighbors'), required=False) # @name(L3out Node Exp State OSPF Nei) @sheet_hidden()
@@ -2680,6 +2681,7 @@ ten_l3outs_node_profiles_interface_profiles_interfaces_paths:
   vmware_vmm_domain: regex('^[a-zA-Z0-9_.:-]{1,64}$',required=False)
   elag: regex('^[a-zA-Z0-9_.:-]{1,64}$',required=False)
   floating_ip: ip()
+  vlan: int(min=1, max=4096, required=False)
 
 ten_l3outs_node_profiles_interface_profiles_interfaces_expected_state:
   ospf_neighbors: list(include('ten_l3outs_node_profiles_interface_profiles_interfaces_expected_state_ospf_neighbors'), required=False) # @name(L3out Int Prof Exp St OSPF Nei) @sheet_hidden()

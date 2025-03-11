@@ -297,6 +297,9 @@ Verify L3out {{ l3out_name }} Node {{ node.node_id }} Interface {{ loop.index }}
     ${int}=   Set Variable   $..l3extLIfP.children[?(@.l3extVirtualLIfP.attributes.nodeDn=='topology/pod-{{ pod | default(defaults.apic.tenants.l3outs.nodes.interfaces.pod) }}/node-{{ node.node_id }}' & @.l3extVirtualLIfP.attributes.encap=='vlan-{{ int.vlan }}')]
     ${path}=   Set Variable   ${int}..l3extVirtualLIfP.children[?(@.l3extRsDynPathAtt.attributes.floatingAddr=='{{ path.floating_ip }}')]
     Should Be Equal Value Json String   ${r.json()}   ${path}..l3extRsDynPathAtt.attributes.floatingAddr   {{ path.floating_ip }}
+    {% if path.vlan is defined and path.physical_domain is defined%}
+    Should Be Equal Value Json String   ${r.json()}   ${path}..l3extRsDynPathAtt.attributes.encap   vlan-{{ path.vlan }}
+    {% endif %}
     {% if path.physical_domain is defined %}
     Should Be Equal Value Json String   ${r.json()}   ${path}..l3extRsDynPathAtt.attributes.tDn   uni/phys-{{ path.physical_domain }}
     {% elif path.vmware_vmm_domain is defined %}
@@ -687,6 +690,9 @@ Verify L3out {{ l3out_name }} Node Profile {{ l3out_np_name }} Interface Profile
     ${path}=   Set Variable   ${int}..l3extVirtualLIfP.children[?(@.l3extRsDynPathAtt.attributes.floatingAddr=='{{ path.floating_ip }}')]
     Should Be Equal Value Json String   ${r.json()}   ${path}..l3extRsDynPathAtt.attributes.floatingAddr   {{ path.floating_ip }}
     Should Be Equal Value Json String   ${r.json()}   ${path}..l3extRsDynPathAtt.attributes.floatingAddr   {{ path.floating_ip }}
+    {% if path.vlan is defined and path.physical_domain is defined%}
+    Should Be Equal Value Json String   ${r.json()}   ${path}..l3extRsDynPathAtt.attributes.encap   vlan-{{ path.vlan }}
+    {% endif %}
     {% if path.physical_domain is defined %}
     Should Be Equal Value Json String   ${r.json()}   ${path}..l3extRsDynPathAtt.attributes.tDn   uni/phys-{{ path.physical_domain }}
     {% elif path.vmware_vmm_domain is defined %}

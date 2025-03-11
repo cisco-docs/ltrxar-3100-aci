@@ -533,6 +533,9 @@
                                                                     "attributes": {
                                                                         "annotation": "orchestrator:aac",
                                                                         "floatingAddr": "{{ path.floating_ip }}",
+                                                                        {% if path.vlan is defined and path.physical_domain is defined %}
+                                                                        "encap": "vlan-{{ path.vlan }}",
+                                                                        {% endif %}
                                                                         "tDn": "uni/{{ floating_l3domain }}"
                                                                     }{% if path.elag is defined and path.vmware_vmm_domain is defined %},
                                                                     "children":[
@@ -1246,6 +1249,9 @@
                                                                     "attributes": {
                                                                         "annotation": "orchestrator:aac",
                                                                         "floatingAddr": "{{ path.floating_ip }}",
+                                                                        {% if path.vlan is defined and path.physical_domain is defined %}
+                                                                        "encap": "vlan-{{ path.vlan }}",
+                                                                        {% endif %}
                                                                         "tDn": "uni/{{ floating_l3domain }}"
                                                                     }{% if path.elag is defined and path.vmware_vmm_domain is defined %},
                                                                     "children":[

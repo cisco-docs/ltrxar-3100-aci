@@ -48,6 +48,23 @@ apic:
                   dhcp_labels:
                     - dhcp_relay_policy: DHCP-RELAY1
                       dhcp_option_policy: DHCP-OPTION1
+        - name: L3OUT_FLOATING_SVI
+          vrf: VRF1
+          domain: ROUTED1
+          nodes:
+            - node_id: 101
+              router_id: 5.5.5.5
+              router_id_as_loopback: false
+              interfaces:
+                - floating_svi: true
+                  node_id: 101
+                  ip: 9.9.9.2/24
+                  vlan: 135
+                  paths:
+                    - floating_ip: 9.9.9.1/24
+                      physical_domain: PHY1
+                      elag: ELAGDefault
+                      vlan: 305
       policies:
         set_rules:
           - name: SET3
