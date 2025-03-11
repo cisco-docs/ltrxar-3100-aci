@@ -7,7 +7,6 @@ Resource        ../../apic_common.resource
 *** Test Cases ***
 
 {% if apic.new_interface_configuration | default(defaults.apic.new_interface_configuration) is false %}
-{% if apic.auto_generate_switch_pod_profiles | default(defaults.apic.auto_generate_switch_pod_profiles) | cisco.aac.aac_bool("enabled") == "enabled" or apic.auto_generate_access_leaf_switch_interface_profiles | default(defaults.apic.auto_generate_access_leaf_switch_interface_profiles) | cisco.aac.aac_bool("enabled") == "enabled" or  apic.auto_generate_access_spine_switch_interface_profiles | default(defaults.apic.auto_generate_access_spine_switch_interface_profiles) | cisco.aac.aac_bool("enabled") == "enabled" %}
 {% for node in apic.interface_policies.nodes | default([]) %}
 {% set query = "nodes[?id==`" ~ node.id ~ "`]" %}
 {% set full_node = (apic.node_policies | community.general.json_query(query))[0] %}
@@ -41,5 +40,4 @@ Verify Interface Shutdown State for Node-{{ node.id }} eth{{ module }}/{{ interf
 {% endfor %}
 {% endfor %}
 {% endfor %}
-{% endif %}
 {% endif %}
