@@ -42,3 +42,7 @@ apic:
     sr_mpls_global_configuration:
       sr_global_block_minimum: 16000
       sr_global_block_maximum: 275999
+    monitoring:
+      syslogs:
+        - name: syslog3
+          format: rfc5424-ts
