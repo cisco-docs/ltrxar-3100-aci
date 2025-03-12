@@ -63,7 +63,6 @@ apic:
                   paths:
                     - floating_ip: 9.9.9.1/24
                       physical_domain: PHY1
-                      elag: ELAGDefault
                       vlan: 305
       policies:
         set_rules:
