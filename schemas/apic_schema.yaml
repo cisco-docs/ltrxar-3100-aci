@@ -89,6 +89,11 @@ fabric_policies:
   system_performance: include('fp_system_performance', required=False) # @name(System Performance) @sheet_hidden()
   interface_policies: include('fp_interface_policies', required=False) # @name(Fabric Interface Policies)
   sr_mpls_global_configuration: include('fp_sr_mpls_global_configuration', required=False)
+  atomic_counter: include('fp_atomic_counter', required=False)
+
+fp_atomic_counter:
+  mode: enum('path', 'trail', required=False)
+  admin_state: bool()
 
 fp_banners:
   apic_gui_alias: str(required=False)
