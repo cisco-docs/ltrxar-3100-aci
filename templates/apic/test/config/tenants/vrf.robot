@@ -110,16 +110,6 @@ Verify BGP Address Family Context {{ vrf.bgp.ipv6_address_family_context_policy 
     Should Be Equal Value Json String   ${r.json()}   ${bgp_entry}.attributes.af   ipv6-ucast
 {% endif %}
 
-
-{% if vrf.bgp.ipv4_import_route_target is defined %}
-
-Verify BGP IPV4 Import Route Target {{ vrf.bgp.ipv4_import_route_target }}
-    ${bgp_entry}=   Set Variable   $..fvCtx.children[?(@.bgpRtTargetP.attributes.af=='ipv4-ucast')].bgpRtTargetP.children[?(@.bgpRtTarget.attributes.type=='import')].bgpRtTarget
-
-    Should Be Equal Value Json String   ${r.json()}   ${bgp_entry}.attributes.rt   {{ vrf.bgp.ipv4_import_route_target }}
-    Should Be Equal Value Json String   ${r.json()}   ${bgp_entry}.attributes.type   import
-{% endif %}
-
 {% if vrf.ospf.timer_policy is defined %}
 
 Verify OSPF Timer Policy {{ vrf.ospf.timer_policy }}
@@ -145,31 +135,41 @@ Verify OSPF Address Family IPv6 Context Policy {{ vrf.ospf.ipv6_address_family_c
     Should Be Equal Value Json String   ${r.json()}   ${ospf_entry}.attributes.tnOspfCtxPolName   {{ address_family_context_policy_name }}
     Should Be Equal Value Json String   ${r.json()}   ${ospf_entry}.attributes.af   ipv6-ucast
 {% endif %}
+
+{% if vrf.bgp.ipv4_import_route_target is defined %}
+{% for route_target in  vrf.bgp.ipv4_import_route_target%}
+
+Verify BGP IPv4 Import Route Target {{ route_target }}
+    ${bgp_entry}=   Set Variable   $..fvCtx.children[?(@.bgpRtTargetP.attributes.af=='ipv4-ucast')].bgpRtTargetP.children[?(@.bgpRtTarget.attributes.type=='import' & @.bgpRtTarget.attributes.rt=='{{route_target}}')].bgpRtTarget
+    Should Be Equal Value Json String   ${r.json()}   ${bgp_entry}.attributes.rt    {{route_target}}
+{% endfor %}
+{% endif %}
+
 {% if vrf.bgp.ipv4_export_route_target is defined %}
+{% for route_target in  vrf.bgp.ipv4_export_route_target%}
 
-Verify BGP IPV4 Export Route Target {{ vrf.bgp.ipv4_export_route_target }}
-    ${bgp_entry}=   Set Variable   $..fvCtx.children[?(@.bgpRtTargetP.attributes.af=='ipv4-ucast')].bgpRtTargetP.children[?(@.bgpRtTarget.attributes.type=='export')].bgpRtTarget
-
-    Should Be Equal Value Json String   ${r.json()}   ${bgp_entry}.attributes.rt   {{ vrf.bgp.ipv4_export_route_target }}
-    Should Be Equal Value Json String   ${r.json()}   ${bgp_entry}.attributes.type   export
+Verify BGP IPv4 Export Route Target {{ route_target }}
+    ${bgp_entry}=   Set Variable   $..fvCtx.children[?(@.bgpRtTargetP.attributes.af=='ipv4-ucast')].bgpRtTargetP.children[?(@.bgpRtTarget.attributes.type=='export' & @.bgpRtTarget.attributes.rt=='{{route_target}}')].bgpRtTarget
+    Should Be Equal Value Json String   ${r.json()}   ${bgp_entry}.attributes.rt    {{route_target}}
+{% endfor %}
 {% endif %}
 
 {% if vrf.bgp.ipv6_import_route_target is defined %}
+{% for route_target in  vrf.bgp.ipv6_import_route_target%}
 
-Verify BGP IPV6 Import Route Target {{ vrf.bgp.ipv6_import_route_target }}
-    ${bgp_entry}=   Set Variable   $..fvCtx.children[?(@.bgpRtTargetP.attributes.af=='ipv6-ucast')].bgpRtTargetP.children[?(@.bgpRtTarget.attributes.type=='import')].bgpRtTarget
-
-    Should Be Equal Value Json String   ${r.json()}   ${bgp_entry}.attributes.rt   {{ vrf.bgp.ipv6_import_route_target }}
-    Should Be Equal Value Json String   ${r.json()}   ${bgp_entry}.attributes.type   import
+Verify BGP IPv6 Import Route Target {{ route_target }}
+   ${bgp_entry}=   Set Variable   $..fvCtx.children[?(@.bgpRtTargetP.attributes.af=='ipv6-ucast')].bgpRtTargetP.children[?(@.bgpRtTarget.attributes.type=='import' & @.bgpRtTarget.attributes.rt=='{{route_target}}')].bgpRtTarget
+    Should Be Equal Value Json String   ${r.json()}   ${bgp_entry}.attributes.rt    {{route_target}}
+{% endfor %}
 {% endif %}
 
 {% if vrf.bgp.ipv6_export_route_target is defined %}
+{% for route_target in  vrf.bgp.ipv6_export_route_target%}
 
-Verify BGP IPV6 Export Route Target {{ vrf.bgp.ipv6_export_route_target }}
-    ${bgp_entry}=   Set Variable   $..fvCtx.children[?(@.bgpRtTargetP.attributes.af=='ipv6-ucast')].bgpRtTargetP.children[?(@.bgpRtTarget.attributes.type=='export')].bgpRtTarget
-
-    Should Be Equal Value Json String   ${r.json()}   ${bgp_entry}.attributes.rt   {{ vrf.bgp.ipv6_export_route_target }}
-    Should Be Equal Value Json String   ${r.json()}   ${bgp_entry}.attributes.type   export
+Verify BGP IPv6 Export Route Target {{ route_target }}
+    ${bgp_entry}=   Set Variable   $..fvCtx.children[?(@.bgpRtTargetP.attributes.af=='ipv6-ucast')].bgpRtTargetP.children[?(@.bgpRtTarget.attributes.type=='export' & @.bgpRtTarget.attributes.rt=='{{route_target}}')].bgpRtTarget
+    Should Be Equal Value Json String   ${r.json()}   ${bgp_entry}.attributes.rt    {{route_target}}
+{% endfor %}
 {% endif %}
 
 {% for contract in vrf.contracts.providers | default([]) %}

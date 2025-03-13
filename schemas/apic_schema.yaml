@@ -1895,10 +1895,10 @@ ten_vrf_bgp:
   timer_policy: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
   ipv4_address_family_context_policy: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
   ipv6_address_family_context_policy: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
-  ipv4_import_route_target: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
-  ipv4_export_route_target: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
-  ipv6_import_route_target: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
-  ipv6_export_route_target: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
+  ipv4_import_route_target: list(regex('^[a-zA-Z0-9_.:-]{1,64}$'), required=False)
+  ipv4_export_route_target: list(regex('^[a-zA-Z0-9_.:-]{1,64}$'), required=False)
+  ipv6_import_route_target: list(regex('^[a-zA-Z0-9_.:-]{1,64}$'), required=False)
+  ipv6_export_route_target: list(regex('^[a-zA-Z0-9_.:-]{1,64}$'), required=False)
 
 ten_vrf_ospf:
   timer_policy: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)

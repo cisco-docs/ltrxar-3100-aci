@@ -228,30 +228,32 @@
                                     "childAction": "deleteNonPresent"
                                 },
                                 "children": [
+                                    {%- set comma3 = joiner(",") %}
                                     {%- if vrf.bgp.ipv4_import_route_target is defined %}
+                                    {%- for ipv4_import_target in vrf.bgp.ipv4_import_route_target | default([]) %}{{ comma3() }}
                                     {
                                         "bgpRtTarget": {
                                             "attributes": {
                                                 "annotation": "orchestrator:aac",
-                                                "rt": "{{ vrf.bgp.ipv4_import_route_target }}",
+                                                "rt": "{{ ipv4_import_target }}",
                                                 "type": "import"
                                             }
                                         }
                                     }
-                                    {%- if vrf.bgp.ipv4_export_route_target is defined %}
-                                    ,
-                                    {% endif %}
+                                    {% endfor %}
                                     {% endif %}
                                     {%- if vrf.bgp.ipv4_export_route_target is defined %}
+                                    {%- for ipv4_export_target in vrf.bgp.ipv4_export_route_target | default([]) %}{{ comma3() }}
                                     {
                                         "bgpRtTarget": {
                                             "attributes": {
                                                 "annotation": "orchestrator:aac",
-                                                "rt": "{{ vrf.bgp.ipv4_export_route_target }}",
+                                                "rt": "{{ ipv4_export_target }}",
                                                 "type": "export"
                                             }
                                         }
                                     }
+                                    {% endfor %}
                                     {% endif %}
                                 ]
                             }
@@ -266,30 +268,33 @@
                                     "childAction": "deleteNonPresent"
                                 },
                                 "children": [
+                                    {%- set comma4 = joiner(",") %}
                                     {%- if vrf.bgp.ipv6_import_route_target is defined %}
+                                    {%- for ipv6_import_target in vrf.bgp.ipv6_import_route_target | default([]) %}{{ comma4() }}
                                     {
                                         "bgpRtTarget": {
                                             "attributes": {
                                                 "annotation": "orchestrator:aac",
-                                                "rt": "{{ vrf.bgp.ipv6_import_route_target }}",
+                                                "rt": "{{ ipv6_import_target }}",
                                                 "type": "import"
                                             }
                                         }
                                     }
-                                    {%- if vrf.bgp.ipv6_export_route_target is defined %}
-                                    ,
-                                    {% endif %}
+                                    {% endfor %}
                                     {% endif %}
                                     {%- if vrf.bgp.ipv6_export_route_target is defined %}
+                                    {%- set comma2 = joiner(",") %}
+                                    {%- for ipv6_export_target in vrf.bgp.ipv6_export_route_target | default([]) %}{{ comma4() }}
                                     {
                                         "bgpRtTarget": {
                                             "attributes": {
                                                 "annotation": "orchestrator:aac",
-                                                "rt": "{{ vrf.bgp.ipv6_export_route_target }}",
+                                                "rt": "{{ ipv6_export_target }}",
                                                 "type": "export"
                                             }
                                         }
                                     }
+                                    {% endfor %}
                                     {% endif %}
                                 ]
                             }
