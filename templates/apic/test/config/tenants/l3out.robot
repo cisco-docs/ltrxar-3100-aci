@@ -109,9 +109,15 @@ Verify L3out {{ l3out_name }} Node {{ node.node_id }}
     Should Be Equal Value Json String   ${r.json()}   ${node}..l3extRsNodeL3OutAtt.attributes.tDn   topology/pod-{{ pod | default(defaults.apic.tenants.l3outs.nodes.pod) }}/node-{{ node.node_id }}
     Should Be Equal Value Json String   ${r.json()}   ${node}..l3extRsNodeL3OutAtt.attributes.rtrId   {{ node.router_id }}
     Should Be Equal Value Json String   ${r.json()}   ${node}..l3extRsNodeL3OutAtt.attributes.rtrIdLoopBack   {{ node.router_id_as_loopback | default(defaults.apic.tenants.l3outs.nodes.router_id_as_loopback) | cisco.aac.aac_bool("yes") }}
-{% if node.router_id_as_loopback | default(defaults.apic.tenants.l3outs.nodes.router_id_as_loopback) | cisco.aac.aac_bool("yes") == 'no' and node.loopback is defined %}
-    Should Be Equal Value Json String   ${r.json()}   ${node}..l3extLoopBackIfP.attributes.addr   {{ node.loopback }}
+
+{% for lp in node.loopbacks | default([]) %}
+
+Verify L3out {{ l3out_name }} Node {{ node.node_id }} Loopback {{ lp }}
+{% if lp is defined %}
+    Should Be Equal Value Json String   ${r.json()}   ${node}..l3extLoopBackIfP.attributes.addr   {{ lp }}
 {% endif %}
+{% endfor %}
+
 {% if ( tenant.name == 'infra' ) and ( l3out.multipod | default(defaults.apic.tenants.l3outs.multipod) ) and not ( l3out.remote_leaf | default(defaults.apic.tenants.l3outs.remote_leaf) ) %}
     Should Be Equal Value Json String   ${r.json()}   ${node}..l3extInfraNodeP.attributes.fabricExtCtrlPeering   yes
 {% endif %}

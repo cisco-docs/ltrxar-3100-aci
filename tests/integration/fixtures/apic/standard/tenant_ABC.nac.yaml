@@ -320,7 +320,8 @@ apic:
                 - node_id: 101
                   router_id: 5.5.5.5
                   router_id_as_loopback: false
-                  loopback: 4.4.4.4
+                  loopbacks:
+                    - 4.4.4.4
                   static_routes:
                     - prefix: 3.3.3.0/24
                       description: My Desc

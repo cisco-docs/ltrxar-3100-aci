@@ -109,6 +109,20 @@ apic:
                     - floating_ip: 1.1.1.1/24
                       vmware_vmm_domain: VMM1
                       elag: ELAGDefault
+
+        - name: L3OUT_DUALSTACK
+          vrf: VRF1
+          domain: ROUTED1
+          node_profiles:
+            - name: NP1
+              nodes:
+                - node_id: 103
+                  router_id: 10.10.10.10
+                  router_id_as_loopback: false
+                  loopbacks:
+                    - 2a01:8f0:ff0e:7000::4:122/128
+                    - 10.1.10.102
+
       sr_mpls_l3outs:
         - name: ABC_SR_MPLS_L3OUT
           vrf: VRF1

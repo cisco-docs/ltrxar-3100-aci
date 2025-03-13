@@ -2445,7 +2445,7 @@ ten_l3outs_nodes:
   pod_id: int(min=1, max=255, required=False)
   router_id: ip()
   router_id_as_loopback: any(bool(), enum('yes', 'no'), required=False)
-  loopback: ip(required=False)
+  loopbacks: list(ip(), required=False)
   static_routes: list(include('ten_l3outs_nodes_static_routes'), required=False) # @name(L3out Node Static Routes) @ref_name(Static Route)
   interfaces: list(include('ten_l3outs_nodes_interfaces'), required=False) # @name(L3out Node Interfaces) @ref_name(Interface) @key(node_id;port;module;channel;vlan)
 
@@ -2584,7 +2584,7 @@ ten_l3outs_node_profiles_nodes:
   pod_id: int(min=1, max=255, required=False)
   router_id: ip()
   router_id_as_loopback: any(bool(), enum('yes', 'no'), required=False)
-  loopback: ip(required=False)
+  loopbacks: list(ip(), required=False)
   static_routes: list(include('ten_l3outs_node_profiles_nodes_static_routes'), required=False) # @name(L3out Node Profile Static Route) @ref_name(Static Route) @sheet_hidden()
 
 ten_l3outs_node_profiles_nodes_static_routes:
