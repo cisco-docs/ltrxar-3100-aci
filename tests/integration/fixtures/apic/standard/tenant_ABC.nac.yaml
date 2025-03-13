@@ -19,10 +19,18 @@ apic:
             timer_policy: BGP-TIMER1
             ipv6_address_family_context_policy: BGP_ADDR_IPV6
             ipv4_address_family_context_policy: BGP_ADDR_IPV4
-            ipv4_import_route_target: route-target:as2-nn2:10:10
-            ipv4_export_route_target: route-target:as2-nn2:10:10
-            ipv6_import_route_target: route-target:as2-nn2:10:10
-            ipv6_export_route_target: route-target:as2-nn2:10:10
+            ipv4_import_route_target:
+              - route-target:as2-nn2:10:10
+              - route-target:as2-nn2:10:11
+            ipv4_export_route_target:
+              - route-target:as2-nn2:10:12
+              - route-target:as2-nn2:10:13
+            ipv6_import_route_target:
+              - route-target:as2-nn2:10:14
+              - route-target:as2-nn2:10:15
+            ipv6_export_route_target:
+              - route-target:as2-nn2:10:16
+              - route-target:as2-nn2:10:17
           ospf:
             timer_policy: OSPF_TIMER
             ipv4_address_family_context_policy: OSPF_TIMER_NON_DEFAULT_TIMER1

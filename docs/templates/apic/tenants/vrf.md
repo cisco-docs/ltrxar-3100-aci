@@ -34,6 +34,18 @@ apic:
           transit_route_tag_policy: TRP1
           bgp:
             timer_policy: BGP-TIMER1
+            ipv4_import_route_target:
+              - route-target:as2-nn2:10:10
+              - route-target:as2-nn2:10:11
+            ipv4_export_route_target:
+              - route-target:as2-nn2:10:12
+              - route-target:as2-nn2:10:13
+            ipv6_import_route_target:
+              - route-target:as2-nn2:10:14
+              - route-target:as2-nn2:10:16
+            ipv6_export_route_target:
+              - route-target:as2-nn2:10:17
+              - route-target:as2-nn2:10:18
           dns_labels:
             - DNS1
           contracts:
