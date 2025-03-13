@@ -1552,7 +1552,7 @@ ap_leaf_interface_policy_group:
   port_channel_member_policy: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
   storm_control_policy: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
   aaep: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
-  netflow_monitor_policies: list(include('ap_interface_netflow_monitor_policies'), required=False) # @sheet_hidden() 
+  netflow_monitor_policies: list(include('ap_interface_netflow_monitor_policies'), required=False) # @sheet_hidden()
   macsec_interface_policy: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
 
 ap_interface_netflow_monitor_policies:
