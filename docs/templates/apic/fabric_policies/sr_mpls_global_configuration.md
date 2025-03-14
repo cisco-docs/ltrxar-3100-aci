@@ -1,4 +1,4 @@
-# Terraform ACI SR MPLS Global Configuration
+# SR MPLS Global Configuration
 
 Location in GUI:
 `Tenants` » `infra` » `Policies` » `Protocol` » `MPLS Global Configuration` » `default`
