@@ -2896,7 +2896,7 @@ ten_sr_mpls_l3outs_node_profiles_nodes:
   router_id: ip(required=False)
   bgp_evpn_loopback: ip()
   mpls_transport_loopback: ip()
-  segment_id_index: int(min=0, max=4294967295)
+  segment_id: int(min=0, max=4294967295)
 
 ten_sr_mpls_l3outs_node_profiles_evpn_connectivity:
   ip: ip()
