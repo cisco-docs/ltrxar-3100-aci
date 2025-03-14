@@ -45,4 +45,4 @@ apic:
     monitoring:
       syslogs:
         - name: syslog3
-          format: rfc5424-ts
+          format: enhanced-log
