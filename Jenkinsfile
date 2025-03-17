@@ -89,6 +89,19 @@ pipeline {
                         }
                     }
                 }
+                stage('Test APIC 6.1') {
+                    steps {
+                        lock(resource: 'nac-ci-apic4-6.1.2g') {
+                            sh 'pytest -m "apic_61 and not terraform"'
+                        }
+                    }
+                    post {
+                        always {
+                            junit 'apic_6.1_xunit.xml'
+                            archiveArtifacts 'apic_6.1_*.html, apic_6.1_*.xml'
+                        }
+                    }
+                }
                 stage('Test NDO 3.7') {
                     steps {
                         lock(resource: 'nac-ci-apic2-6.0.5h', extra: [[resource: 'nac-ci-nd1-2.2.2d']]) {

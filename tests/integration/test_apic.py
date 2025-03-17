@@ -290,6 +290,28 @@ def test_apic_60(data_paths, vm_name, snapshot_name, apic_url, version, tmpdir):
     full_apic_test(data_paths, vm_name, snapshot_name, apic_url, version, tmpdir)
 
 
+@pytest.mark.apic_61
+@pytest.mark.parametrize(
+    "data_paths, vm_name, snapshot_name, apic_url, version",
+    [
+        (
+            [
+                "tests/integration/fixtures/apic/standard/",
+                "tests/integration/fixtures/apic/standard_52/",
+                "tests/integration/fixtures/apic/standard_60/",
+                "defaults/",
+            ],
+            "nac-ci-apic4-6.1.2g",
+            "Clean",
+            "https://10.50.202.104",
+            "6.1",
+        ),
+    ],
+)
+def test_apic_62(data_paths, vm_name, snapshot_name, apic_url, version, tmpdir):
+    full_apic_test(data_paths, vm_name, snapshot_name, apic_url, version, tmpdir)
+
+
 @pytest.mark.apic_42
 @pytest.mark.terraform
 @pytest.mark.parametrize(
@@ -363,6 +385,48 @@ def test_apic_terraform_52(
     ],
 )
 def test_apic_terraform_60(
+    data_paths,
+    terraform_path,
+    vm_name,
+    snapshot_name,
+    apic_url,
+    version,
+    tmpdir,
+    terraform_binary,
+):
+    full_apic_terraform_test(
+        data_paths,
+        terraform_path,
+        vm_name,
+        snapshot_name,
+        apic_url,
+        version,
+        tmpdir,
+        terraform_binary=terraform_binary,
+    )
+
+
+@pytest.mark.apic_61
+@pytest.mark.terraform
+@pytest.mark.parametrize(
+    "data_paths, terraform_path, vm_name, snapshot_name, apic_url, version, terraform_binary",
+    [
+        (
+            [
+                "tests/integration/fixtures/apic/standard/",
+                "tests/integration/fixtures/apic/standard_52/",
+                "tests/integration/fixtures/apic/standard_60/",
+            ],
+            "tests/integration/fixtures/apic/terraform_61",
+            "nac-ci-apic4-6.1.2g",
+            "Clean",
+            "https://10.50.202.104",
+            "6.1",
+            "tofu",
+        ),
+    ],
+)
+def test_apic_terraform_61(
     data_paths,
     terraform_path,
     vm_name,
