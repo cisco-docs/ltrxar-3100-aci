@@ -308,7 +308,7 @@ def test_apic_60(data_paths, vm_name, snapshot_name, apic_url, version, tmpdir):
         ),
     ],
 )
-def test_apic_62(data_paths, vm_name, snapshot_name, apic_url, version, tmpdir):
+def test_apic_61(data_paths, vm_name, snapshot_name, apic_url, version, tmpdir):
     full_apic_test(data_paths, vm_name, snapshot_name, apic_url, version, tmpdir)
 
 
