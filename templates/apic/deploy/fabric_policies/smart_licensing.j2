@@ -17,7 +17,6 @@
             "ipAddr": "{{ apic.fabric_policies.smart_licensing.proxy.hostname_ip }}",
             "port": "{{ apic.fabric_policies.smart_licensing.proxy.port }}",
             "regTokenId": "{{ apic.fabric_policies.smart_licensing.registration_token }}",
-            "url": "{{ defaults.apic.fabric_policies.smart_licensing.url }}",
             {% elif apic.fabric_policies.smart_licensing.mode == "satellite" or apic.fabric_policies.smart_licensing.mode == "cslu"%}
             "url": "{{ apic.fabric_policies.smart_licensing.url }}",
             {% elif apic.fabric_policies.smart_licensing.mode == "smart-licensing" %}
