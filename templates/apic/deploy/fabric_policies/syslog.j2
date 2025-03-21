@@ -70,7 +70,7 @@
                                 "attributes": {
                                     "annotation": "orchestrator:aac",
                                     "adminState": "{{ syslog.local_admin_state | default(defaults.apic.fabric_policies.monitoring.syslogs.local_admin_state) | cisco.aac.aac_bool("enabled") }}",
-                                    "format": "{{ 'rfc5424-ts' if syslog.format == 'enhanced-log' else syslog.format | default(defaults.apic.fabric_policies.monitoring.syslogs.format) }}",
+                                    "format": "{{ 'rfc5424-ts' if syslog.format | default(defaults.apic.fabric_policies.monitoring.syslogs.format) == 'enhanced-log' else syslog.format | default(defaults.apic.fabric_policies.monitoring.syslogs.format) }}",
                                     "severity": "{{ syslog.local_severity | default(defaults.apic.fabric_policies.monitoring.syslogs.local_severity) }}"
                                 }
                             }
@@ -80,7 +80,7 @@
                                 "attributes": {
                                     "annotation": "orchestrator:aac",
                                     "adminState": "{{ syslog.console_admin_state | default(defaults.apic.fabric_policies.monitoring.syslogs.console_admin_state) | cisco.aac.aac_bool("enabled") }}",
-                                    "format": "{{ 'rfc5424-ts' if syslog.format == 'enhanced-log' else syslog.format | default(defaults.apic.fabric_policies.monitoring.syslogs.format) }}",
+                                    "format": "{{ 'rfc5424-ts' if syslog.format | default(defaults.apic.fabric_policies.monitoring.syslogs.format) == 'enhanced-log' else syslog.format | default(defaults.apic.fabric_policies.monitoring.syslogs.format) }}",
                                     "severity": "{{ syslog.console_severity | default(defaults.apic.fabric_policies.monitoring.syslogs.console_severity) }}"
                                 }
                             }

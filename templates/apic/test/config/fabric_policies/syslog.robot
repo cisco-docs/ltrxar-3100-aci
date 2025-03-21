@@ -39,10 +39,10 @@ Verify Syslog Policy {{ policy_name }} Destination {{ dest.hostname_ip }}
 {% endif %}
     Should Be Equal Value Json String   ${r.json()}    $..syslogProf.attributes.adminState   {{ syslog.admin_state | default(defaults.apic.fabric_policies.monitoring.syslogs.admin_state) | cisco.aac.aac_bool("enabled") }}
     Should Be Equal Value Json String   ${r.json()}    $..syslogFile.attributes.adminState   {{ syslog.local_admin_state | default(defaults.apic.fabric_policies.monitoring.syslogs.local_admin_state) | cisco.aac.aac_bool("enabled") }}
-    Should Be Equal Value Json String   ${r.json()}    $..syslogFile.attributes.format   {{ 'rfc5424-ts' if syslog.format == 'enhanced-log' else syslog.format | default(defaults.apic.fabric_policies.monitoring.syslogs.format) }}
+    Should Be Equal Value Json String   ${r.json()}    $..syslogFile.attributes.format   {{ 'rfc5424-ts' if syslog.format | default(defaults.apic.fabric_policies.monitoring.syslogs.format) == 'enhanced-log' else syslog.format | default(defaults.apic.fabric_policies.monitoring.syslogs.format) }}
     Should Be Equal Value Json String   ${r.json()}    $..syslogFile.attributes.severity   {{ syslog.local_severity | default(defaults.apic.fabric_policies.monitoring.syslogs.local_severity) }}
     Should Be Equal Value Json String   ${r.json()}    $..syslogConsole.attributes.adminState   {{ syslog.console_admin_state | default(defaults.apic.fabric_policies.monitoring.syslogs.console_admin_state) | cisco.aac.aac_bool("enabled") }}
-    Should Be Equal Value Json String   ${r.json()}    $..syslogConsole.attributes.format   {{ 'rfc5424-ts' if syslog.format == 'enhanced-log' else syslog.format | default(defaults.apic.fabric_policies.monitoring.syslogs.format) }}
+    Should Be Equal Value Json String   ${r.json()}    $..syslogConsole.attributes.format   {{ 'rfc5424-ts' if syslog.format | default(defaults.apic.fabric_policies.monitoring.syslogs.format) == 'enhanced-log' else syslog.format | default(defaults.apic.fabric_policies.monitoring.syslogs.format) }}
     Should Be Equal Value Json String   ${r.json()}    $..syslogConsole.attributes.severity   {{ syslog.console_severity | default(defaults.apic.fabric_policies.monitoring.syslogs.console_severity) }}
 
 {% endfor %}

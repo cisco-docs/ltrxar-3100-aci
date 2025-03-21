@@ -12,7 +12,7 @@
             {% set bgp_route_summarization_name = brs.name ~ defaults.apic.tenants.policies.bgp_route_summarization_policies.name_suffix %}
             {% set ctrl = [] %}
             {% if brs.as_set | default(defaults.apic.tenants.policies.bgp_route_summarization_policies.as_set) %}{% set ctrl = ctrl + [("as-set")] %}{% endif %}
-            {% if brs.summary_only | default(defaults.apic.tenants.policies.brs.bgp_route_summarization_policies) %}{% set ctrl = ctrl + [("summary-only")] %}{% endif %}
+            {% if brs.summary_only | default(defaults.apic.tenants.policies.bgp_route_summarization_policies.summary_only) %}{% set ctrl = ctrl + [("summary-only")] %}{% endif %}
             {% set addrTCtrl = [] %}
             {% if brs.af_mcast | default(defaults.apic.tenants.policies.bgp_route_summarization_policies.af_mcast) %}{% set addrTCtrl = addrTCtrl + [("af-mcast")] %}{% endif %}
             {% if brs.af_ucast | default(defaults.apic.tenants.policies.bgp_route_summarization_policies.af_ucast) %}{% set addrTCtrl = addrTCtrl + [("af-ucast")] %}{% endif %}
