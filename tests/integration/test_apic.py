@@ -155,7 +155,7 @@ def full_apic_terraform_test(
         terraform_post_process("TERRAFORM INIT", r)
 
         apply_args = [terraform_binary, "apply", "-auto-approve", "-no-color"]
-        if version.startswith("6.0","6.1"):
+        if version.startswith("6.0", "6.1"):
             apply_args.append("-parallelism=3")
         r = subprocess.run(
             apply_args, cwd=terraform_path, capture_output=True, text=True
