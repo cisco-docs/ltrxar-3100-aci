@@ -14,7 +14,7 @@
                         "dn": "uni/fabric/slgroup-{{ policy_name }}",
                         "name": "{{ policy_name }}",
                         "descr": "{{ syslog.description | default() }}",
-                        "format": "{{ 'rfc5424-ts' if syslog.format == 'enhanced-log' else syslog.format | default(defaults.apic.fabric_policies.monitoring.syslogs.format) }}",
+                        "format": "{{ 'rfc5424-ts' if syslog.format | default(defaults.apic.fabric_policies.monitoring.syslogs.format) == 'enhanced-log' else syslog.format | default(defaults.apic.fabric_policies.monitoring.syslogs.format) }}",
                         "includeMilliSeconds": "{% if syslog.show_millisecond | default(defaults.apic.fabric_policies.monitoring.syslogs.show_millisecond)| cisco.aac.aac_bool("enabled") == 'enabled' %}yes{% else %}no{% endif %}",
                         "includeTimeZone": "{{ 'yes' if syslog.show_timezone | default(defaults.apic.fabric_policies.monitoring.syslogs.show_timezone) else 'no' }}",
                         "childAction": "deleteNonPresent"
@@ -33,7 +33,7 @@
                                     {% endif %}
                                     "port": "{{ dest.port | default(defaults.apic.fabric_policies.monitoring.syslogs.destinations.port) }}",
                                     "adminState": "{{ dest.admin_state | default(defaults.apic.fabric_policies.monitoring.syslogs.destinations.admin_state) | cisco.aac.aac_bool("enabled") }}",
-                                    "format": "{{ 'rfc5424-ts' if syslog.format == 'enhanced-log' else syslog.format | default(defaults.apic.fabric_policies.monitoring.syslogs.format) }}",
+                                    "format": "{{ 'rfc5424-ts' if syslog.format | default(defaults.apic.fabric_policies.monitoring.syslogs.format) == 'enhanced-log' else syslog.format | default(defaults.apic.fabric_policies.monitoring.syslogs.format) }}",
                                     "forwardingFacility": "{{ dest.facility | default(defaults.apic.fabric_policies.monitoring.syslogs.destinations.facility) }}",
                                     "severity": "{{ dest.severity | default(defaults.apic.fabric_policies.monitoring.syslogs.destinations.severity) }}",
                                     "childAction": "deleteNonPresent"
