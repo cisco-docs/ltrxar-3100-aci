@@ -1216,17 +1216,17 @@ apic:
             track_members:
               - TRACK_MEM1
               - TRACK_MEM2
-        #track_members:
-        #  - name: TRACK_MEM1
-        #    destination_ip: 10.2.3.4
-        #    scope_type: l3out
-        #    scope: L3OUT1
-        #    ip_sla_policy: EXAMPLE
-        #  - name: TRACK_MEM2
-        #    destination_ip: 1.2.3.4
-        #    scope_type: bd
-        #    scope: BD1
-        #    ip_sla_policy: EXAMPLE
+        track_members:
+          - name: TRACK_MEM1
+            destination_ip: 10.2.3.4
+            scope_type: l3out
+            scope: L3OUT1
+            ip_sla_policy: EXAMPLE
+          - name: TRACK_MEM2
+            destination_ip: 1.2.3.4
+            scope_type: bd
+            scope: BD1
+            ip_sla_policy: EXAMPLE
       services:
         l4l7_devices:
           - name: DEV1
