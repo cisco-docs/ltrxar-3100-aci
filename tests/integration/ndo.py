@@ -5,6 +5,7 @@
 import json
 import re
 import sys
+import time
 
 import requests
 import urllib3
@@ -86,6 +87,7 @@ API_ENDPOINT_MAPPINGS = {
         "key": None,
         "has_id": True,
         "method": "patch",
+        "api_prefix": "mso/",
     },
     "policies/dhcp/relay": {
         "container": "DhcpRelayPolicies",
@@ -187,7 +189,10 @@ class Ndo:
         if path == "tenants/allowed-users":
             return self._query_tenant_users()
         found = []
-        base_url = self.url + "/api/v1/" + path
+        if path == "platform/systemConfig":
+            base_url = self.url + "/mso/api/v1/" + path
+        else:
+            base_url = self.url + "/api/v1/" + path
         resp = self.session.get(base_url)
         objs = json.loads(resp.text)
 
@@ -269,6 +274,8 @@ class Ndo:
         lookup_path = path
         lookup_value = None
         method = API_ENDPOINT_MAPPINGS.get(path, {}).get("method", method)
+        api_version = API_ENDPOINT_MAPPINGS.get(path, {}).get("api_version", "v1")
+        api_prefix = API_ENDPOINT_MAPPINGS.get(path, {}).get("api_prefix", "")
         if lookup_path in API_ENDPOINT_MAPPINGS and method in [
             "put",
             "post_or_put",
@@ -289,10 +296,7 @@ class Ndo:
             elif method == "post_or_put":
                 method = "post"
 
-        api_version = API_ENDPOINT_MAPPINGS.get(path, {}).get("api_version", "v1")
-        api_prefix = API_ENDPOINT_MAPPINGS.get(path, {}).get("api_prefix", "")
         base_url = "{}/{}api/{}/{}".format(self.url, api_prefix, api_version, path)
-
         if method.upper() == "PUT":
             resp = self.session.put(base_url, data=json.dumps(payload))
         elif method.upper() == "PATCH":
@@ -326,3 +330,61 @@ class Ndo:
                 resp.status_code, resp.text
             )
         return ""
+
+    def backup_restore(self, key: str, backup: str):
+        """ND unified backup restore starting from ND 3.2.1 / NDO 4.4.1"""
+        fileimport = {"encryptionKey": key, "name": backup, "path": ""}
+        json_fileimport = json.dumps(fileimport)
+        base_url = self.url + "/api/action/class/backuprestore"
+
+        status_url = base_url + "/status"
+        resp = self.session.get(status_url)
+        if (
+            json.loads(resp.text).get("state") == "ready"
+            and json.loads(resp.text).get("operation") == "restore"
+        ):
+            import_url = base_url + "/restore/file-import"
+            resp = self.session.delete(import_url)
+            if resp.status_code != 200:
+                return "Existing NDO import file clear fail: {}".format(
+                    resp.status_code
+                )
+
+        import_url = base_url + "/restore/file-import"
+        resp = self.session.post(import_url, data=json_fileimport)
+        if resp.status_code not in [200, 201]:
+            return (
+                "NDO Backup file import failed, status code: {}, response: {}.".format(
+                    resp.status_code, resp.text
+                )
+            )
+        else:
+            time.sleep(15)
+
+        restore = {"type": "config-only", "ignorePersistentIPs": False}
+        json_restore = json.dumps(restore)
+
+        restore_url = base_url + "/restore"
+        resp = self.session.post(restore_url, data=json_restore)
+
+        if resp.status_code not in [200, 201]:
+            return "NDO Backup restore failed, status code: {}, response: {}.".format(
+                resp.status_code, resp.text
+            )
+
+        RETRIES = 15
+        for i in range(0, RETRIES):
+            check_status = self.session.get(status_url)
+            if (
+                json.loads(check_status.text).get("state") == "processing"
+                and json.loads(check_status.text).get("operation") == "restore"
+            ):
+                time.sleep(60)
+                completed = False
+            elif json.loads(check_status.text).get("state") == "complete":
+                completed = True
+                break
+        if completed is False:
+            return "Restore operation taking too long"
+        else:
+            return ""

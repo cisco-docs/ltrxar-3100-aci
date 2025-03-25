@@ -6,7 +6,7 @@ Resource        ../../ndo_common.resource
 
 *** Test Cases ***
 Verify System Config
-    ${r}=   GET On Session   ndo   /api/v1/platform/systemConfig
+    ${r}=   GET On Session   ndo   /mso/api/v1/platform/systemConfig
     Set Suite Variable   ${r}
 {% if ndo.system_config.banner.alias is defined %}
     Should Be Equal Value Json String   ${r.json()}   $.systemConfigs.bannerConfig[0].alias   {{ ndo.system_config.banner.alias | default() }}

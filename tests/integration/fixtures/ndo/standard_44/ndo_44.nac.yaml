@@ -1,0 +1,7 @@
+---
+ndo:
+  version: "4.4.1"
+  sites:
+    - name: APIC1
+      apic_urls:
+        - https://10.50.202.106
