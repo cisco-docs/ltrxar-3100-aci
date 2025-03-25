@@ -240,10 +240,12 @@ def full_ndo_terraform(
         error = ndo_inst.post_or_put(
             "backups/{}/restore".format(ndo_backup_id), "", "PUT"
         )
-    else:
+    elif version.startswith("4.2"):
         error = ndo_inst.post_or_put(
             "backups/{}/restore".format(ndo_backup_id), "", "POST"
         )
+    elif version.startswith("4.4"):
+        error = ndo_inst.backup_restore("abcdefg123", ndo_backup_id)
     if error:
         if "Fail to block deployment" not in error:
             pytest.fail(error)
@@ -481,6 +483,47 @@ def test_ndo_terraform_37(
     ],
 )
 def test_ndo_terraform_42(
+    data_paths,
+    terraform_path,
+    apic_url,
+    snapshot_name,
+    ndo_url,
+    ndo_backup_id,
+    version,
+    tmpdir,
+):
+    full_ndo_terraform(
+        data_paths,
+        terraform_path,
+        apic_url,
+        snapshot_name,
+        ndo_url,
+        ndo_backup_id,
+        version,
+        tmpdir,
+    )
+
+
+@pytest.mark.ndo_44
+@pytest.mark.terraform
+@pytest.mark.parametrize(
+    "data_paths, terraform_path, apic_url, snapshot_name, ndo_url, ndo_backup_id, version",
+    [
+        (
+            [
+                "tests/integration/fixtures/ndo/standard/",
+                "tests/integration/fixtures/ndo/standard_44/",
+            ],
+            "tests/integration/fixtures/ndo/terraform_44",
+            "https://10.50.202.106",
+            "ce2_defaultOneTime-2023-12-18T06-15-42.tar.gz",
+            "https://10.50.202.107",
+            "clean-202503251544",
+            "4.4",
+        )
+    ],
+)
+def test_ndo_terraform_44(
     data_paths,
     terraform_path,
     apic_url,
