@@ -23,5 +23,9 @@ Verify Spine Interface Policy Group {{ policy_group_name }}
 {% set aaep_name = pg.aaep ~ defaults.apic.access_policies.aaeps.name_suffix %}
     Should Be Equal Value Json String   ${r.json()}    $..infraRsAttEntP.attributes.tDn   uni/infra/attentp-{{ aaep_name }}
 {% endif %}
+{% if pg.macsec_interface_policy is defined %}
+{% set macsec_policy_name = pg.macsec_interface_policy ~ defaults.apic.access_policies.interface_policies.macsec_interfaces_policies.name_suffix %}
+    Should Be Equal Value Json String   ${r.json()}    $..infraRsMacsecIfPol.attributes.tDn   uni/infra/macsecifp-{{ macsec_policy_name }}
+{% endif %}
 
 {% endfor %}

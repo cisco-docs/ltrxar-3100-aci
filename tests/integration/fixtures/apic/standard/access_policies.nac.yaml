@@ -449,6 +449,7 @@ apic:
         link_level_policy: 10G
         cdp_policy: CDP-ENABLED
         aaep: AAEP1
+        macsec_interface_policy: MACSEC_INT1
       - name: IPN2
 
     switch_policies:
