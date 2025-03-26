@@ -60,18 +60,18 @@ Verify SR MPLS L3out {{ l3out_name }} Node Profile {{ l3out_np_name }} Node {{ n
 
 {% for peer in np.evpn_connectivity | default([]) %}
 {% set ctrl = [] %}
-{% if peer.allow_self_as | default(defaults.apic.tenants.sr_mpls_l3outs.node_profiles.evpn_connectivity.allow_self_as) | cisco.aac.aac_bool("yes") == "yes" %}{% set ctrl = ctrl + [("allow-self-as")] %}{% endif %}
-{% if peer.disable_peer_as_check | default(defaults.apic.tenants.sr_mpls_l3outs.node_profiles.evpn_connectivity.disable_peer_as_check) | cisco.aac.aac_bool("yes") == "yes" %}{% set ctrl = ctrl + [("dis-peer-as-check")] %}{% endif %}
+{% if peer.allow_self_as | default(defaults.apic.tenants.sr_mpls_l3outs.node_profiles.evpn_connectivity.allow_self_as) %}{% set ctrl = ctrl + [("allow-self-as")] %}{% endif %}
+{% if peer.disable_peer_as_check | default(defaults.apic.tenants.sr_mpls_l3outs.node_profiles.evpn_connectivity.disable_peer_as_check) %}{% set ctrl = ctrl + [("dis-peer-as-check")] %}{% endif %}
 {% set ctrl = ctrl + [("send-com")] %}
 {% set ctrl = ctrl + [("send-ext-com")] %}
 {% set peer_ctrl = [] %}
-{% if peer.bfd | default(defaults.apic.tenants.sr_mpls_l3outs.node_profiles.evpn_connectivity.bfd) | cisco.aac.aac_bool("yes") == "yes" %}{% set peer_ctrl = peer_ctrl + [("bfd")] %}{% endif %}
+{% if peer.bfd | default(defaults.apic.tenants.sr_mpls_l3outs.node_profiles.evpn_connectivity.bfd) %}{% set peer_ctrl = peer_ctrl + [("bfd")] %}{% endif %}
 
 Verify SR MPLS L3out {{ l3out_name }} Node Profile {{ l3out_np_name }} BGP Peer {{ peer.ip }}
     ${np}=   Set Variable   $..l3extOut.children[?(@.l3extLNodeP.attributes.name=='{{ l3out_np_name }}')]
     ${peer}=   Set Variable   ${np}..children[?(@.bgpInfraPeerP.attributes.addr=='{{ peer.ip }}')]
     Should Be Equal Value Json String   ${r.json()}   ${peer}..bgpInfraPeerP.attributes.addr   {{ peer.ip }}
-    Should Be Equal Value Json String   ${r.json()}   ${peer}..bgpInfraPeerP.attributes.adminSt   {{ peer.admin_state | default(defaults.apic.tenants.sr_mpls_l3outs.node_profiles.evpn_connectivity.admin_state) | cisco.aac.aac_bool("enabled") }}
+    Should Be Equal Value Json String   ${r.json()}   ${peer}..bgpInfraPeerP.attributes.adminSt   {{ 'enabled' if peer.admin_state | default(defaults.apic.tenants.sr_mpls_l3outs.node_profiles.evpn_connectivity.admin_state) else 'disabled' }}
     Should Be Equal Value Json String   ${r.json()}   ${peer}..bgpInfraPeerP.attributes.descr   {{ peer.description | default() }}
     Should Be Equal Value Json String   ${r.json()}   ${peer}..bgpInfraPeerP.attributes.ctrl   {{ ctrl | join(',') }}
     Should Be Equal Value Json String   ${r.json()}   ${peer}..bgpInfraPeerP.attributes.peerCtrl   {{ peer_ctrl | join(',') }}
@@ -104,7 +104,7 @@ Verify SR MPLS L3out {{ l3out_name }} Node Profile {{ l3out_np_name }} Interface
 {% for int in ip.interfaces | default([]) %}
 
 Verify SR MPLS L3out {{ l3out_name }} Node Profile {{ l3out_np_name }} Interface Profile {{ l3out_ip_name }} Interface {{ loop.index }}
-{% if int.port is defined | cisco.aac.aac_bool("yes") == 'yes' %}
+{% if int.port %}
 {% set type = 'ap' %}
 {% set query = "nodes[?id==`" ~ int.node_id ~ "`].pod" %}
 {% set pod = int.pod_id | default(((apic.node_policies | default()) | community.general.json_query(query))[0] | default('1')) %}
@@ -148,14 +148,14 @@ Verify SR MPLS L3out {{ l3out_name }} Node Profile {{ l3out_np_name }} Interface
 
 {% for peer in int.bgp_peers | default([]) %}
 {% set ctrl = [] %}
-{% if peer.allow_self_as | default(defaults.apic.tenants.sr_mpls_l3outs.node_profiles.interface_profiles.interfaces.bgp_peers.allow_self_as) | cisco.aac.aac_bool("yes") == "yes" %}{% set ctrl = ctrl + [("allow-self-as")] %}{% endif %}
-{% if peer.send_community | default(defaults.apic.tenants.sr_mpls_l3outs.node_profiles.interface_profiles.interfaces.bgp_peers.send_community) | cisco.aac.aac_bool("yes") == "yes" %}{% set ctrl = ctrl + [("send-com")] %}{% endif %}
-{% if peer.send_ext_community | default(defaults.apic.tenants.sr_mpls_l3outs.node_profiles.interface_profiles.interfaces.bgp_peers.send_ext_community) | cisco.aac.aac_bool("yes") == "yes" %}{% set ctrl = ctrl + [("send-ext-com")] %}{% endif %}
+{% if peer.allow_self_as | default(defaults.apic.tenants.sr_mpls_l3outs.node_profiles.interface_profiles.interfaces.bgp_peers.allow_self_as) %}{% set ctrl = ctrl + [("allow-self-as")] %}{% endif %}
+{% if peer.send_community | default(defaults.apic.tenants.sr_mpls_l3outs.node_profiles.interface_profiles.interfaces.bgp_peers.send_community) %}{% set ctrl = ctrl + [("send-com")] %}{% endif %}
+{% if peer.send_ext_community | default(defaults.apic.tenants.sr_mpls_l3outs.node_profiles.interface_profiles.interfaces.bgp_peers.send_ext_community) %}{% set ctrl = ctrl + [("send-ext-com")] %}{% endif %}
 {% if sr == false %}{% set ctrl = ctrl + [("segment-routing-disable")] %}{% endif %}
 {% set peer_ctrl = [] %}
-{% if peer.bfd | default(defaults.apic.tenants.sr_mpls_l3outs.node_profiles.interface_profiles.interfaces.bgp_peers.bfd) | cisco.aac.aac_bool("yes") == "yes" %}{% set peer_ctrl = peer_ctrl + [("bfd")] %}{% endif %}
+{% if peer.bfd | default(defaults.apic.tenants.sr_mpls_l3outs.node_profiles.interface_profiles.interfaces.bgp_peers.bfd) %}{% set peer_ctrl = peer_ctrl + [("bfd")] %}{% endif %}
 {% set af = ["af-label-ucast"] %}
-{% if peer.unicast_address_family | default(defaults.apic.tenants.sr_mpls_l3outs.node_profiles.interface_profiles.interfaces.bgp_peers.unicast_address_family) | cisco.aac.aac_bool("yes") == "yes" %}{% set af = af + [("af-ucast")] %}{% endif %}
+{% if peer.unicast_address_family | default(defaults.apic.tenants.sr_mpls_l3outs.node_profiles.interface_profiles.interfaces.bgp_peers.unicast_address_family) %}{% set af = af + [("af-ucast")] %}{% endif %}
 
 Verify SR MPLS L3out {{ l3out_name }} Node Profile {{ l3out_np_name }} Interface Profile {{ l3out_ip_name }} Interface {{ loop.index }} BGP Peer {{ peer.ip }}
     ${np}=   Set Variable   $..l3extOut.children[?(@.l3extLNodeP.attributes.name=='{{ l3out_np_name }}')]
@@ -167,7 +167,7 @@ Verify SR MPLS L3out {{ l3out_name }} Node Profile {{ l3out_np_name }} Interface
     Should Be Equal Value Json String   ${r.json()}   ${peer}..bgpPeerP.attributes.ctrl   {{ ctrl | join(',') }}
     Should Be Equal Value Json String   ${r.json()}   ${peer}..bgpPeerP.attributes.peerCtrl   {{ peer_ctrl | join(',') }}
     Should Be Equal Value Json String   ${r.json()}   ${peer}..bgpPeerP.attributes.addrTCtrl   {{ af | join(',') }}
-    Should Be Equal Value Json String   ${r.json()}   ${peer}..bgpPeerP.attributes.adminSt   {{ peer.admin_state | default(defaults.apic.tenants.sr_mpls_l3outs.node_profiles.interface_profiles.interfaces.bgp_peers.admin_state) | cisco.aac.aac_bool("enabled") }}
+    Should Be Equal Value Json String   ${r.json()}   ${peer}..bgpPeerP.attributes.adminSt   {{ 'enabled' if peer.admin_state | default(defaults.apic.tenants.sr_mpls_l3outs.node_profiles.interface_profiles.interfaces.bgp_peers.admin_state) else 'disabled' }}
     Should Be Equal Value Json String   ${r.json()}   ${peer}..bgpAsP.attributes.asn   {{ peer.remote_as }}
 {% if peer.local_as is defined %}
     Should Be Equal Value Json String   ${r.json()}   ${peer}..bgpLocalAsnP.attributes.localAsn   {{ peer.local_as }}
@@ -224,14 +224,14 @@ Verify SR MPLS L3out {{ l3out_name }} External EPG {{ eepg_name }}
     Should Be Equal Value Json String   ${r.json()}   ${eepg}..l3extInstP.attributes.name   {{ eepg_name }}
     Should Be Equal Value Json String   ${r.json()}   ${eepg}..l3extInstP.attributes.nameAlias   {{ epg.alias | default() }}
     Should Be Equal Value Json String   ${r.json()}   ${eepg}..l3extInstP.attributes.descr   {{ epg.description | default() }}
-    Should Be Equal Value Json String   ${r.json()}   ${eepg}..l3extInstP.attributes.prefGrMemb   {{ epg.preferred_group | default(defaults.apic.tenants.sr_mpls_l3outs.external_endpoint_groups.preferred_group) | cisco.aac.aac_bool("include") }}
+    Should Be Equal Value Json String   ${r.json()}   ${eepg}..l3extInstP.attributes.prefGrMemb   {{ 'include' if epg.preferred_group | default(defaults.apic.tenants.sr_mpls_l3outs.external_endpoint_groups.preferred_group) else 'exclude' }}
 
 {% for subnet in epg.subnets | default([]) %}
 {% set scope = ["import-security"] %}
-{% if subnet.route_leaking | default(defaults.apic.tenants.sr_mpls_l3outs.external_endpoint_groups.subnets.route_leaking) | cisco.aac.aac_bool("yes") == "yes" %}{% set scope = scope + [("shared-rtctrl")] %}{% endif %}
-{% if subnet.security | default(defaults.apic.tenants.sr_mpls_l3outs.external_endpoint_groups.subnets.security) | cisco.aac.aac_bool("yes") == "yes" %}{% set scope = scope + [("shared-security")] %}{% endif %}
+{% if subnet.route_leaking | default(defaults.apic.tenants.sr_mpls_l3outs.external_endpoint_groups.subnets.route_leaking) %}{% set scope = scope + [("shared-rtctrl")] %}{% endif %}
+{% if subnet.security | default(defaults.apic.tenants.sr_mpls_l3outs.external_endpoint_groups.subnets.security) %}{% set scope = scope + [("shared-security")] %}{% endif %}
 {% set agg = [] %}
-{% if subnet.aggregate_shared_route_control | default(defaults.apic.tenants.sr_mpls_l3outs.external_endpoint_groups.subnets.aggregate_shared_route_control) | cisco.aac.aac_bool("yes") == "yes" %}{% set agg = agg + [("shared-rtctrl")] %}{% endif %}
+{% if subnet.aggregate_shared_route_control | default(defaults.apic.tenants.sr_mpls_l3outs.external_endpoint_groups.subnets.aggregate_shared_route_control) %}{% set agg = agg + [("shared-rtctrl")] %}{% endif %}
 
 Verify SR MPLS L3out {{ l3out_name }} External EPG {{ eepg_name }} Subnet {{ subnet.prefix }}
     ${eepg}=   Set Variable   $..l3extOut.children[?(@.l3extInstP.attributes.name=='{{ eepg_name }}')]

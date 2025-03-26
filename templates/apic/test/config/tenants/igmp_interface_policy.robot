@@ -18,9 +18,9 @@ Resource        ../../../apic_common.resource
 {% for igmp_pol in tenant.policies.igmp_interface_policies | default([]) %}
 {% set igmp_pol_name = igmp_pol.name ~ defaults.apic.tenants.policies.igmp_interface_policies.name_suffix %}
 {% set ctrl = [] %}
-{% if igmp_pol.allow_v3_asm | default(defaults.apic.tenants.policies.igmp_interface_policies.allow_v3_asm) | cisco.aac.aac_bool("yes") == "yes" %}{% set ctrl = ctrl + [("allow-v3-asm")] %}{% endif %}
-{% if igmp_pol.fast_leave | default(defaults.apic.tenants.policies.igmp_interface_policies.fast_leave) | cisco.aac.aac_bool("yes") == "yes" %}{% set ctrl = ctrl + [("fast-leave")] %}{% endif %}
-{% if igmp_pol.report_link_local_groups | default(defaults.apic.tenants.policies.igmp_interface_policies.report_link_local_groups) | cisco.aac.aac_bool("yes") == "yes" %}{% set ctrl = ctrl + [("rep-ll")] %}{% endif %}
+{% if igmp_pol.allow_v3_asm | default(defaults.apic.tenants.policies.igmp_interface_policies.allow_v3_asm) %}{% set ctrl = ctrl + [("allow-v3-asm")] %}{% endif %}
+{% if igmp_pol.fast_leave | default(defaults.apic.tenants.policies.igmp_interface_policies.fast_leave) %}{% set ctrl = ctrl + [("fast-leave")] %}{% endif %}
+{% if igmp_pol.report_link_local_groups | default(defaults.apic.tenants.policies.igmp_interface_policies.report_link_local_groups) %}{% set ctrl = ctrl + [("rep-ll")] %}{% endif %}
 
 Verify IGMP Interface Policy {{ igmp_pol_name }}
     ${r}=   GET On Session   apic   /api/mo/uni/tn-{{ tenant.name }}/igmpIfPol-{{ igmp_pol_name }}.json   params=rsp-subtree=full

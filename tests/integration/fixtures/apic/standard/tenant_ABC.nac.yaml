@@ -215,6 +215,9 @@ apic:
             - node_id: 101
               router_id: 5.5.5.5
               router_id_as_loopback: true
+              loopbacks:
+                - 1.2.3.4
+                - 2002::1
               static_routes:
                 - prefix: 2.2.2.0/24
                   description: My Desc
@@ -330,6 +333,7 @@ apic:
                   router_id_as_loopback: false
                   loopbacks:
                     - 4.4.4.4
+                    - 2001::1
                   static_routes:
                     - prefix: 3.3.3.0/24
                       description: My Desc

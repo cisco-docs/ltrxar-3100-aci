@@ -71,7 +71,7 @@
                                                 "annotation": "orchestrator:aac",
                                                 "bindingType": "none",
                                                 "instrImedcy": "{{ vmm.deployment_immediacy  | default(defaults.apic.tenants.application_profiles.useg_endpoint_groups.vmware_vmm_domains.deployment_immediacy) }}",
-                                                "netflowPref": "{{ vmm.netflow | default(defaults.apic.tenants.application_profiles.useg_endpoint_groups.vmware_vmm_domains.netflow) | cisco.aac.aac_bool("enabled") }}",
+                                                "netflowPref": "{{ 'enabled' if vmm.netflow | default(defaults.apic.tenants.application_profiles.useg_endpoint_groups.vmware_vmm_domains.netflow) else 'disabled' }}",
                                                 "switchingMode": "native",
                                                 "tDn": "uni/vmmp-VMware/dom-{{ vmm_name }}",
                                                 "childAction": "deleteNonPresent"
@@ -185,7 +185,7 @@
                                                 "descr": "{{ subnet.description | default() }}",
                                                 "ip": "{{ subnet.ip }}",
                                                 "scope": "{{ scope | join(',') }}",
-                                                "virtual": "{{ subnet.virtual | default(defaults.apic.tenants.application_profiles.useg_endpoint_groups.subnets.virtual) | cisco.aac.aac_bool("yes") }}",
+                                                "virtual": "{{ 'yes' if subnet.virtual | default(defaults.apic.tenants.application_profiles.useg_endpoint_groups.subnets.virtual) else 'no' }}",
                                                 "childAction": "deleteNonPresent"
                                             },
                                             "children": [

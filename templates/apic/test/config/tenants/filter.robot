@@ -39,7 +39,7 @@ Verify Tenant {{ tenant.name }} Filter {{ filter.name }} Entry {{ entry_name }}
     Should Be Equal Value Json String   ${r.json()}   ${filter_entry}.attributes.dFromPort   {{ get_protocol_from_port(entry.destination_from_port | default(defaults.apic.tenants.filters.entries.destination_from_port)) }}
     Should Be Equal Value Json String   ${r.json()}   ${filter_entry}.attributes.dToPort   {{ get_protocol_from_port(entry.destination_to_port | default(entry.destination_from_port | default(defaults.apic.tenants.filters.entries.destination_from_port))) }}
 {% if entry.protocol | default(defaults.apic.tenants.filters.entries.protocol) == 'tcp' %}
-    Should Be Equal Value Json String   ${r.json()}   ${filter_entry}.attributes.stateful   {{ entry.stateful | default(defaults.apic.tenants.filters.entries.stateful) | cisco.aac.aac_bool("yes") }}
+    Should Be Equal Value Json String   ${r.json()}   ${filter_entry}.attributes.stateful   {{ 'yes' if entry.stateful | default(defaults.apic.tenants.filters.entries.stateful) else 'no' }}
 {% endif %}
 {% endif %}
 {% endif %}

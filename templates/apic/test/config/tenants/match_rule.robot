@@ -55,7 +55,7 @@ Verify Match Rule {{ rule_name }} Prefix {{ prefix.ip }}
     ${prefix}=   Set Variable   $..rtctrlSubjP.children[?(@.rtctrlMatchRtDest.attributes.ip=='{{ prefix.ip }}')]
     Should Be Equal Value Json String   ${r.json()}   ${prefix}..rtctrlMatchRtDest.attributes.ip   {{ prefix.ip }}
     Should Be Equal Value Json String   ${r.json()}   ${prefix}..rtctrlMatchRtDest.attributes.descr   {{ prefix.description | default() }}
-    Should Be Equal Value Json String   ${r.json()}   ${prefix}..rtctrlMatchRtDest.attributes.aggregate   {{ prefix.aggregate | default(defaults.apic.tenants.policies.match_rules.prefixes.aggregate) | cisco.aac.aac_bool("yes") }}
+    Should Be Equal Value Json String   ${r.json()}   ${prefix}..rtctrlMatchRtDest.attributes.aggregate   {{ 'yes' if prefix.aggregate | default(defaults.apic.tenants.policies.match_rules.prefixes.aggregate) else 'no' }}
     Should Be Equal Value Json String   ${r.json()}   ${prefix}..rtctrlMatchRtDest.attributes.fromPfxLen   {{ prefix.from_length | default(defaults.apic.tenants.policies.match_rules.prefixes.from_length) }}
     Should Be Equal Value Json String   ${r.json()}   ${prefix}..rtctrlMatchRtDest.attributes.toPfxLen   {{ prefix.to_length | default(defaults.apic.tenants.policies.match_rules.prefixes.to_length) }}
 

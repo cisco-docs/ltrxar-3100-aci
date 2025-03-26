@@ -10,10 +10,10 @@ Resource        ../../../apic_common.resource
 {% for oip in tenant.policies.ospf_interface_policies | default([]) %}
 {% set policy_name = oip.name ~ defaults.apic.tenants.policies.ospf_interface_policies.name_suffix %}
 {% set ctrl = [] %}
-{% if oip.advertise_subnet | default(defaults.apic.tenants.policies.ospf_interface_policies.advertise_subnet) | cisco.aac.aac_bool("yes") == "yes" %}{% set ctrl = ctrl + [("advert-subnet")] %}{% endif %}
-{% if oip.bfd | default(defaults.apic.tenants.policies.ospf_interface_policies.bfd) | cisco.aac.aac_bool("yes") == "yes" %}{% set ctrl = ctrl + [("bfd")] %}{% endif %}
-{% if oip.mtu_ignore | default(defaults.apic.tenants.policies.ospf_interface_policies.mtu_ignore) | cisco.aac.aac_bool("yes") == "yes" %}{% set ctrl = ctrl + [("mtu-ignore")] %}{% endif %}
-{% if oip.passive_interface | default(defaults.apic.tenants.policies.ospf_interface_policies.passive_interface) | cisco.aac.aac_bool("yes") == "yes" %}{% set ctrl = ctrl + [("passive")] %}{% endif %}
+{% if oip.advertise_subnet | default(defaults.apic.tenants.policies.ospf_interface_policies.advertise_subnet) %}{% set ctrl = ctrl + [("advert-subnet")] %}{% endif %}
+{% if oip.bfd | default(defaults.apic.tenants.policies.ospf_interface_policies.bfd) %}{% set ctrl = ctrl + [("bfd")] %}{% endif %}
+{% if oip.mtu_ignore | default(defaults.apic.tenants.policies.ospf_interface_policies.mtu_ignore) %}{% set ctrl = ctrl + [("mtu-ignore")] %}{% endif %}
+{% if oip.passive_interface | default(defaults.apic.tenants.policies.ospf_interface_policies.passive_interface) %}{% set ctrl = ctrl + [("passive")] %}{% endif %}
 
 Verify OSPF Interface Policy {{ policy_name }}
     ${r}=   GET On Session   apic   /api/mo/uni/tn-{{ tenant.name }}/ospfIfPol-{{ policy_name }}.json

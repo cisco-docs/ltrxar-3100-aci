@@ -10,7 +10,7 @@ Resource        ../../../apic_common.resource
 {% for bafc in tenant.policies.bgp_address_family_context_policies | default([]) %}
 {% set bafc_name = bafc.name ~ defaults.apic.tenants.policies.bgp_address_family_context_policies.name_suffix %}
 {% set enable_host_route_leak = "" %}
-{% if bafc.enable_host_route_leak | default(defaults.apic.tenants.policies.bgp_address_family_context_policies.enable_host_route_leak) | cisco.aac.aac_bool("yes") == "yes" %}{% set enable_host_route_leak = "host-rt-leak" %}{% endif %}
+{% if bafc.enable_host_route_leak | default(defaults.apic.tenants.policies.bgp_address_family_context_policies.enable_host_route_leak) %}{% set enable_host_route_leak = "host-rt-leak" %}{% endif %}
 
 Verify BGP Address Family Context Policy {{ bafc_name }}
     ${r}=   GET On Session   apic   /api/mo/uni/tn-{{ tenant.name }}/bgpCtxAfP-{{ bafc_name }}.json

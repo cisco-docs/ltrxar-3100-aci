@@ -16,13 +16,13 @@ Verify L4L7 Device {{ dev_name }}
     Should Be Equal Value Json String   ${r.json()}   $..vnsLDevVip.attributes.contextAware   {{ dev.context_aware | default(defaults.apic.tenants.services.l4l7_devices.context_aware) }} 
     Should Be Equal Value Json String   ${r.json()}   $..vnsLDevVip.attributes.devtype   {{ dev.type | default(defaults.apic.tenants.services.l4l7_devices.type) }}
     Should Be Equal Value Json String   ${r.json()}   $..vnsLDevVip.attributes.funcType   {{ dev.function | default(defaults.apic.tenants.services.l4l7_devices.function) }}
-    Should Be Equal Value Json String   ${r.json()}   $..vnsLDevVip.attributes.isCopy   {{ dev.copy_device | default(defaults.apic.tenants.services.l4l7_devices.copy_device) | cisco.aac.aac_bool("yes") }}
-    Should Be Equal Value Json String   ${r.json()}   $..vnsLDevVip.attributes.managed   {{ dev.managed | default(defaults.apic.tenants.services.l4l7_devices.managed) | cisco.aac.aac_bool("yes") }}
+    Should Be Equal Value Json String   ${r.json()}   $..vnsLDevVip.attributes.isCopy   {{ 'yes' if dev.copy_device | default(defaults.apic.tenants.services.l4l7_devices.copy_device) else 'no' }}
+    Should Be Equal Value Json String   ${r.json()}   $..vnsLDevVip.attributes.managed   {{ 'yes' if dev.managed | default(defaults.apic.tenants.services.l4l7_devices.managed) else 'no' }}
     Should Be Equal Value Json String   ${r.json()}   $..vnsLDevVip.attributes.name   {{ dev_name }}
     Should Be Equal Value Json String   ${r.json()}   $..vnsLDevVip.attributes.nameAlias   {{ dev.alias | default() }}
-    Should Be Equal Value Json String   ${r.json()}   $..vnsLDevVip.attributes.promMode   {{ dev.promiscuous_mode | default(defaults.apic.tenants.services.l4l7_devices.promiscuous_mode) | cisco.aac.aac_bool("yes") }}
+    Should Be Equal Value Json String   ${r.json()}   $..vnsLDevVip.attributes.promMode   {{ 'yes' if dev.promiscuous_mode | default(defaults.apic.tenants.services.l4l7_devices.promiscuous_mode) else 'no' }}
     Should Be Equal Value Json String   ${r.json()}   $..vnsLDevVip.attributes.svcType   {{ dev.service_type | default(defaults.apic.tenants.services.l4l7_devices.service_type) }}
-    Should Be Equal Value Json String   ${r.json()}   $..vnsLDevVip.attributes.trunking   {{ dev.trunking | default(defaults.apic.tenants.services.l4l7_devices.trunking) | cisco.aac.aac_bool("yes") }}
+    Should Be Equal Value Json String   ${r.json()}   $..vnsLDevVip.attributes.trunking   {{ 'yes' if dev.trunking | default(defaults.apic.tenants.services.l4l7_devices.trunking) else 'no' }}
 {% if dev.physical_domain is defined and dev.type | default(defaults.apic.tenants.services.l4l7_devices.type) == 'PHYSICAL' %}
 {% set domain_name = dev.physical_domain ~ defaults.apic.access_policies.physical_domains.name_suffix %}
     Should Be Equal Value Json String   ${r.json()}   $..vnsRsALDevToPhysDomP.attributes.tDn   uni/phys-{{ domain_name }}

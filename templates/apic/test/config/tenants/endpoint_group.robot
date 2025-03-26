@@ -24,10 +24,10 @@ Verify Endpoint Group {{ epg_name }}
     Should Be Equal Value Json String   ${r.json()}   $..fvAEPg.attributes.name   {{ epg_name }}
     Should Be Equal Value Json String   ${r.json()}   $..fvAEPg.attributes.descr   {{ epg.description | default() }}
     Should Be Equal Value Json String   ${r.json()}   $..fvAEPg.attributes.nameAlias   {{ epg.alias | default() }}
-    Should Be Equal Value Json String   ${r.json()}   $..fvAEPg.attributes.floodOnEncap   {{ epg.flood_in_encap | default(defaults.apic.tenants.application_profiles.endpoint_groups.flood_in_encap) | cisco.aac.aac_bool("enabled") }}
-    Should Be Equal Value Json String   ${r.json()}   $..fvAEPg.attributes.pcEnfPref   {{ epg.intra_epg_isolation | default(defaults.apic.tenants.application_profiles.endpoint_groups.intra_epg_isolation) | cisco.aac.aac_bool("enforced") }}
+    Should Be Equal Value Json String   ${r.json()}   $..fvAEPg.attributes.floodOnEncap   {{ 'enabled' if epg.flood_in_encap | default(defaults.apic.tenants.application_profiles.endpoint_groups.flood_in_encap) else 'disabled' }}
+    Should Be Equal Value Json String   ${r.json()}   $..fvAEPg.attributes.pcEnfPref   {{ 'enforced' if epg.intra_epg_isolation | default(defaults.apic.tenants.application_profiles.endpoint_groups.intra_epg_isolation) else 'unenforced' }}
     Should Be Equal Value Json String   ${r.json()}   $..fvAEPg.attributes.fwdCtrl  {% if epg.proxy_arp | default(defaults.apic.tenants.application_profiles.endpoint_groups.proxy_arp) %}proxy-arp{% endif %} 
-    Should Be Equal Value Json String   ${r.json()}   $..fvAEPg.attributes.prefGrMemb   {{ epg.preferred_group | default(defaults.apic.tenants.application_profiles.endpoint_groups.preferred_group) | cisco.aac.aac_bool("include") }}
+    Should Be Equal Value Json String   ${r.json()}   $..fvAEPg.attributes.prefGrMemb   {{ 'include' if epg.preferred_group | default(defaults.apic.tenants.application_profiles.endpoint_groups.preferred_group) else 'exclude' }}
     Should Be Equal Value Json String   ${r.json()}   $..fvRsBd.attributes.tnFvBDName   {{ bd_name }}
     Should Be Equal Value Json String   ${r.json()}   $..fvAEPg.attributes.prio   {{ epg.qos_class | default(defaults.apic.tenants.application_profiles.endpoint_groups.qos_class) }}
 
@@ -36,7 +36,7 @@ Verify Endpoint Group {{ epg_name }}
 
 Verify Endpoint Group {{ epg_name }} VMM Domain {{ vmm_name }}
     ${conn}=   Set Variable   $..fvAEPg.children[?(@.fvRsDomAtt.attributes.tDn=='uni/vmmp-VMware/dom-{{ vmm_name }}')].fvRsDomAtt
-{% if vmm.u_segmentation | default(defaults.apic.tenants.application_profiles.endpoint_groups.vmware_vmm_domains.u_segmentation) | cisco.aac.aac_bool("yes") == 'yes' %}{% set useg = 'useg' %}{% else %}{% set useg = 'encap' %}{% endif %}
+{% if vmm.u_segmentation | default(defaults.apic.tenants.application_profiles.endpoint_groups.vmware_vmm_domains.u_segmentation) %}{% set useg = 'useg' %}{% else %}{% set useg = 'encap' %}{% endif %}
     Should Be Equal Value Json String   ${r.json()}   ${conn}.attributes.classPref   {{ useg }}
     Should Be Equal Value Json String   ${r.json()}   ${conn}.attributes.delimiter   \{{ vmm.delimiter | default(defaults.apic.tenants.application_profiles.endpoint_groups.vmware_vmm_domains.delimiter) }}
 {% if vmm.primary_vlan is defined %}
@@ -48,7 +48,7 @@ Verify Endpoint Group {{ epg_name }} VMM Domain {{ vmm_name }}
 {% endif %}
     Should Be Equal Value Json String   ${r.json()}   ${conn}.attributes.encapMode   auto
     Should Be Equal Value Json String   ${r.json()}   ${conn}.attributes.instrImedcy   {{ vmm.deployment_immediacy  | default(defaults.apic.tenants.application_profiles.endpoint_groups.vmware_vmm_domains.deployment_immediacy) }}
-    Should Be Equal Value Json String   ${r.json()}   ${conn}.attributes.netflowPref   {{ vmm.netflow | default(defaults.apic.tenants.application_profiles.endpoint_groups.vmware_vmm_domains.netflow) | cisco.aac.aac_bool("enabled") }}
+    Should Be Equal Value Json String   ${r.json()}   ${conn}.attributes.netflowPref   {{ 'enabled' if vmm.netflow | default(defaults.apic.tenants.application_profiles.endpoint_groups.vmware_vmm_domains.netflow) else 'disabled' }}
 {% if vmm.primary_vlan is defined %}
     Should Be Equal Value Json String   ${r.json()}   ${conn}.attributes.primaryEncap   vlan-{{ vmm.primary_vlan }}
 {% else %}
@@ -274,19 +274,19 @@ Verify Endpoint Group {{ epg_name }} Physical Domain {{ domain_name }}
 
 {% for subnet in epg.subnets | default([]) %}
 {% set scope = [] %}
-{% if subnet.public | default(defaults.apic.tenants.application_profiles.endpoint_groups.subnets.public) | cisco.aac.aac_bool("yes") == "yes" %}{% set scope = scope + [("public")] %}{% else %}{% set scope = scope + [("private")] %}{% endif %}
-{% if subnet.shared | default(defaults.apic.tenants.application_profiles.endpoint_groups.subnets.shared) | cisco.aac.aac_bool("yes") == "yes" %}{% set scope = scope + [("shared")] %}{% endif %}
+{% if subnet.public | default(defaults.apic.tenants.application_profiles.endpoint_groups.subnets.public) %}{% set scope = scope + [("public")] %}{% else %}{% set scope = scope + [("private")] %}{% endif %}
+{% if subnet.shared | default(defaults.apic.tenants.application_profiles.endpoint_groups.subnets.shared) %}{% set scope = scope + [("shared")] %}{% endif %}
 {% set ctrl = [] %}
-{% if subnet.nd_ra_prefix | default(defaults.apic.tenants.application_profiles.endpoint_groups.subnets.nd_ra_prefix) | cisco.aac.aac_bool("yes") == "yes" %}{% set ctrl = ctrl + [("nd")] %}{% endif %}
-{% if subnet.no_default_gateway | default(defaults.apic.tenants.application_profiles.endpoint_groups.subnets.no_default_gateway) | cisco.aac.aac_bool("yes") == "yes" %}{% set ctrl = ctrl + [("no-default-gateway")] %}{% endif %}
-{% if subnet.igmp_querier | default(defaults.apic.tenants.application_profiles.endpoint_groups.subnets.igmp_querier) | cisco.aac.aac_bool("yes") == "yes" %}{% set ctrl = ctrl + [("querier")] %}{% endif %}
+{% if subnet.nd_ra_prefix | default(defaults.apic.tenants.application_profiles.endpoint_groups.subnets.nd_ra_prefix) %}{% set ctrl = ctrl + [("nd")] %}{% endif %}
+{% if subnet.no_default_gateway | default(defaults.apic.tenants.application_profiles.endpoint_groups.subnets.no_default_gateway) %}{% set ctrl = ctrl + [("no-default-gateway")] %}{% endif %}
+{% if subnet.igmp_querier | default(defaults.apic.tenants.application_profiles.endpoint_groups.subnets.igmp_querier) %}{% set ctrl = ctrl + [("querier")] %}{% endif %}
 Verify Endpoint Group {{ epg_name }} Subnet {{ subnet.ip }}
     ${subnet}=   Set Variable   $..fvAEPg.children[?(@.fvSubnet.attributes.ip=='{{ subnet.ip }}')]
     Should Be Equal Value Json String   ${r.json()}   ${subnet}..fvSubnet.attributes.ip   {{ subnet.ip }}
     Should Be Equal Value Json String   ${r.json()}   ${subnet}..fvSubnet.attributes.ctrl   {{ ctrl | join(',') }}
     Should Be Equal Value Json String   ${r.json()}   ${subnet}..fvSubnet.attributes.descr   {{ subnet.description | default() }}
     Should Be Equal Value Json String   ${r.json()}   ${subnet}..fvSubnet.attributes.scope   {{ scope | join(',') }}
-    Should Be Equal Value Json String   ${r.json()}   ${subnet}..fvSubnet.attributes.virtual   {{ subnet.virtual | default(defaults.apic.tenants.application_profiles.endpoint_groups.subnets.virtual) | cisco.aac.aac_bool("yes") }}           
+    Should Be Equal Value Json String   ${r.json()}   ${subnet}..fvSubnet.attributes.virtual   {{ 'yes' if subnet.virtual | default(defaults.apic.tenants.application_profiles.endpoint_groups.subnets.virtual) else 'no' }}           
 {% if subnet.ip_dataplane_learning is defined %}
     Should Be Equal Value Json String   ${r.json()}   ${subnet}..fvSubnet.attributes.ipDPLearning   {{ 'enabled' if subnet.ip_dataplane_learning else 'disabled' }}
 {% endif %}

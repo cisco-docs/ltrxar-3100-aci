@@ -11,34 +11,34 @@
             {%- for bd in tenant.bridge_domains | default([]) %}{{ comma1() }}
             {%- set bd_name = bd.name ~ defaults.apic.tenants.bridge_domains.name_suffix  %}
             {%- set bd_move_detection = "" %}
-            {%- if bd.ep_move_detection | default(defaults.apic.tenants.bridge_domains.ep_move_detection) | cisco.aac.aac_bool("enabled") == "enabled" %}
+            {%- if bd.ep_move_detection | default(defaults.apic.tenants.bridge_domains.ep_move_detection) %}
                 {%- set bd_move_detection = "garp" %}
             {%- endif %}
             {
                 "fvBD": {
                     "attributes": {
                         "annotation": {% if bd.ndo_managed | default(defaults.apic.tenants.bridge_domains.ndo_managed) %}"orchestrator:msc-shadow:no"{% else %}"orchestrator:aac"{% endif %},
-                        "arpFlood": "{{ bd.arp_flooding | default(defaults.apic.tenants.bridge_domains.arp_flooding) | cisco.aac.aac_bool("yes") }}",
+                        "arpFlood": "{{ 'yes' if bd.arp_flooding | default(defaults.apic.tenants.bridge_domains.arp_flooding) else 'no' }}",
                         "descr": "{{ bd.description | default() }}",
                         "dn": "uni/tn-{{ tenant.name }}/BD-{{ bd_name }}",
-                        "hostBasedRouting": "{{ bd.advertise_host_routes | default(defaults.apic.tenants.bridge_domains.advertise_host_routes) | cisco.aac.aac_bool("yes") }}",
-                        "ipLearning": "{{ bd.ip_dataplane_learning | default(defaults.apic.tenants.bridge_domains.ip_dataplane_learning) | cisco.aac.aac_bool("yes") }}",
-                        "limitIpLearnToSubnets": "{{ bd.limit_ip_learn_to_subnets | default(defaults.apic.tenants.bridge_domains.limit_ip_learn_to_subnets) | cisco.aac.aac_bool("yes") }}",
+                        "hostBasedRouting": "{{ 'yes' if bd.advertise_host_routes | default(defaults.apic.tenants.bridge_domains.advertise_host_routes) else 'no' }}",
+                        "ipLearning": "{{ 'yes' if bd.ip_dataplane_learning | default(defaults.apic.tenants.bridge_domains.ip_dataplane_learning) else 'no' }}",
+                        "limitIpLearnToSubnets": "{{ 'yes' if bd.limit_ip_learn_to_subnets | default(defaults.apic.tenants.bridge_domains.limit_ip_learn_to_subnets) else 'no' }}",
                         "mac": "{{ bd.mac | default(defaults.apic.tenants.bridge_domains.mac) }}",
                         "epMoveDetectMode": "{{ bd_move_detection }}",
                         "vmac": "{{ bd.virtual_mac | default() }}",
-                        "mcastAllow": "{{ bd.l3_multicast | default(defaults.apic.tenants.bridge_domains.l3_multicast) | cisco.aac.aac_bool("yes") }}",
+                        "mcastAllow": "{{ 'yes' if bd.l3_multicast | default(defaults.apic.tenants.bridge_domains.l3_multicast) else 'no' }}",
                         {% if bd.multicast_arp_drop is defined %}
-                            "mcastARPDrop": "{{ bd.multicast_arp_drop | cisco.aac.aac_bool("yes")}}",
+                            "mcastARPDrop": "{{ 'yes' if bd.multicast_arp_drop else 'no' }}",
                         {% endif %}
                         "multiDstPktAct": "{{ bd.multi_destination_flooding | default(defaults.apic.tenants.bridge_domains.multi_destination_flooding) }}",
                         "name": "{{ bd_name }}",
                         "nameAlias": "{{ bd.alias | default() }}",
                         "type": "regular",
-                        "unicastRoute": "{{ bd.unicast_routing | default(defaults.apic.tenants.bridge_domains.unicast_routing) | cisco.aac.aac_bool("yes") }}",
+                        "unicastRoute": "{{ 'yes' if bd.unicast_routing | default(defaults.apic.tenants.bridge_domains.unicast_routing) else 'no' }}",
                         "unkMacUcastAct": "{{ bd.unknown_unicast | default(defaults.apic.tenants.bridge_domains.unknown_unicast) }}",
                         "unkMcastAct": "{{ bd.unknown_ipv4_multicast | default(defaults.apic.tenants.bridge_domains.unknown_ipv4_multicast) }}",
-                        "epClear": "{{ bd.clear_remote_mac_entries | default(defaults.apic.tenants.bridge_domains.clear_remote_mac_entries) | cisco.aac.aac_bool("yes")  }}",
+                        "epClear": "{{ 'yes' if bd.clear_remote_mac_entries | default(defaults.apic.tenants.bridge_domains.clear_remote_mac_entries) else 'no' }}",
                         "v6unkMcastAct": "{{ bd.unknown_ipv6_multicast | default(defaults.apic.tenants.bridge_domains.unknown_ipv6_multicast) }}",
                         "childAction": "deleteNonPresent"
                     },
@@ -72,12 +72,12 @@
                         {%- endfor %}
                         {%- for subnet in bd.subnets | default([]) %}{{ comma2() }}
                         {% set scope = [] %}
-                        {% if subnet.public | default(defaults.apic.tenants.bridge_domains.subnets.public) | cisco.aac.aac_bool("yes") == "yes" %}{% set scope = scope + [("public")] %}{% else %}{% set scope = scope + [("private")] %}{% endif %}
-                        {% if subnet.shared | default(defaults.apic.tenants.bridge_domains.subnets.shared) | cisco.aac.aac_bool("yes") == "yes" %}{% set scope = scope + [("shared")] %}{% endif %}
+                        {% if subnet.public | default(defaults.apic.tenants.bridge_domains.subnets.public) %}{% set scope = scope + [("public")] %}{% else %}{% set scope = scope + [("private")] %}{% endif %}
+                        {% if subnet.shared | default(defaults.apic.tenants.bridge_domains.subnets.shared)  %}{% set scope = scope + [("shared")] %}{% endif %}
                         {% set ctrl = [] %}
-                        {% if subnet.igmp_querier | default(defaults.apic.tenants.bridge_domains.subnets.igmp_querier) | cisco.aac.aac_bool("yes") == "yes" %}{% set ctrl = ctrl + [("querier")] %}{% endif %}
-                        {% if subnet.nd_ra_prefix | default(defaults.apic.tenants.bridge_domains.subnets.nd_ra_prefix) | cisco.aac.aac_bool("yes") == "yes" %}{% set ctrl = ctrl + [("nd")] %}{% endif %}
-                        {% if subnet.no_default_gateway | default(defaults.apic.tenants.bridge_domains.subnets.no_default_gateway) | cisco.aac.aac_bool("yes") == "yes" %}{% set ctrl = ctrl + [("no-default-gateway")] %}{% endif %}
+                        {% if subnet.igmp_querier | default(defaults.apic.tenants.bridge_domains.subnets.igmp_querier) %}{% set ctrl = ctrl + [("querier")] %}{% endif %}
+                        {% if subnet.nd_ra_prefix | default(defaults.apic.tenants.bridge_domains.subnets.nd_ra_prefix) %}{% set ctrl = ctrl + [("nd")] %}{% endif %}
+                        {% if subnet.no_default_gateway | default(defaults.apic.tenants.bridge_domains.subnets.no_default_gateway) %}{% set ctrl = ctrl + [("no-default-gateway")] %}{% endif %}
                         {
                             "fvSubnet": {
                                 "attributes": {
@@ -86,12 +86,12 @@
                                     "descr": "{{ subnet.description | default() }}",
                                     "dn": "uni/tn-{{ tenant.name }}/BD-{{ bd_name }}/subnet-[{{ subnet.ip }}]",
                                     "ip": "{{ subnet.ip }}",
-                                    "preferred": "{{ subnet.primary_ip | default(defaults.apic.tenants.bridge_domains.subnets.primary_ip) | cisco.aac.aac_bool("yes") }}",
+                                    "preferred": "{{ 'yes' if subnet.primary_ip | default(defaults.apic.tenants.bridge_domains.subnets.primary_ip) else 'no' }}",
                                     "scope": "{{ scope | join(',') }}",
                                     {%- if subnet.ip_dataplane_learning is defined %}
                                     "ipDPLearning": "{{ 'enabled' if subnet.ip_dataplane_learning else 'disabled' }}",
                                     {%- endif %}
-                                    "virtual": "{{ subnet.virtual | default(defaults.apic.tenants.bridge_domains.subnets.virtual) | cisco.aac.aac_bool("yes") }}"                                    
+                                    "virtual": "{{ 'yes' if subnet.virtual | default(defaults.apic.tenants.bridge_domains.subnets.virtual) else 'no' }}"                                    
                                 }
                                 {%- if subnet.nd_ra_prefix_policy is defined %},
                                 {%- set nd_ra_prefix_policy_name = subnet.nd_ra_prefix_policy ~ defaults.apic.tenants.policies.nd_ra_prefix_policies.name_suffix %}

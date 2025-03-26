@@ -39,7 +39,7 @@
                                     "dFromPort": "{{ entry.destination_from_port | default(defaults.apic.tenants.filters.entries.destination_from_port) }}",
                                     "dToPort": "{{ entry.destination_to_port | default(entry.destination_from_port | default(defaults.apic.tenants.filters.entries.destination_from_port)) }}"
                                     {%- if entry.protocol | default(defaults.apic.tenants.filters.entries.protocol) == 'tcp' %},
-                                    "stateful": "{{ entry.stateful | default(defaults.apic.tenants.filters.entries.stateful) | cisco.aac.aac_bool("yes") }}"
+                                    "stateful": "{{ 'yes' if entry.stateful | default(defaults.apic.tenants.filters.entries.stateful) else 'no'}}"
                                     {% endif %}
                                     {% endif %}
                                     {% endif %}

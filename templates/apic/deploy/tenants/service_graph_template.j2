@@ -100,12 +100,12 @@
                                     "annotation": {% if sgt.ndo_managed | default(defaults.apic.tenants.services.service_graph_templates.ndo_managed) %}"orchestrator:msc-shadow:no"{% else %}"orchestrator:aac"{% endif %},
                                     "funcTemplateType": "{{ sgt.template_type | default(defaults.apic.tenants.services.service_graph_templates.template_type) }}",
                                     "funcType": "{{ dev.function | default(defaults.apic.tenants.services.l4l7_devices.function) }}",
-                                    "isCopy": "{{ dev.copy_device | default(defaults.apic.tenants.services.l4l7_devices.copy_device) | cisco.aac.aac_bool("yes") }}",
-                                    "managed": "{{ dev.managed | default(defaults.apic.tenants.services.l4l7_devices.managed) | cisco.aac.aac_bool("yes") }}",
+                                    "isCopy": "{{ 'yes' if dev.copy_device | default(defaults.apic.tenants.services.l4l7_devices.copy_device) else 'no' }}",
+                                    "managed": "{{ 'yes' if dev.managed | default(defaults.apic.tenants.services.l4l7_devices.managed) else 'no' }}",
                                     "name": "{{ sgt.device.node_name | default("CP1") if dev.copy_device | default(defaults.apic.tenants.services.l4l7_devices.copy_device) else sgt.device.node_name | default("N1") }}",
-                                    "routingMode": "{{ 'Redirect' if sgt.redirect | default(defaults.apic.tenants.services.service_graph_templates.redirect) | cisco.aac.aac_bool("enabled") == 'enabled' else 'unspecified' }}",
+                                    "routingMode": "{{ 'Redirect' if sgt.redirect | default(defaults.apic.tenants.services.service_graph_templates.redirect) else 'unspecified' }}",
                                     "sequenceNumber": "0",
-                                    "shareEncap": "{{ 'yes' if sgt.share_encapsulation | default(defaults.apic.tenants.services.service_graph_templates.share_encapsulation) | cisco.aac.aac_bool("enabled") == 'enabled' else 'no' }}",
+                                    "shareEncap": "{{ 'yes' if sgt.share_encapsulation | default(defaults.apic.tenants.services.service_graph_templates.share_encapsulation) else 'no' }}",
                                     "childAction": "deleteNonPresent"
                                 },
                                 "children": [

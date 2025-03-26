@@ -69,7 +69,7 @@
                             "rtctrlMatchRtDest": {
                                 "attributes": {
                                     "annotation": "orchestrator:aac",
-                                    "aggregate": "{{ prefix.aggregate | default(defaults.apic.tenants.policies.match_rules.prefixes.aggregate) | cisco.aac.aac_bool("yes") }}",
+                                    "aggregate": "{{ 'yes' if prefix.aggregate | default(defaults.apic.tenants.policies.match_rules.prefixes.aggregate) else 'no' }}",
                                     "descr": "{{ prefix.description | default() }}",
                                     "fromPfxLen": "{{ prefix.from_length | default(defaults.apic.tenants.policies.match_rules.prefixes.from_length) }}",
                                     "ip": "{{ prefix.ip }}",

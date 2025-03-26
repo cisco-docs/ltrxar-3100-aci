@@ -157,7 +157,7 @@
                             }
                         }
                         {%- endfor %}
-                        {%- if (rule.next_hop_propagation | default(defaults.apic.tenants.policies.set_rules.next_hop_propagation) | cisco.aac.aac_bool("enabled") == 'enabled') or (rule.multipath | default(defaults.apic.tenants.policies.set_rules.multipath) | cisco.aac.aac_bool("enabled") == 'enabled') %}{{ comma2() }}
+                        {%- if (rule.next_hop_propagation | default(defaults.apic.tenants.policies.set_rules.next_hop_propagation)) or (rule.multipath | default(defaults.apic.tenants.policies.set_rules.multipath)) %}{{ comma2() }}
                         {
                             "rtctrlSetNhUnchanged": {
                                 "attributes": {
@@ -167,7 +167,7 @@
                             }
                         }
                         {%- endif %}
-                        {%- if rule.multipath | default(defaults.apic.tenants.policies.set_rules.multipath) | cisco.aac.aac_bool("enabled") == 'enabled' %}{{ comma2() }}
+                        {%- if rule.multipath | default(defaults.apic.tenants.policies.set_rules.multipath) %}{{ comma2() }}
                         {
                             "rtctrlSetRedistMultipath": {
                                 "attributes": {

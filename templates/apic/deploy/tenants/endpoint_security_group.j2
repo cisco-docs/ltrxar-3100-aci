@@ -28,9 +28,9 @@
                                     "descr": "{{ esg.description | default() }}",
                                     "dn": "uni/tn-{{ tenant.name }}/ap-{{ ap_name }}/esg-{{ esg_name }}",
                                     "name": "{{ esg_name }}",
-                                    "pcEnfPref": "{{ esg.intra_esg_isolation | default(defaults.apic.tenants.application_profiles.endpoint_security_groups.intra_esg_isolation) | cisco.aac.aac_bool("enforced") }}",
-                                    "prefGrMemb": "{{ esg.preferred_group | default(defaults.apic.tenants.application_profiles.endpoint_security_groups.preferred_group) | cisco.aac.aac_bool("include") }}",
-                                    "shutdown": "{{ esg.shutdown | default(defaults.apic.tenants.application_profiles.endpoint_security_groups.shutdown) | cisco.aac.aac_bool("yes") }}",
+                                    "pcEnfPref": "{{ 'enforced' if esg.intra_esg_isolation | default(defaults.apic.tenants.application_profiles.endpoint_security_groups.intra_esg_isolation) else 'unenforced' }}",
+                                    "prefGrMemb": "{{ 'include' if esg.preferred_group | default(defaults.apic.tenants.application_profiles.endpoint_security_groups.preferred_group) else 'exclude' }}",
+                                    "shutdown": "{{ 'yes' if esg.shutdown | default(defaults.apic.tenants.application_profiles.endpoint_security_groups.shutdown) else 'no' }}",
                                     "childAction": "deleteNonPresent"
                                 },
                                 "children": [

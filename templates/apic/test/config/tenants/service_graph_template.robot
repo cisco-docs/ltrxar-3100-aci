@@ -23,11 +23,11 @@ Verify Service Graph Template {{ sgt_name }}
     Should Be Equal Value Json String   ${r.json()}   $..vnsAbsGraph.attributes.descr   {{ sgt.description | default() }}
     Should Be Equal Value Json String   ${r.json()}   $..vnsAbsNode.attributes.funcTemplateType   {{ sgt.template_type | default(defaults.apic.tenants.services.service_graph_templates.template_type) }}
     Should Be Equal Value Json String   ${r.json()}   $..vnsAbsNode.attributes.funcType   {{ dev.function | default(defaults.apic.tenants.services.l4l7_devices.function) }}
-    Should Be Equal Value Json String   ${r.json()}   $..vnsAbsNode.attributes.isCopy   {{ dev.copy_device | default(defaults.apic.tenants.services.l4l7_devices.copy_device) | cisco.aac.aac_bool("yes") }}
-    Should Be Equal Value Json String   ${r.json()}   $..vnsAbsNode.attributes.managed   {{ dev.managed | default(defaults.apic.tenants.services.l4l7_devices.managed) | cisco.aac.aac_bool("yes") }}
+    Should Be Equal Value Json String   ${r.json()}   $..vnsAbsNode.attributes.isCopy   {{ 'yes' if dev.copy_device | default(defaults.apic.tenants.services.l4l7_devices.copy_device) else 'no' }}
+    Should Be Equal Value Json String   ${r.json()}   $..vnsAbsNode.attributes.managed   {{ 'yes' if dev.managed | default(defaults.apic.tenants.services.l4l7_devices.managed) else 'no' }}
     Should Be Equal Value Json String   ${r.json()}   $..vnsAbsNode.attributes.name   {{ sgt.device.node_name | default("CP1") if dev.copy_device | default(defaults.apic.tenants.services.l4l7_devices.copy_device) else sgt.device.node_name | default("N1") }}
-    Should Be Equal Value Json String   ${r.json()}   $..vnsAbsNode.attributes.routingMode   {{ 'Redirect' if sgt.redirect | default(defaults.apic.tenants.services.service_graph_templates.redirect) | cisco.aac.aac_bool("enabled") == 'enabled' else 'unspecified' }} 
-    Should Be Equal Value Json String   ${r.json()}   $..vnsAbsNode.attributes.shareEncap   {{ 'yes' if sgt.share_encapsulation | default(defaults.apic.tenants.services.service_graph_templates.share_encapsulation)  | cisco.aac.aac_bool("enabled") == 'enabled' else 'no' }}
+    Should Be Equal Value Json String   ${r.json()}   $..vnsAbsNode.attributes.routingMode   {{ 'Redirect' if sgt.redirect | default(defaults.apic.tenants.services.service_graph_templates.redirect) else 'unspecified' }} 
+    Should Be Equal Value Json String   ${r.json()}   $..vnsAbsNode.attributes.shareEncap   {{ 'yes' if sgt.share_encapsulation | default(defaults.apic.tenants.services.service_graph_templates.share_encapsulation) else 'no' }}
 {% if tenant.name == sgt.device.tenant | default(tenant.name) %}
     Should Be Equal Value Json String   ${r.json()}   $..vnsRsNodeToLDev.attributes.tDn   uni/tn-{{ sgt.device.tenant | default(tenant.name) }}/lDevVip-{{ dev_name }}
 {% else %}

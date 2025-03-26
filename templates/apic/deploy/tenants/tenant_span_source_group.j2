@@ -18,7 +18,7 @@
                         "dn":"uni/tn-{{ tenant.name }}/srcgrp-{{ span_group_name }}",
                         "name": "{{ span_group_name }}",
                         "descr":  "{{ span.description | default()}}",
-                        "adminSt" : "{{ span.admin_state | default(defaults.apic.tenants.policies.span.source_groups.admin_state) | cisco.aac.aac_bool("enabled") }}",
+                        "adminSt" : "{{ 'enabled' if span.admin_state | default(defaults.apic.tenants.policies.span.source_groups.admin_state) else 'disabled' }}",
                         "childAction": "deleteNonPresent"
                     },
                     "children": [

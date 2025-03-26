@@ -21,10 +21,10 @@ Verify Redirect Policy {{ pol_name }}
     Should Be Equal Value Json String   ${r.json()}   $..vnsSvcRedirectPol.attributes.maxThresholdPercent   {{ pol.max_threshold | default(defaults.apic.tenants.services.redirect_policies.max_threshold) }}
     Should Be Equal Value Json String   ${r.json()}   $..vnsSvcRedirectPol.attributes.minThresholdPercent   {{ pol.min_threshold | default(defaults.apic.tenants.services.redirect_policies.min_threshold) }}
     Should Be Equal Value Json String   ${r.json()}   $..vnsSvcRedirectPol.attributes.thresholdDownAction   {{ pol.threshold_down_action | default(defaults.apic.tenants.services.redirect_policies.threshold_down_action) }}
-    Should Be Equal Value Json String   ${r.json()}   $..vnsSvcRedirectPol.attributes.programLocalPodOnly   {% if pol.pod_aware | default(defaults.apic.tenants.services.redirect_policies.pod_aware) | cisco.aac.aac_bool("enabled") == "enabled" %}yes{% else %}no{% endif %} 
-    Should Be Equal Value Json String   ${r.json()}   $..vnsSvcRedirectPol.attributes.resilientHashEnabled   {% if pol.resilient_hashing | default(defaults.apic.tenants.services.redirect_policies.resilient_hashing) | cisco.aac.aac_bool("enabled") == "enabled" %}yes{% else %}no{% endif %} 
-    Should Be Equal Value Json String   ${r.json()}   $..vnsSvcRedirectPol.attributes.AnycastEnabled   {% if pol.anycast | default(defaults.apic.tenants.services.redirect_policies.anycast) | cisco.aac.aac_bool("enabled") == "enabled" %}yes{% else %}no{% endif %} 
-    Should Be Equal Value Json String   ${r.json()}   $..vnsSvcRedirectPol.attributes.thresholdEnable   {% if pol.threshold | default(defaults.apic.tenants.services.redirect_policies.threshold) | cisco.aac.aac_bool("enabled") == "enabled" %}yes{% else %}no{% endif %} 
+    Should Be Equal Value Json String   ${r.json()}   $..vnsSvcRedirectPol.attributes.programLocalPodOnly   {{ 'yes' if pol.pod_aware | default(defaults.apic.tenants.services.redirect_policies.pod_aware) else 'no' }} 
+    Should Be Equal Value Json String   ${r.json()}   $..vnsSvcRedirectPol.attributes.resilientHashEnabled   {{ 'yes' if pol.resilient_hashing | default(defaults.apic.tenants.services.redirect_policies.resilient_hashing) else 'no' }}
+    Should Be Equal Value Json String   ${r.json()}   $..vnsSvcRedirectPol.attributes.AnycastEnabled   {{ 'yes' if pol.anycast | default(defaults.apic.tenants.services.redirect_policies.anycast) else 'no' }}
+    Should Be Equal Value Json String   ${r.json()}   $..vnsSvcRedirectPol.attributes.thresholdEnable   {{ 'yes' if pol.threshold | default(defaults.apic.tenants.services.redirect_policies.threshold) else 'no' }}
 
 {% if pol.sla_policy is defined %}
 {% set ip_sla_name = pol.sla_policy ~ defaults.apic.tenants.policies.ip_sla_policies.name_suffix %} 

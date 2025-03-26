@@ -37,8 +37,8 @@ Verify Contract {{ contract_name }} Subject {{ subject_name }}
 {% for filter in subject.filters | default([]) %}
 {% set filter_name = filter.filter ~ defaults.apic.tenants.filters.name_suffix %}
 {% set directives = [] %}
-{% if filter.log | default(defaults.apic.tenants.contracts.subjects.filters.log) | cisco.aac.aac_bool("yes") == "yes" %}{% set directives = directives + [("log")] %}{% endif %}
-{% if filter.no_stats | default(defaults.apic.tenants.contracts.subjects.filters.no_stats) | cisco.aac.aac_bool("yes") == "yes" %}{% set directives = directives + [("no-stats")] %}{% endif %}
+{% if filter.log | default(defaults.apic.tenants.contracts.subjects.filters.log) %}{% set directives = directives + [("log")] %}{% endif %}
+{% if filter.no_stats | default(defaults.apic.tenants.contracts.subjects.filters.no_stats) %}{% set directives = directives + [("no-stats")] %}{% endif %}
 
 Verify Contract {{ contract_name }} Subject {{ subject_name }} Filter {{ filter_name }}
     ${filter}=   Set Variable   $..vzBrCP.children[?(@.vzSubj.attributes.name=='{{ subject_name }}')].vzSubj.children[?(@.vzRsSubjFiltAtt.attributes.tnVzFilterName=='{{ filter_name }}')]

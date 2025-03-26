@@ -56,10 +56,10 @@ Verify Set Rule {{ rule_name }}
 {% endif %}
 {% endfor %}
 {% endif %}
-{% if (rule.next_hop_propagation | default(defaults.apic.tenants.policies.set_rules.next_hop_propagation) | cisco.aac.aac_bool("enabled") == 'enabled') or (rule.multipath | default(defaults.apic.tenants.policies.set_rules.multipath) | cisco.aac.aac_bool("enabled") == 'enabled') %}
+{% if (rule.next_hop_propagation | default(defaults.apic.tenants.policies.set_rules.next_hop_propagation)) or (rule.multipath | default(defaults.apic.tenants.policies.set_rules.multipath)) %}
     Should Be Equal Value Json String   ${r.json()}   $..rtctrlSetNhUnchanged.attributes.type   nh-unchanged
 {% endif %}
-{% if rule.multipath | default(defaults.apic.tenants.policies.set_rules.multipath) | cisco.aac.aac_bool("enabled") == 'enabled' %}
+{% if rule.multipath | default(defaults.apic.tenants.policies.set_rules.multipath) %}
     Should Be Equal Value Json String   ${r.json()}   $..rtctrlSetRedistMultipath.attributes.type   redist-multipath
 {% endif %}
 {% if rule.external_endpoint_group is defined %}

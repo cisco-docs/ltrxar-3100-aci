@@ -24,7 +24,7 @@ Verify Tenant SPAN Destination Group {{ span_dst_grp_name }}
     Should Be Equal Value Json String   ${r.json()}   $..spanRsDestEpg.attributes.mtu   {{ span.mtu | default(defaults.apic.tenants.policies.span.destination_groups.mtu) }}
     Should Be Equal Value Json String   ${r.json()}   $..spanRsDestEpg.attributes.ttl   {{ span.ttl | default(defaults.apic.tenants.policies.span.destination_groups.ttl) }}
     Should Be Equal Value Json String   ${r.json()}   $..spanRsDestEpg.attributes.ver   ver{{ span.version | default(defaults.apic.tenants.policies.span.destination_groups.version) }}
-    Should Be Equal Value Json String   ${r.json()}   $..spanRsDestEpg.attributes.verEnforced   {{ span.enforce_version | default(defaults.apic.tenants.policies.span.destination_groups.enforce_version) | cisco.aac.aac_bool("yes") }}
+    Should Be Equal Value Json String   ${r.json()}   $..spanRsDestEpg.attributes.verEnforced   {{ 'yes' if span.enforce_version | default(defaults.apic.tenants.policies.span.destination_groups.enforce_version) else 'no' }}
     Should Be Equal Value Json String   ${r.json()}   $..spanRsDestEpg.attributes.tDn   uni/tn-{{ span.tenant | default(tenant.name) }}/ap-{{ application_profile_name }}/epg-{{ endpoint_group_name }}
 
 {% endfor %}

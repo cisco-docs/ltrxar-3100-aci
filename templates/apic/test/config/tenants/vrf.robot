@@ -29,10 +29,10 @@ Verify VRF {{ vrf_name }}
     Should Be Equal Value Json String   ${r.json()}   $..fvCtx.attributes.name   {{ vrf_name }}
     Should Be Equal Value Json String   ${r.json()}   $..fvCtx.attributes.nameAlias   {{ vrf.alias | default() }}
     Should Be Equal Value Json String   ${r.json()}   $..fvCtx.attributes.descr   {{ vrf.description | default() }}
-    Should Be Equal Value Json String   ${r.json()}   $..fvCtx.attributes.ipDataPlaneLearning   {{ vrf.data_plane_learning | default(defaults.apic.tenants.vrfs.data_plane_learning) | cisco.aac.aac_bool("enabled") }}
+    Should Be Equal Value Json String   ${r.json()}   $..fvCtx.attributes.ipDataPlaneLearning   {{ 'enabled' if vrf.data_plane_learning | default(defaults.apic.tenants.vrfs.data_plane_learning) else 'disabled' }}
     Should Be Equal Value Json String   ${r.json()}   $..fvCtx.attributes.pcEnfDir   {{ vrf.enforcement_direction | default(defaults.apic.tenants.vrfs.enforcement_direction) }}
     Should Be Equal Value Json String   ${r.json()}   $..fvCtx.attributes.pcEnfPref   {{ vrf.enforcement_preference | default(defaults.apic.tenants.vrfs.enforcement_preference) }}
-    Should Be Equal Value Json String   ${r.json()}   $..vzAny.attributes.prefGrMemb   {{ vrf.preferred_group | default(defaults.apic.tenants.vrfs.preferred_group) | cisco.aac.aac_bool("enabled") }}
+    Should Be Equal Value Json String   ${r.json()}   $..vzAny.attributes.prefGrMemb   {{ 'enabled' if vrf.preferred_group | default(defaults.apic.tenants.vrfs.preferred_group) else 'disabled' }}
 
 {% for prefix in vrf.leaked_internal_prefixes | default([]) %}
 
@@ -208,8 +208,8 @@ Verify VRF {{ vrf.name }} PIM
 {% endif %}
 
 {% set ctrl = [] %}
-{% if vrf.pim.bsr_forward_updates | default(defaults.apic.tenants.vrfs.pim.bsr_forward_updates) | cisco.aac.aac_bool("yes") == "yes" %}{% set ctrl = ctrl + [("forward")] %}{% endif %}
-{% if vrf.pim.bsr_listen_updates | default(defaults.apic.tenants.vrfs.pim.bsr_listen_updates) | cisco.aac.aac_bool("yes") == "yes" %}{% set ctrl = ctrl + [("listen")] %}{% endif %}
+{% if vrf.pim.bsr_forward_updates | default(defaults.apic.tenants.vrfs.pim.bsr_forward_updates) %}{% set ctrl = ctrl + [("forward")] %}{% endif %}
+{% if vrf.pim.bsr_listen_updates | default(defaults.apic.tenants.vrfs.pim.bsr_listen_updates) %}{% set ctrl = ctrl + [("listen")] %}{% endif %}
 
 Verify VRF {{ vrf.name }} PIM BSR
     Should Be Equal Value Json String   ${r.json()}   $..fvCtx.children..pimCtxP.children..pimBSRPPol.attributes.ctrl   {{ ctrl | join(',') }}
@@ -219,8 +219,8 @@ Verify VRF {{ vrf.name }} PIM BSR
 
 {% endif %}
 {% set ctrl = [] %}
-{% if vrf.pim.auto_rp_forward_updates | default(defaults.apic.tenants.vrfs.pim.auto_rp_forward_updates) | cisco.aac.aac_bool("yes") == "yes" %}{% set ctrl = ctrl + [("forward")] %}{% endif %}
-{% if vrf.pim.auto_rp_listen_updates | default(defaults.apic.tenants.vrfs.pim.auto_rp_listen_updates) | cisco.aac.aac_bool("yes") == "yes" %}{% set ctrl = ctrl + [("listen")] %}{% endif %}
+{% if vrf.pim.auto_rp_forward_updates | default(defaults.apic.tenants.vrfs.pim.auto_rp_forward_updates) %}{% set ctrl = ctrl + [("forward")] %}{% endif %}
+{% if vrf.pim.auto_rp_listen_updates | default(defaults.apic.tenants.vrfs.pim.auto_rp_listen_updates) %}{% set ctrl = ctrl + [("listen")] %}{% endif %}
 
 Verify VRF {{ vrf.name }} PIM Auto-RP
     Should Be Equal Value Json String   ${r.json()}   $..fvCtx.children..pimCtxP.children..pimAutoRPPol.attributes.ctrl   {{ ctrl | join(',') }}

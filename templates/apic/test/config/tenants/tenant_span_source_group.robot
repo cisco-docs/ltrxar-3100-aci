@@ -16,7 +16,7 @@ Verify Tenant SPAN Source Group {{ span_grp_name }}
     Set Suite Variable   ${r}
     Should Be Equal Value Json String   ${r.json()}   $..spanSrcGrp.attributes.name   {{ span_grp_name }}
     Should Be Equal Value Json String   ${r.json()}   $..spanSrcGrp.attributes.descr   {{ span.description | default() }}
-    Should Be Equal Value Json String   ${r.json()}   $..spanSrcGrp.attributes.adminSt   {{ span.admin_state | default(defaults.apic.tenants.policies.span.source_groups.admin_state) | cisco.aac.aac_bool("enabled") }}
+    Should Be Equal Value Json String   ${r.json()}   $..spanSrcGrp.attributes.adminSt   {{ 'enabled' if span.admin_state | default(defaults.apic.tenants.policies.span.source_groups.admin_state) else 'disabled' }}
     Should Be Equal Value Json String   ${r.json()}   $..spanSpanLbl.attributes.name   {{ span_destination_name }}
 
 {% for source in span.sources | default([]) %}

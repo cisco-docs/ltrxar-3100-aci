@@ -42,7 +42,7 @@
                                                 "mtu": "{{ span.mtu | default(defaults.apic.tenants.policies.span.destination_groups.mtu) }}",
                                                 "ttl": "{{ span.ttl | default(defaults.apic.tenants.policies.span.destination_groups.ttl) }}",
                                                 "ver": "ver{{ span.version | default(defaults.apic.tenants.policies.span.destination_groups.version) }}",
-                                                "verEnforced": "{{ span.enforce_version | default(defaults.apic.tenants.policies.span.destination_groups.enforce_version) | cisco.aac.aac_bool("yes") }}",
+                                                "verEnforced": "{{ 'yes' if span.enforce_version | default(defaults.apic.tenants.policies.span.destination_groups.enforce_version) else 'no' }}",
                                                 "tDn": "uni/tn-{{ span.tenant | default(tenant.name) }}/ap-{{ application_profile_name }}/epg-{{ endpoint_group_name }}"
                                             }
                                         }

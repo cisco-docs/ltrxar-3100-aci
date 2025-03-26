@@ -33,10 +33,10 @@
                                     "dn": "uni/tn-{{ tenant.name }}/ap-{{ ap_name }}/epg-{{ epg_name }}",
                                     "name": "{{ epg_name }}",
                                     "nameAlias": "{{ epg.alias | default() }}",
-                                    "floodOnEncap": "{{ epg.flood_in_encap | default(defaults.apic.tenants.application_profiles.endpoint_groups.flood_in_encap) | cisco.aac.aac_bool("enabled") }}",
-                                    "pcEnfPref": "{{ epg.intra_epg_isolation | default(defaults.apic.tenants.application_profiles.endpoint_groups.intra_epg_isolation) | cisco.aac.aac_bool("enforced") }}",
+                                    "floodOnEncap": "{{ 'enabled' if epg.flood_in_encap | default(defaults.apic.tenants.application_profiles.endpoint_groups.flood_in_encap) else 'disabled' }}",
+                                    "pcEnfPref": "{{ 'enforced' if epg.intra_epg_isolation | default(defaults.apic.tenants.application_profiles.endpoint_groups.intra_epg_isolation) else 'unenforced' }}",
                                     "fwdCtrl": {% if epg.proxy_arp | default(defaults.apic.tenants.application_profiles.endpoint_groups.proxy_arp) %}"proxy-arp"{% else %}""{% endif %},
-                                    "prefGrMemb": "{{ epg.preferred_group | default(defaults.apic.tenants.application_profiles.endpoint_groups.preferred_group) | cisco.aac.aac_bool("include") }}",
+                                    "prefGrMemb": "{{ 'include' if epg.preferred_group | default(defaults.apic.tenants.application_profiles.endpoint_groups.preferred_group) else 'exclude' }}",
                                     "prio": "{{ epg.qos_class | default(defaults.apic.tenants.application_profiles.endpoint_groups.qos_class) }}",
                                     "childAction": "deleteNonPresent"
                                 },
@@ -70,7 +70,7 @@
                                             "attributes": {
                                                 "annotation": "orchestrator:aac",
                                                 "bindingType": "none",
-                                                {% if vmm.u_segmentation | default(defaults.apic.tenants.application_profiles.endpoint_groups.vmware_vmm_domains.u_segmentation) | cisco.aac.aac_bool("yes") == 'yes' %}{% set useg = 'useg' %}{% else %}{% set useg = 'encap' %}{% endif %}
+                                                {% if vmm.u_segmentation | default(defaults.apic.tenants.application_profiles.endpoint_groups.vmware_vmm_domains.u_segmentation) %}{% set useg = 'useg' %}{% else %}{% set useg = 'encap' %}{% endif %}
                                                 "classPref": "{{ useg }}",
                                                 "delimiter": "{{ vmm.delimiter | default(defaults.apic.tenants.application_profiles.endpoint_groups.vmware_vmm_domains.delimiter) }}",
                                                 {% if vmm.primary_vlan is defined %}
@@ -82,7 +82,7 @@
                                                 {% endif %}
                                                 "encapMode": "auto",
                                                 "instrImedcy": "{{ vmm.deployment_immediacy  | default(defaults.apic.tenants.application_profiles.endpoint_groups.vmware_vmm_domains.deployment_immediacy) }}",
-                                                "netflowPref": "{{ vmm.netflow | default(defaults.apic.tenants.application_profiles.endpoint_groups.vmware_vmm_domains.netflow) | cisco.aac.aac_bool("enabled") }}",
+                                                "netflowPref": "{{ 'enabled' if vmm.netflow | default(defaults.apic.tenants.application_profiles.endpoint_groups.vmware_vmm_domains.netflow) else 'disabled' }}",
                                                 {% if vmm.primary_vlan is defined %}
                                                 "primaryEncap": "vlan-{{ vmm.primary_vlan }}",
                                                 {% else %}
@@ -377,12 +377,12 @@
                                     {%- endfor %}
                                     {%- for subnet in epg.subnets | default([]) %}{{ comma3() }}
                                     {% set scope = [] %}
-                                    {% if subnet.public | default(defaults.apic.tenants.application_profiles.endpoint_groups.subnets.public) | cisco.aac.aac_bool("yes") == "yes" %}{% set scope = scope + [("public")] %}{% else %}{% set scope = scope + [("private")] %}{% endif %}
-                                    {% if subnet.shared | default(defaults.apic.tenants.application_profiles.endpoint_groups.subnets.shared) | cisco.aac.aac_bool("yes") == "yes" %}{% set scope = scope + [("shared")] %}{% endif %}
+                                    {% if subnet.public | default(defaults.apic.tenants.application_profiles.endpoint_groups.subnets.public) %}{% set scope = scope + [("public")] %}{% else %}{% set scope = scope + [("private")] %}{% endif %}
+                                    {% if subnet.shared | default(defaults.apic.tenants.application_profiles.endpoint_groups.subnets.shared) %}{% set scope = scope + [("shared")] %}{% endif %}
                                     {% set ctrl = [] %}
-                                    {% if subnet.nd_ra_prefix | default(defaults.apic.tenants.application_profiles.endpoint_groups.subnets.nd_ra_prefix) | cisco.aac.aac_bool("yes") == "yes" %}{% set ctrl = ctrl + [("nd")] %}{% endif %}
-                                    {% if subnet.no_default_gateway | default(defaults.apic.tenants.application_profiles.endpoint_groups.subnets.no_default_gateway) | cisco.aac.aac_bool("yes") == "yes" %}{% set ctrl = ctrl + [("no-default-gateway")] %}{% endif %}
-                                    {% if subnet.igmp_querier | default(defaults.apic.tenants.application_profiles.endpoint_groups.subnets.igmp_querier) | cisco.aac.aac_bool("yes") == "yes" %}{% set ctrl = ctrl + [("querier")] %}{% endif %}
+                                    {% if subnet.nd_ra_prefix | default(defaults.apic.tenants.application_profiles.endpoint_groups.subnets.nd_ra_prefix) %}{% set ctrl = ctrl + [("nd")] %}{% endif %}
+                                    {% if subnet.no_default_gateway | default(defaults.apic.tenants.application_profiles.endpoint_groups.subnets.no_default_gateway) %}{% set ctrl = ctrl + [("no-default-gateway")] %}{% endif %}
+                                    {% if subnet.igmp_querier | default(defaults.apic.tenants.application_profiles.endpoint_groups.subnets.igmp_querier) %}{% set ctrl = ctrl + [("querier")] %}{% endif %}
                                     {
                                         "fvSubnet": {
                                             "attributes": {
@@ -391,7 +391,7 @@
                                                 "descr": "{{ subnet.description | default() }}",
                                                 "ip": "{{ subnet.ip }}",
                                                 "scope": "{{ scope | join(',') }}",
-                                                "virtual": "{{ subnet.virtual | default(defaults.apic.tenants.application_profiles.endpoint_groups.subnets.virtual) | cisco.aac.aac_bool("yes") }}",
+                                                "virtual": "{{ 'yes' if subnet.virtual | default(defaults.apic.tenants.application_profiles.endpoint_groups.subnets.virtual) else 'no' }}",
                                                 {%- if subnet.ip_dataplane_learning is defined %}
                                                 "ipDPLearning": "{{ 'enabled' if subnet.ip_dataplane_learning else 'disabled' }}",
                                                 {%- endif %}                                                

@@ -17,9 +17,9 @@ Verify Endpoint Security Group {{ esg_name }}
     Set Suite Variable   ${r}
     Should Be Equal Value Json String   ${r.json()}   $..fvESg.attributes.name   {{ esg_name }}
     Should Be Equal Value Json String   ${r.json()}   $..fvESg.attributes.descr   {{ esg.description | default() }}
-    Should Be Equal Value Json String   ${r.json()}   $..fvESg.attributes.pcEnfPref   {{ esg.intra_esg_isolation | default(defaults.apic.tenants.application_profiles.endpoint_security_groups.intra_esg_isolation) | cisco.aac.aac_bool("enforced") }}
-    Should Be Equal Value Json String   ${r.json()}   $..fvESg.attributes.prefGrMemb   {{ esg.preferred_group | default(defaults.apic.tenants.application_profiles.endpoint_security_groups.preferred_group) | cisco.aac.aac_bool("include") }}
-    Should Be Equal Value Json String   ${r.json()}   $..fvESg.attributes.shutdown   {{ esg.shutdown | default(defaults.apic.tenants.application_profiles.endpoint_security_groups.shutdown) | cisco.aac.aac_bool("yes") }}
+    Should Be Equal Value Json String   ${r.json()}   $..fvESg.attributes.pcEnfPref   {{ 'enforced' if esg.intra_esg_isolation | default(defaults.apic.tenants.application_profiles.endpoint_security_groups.intra_esg_isolation) else 'unenforced' }}
+    Should Be Equal Value Json String   ${r.json()}   $..fvESg.attributes.prefGrMemb   {{ 'include' if esg.preferred_group | default(defaults.apic.tenants.application_profiles.endpoint_security_groups.preferred_group) else 'exclude' }}
+    Should Be Equal Value Json String   ${r.json()}   $..fvESg.attributes.shutdown   {{ 'yes' if esg.shutdown | default(defaults.apic.tenants.application_profiles.endpoint_security_groups.shutdown) else 'no' }}
     Should Be Equal Value Json String   ${r.json()}   $..fvRsScope.attributes.tnFvCtxName   {{ esg.vrf ~ ('' if esg.vrf in ('inb', 'obb', 'overlay-1') else defaults.apic.tenants.vrfs.name_suffix) }}
 
 {% for contract in esg.contracts.providers | default([]) %}
