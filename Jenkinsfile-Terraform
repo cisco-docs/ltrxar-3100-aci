@@ -96,6 +96,19 @@ pipeline {
                         }
                     }
                 }
+                stage('Test NDO 4.4 Terraform') {
+                    steps {
+                        lock(resource: 'nac-ci-apic5-6.0.5h', extra: [[resource: 'nac-ci-nd1-3.2.1i']]) {
+                            sh 'pytest -m "ndo_44 and terraform"'
+                        }
+                    }
+                    post {
+                        always {
+                            junit 'ndo_tf_4.4_xunit.xml'
+                            archiveArtifacts 'ndo_tf_4.4_*.html, ndo_tf_4.4_*.xml'
+                        }
+                    }
+                }
             }
         }
     }
