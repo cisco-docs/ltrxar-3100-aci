@@ -28,7 +28,7 @@
                         "node": "{{ _node.id }}",
                         "port": "{{ int.port }}",
                         "role": "{{ _node.role }}",
-                        "shutdown": "{{ int.shutdown | default(False) | cisco.aac.aac_bool("yes") }}"
+                        "shutdown": "{{ 'yes' if int.shutdown | default(defaults.apic.interface_policies.nodes.interfaces.shutdown) else 'no' }}"
                     }
                 }
             }
@@ -48,7 +48,7 @@
                         "port": "{{ int.port }}", 
                         "subPort": "{{ sub.port }}",
                         "role": "{{ _node.role }}",
-                        "shutdown": "{{ sub.shutdown | default(False) | cisco.aac.aac_bool("yes") }}"
+                        "shutdown": "{{ 'yes' if sub.shutdown | default(defaults.apic.interface_policies.nodes.interfaces.sub_ports.shutdown) else 'no' }}"
                     }
                 }
             }
@@ -79,7 +79,7 @@
                         "node": "{{ node.id }}",
                         "port": "{{ int.port }}",
                         "role": "{{ node.role }}",
-                        "shutdown": "{{ int.shutdown | default(False) | cisco.aac.aac_bool("yes") }}"
+                        "shutdown": "{{ 'yes' if int.shutdown | default(defaults.apic.interface_policies.nodes.interfaces.sub_ports.shutdown) else 'no' }}"
                     }
                 }
             }

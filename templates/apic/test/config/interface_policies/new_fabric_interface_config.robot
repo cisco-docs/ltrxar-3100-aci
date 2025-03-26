@@ -29,7 +29,7 @@ Verify Fabric Leaf Interface Node {{ _node.id }} Port {{ module }}/{{ int.port }
     Should Be Equal Value Json String   ${r.json()}    $..attributes.node   {{ _node.id }}
     Should Be Equal Value Json String   ${r.json()}    $..attributes.port   {{ int.port }}
     Should Be Equal Value Json String   ${r.json()}    $..attributes.role   {{ _node.role }}
-    Should Be Equal Value Json String   ${r.json()}    $..attributes.shutdown   {{ int.shutdown | default(False) | cisco.aac.aac_bool("yes") }}
+    Should Be Equal Value Json String   ${r.json()}    $..attributes.shutdown   {{ 'yes' if int.shutdown | default(defaults.apic.interface_policies.nodes.interfaces.shutdown) else 'no' }}
 
 {% for sub in int.sub_ports | default([]) %}
 
@@ -45,7 +45,7 @@ Verify Fabric Leaf Interface Node {{ _node.id }} Port {{ module }}/{{ int.port }
     Should Be Equal Value Json String   ${r.json()}    $..attributes.port   {{ int.port }}
     Should Be Equal Value Json String   ${r.json()}    $..attributes.subPort   {{ sub.port }}
     Should Be Equal Value Json String   ${r.json()}    $..attributes.role   {{ _node.role }}
-    Should Be Equal Value Json String   ${r.json()}    $..attributes.shutdown   {{ sub.shutdown | default(False) | cisco.aac.aac_bool("yes") }}
+    Should Be Equal Value Json String   ${r.json()}    $..attributes.shutdown   {{ 'yes' if sub.shutdown | default(defaults.apic.interface_policies.nodes.interfaces.sub_ports.shutdown) else 'no' }}
 
 {% endfor %}
 {% endif %}
@@ -77,7 +77,7 @@ Verify Access Spine Interface Node {{ _node.id }} Port {{ module }}/{{ int.port 
     Should Be Equal Value Json String   ${r.json()}    $..attributes.node   {{ _node.id }}
     Should Be Equal Value Json String   ${r.json()}    $..attributes.port   {{ int.port }}
     Should Be Equal Value Json String   ${r.json()}    $..attributes.role   {{ _node.role }}
-    Should Be Equal Value Json String   ${r.json()}    $..attributes.shutdown   {{ int.shutdown | default(False) | cisco.aac.aac_bool("yes") }}
+    Should Be Equal Value Json String   ${r.json()}    $..attributes.shutdown   {{ 'yes' if int.shutdown | default(defaults.apic.interface_policies.nodes.interfaces.shutdown) else 'no' }}
 
 {% endif %}
 {% endfor %}

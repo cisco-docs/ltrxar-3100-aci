@@ -6,7 +6,7 @@ Default Tags    apic   day2   config   interface_policies
 Resource        ../../../apic_common.resource
 
 *** Test Cases ***
-{% if apic.auto_generate_switch_pod_profiles | default(defaults.apic.auto_generate_switch_pod_profiles) | cisco.aac.aac_bool("enabled") == "enabled" or apic.auto_generate_access_leaf_switch_interface_profiles | default(defaults.apic.auto_generate_access_leaf_switch_interface_profiles) | cisco.aac.aac_bool("enabled") == "enabled" %}
+{% if apic.auto_generate_switch_pod_profiles | default(defaults.apic.auto_generate_switch_pod_profiles) or apic.auto_generate_access_leaf_switch_interface_profiles | default(defaults.apic.auto_generate_access_leaf_switch_interface_profiles) %}
 {% if apic.new_interface_configuration | default(defaults.apic.new_interface_configuration) is false %}
 {% for _node in apic.node_policies.nodes | default([]) %}
 {% if _node.role == "leaf" and _node.id | string == item[1] %}
