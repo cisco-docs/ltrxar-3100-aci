@@ -13,7 +13,7 @@
                         "authProtocol": "{{ prov.protocol | default(defaults.apic.fabric_policies.aaa.radius_providers.protocol) }}",
                         "descr": "{{ prov.description | default() }}",
                         "dn": "uni/userext/radiusext/radiusprovider-{{ prov.hostname_ip }}",
-                        "monitorServer": "{{ prov.monitoring | default(defaults.apic.fabric_policies.aaa.radius_providers.monitoring) | cisco.aac.aac_bool("enabled") }}",
+                        "monitorServer": "{{ 'enabled' if prov.monitoring | default(defaults.apic.fabric_policies.aaa.radius_providers.monitoring) else 'disabled' }}",
                         {% if prov.monitoring | default(defaults.apic.fabric_policies.aaa.radius_providers.monitoring) %}
                         "monitoringUser": "{{ prov.monitoring_username | default() }}",
                         "monitoringPassword": "{{ prov.monitoring_password | default() }}",

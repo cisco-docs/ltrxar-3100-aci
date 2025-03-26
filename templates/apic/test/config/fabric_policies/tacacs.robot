@@ -15,8 +15,8 @@ Verify TACACS Provider {{ prov.hostname_ip }}
     Should Be Equal Value Json String   ${r.json()}    $..aaaTacacsPlusProvider.attributes.port   {{ prov.port | default(defaults.apic.fabric_policies.aaa.tacacs_providers.port) }}
     Should Be Equal Value Json String   ${r.json()}    $..aaaTacacsPlusProvider.attributes.retries   {{ prov.retries | default(defaults.apic.fabric_policies.aaa.tacacs_providers.retries) }}
     Should Be Equal Value Json String   ${r.json()}    $..aaaTacacsPlusProvider.attributes.timeout   {{ prov.timeout | default(defaults.apic.fabric_policies.aaa.tacacs_providers.timeout) }}
-    Should Be Equal Value Json String   ${r.json()}    $..aaaTacacsPlusProvider.attributes.monitorServer   {{ prov.monitoring | default(defaults.apic.fabric_policies.aaa.tacacs_providers.monitoring) | cisco.aac.aac_bool("enabled") }}
-{% if prov.monitoring | default(defaults.apic.fabric_policies.aaa.tacacs_providers.monitoring) | cisco.aac.aac_bool("enabled") == "enabled" %}
+    Should Be Equal Value Json String   ${r.json()}    $..aaaTacacsPlusProvider.attributes.monitorServer   {{ 'enabled' if prov.monitoring | default(defaults.apic.fabric_policies.aaa.tacacs_providers.monitoring) else 'disabled' }}
+{% if prov.monitoring | default(defaults.apic.fabric_policies.aaa.tacacs_providers.monitoring) %}
     Should Be Equal Value Json String   ${r.json()}    $..aaaTacacsPlusProvider.attributes.monitoringUser   {{ prov.monitoring_username | default() }}
 {% endif %}
 {% set mgmt_epg = prov.mgmt_epg | default(defaults.apic.fabric_policies.aaa.tacacs_providers.mgmt_epg) %}

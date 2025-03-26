@@ -24,7 +24,7 @@ Verify DNS Policy {{ policy_name }}
 Verify DNS Policy {{ policy_name }} Provider {{ provider.ip }}
     ${provider}=   Set Variable   $..dnsProfile.children[?(@.dnsProv.attributes.addr=='{{ provider.ip }}')]
     Should Be Equal Value Json String   ${r.json()}    ${provider}..dnsProv.attributes.addr   {{ provider.ip }}
-    Should Be Equal Value Json String   ${r.json()}    ${provider}..dnsProv.attributes.preferred   {{ provider.preferred | default(defaults.apic.fabric_policies.dns_policies.providers.preferred) | cisco.aac.aac_bool("yes") }}
+    Should Be Equal Value Json String   ${r.json()}    ${provider}..dnsProv.attributes.preferred   {{ 'yes' if provider.preferred | default(defaults.apic.fabric_policies.dns_policies.providers.preferred) else 'no' }}
 
 {% endfor %}
 
@@ -33,7 +33,7 @@ Verify DNS Policy {{ policy_name }} Provider {{ provider.ip }}
 Verify DNS Policy {{ policy_name }} Domain {{ domain.name }}
     ${domain}=   Set Variable   $..dnsProfile.children[?(@.dnsDomain.attributes.name=='{{ domain.name }}')]
     Should Be Equal Value Json String   ${r.json()}    ${domain}..dnsDomain.attributes.name   {{ domain.name }}
-    Should Be Equal Value Json String   ${r.json()}    ${domain}..dnsDomain.attributes.isDefault   {{ domain.default | default(defaults.apic.fabric_policies.dns_policies.domains.default) | cisco.aac.aac_bool("yes") }}
+    Should Be Equal Value Json String   ${r.json()}    ${domain}..dnsDomain.attributes.isDefault   {{ 'yes' if domain.default | default(defaults.apic.fabric_policies.dns_policies.domains.default) else 'no' }}
 {% endfor %}
 
 {% endfor %}

@@ -21,7 +21,7 @@
             {% if apic.fabric_policies.ptp.delay_interval is defined %}
             "fabDelayIntvl": "{{ apic.fabric_policies.ptp.delay_interval }}",
             {% endif %}
-            "state": "{{ apic.fabric_policies.ptp.admin_state | default(defaults.apic.fabric_policies.ptp.admin_state) | cisco.aac.aac_bool("enabled") }}"
+            "state": "{{ 'enabled' if apic.fabric_policies.ptp.admin_state | default(defaults.apic.fabric_policies.ptp.admin_state) else 'disabled' }}"
         }
     }
 }

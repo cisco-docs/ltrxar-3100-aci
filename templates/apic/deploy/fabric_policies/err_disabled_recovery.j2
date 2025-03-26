@@ -12,7 +12,7 @@
                     "attributes": {
                         "annotation": "orchestrator:aac",
                         "event": "event-mcp-loop",
-                        "recover": "{{ apic.fabric_policies.err_disabled_recovery.mcp_loop | default(defaults.apic.fabric_policies.err_disabled_recovery.mcp_loop) | cisco.aac.aac_bool("yes") }}"
+                        "recover": "{{ 'yes' if apic.fabric_policies.err_disabled_recovery.mcp_loop | default(defaults.apic.fabric_policies.err_disabled_recovery.mcp_loop) else 'no' }}"
                     }
                 }
             },
@@ -21,7 +21,7 @@
                     "attributes": {
                         "annotation": "orchestrator:aac",
                         "event": "event-ep-move",
-                        "recover": "{{ apic.fabric_policies.err_disabled_recovery.ep_move | default(defaults.apic.fabric_policies.err_disabled_recovery.ep_move) | cisco.aac.aac_bool("yes") }}"
+                        "recover": "{{ 'yes' if apic.fabric_policies.err_disabled_recovery.ep_move | default(defaults.apic.fabric_policies.err_disabled_recovery.ep_move) else 'no' }}"
                     }
                 }
             },
@@ -30,7 +30,7 @@
                     "attributes": {
                         "annotation": "orchestrator:aac",
                         "event": "event-bpduguard",
-                        "recover": "{{ apic.fabric_policies.err_disabled_recovery.bpdu_guard | default(defaults.apic.fabric_policies.err_disabled_recovery.bpdu_guard) | cisco.aac.aac_bool("yes") }}"
+                        "recover": "{{ 'yes' if apic.fabric_policies.err_disabled_recovery.bpdu_guard | default(defaults.apic.fabric_policies.err_disabled_recovery.bpdu_guard) else 'no' }}"
                     }
                 }
             }

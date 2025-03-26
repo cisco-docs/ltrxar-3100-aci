@@ -15,7 +15,7 @@
                         "name": "{{ policy_name }}",
                         "descr": "{{ policy.description | default() }}",
                         "format": "{{ policy.format | default(defaults.apic.fabric_policies.config_exports.format) }}",
-                        "snapshot": "{{ policy.snapshot | default(defaults.apic.fabric_policies.config_exports.snapshot) | cisco.aac.aac_bool("yes") }}"
+                        "snapshot": "{{ 'yes' if policy.snapshot | default(defaults.apic.fabric_policies.config_exports.snapshot) else 'no' }}"
                     },
                     "children": [
                         {%- set comma2 = joiner(",") %}

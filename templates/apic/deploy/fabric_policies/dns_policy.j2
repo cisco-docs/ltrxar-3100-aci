@@ -36,7 +36,7 @@
                                 "attributes": {
                                     "annotation": "orchestrator:aac",
                                     "addr": "{{ provider.ip }}",
-                                    "preferred": "{{ provider.preferred | default(defaults.apic.fabric_policies.dns_policies.providers.preferred) | cisco.aac.aac_bool("yes") }}"
+                                    "preferred": "{{ 'yes' if provider.preferred | default(defaults.apic.fabric_policies.dns_policies.providers.preferred) else 'no' }}"
                                 }
                             }
                         }
@@ -47,7 +47,7 @@
                                 "attributes": {
                                     "annotation": "orchestrator:aac",
                                     "name": "{{ domain.name }}",
-                                    "isDefault": "{{ domain.default | default(defaults.apic.fabric_policies.dns_policies.domains.default) | cisco.aac.aac_bool("yes") }}"
+                                    "isDefault": "{{ 'yes' if domain.default | default(defaults.apic.fabric_policies.dns_policies.domains.default) else 'no' }}"
                                 }
                             }
                         }

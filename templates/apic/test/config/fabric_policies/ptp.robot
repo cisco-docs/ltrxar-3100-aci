@@ -7,7 +7,7 @@ Resource        ../../apic_common.resource
 *** Test Cases ***
 Verify PTP
     ${r}=   GET On Session   apic   /api/mo/uni/fabric/ptpmode.json
-    Should Be Equal Value Json String   ${r.json()}    $..latencyPtpMode.attributes.state   {{ apic.fabric_policies.ptp.admin_state | default(defaults.apic.fabric_policies.ptp.admin_state) | cisco.aac.aac_bool("enabled") }}
+    Should Be Equal Value Json String   ${r.json()}    $..latencyPtpMode.attributes.state   {{ 'enabled' if apic.fabric_policies.ptp.admin_state | default(defaults.apic.fabric_policies.ptp.admin_state) else 'disabled' }}
 {% if apic.fabric_policies.ptp.global_domain is defined %}
     Should Be Equal Value Json String   ${r.json()}    $..latencyPtpMode.attributes.globalDomain   {{ apic.fabric_policies.ptp.global_domain }}
 {% endif %}

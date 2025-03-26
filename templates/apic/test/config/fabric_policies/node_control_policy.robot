@@ -15,7 +15,7 @@ Verify Node Control {{ policy_name }} Policy
 
 Verify Dom enablement for {{ policy_name }}
 {% set dom = "" %}
-{% if policy.dom | default(defaults.apic.fabric_policies.switch_policies.node_control_policies.dom) | cisco.aac.aac_bool("enabled") == "enabled" %}{% set dom = "Dom" %}{% endif %}     
+{% if policy.dom | default(defaults.apic.fabric_policies.switch_policies.node_control_policies.dom) %}{% set dom = "Dom" %}{% endif %}     
     Should Be Equal Value Json String   ${r.json()}    $..fabricNodeControl.attributes.control   {{ dom }}
 
 Verify Feature Selection for {{ policy_name }}

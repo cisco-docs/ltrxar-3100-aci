@@ -13,8 +13,8 @@ Verify User {{ user.username }}
     Should Be Equal Value Json String   ${r.json()}    $..aaaUser.attributes.certAttribute   {{ user.certificate_name | default() }}
     Should Be Equal Value Json String   ${r.json()}    $..aaaUser.attributes.descr   {{ user.description | default() }}
     Should Be Equal Value Json String   ${r.json()}    $..aaaUser.attributes.email   {{ user.email | default() }}
-    Should Be Equal Value Json String   ${r.json()}    $..aaaUser.attributes.expires   {{ user.expires | default(defaults.apic.fabric_policies.aaa.users.expires) | cisco.aac.aac_bool("yes") }}
-{% if user.expires | default(defaults.apic.fabric_policies.aaa.users.expires) | cisco.aac.aac_bool("yes") == 'yes' %}
+    Should Be Equal Value Json String   ${r.json()}    $..aaaUser.attributes.expires   {{ 'yes' if user.expires | default(defaults.apic.fabric_policies.aaa.users.expires) else 'no' }}
+{% if user.expires | default(defaults.apic.fabric_policies.aaa.users.expires) %}
     Should Be Equal Value Json String   ${r.json()}    $..aaaUser.attributes.expiration   {{ user.expire_date | default() }}
 {% endif %}
     Should Be Equal Value Json String   ${r.json()}    $..aaaUser.attributes.firstName   {{ user.first_name | default() }}

@@ -12,10 +12,10 @@
                     "attributes": {
                         "annotation": "orchestrator:aac",
                         "StratumValue": "{{ policy.apic_ntp_server_master_stratum | default(defaults.apic.fabric_policies.pod_policies.date_time_policies.apic_ntp_server_master_stratum) }}",
-                        "adminSt": "{{ policy.ntp_admin_state | default(defaults.apic.fabric_policies.pod_policies.date_time_policies.ntp_admin_state) | cisco.aac.aac_bool("enabled") }}",
-                        "authSt": "{{ policy.ntp_auth_state | default(defaults.apic.fabric_policies.pod_policies.date_time_policies.ntp_auth_state) | cisco.aac.aac_bool("enabled") }}",
-                        "masterMode": "{{ policy.apic_ntp_server_master_mode | default(defaults.apic.fabric_policies.pod_policies.date_time_policies.apic_ntp_server_master_mode) | cisco.aac.aac_bool("enabled") }}",
-                        "serverState": "{{ policy.apic_ntp_server_state | default(defaults.apic.fabric_policies.pod_policies.date_time_policies.apic_ntp_server_state) | cisco.aac.aac_bool("enabled") }}",
+                        "adminSt": "{{ 'enabled' if policy.ntp_admin_state | default(defaults.apic.fabric_policies.pod_policies.date_time_policies.ntp_admin_state) else 'disabled' }}",
+                        "authSt": "{{ 'enabled' if policy.ntp_auth_state | default(defaults.apic.fabric_policies.pod_policies.date_time_policies.ntp_auth_state) else 'disabled' }}",
+                        "masterMode": "{{ 'enabled' if policy.apic_ntp_server_master_mode | default(defaults.apic.fabric_policies.pod_policies.date_time_policies.apic_ntp_server_master_mode) else 'disabled' }}",
+                        "serverState": "{{ 'enabled' if policy.apic_ntp_server_state | default(defaults.apic.fabric_policies.pod_policies.date_time_policies.apic_ntp_server_state) else 'disabled' }}",
                         "name": "{{ date_time_policy_name }}",
                         "dn": "uni/fabric/time-{{ date_time_policy_name }}",
                         "childAction": "deleteNonPresent"
@@ -28,7 +28,7 @@
                                 "attributes": {
                                     "annotation": "orchestrator:aac",
                                     "name": "{{ server.hostname_ip }}",
-                                    "preferred": "{{ server.preferred | default(defaults.apic.fabric_policies.pod_policies.date_time_policies.ntp_servers.preferred) | cisco.aac.aac_bool("yes") }}",
+                                    "preferred": "{{ 'yes' if server.preferred | default(defaults.apic.fabric_policies.pod_policies.date_time_policies.ntp_servers.preferred) else 'no' }}",
                                     "childAction": "deleteNonPresent"
                                 },
                                 "children": [
@@ -67,7 +67,7 @@
                                     "id": "{{ key.id }}",
                                     "key": "{{ key.key }}",
                                     "keyType": "{{ key.auth_type }}",
-                                    "trusted": "{{ key.trusted | cisco.aac.aac_bool("yes") }}"
+                                    "trusted": "{{ 'yes' if key.trusted else 'no' }}"
                                 }
                             }
                         }

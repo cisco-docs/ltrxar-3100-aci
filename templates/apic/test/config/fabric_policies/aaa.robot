@@ -8,7 +8,7 @@ Resource        ../../apic_common.resource
 Verify AAA Settings
     ${r}=   GET On Session   apic   /api/mo/uni/userext/authrealm.json   params=rsp-subtree=full
     Should Be Equal Value Json String   ${r.json()}    $..aaaAuthRealm.attributes.defRolePolicy   {{ apic.fabric_policies.aaa.remote_user_login_policy | default(defaults.apic.fabric_policies.aaa.remote_user_login_policy) }}
-    Should Be Equal Value Json String   ${r.json()}    $..aaaDefaultAuth.attributes.fallbackCheck   {% if apic.fabric_policies.aaa.default_fallback_check | default(defaults.apic.fabric_policies.aaa.default_fallback_check) | cisco.aac.aac_bool("enabled") == "enabled" %}true{% else %}false{% endif %} 
+    Should Be Equal Value Json String   ${r.json()}    $..aaaDefaultAuth.attributes.fallbackCheck   {{ 'true' if apic.fabric_policies.aaa.default_fallback_check | default(defaults.apic.fabric_policies.aaa.default_fallback_check) else 'no' }} 
     Should Be Equal Value Json String   ${r.json()}    $..aaaDefaultAuth.attributes.realm   {{ apic.fabric_policies.aaa.default_realm | default(defaults.apic.fabric_policies.aaa.default_realm) }}
 {% if apic.fabric_policies.aaa.default_realm | default(defaults.apic.fabric_policies.aaa.default_realm) in ["tacacs", "radius", "ldap"] %}
     Should Be Equal Value Json String   ${r.json()}    $..aaaDefaultAuth.attributes.providerGroup   {{ apic.fabric_policies.aaa.default_login_domain | default(defaults.apic.fabric_policies.aaa.default_login_domain) }}
@@ -23,12 +23,12 @@ Verify AAA Security Domains
 {% for sd in apic.fabric_policies.aaa.security_domains| default([]) %}
     Should Be Equal Value Json String   ${r.json()}   $..imdata[?(@.aaaDomain.attributes.name=='{{ sd.name }}')].aaaDomain.attributes.name   {{ sd.name }}
     Should Be Equal Value Json String   ${r.json()}   $..imdata[?(@.aaaDomain.attributes.name=='{{ sd.name }}')].aaaDomain.attributes.descr   {{ sd.description | default() }}
-    Should Be Equal Value Json String   ${r.json()}   $..imdata[?(@.aaaDomain.attributes.name=='{{ sd.name }}')].aaaDomain.attributes.restrictedRbacDomain   {% if sd.restricted_rbac_domain | default(defaults.apic.fabric_policies.aaa.security_domains.restricted_rbac_domain) %}yes{% else %}no{% endif %} 
+    Should Be Equal Value Json String   ${r.json()}   $..imdata[?(@.aaaDomain.attributes.name=='{{ sd.name }}')].aaaDomain.attributes.restrictedRbacDomain   {{ 'yes' if sd.restricted_rbac_domain | default(defaults.apic.fabric_policies.aaa.security_domains.restricted_rbac_domain) else 'no' }} 
 {% endfor %}
 
 Verify AAA Password Strength Check
     ${r}=   GET On Session   apic   /api/mo/uni/userext.json
-    Should Be Equal Value Json String   ${r.json()}    $..aaaUserEp.attributes.pwdStrengthCheck   {{ apic.fabric_policies.aaa.management_settings.password_strength_check | default(defaults.apic.fabric_policies.aaa.management_settings.password_strength_check) | cisco.aac.aac_bool("yes") }} 
+    Should Be Equal Value Json String   ${r.json()}    $..aaaUserEp.attributes.pwdStrengthCheck   {{ 'yes' if apic.fabric_policies.aaa.management_settings.password_strength_check | default(defaults.apic.fabric_policies.aaa.management_settings.password_strength_check) else 'no' }} 
 
 {% if apic.fabric_policies.aaa.management_settings.password_strength_check | default(defaults.apic.fabric_policies.aaa.management_settings.password_strength_check) %}
 Verify AAA Password Strength Profile

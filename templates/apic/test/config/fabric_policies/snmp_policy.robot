@@ -14,7 +14,7 @@ Verify SNMP Policy '{{ snmp_policy_name }}'
     Set Suite Variable   ${r}
     Should Be Equal Value Json String   ${r.json()}    $..snmpPol.attributes.name   {{ snmp_policy_name }}
     # Verify admin state
-    Should Be Equal Value Json String   ${r.json()}    $..snmpPol.attributes.adminSt   {{ policy.admin_state | default(defaults.apic.fabric_policies.pod_policies.snmp_policies.admin_state) | cisco.aac.aac_bool("enabled") }}
+    Should Be Equal Value Json String   ${r.json()}    $..snmpPol.attributes.adminSt   {{ 'enabled' if policy.admin_state | default(defaults.apic.fabric_policies.pod_policies.snmp_policies.admin_state) else 'disabled' }}
     # Verify location
     Should Be Equal Value Json String   ${r.json()}    $..snmpPol.attributes.loc   {{ policy.location | default(defaults.apic.fabric_policies.pod_policies.snmp_policies.location) }}
     # Verify contact information

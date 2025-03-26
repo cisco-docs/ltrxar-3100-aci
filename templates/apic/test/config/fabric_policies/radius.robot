@@ -15,7 +15,7 @@ Verify RADIUS Provider {{ prov.hostname_ip }}
     Should Be Equal Value Json String   ${r.json()}    $..aaaRadiusProvider.attributes.authPort   {{ prov.port | default(defaults.apic.fabric_policies.aaa.radius_providers.port) }}
     Should Be Equal Value Json String   ${r.json()}    $..aaaRadiusProvider.attributes.retries   {{ prov.retries | default(defaults.apic.fabric_policies.aaa.radius_providers.retries) }}
     Should Be Equal Value Json String   ${r.json()}    $..aaaRadiusProvider.attributes.timeout   {{ prov.timeout | default(defaults.apic.fabric_policies.aaa.radius_providers.timeout) }}
-    Should Be Equal Value Json String   ${r.json()}    $..aaaRadiusProvider.attributes.monitorServer   {{ prov.monitoring | default(defaults.apic.fabric_policies.aaa.radius_providers.monitoring) | cisco.aac.aac_bool("enabled") }}
+    Should Be Equal Value Json String   ${r.json()}    $..aaaRadiusProvider.attributes.monitorServer   {{ 'enabled' if prov.monitoring | default(defaults.apic.fabric_policies.aaa.radius_providers.monitoring) else 'disabled' }}
 {% if prov.monitoring | default(defaults.apic.fabric_policies.aaa.radius_providers.monitoring) %}
     Should Be Equal Value Json String   ${r.json()}    $..aaaRadiusProvider.attributes.monitoringUser   {{ prov.monitoring_username | default() }}
 {% endif %}

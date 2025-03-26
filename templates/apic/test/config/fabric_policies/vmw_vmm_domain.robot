@@ -13,7 +13,7 @@ Verify VMware VMM Domain {{ vmm_name }}
     Set Suite Variable   ${r}
     Should Be Equal Value Json String   ${r.json()}    $..vmmDomP.attributes.name   {{ vmm_name }}
     Should Be Equal Value Json String   ${r.json()}    $..vmmDomP.attributes.accessMode   {{ vmm.access_mode | default(defaults.apic.fabric_policies.vmware_vmm_domains.access_mode) }}
-    Should Be Equal Value Json String   ${r.json()}    $..vmmDomP.attributes.enableTag   {{ vmm.tag_collection | default(defaults.apic.fabric_policies.vmware_vmm_domains.tag_collection) | cisco.aac.aac_bool("yes") }}
+    Should Be Equal Value Json String   ${r.json()}    $..vmmDomP.attributes.enableTag   {{ 'yes' if vmm.tag_collection | default(defaults.apic.fabric_policies.vmware_vmm_domains.tag_collection) else 'no' }}
 {% if vmm.vswitch.cdp_policy is defined %}
 {% set cdp_policy_name = vmm.vswitch.cdp_policy ~ defaults.apic.access_policies.interface_policies.cdp_policies.name_suffix %}
     Should Be Equal Value Json String   ${r.json()}    $..vmmRsVswitchOverrideCdpIfPol.attributes.tDn   uni/infra/cdpIfP-{{ cdp_policy_name }}
@@ -73,7 +73,7 @@ Verify VMware VMM Domain {{ vmm_name }} vCenter {{ vc_name }}
     Should Be Equal Value Json String   ${r.json()}    ${cp}..vmmCtrlrP.attributes.dvsVersion   {{ vc.dvs_version | default(defaults.apic.fabric_policies.vmware_vmm_domains.vcenters.dvs_version) }}
     Should Be Equal Value Json String   ${r.json()}    ${cp}..vmmCtrlrP.attributes.hostOrIp   {{ vc.hostname_ip }}
     Should Be Equal Value Json String   ${r.json()}    ${cp}..vmmCtrlrP.attributes.rootContName   {{ vc.datacenter }}
-    Should Be Equal Value Json String   ${r.json()}    ${cp}..vmmCtrlrP.attributes.statsMode   {{ vc.statistics | default(defaults.apic.fabric_policies.vmware_vmm_domains.vcenters.statistics) | cisco.aac.aac_bool("enabled") }}
+    Should Be Equal Value Json String   ${r.json()}    ${cp}..vmmCtrlrP.attributes.statsMode   {{ 'enabled' if vc.statistics | default(defaults.apic.fabric_policies.vmware_vmm_domains.vcenters.statistics) else 'disabled' }}
     Should Be Equal Value Json String   ${r.json()}    ${cp}..vmmRsAcc.attributes.tDn   uni/vmmp-VMware/dom-{{ vmm_name }}/usracc-{{ vc_policy_name }}
 {% set mgmt_epg = vc.mgmt_epg | default(defaults.apic.fabric_policies.vmware_vmm_domains.vcenters.mgmt_epg) %}
 {% if mgmt_epg == "inb" %}

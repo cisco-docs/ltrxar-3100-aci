@@ -15,11 +15,11 @@
                         "attribute": "{{ prov.attribute | default() }}",
                         "basedn": "{{ prov.base_dn | default() }}",
                         "descr": "{{ prov.description | default() }}",
-                        "enableSSL": "{{ prov.enable_ssl | default(defaults.apic.fabric_policies.aaa.ldap.providers.enable_ssl) | cisco.aac.aac_bool("yes") }}",
+                        "enableSSL": "{{ 'yes' if prov.enable_ssl | default(defaults.apic.fabric_policies.aaa.ldap.providers.enable_ssl) else 'no' }}",
                         "filter": "{{ prov.filter | default() }}",
                         "key": "{{ prov.password | default() }}",
-                        "monitorServer": "{{ prov.server_monitoring | default(defaults.apic.fabric_policies.aaa.ldap.providers.server_monitoring) | cisco.aac.aac_bool("enabled") }}",
-                        {% if prov.monitoring | default(defaults.apic.fabric_policies.aaa.ldap.providers.server_monitoring) | cisco.aac.aac_bool("enabled") == "enabled" %}
+                        "monitorServer": "{{ 'enabled' if prov.server_monitoring | default(defaults.apic.fabric_policies.aaa.ldap.providers.server_monitoring) else 'disabled' }}",
+                        {% if prov.monitoring | default(defaults.apic.fabric_policies.aaa.ldap.providers.server_monitoring) %}
                         "monitoringUser": "{{ prov.monitoring_username | default(defaults.apic.fabric_policies.aaa.ldap.providers.monitoring_username) }}",
                         "monitoringPassword": "{{ prov.monitoring_password | default() }}",
                         {% endif %}

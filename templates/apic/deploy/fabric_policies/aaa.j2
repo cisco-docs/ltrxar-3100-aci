@@ -2,7 +2,7 @@
     "aaaUserEp": {
         "attributes": {
             "dn": "uni/userext",
-            "pwdStrengthCheck": "{{ apic.fabric_policies.aaa.management_settings.password_strength_check | default(defaults.apic.fabric_policies.aaa.management_settings.password_strength_check) | cisco.aac.aac_bool("yes") }}"
+            "pwdStrengthCheck": "{{'yes' if apic.fabric_policies.aaa.management_settings.password_strength_check | default(defaults.apic.fabric_policies.aaa.management_settings.password_strength_check) else 'no' }}"
         },
         "children": [
             {%- set comma1 = joiner(",") %}
@@ -12,7 +12,7 @@
                     "attributes": {
                         "name": "{{ sd.name }}",
                         "descr": "{{ sd.description | default() }}",
-                        "restrictedRbacDomain": "{% if sd.restricted_rbac_domain | default(defaults.apic.fabric_policies.aaa.security_domains.restricted_rbac_domain) %}yes{% else %}no{% endif %}"
+                        "restrictedRbacDomain": "{{ 'yes' if sd.restricted_rbac_domain | default(defaults.apic.fabric_policies.aaa.security_domains.restricted_rbac_domain) else 'no' }}"
                     }
                 }
             }
@@ -29,7 +29,7 @@
                             "aaaDefaultAuth": {
                                 "attributes": {
                                     "annotation": "orchestrator:aac",
-                                    "fallbackCheck": "{% if apic.fabric_policies.aaa.default_fallback_check | default(defaults.apic.fabric_policies.aaa.default_fallback_check) | cisco.aac.aac_bool("enabled") == "enabled" %}true{% else %}false{% endif %}",
+                                    "fallbackCheck": "{{ 'true' if apic.fabric_policies.aaa.default_fallback_check | default(defaults.apic.fabric_policies.aaa.default_fallback_check) else 'no' }}",
                                     {% if apic.fabric_policies.aaa.default_realm | default(defaults.apic.fabric_policies.aaa.default_realm) in ["tacacs", "radius", "ldap"] %}
                                     "providerGroup": "{{ apic.fabric_policies.aaa.default_login_domain | default(defaults.apic.fabric_policies.aaa.default_login_domain) }}",
                                     {% endif %}

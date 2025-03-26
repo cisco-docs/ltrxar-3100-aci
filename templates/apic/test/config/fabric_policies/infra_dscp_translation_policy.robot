@@ -7,7 +7,7 @@ Resource        ../../apic_common.resource
 *** Test Cases ***
 Verify APIC Infra DSCP Translation Policy
     ${r}=   GET On Session   apic   /api/mo/uni/tn-infra/dscptranspol-default.json
-    Should Be Equal Value Json String   ${r.json()}    $..qosDscpTransPol.attributes.adminSt   {{ apic.fabric_policies.infra_dscp_translation_policy.admin_state | default(defaults.apic.fabric_policies.infra_dscp_translation_policy.admin_state) | cisco.aac.aac_bool("enabled") }}
+    Should Be Equal Value Json String   ${r.json()}    $..qosDscpTransPol.attributes.adminSt   {{ 'enabled' if apic.fabric_policies.infra_dscp_translation_policy.admin_state | default(defaults.apic.fabric_policies.infra_dscp_translation_policy.admin_state) else 'disabled' }}
     Should Be Equal Value Json String   ${r.json()}    $..qosDscpTransPol.attributes.control   {{ apic.fabric_policies.infra_dscp_translation_policy.control_plane | default(defaults.apic.fabric_policies.infra_dscp_translation_policy.control_plane) }}
     Should Be Equal Value Json String   ${r.json()}    $..qosDscpTransPol.attributes.level1   {{ apic.fabric_policies.infra_dscp_translation_policy.level_1 | default(defaults.apic.fabric_policies.infra_dscp_translation_policy.level_1) }}
     Should Be Equal Value Json String   ${r.json()}    $..qosDscpTransPol.attributes.level2   {{ apic.fabric_policies.infra_dscp_translation_policy.level_2 | default(defaults.apic.fabric_policies.infra_dscp_translation_policy.level_2) }}

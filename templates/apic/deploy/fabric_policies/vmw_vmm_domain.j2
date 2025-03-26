@@ -24,7 +24,7 @@
                         "dn": "uni/vmmp-VMware/dom-{{ vmm_name }}",
                         "accessMode": "{{ vmm.access_mode | default(defaults.apic.fabric_policies.vmware_vmm_domains.access_mode) }}",
                         "delimiter": "{{ vmm.delimiter | default(defaults.apic.fabric_policies.vmware_vmm_domains.delimiter) }}",
-                        "enableTag": "{{ vmm.tag_collection | default(defaults.apic.fabric_policies.vmware_vmm_domains.tag_collection) | cisco.aac.aac_bool("yes") }}",
+                        "enableTag": "{{ 'yes' if vmm.tag_collection | default(defaults.apic.fabric_policies.vmware_vmm_domains.tag_collection) else 'no' }}",
                         "mode": "default",
                         "childAction": "deleteNonPresent"
                     },
@@ -148,7 +148,7 @@
                                     "port": "0",
                                     "rootContName": "{{ vc.datacenter }}",
                                     "scope": "vm",
-                                    "statsMode": "{{ vc.statistics | default(defaults.apic.fabric_policies.vmware_vmm_domains.vcenters.statistics) | cisco.aac.aac_bool("enabled") }}",
+                                    "statsMode": "{{ 'enabled' if vc.statistics | default(defaults.apic.fabric_policies.vmware_vmm_domains.vcenters.statistics) else 'disabled' }}",
                                     "childAction": "deleteNonPresent"
                                 },
                                 "children": [

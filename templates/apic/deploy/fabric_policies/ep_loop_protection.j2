@@ -16,7 +16,7 @@
         "attributes": {
             "annotation": "orchestrator:aac",
             "action": "{{ action | join(',') }}",
-            "adminSt": "{{ apic.fabric_policies.ep_loop_protection.admin_state | default(defaults.apic.fabric_policies.ep_loop_protection.admin_state) | cisco.aac.aac_bool("enabled") }}",
+            "adminSt": "{{ 'enabled' if apic.fabric_policies.ep_loop_protection.admin_state | default(defaults.apic.fabric_policies.ep_loop_protection.admin_state) else 'disabled' }}",
             "dn": "uni/infra/epLoopProtectP-default",
             "loopDetectIntvl": "{{ apic.fabric_policies.ep_loop_protection.detection_interval | default(defaults.apic.fabric_policies.ep_loop_protection.detection_interval) }}",
             "loopDetectMult": "{{ apic.fabric_policies.ep_loop_protection.detection_multiplier | default(defaults.apic.fabric_policies.ep_loop_protection.detection_multiplier) }}"

@@ -12,7 +12,7 @@
                     "attributes": {
                         "annotation": "orchestrator:aac",
                         "name": "{{ span_name }}",
-                        "adminSt": "{{ span.admin_state | default(defaults.apic.fabric_policies.span.source_groups.admin_state) | cisco.aac.aac_bool("enabled") }}",
+                        "adminSt": "{{ 'enabled' if span.admin_state | default(defaults.apic.fabric_policies.span.source_groups.admin_state) else 'disabled' }}",
                         "descr": "{{ span.description | default() }}",
                         "dn": "uni/fabric/srcgrp-{{ span_name }}",
                         "childAction": "deleteNonPresent"                        
@@ -28,7 +28,7 @@
                                     "descr": "{{ source.description | default() }}",
                                     "dir": "{{ source.direction | default(defaults.apic.fabric_policies.span.source_groups.sources.direction)}}",
                                     "name": "{{ source_name}}",
-                                    "spanOnDrop": "{{ source.span_drop | default(defaults.apic.fabric_policies.span.source_groups.sources.span_drop) | cisco.aac.aac_bool("yes") }}",
+                                    "spanOnDrop": "{{ 'yes' if source.span_drop | default(defaults.apic.fabric_policies.span.source_groups.sources.span_drop) else 'no' }}",
                                     "childAction": "deleteNonPresent"
                                 },
                                 "children": [

@@ -7,4 +7,4 @@ Resource        ../../apic_common.resource
 *** Test Cases ***
 Verify Healt Score Acknowledged Faults
     ${r}=   GET On Session   apic   /api/mo/uni/fabric/hsPols/hseval.json
-    Should Be Equal Value Json String   ${r.json()}    $..healthEvalP.attributes.ignoreAckedFaults   {{ apic.fabric_policies.ignore_acked_faults | default(defaults.apic.fabric_policies.ignore_acked_faults) | cisco.aac.aac_bool("yes") }}
+    Should Be Equal Value Json String   ${r.json()}    $..healthEvalP.attributes.ignoreAckedFaults   {{ 'yes' if apic.fabric_policies.ignore_acked_faults | default(defaults.apic.fabric_policies.ignore_acked_faults) else 'no' }}

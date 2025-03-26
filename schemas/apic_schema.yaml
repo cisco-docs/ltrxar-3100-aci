@@ -14,8 +14,8 @@ apic:
   tenants: list(include('tenant'), required=False) # @ref_name(Tenant)
   auto_generate_switch_pod_profiles: any(bool(), enum('enabled', 'disabled'), required=False)
   auto_generate_pod_profiles: any(bool(), enum('enabled', 'disabled'), required=False)
-  auto_generate_fabric_leaf_switch_interface_profiles: any(bool(), enum('enabled', 'disabled'), required=False)
-  auto_generate_fabric_spine_switch_interface_profiles: any(bool(), enum('enabled', 'disabled'), required=False)
+  auto_generate_fabric_leaf_switch_interface_profiles: bool(required=False)
+  auto_generate_fabric_spine_switch_interface_profiles: bool(required=False)
   auto_generate_access_leaf_switch_interface_profiles: any(bool(), enum('enabled', 'disabled'), required=False)
   auto_generate_access_spine_switch_interface_profiles: any(bool(), enum('enabled', 'disabled'), required=False)
   nae_assurance_group: str(required=False)
@@ -51,13 +51,13 @@ fabric_policies:
   global_settings: include('fp_global_settings', required=False)
   port_tracking: include('fp_port_tracking', required=False)
   ptp: include('fp_ptp', required=False)
-  ip_aging: any(bool(), enum('enabled', 'disabled'), required=False)
-  ignore_acked_faults: any(bool(), enum('yes', 'no'), required=False)
-  use_infra_gipo: any(bool(), enum('enabled', 'disabled'), required=False)
+  ip_aging: bool(required=False)
+  ignore_acked_faults: bool(required=False)
+  use_infra_gipo: bool(required=False)
   coop_group_policy: enum('compatible', 'strict', required=False)
   l2_port_mtu: int(min=576, max=9216, required=False)
   fabric_isis_redistribute_metric: int(required=False)
-  fabric_isis_bfd: any(bool(), enum('enabled', 'disabled'), required=False)
+  fabric_isis_bfd: bool(required=False)
   fabric_bgp_as: int(min=1, max=4294967295, required=False)
   fabric_bgp_rr: list(int(min=1, max=4000), required=False) # @name(Fabric BGP RR) @ref_name(Node ID)
   fabric_bgp_ext_rr: list(int(min=1, max=4000), required=False) # @name(Fabric BGP Ext RR) @ref_name(Node ID) @sheet_hidden()
@@ -104,7 +104,7 @@ fp_banners:
   escape_html: bool(required=False)
 
 fp_ep_loop_protection:
-  admin_state: any(bool(), enum('enabled', 'disabled'), required=False)
+  admin_state: bool(required=False)
   detection_interval: int(min=30, max=300, required=False)
   detection_multiplier: int(min=1, max=255, required=False)
   action: enum('bd-learn-disable', 'port-disable', required=False)
@@ -112,28 +112,28 @@ fp_ep_loop_protection:
   port_disable: bool(required=False)
 
 fp_rogue_ep_control:
-  admin_state: any(bool(), enum('enabled', 'disabled'), required=False)
+  admin_state: bool(required=False)
   detection_interval: int(min=30, max=3600, required=False)
   detection_multiplier: int(min=2, max=65535, required=False)
   hold_interval: int(min=300, max=3600, required=False)
 
 fp_global_settings:
-  domain_validation: any(bool(), enum('yes', 'no'), required=False)
-  enforce_subnet_check: any(bool(), enum('yes', 'no'), required=False)
-  opflex_authentication: any(bool(), enum('yes', 'no'), required=False)
-  disable_remote_endpoint_learn: any(bool(), enum('yes', 'no'), required=False)
-  overlapping_vlan_validation: any(bool(), enum('yes', 'no'), required=False)
-  remote_leaf_direct: any(bool(), enum('yes', 'no'), required=False)
-  reallocate_gipo: any(bool(), enum('yes', 'no'), required=False)
+  domain_validation: bool(required=False)
+  enforce_subnet_check: bool(required=False)
+  opflex_authentication: bool(required=False)
+  disable_remote_endpoint_learn: bool(required=False)
+  overlapping_vlan_validation: bool(required=False)
+  remote_leaf_direct: bool(required=False)
+  reallocate_gipo: bool(required=False)
 
 fp_port_tracking:
-  admin_state: any(bool(), enum('on', 'off'), required=False)
+  admin_state: bool(required=False)
   delay: int(min=1, max=300, required=False)
   min_links: int(min=0, max=48, required=False)
   include_apic: bool(required=False)
 
 fp_ptp:
-  admin_state: any(bool(), enum('enabled', 'disabled'), required=False)
+  admin_state: bool(required=False)
   global_domain: int(min=0, max=128, required=False)
   profile: enum('aes67', 'default', 'smpte', 'telecom_full_path', required=False)
   announce_interval: int(min=-3, max=4, required=False)
@@ -144,7 +144,7 @@ fp_ptp:
 fp_date_time_format:
   display_format: enum('local', 'utc', required=False)
   timezone: str(required=False)
-  show_offset: any(bool(), enum('enabled', 'disabled'), required=False)
+  show_offset: bool(required=False)
 
 fp_dns_policy:
   name: regex('^[a-zA-Z0-9_.:-]{1,64}$')
@@ -154,17 +154,17 @@ fp_dns_policy:
 
 fp_dns_policy_provider:
   ip: ip()
-  preferred: any(bool(), enum('yes', 'no'), required=False)
+  preferred: bool(required=False)
 
 fp_dns_policy_domain:
   name: regex('^[a-zA-Z0-9_.:-]{1,64}$')
-  default: any(bool(), enum('yes', 'no'), required=False)
+  default: bool(required=False)
 
 fp_err_disabled_recovery:
   interval: int(min=30, max=65535, required=False)
-  mcp_loop: any(bool(), enum('yes', 'no'), required=False)
-  ep_move: any(bool(), enum('yes', 'no'), required=False)
-  bpdu_guard: any(bool(), enum('yes', 'no'), required=False)
+  mcp_loop: bool(required=False)
+  ep_move: bool(required=False)
+  bpdu_guard: bool(required=False)
 
 fp_pod_policies:
   date_time_policies: list(include('fp_date_time_policy'), required=False) # @ref_name(Date Time Policy)
@@ -173,10 +173,10 @@ fp_pod_policies:
 
 fp_date_time_policy:
   name: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
-  ntp_admin_state: any(bool(), enum('enabled', 'disabled'), required=False)
-  ntp_auth_state: any(bool(), enum('enabled', 'disabled'), required=False)
-  apic_ntp_server_state: any(bool(), enum('enabled', 'disabled'), required=False)
-  apic_ntp_server_master_mode: any(bool(), enum('enabled', 'disabled'), required=False)
+  ntp_admin_state: bool(required=False)
+  ntp_auth_state: bool(required=False)
+  apic_ntp_server_state: bool(required=False)
+  apic_ntp_server_master_mode: bool(required=False)
   apic_ntp_server_master_stratum: int(min=1, max=14, required=False)
   ntp_servers: list(include('fp_ntp_servers'), required=False)
   ntp_keys: list(include('fp_ntp_keys'), required=False) # @name(NTP Keys) @sheet_hidden()
@@ -185,14 +185,14 @@ fp_date_time_policy:
 fp_ntp_servers:
   hostname_ip: any(regex('^[a-zA-Z0-9:][a-zA-Z0-9.:-]{0,254}$'), ip())
   auth_key_id: int(min=1, max=65535, required=False)
-  preferred: any(bool(), enum('yes', 'no'), required=False)
+  preferred: bool(required=False)
   mgmt_epg: enum('inb', 'oob', required=False)
 
 fp_ntp_keys:
   id: int(min=1, max=65535)
   key: str(min=0, max=40) # @sensitive()
   auth_type: enum('md5', 'sha1')
-  trusted: any(bool(), enum('yes', 'no'))
+  trusted: bool()
 
 fp_date_time_policy_expected_state:
   minimum_health: int(min=0, max=100, required=False)
@@ -202,7 +202,7 @@ fp_date_time_policy_expected_state:
 
 fp_snmp_policy:
   name: regex('^[a-zA-Z0-9_.:-]{1,64}$')
-  admin_state: any(bool(), enum('enabled', 'disabled'), required=False)
+  admin_state: bool(required=False)
   location: str(min=0, max=512, required=False)
   contact: str(min=0, max=255, required=False)
   users: list(include('fp_snmp_policy_user'), required=False) # @name(SNMP Users)
@@ -242,46 +242,46 @@ fp_management_access_policy:
   http: include('fp_management_access_policy_http', required=False) # @sheet_hidden()
 
 fp_management_access_policy_ssh:
-  admin_state: any(bool(), enum('enabled', 'disabled'), required=False)
-  password_auth: any(bool(), enum('enabled', 'disabled'), required=False)
+  admin_state: bool(required=False)
+  password_auth: bool(required=False)
   port: int(min=1, max=65535, required=False)
-  aes128_ctr: any(bool(), enum('yes', 'no'), required=False)
-  aes128_gcm: any(bool(), enum('yes', 'no'), required=False)
-  aes192_ctr: any(bool(), enum('yes', 'no'), required=False)
-  aes256_ctr: any(bool(), enum('yes', 'no'), required=False)
-  aes256_gcm: any(bool(), enum('yes', 'no'), required=False)
-  chacha: any(bool(), enum('yes', 'no'), required=False)
-  hmac_sha1: any(bool(), enum('yes', 'no'), required=False)
-  hmac_sha2_256: any(bool(), enum('yes', 'no'), required=False)
-  hmac_sha2_512: any(bool(), enum('yes', 'no'), required=False)
-  curve25519_sha256: any(bool(), enum('yes', 'no'), required=False)
-  curve25519_sha256_libssh: any(bool(), enum('yes', 'no'), required=False)
-  dh1_sha1: any(bool(), enum('yes', 'no'), required=False)
-  dh14_sha1: any(bool(), enum('yes', 'no'), required=False)
-  dh14_sha256: any(bool(), enum('yes', 'no'), required=False)
-  dh16_sha512: any(bool(), enum('yes', 'no'), required=False)
-  ecdh_sha2_nistp256: any(bool(), enum('yes', 'no'), required=False)
-  ecdh_sha2_nistp384: any(bool(), enum('yes', 'no'), required=False)
-  ecdh_sha2_nistp521: any(bool(), enum('yes', 'no'), required=False)
+  aes128_ctr: bool(required=False)
+  aes128_gcm: bool(required=False)
+  aes192_ctr: bool(required=False)
+  aes256_ctr: bool(required=False)
+  aes256_gcm: bool(required=False)
+  chacha: bool(required=False)
+  hmac_sha1: bool(required=False)
+  hmac_sha2_256: bool(required=False)
+  hmac_sha2_512: bool(required=False)
+  curve25519_sha256: bool(required=False)
+  curve25519_sha256_libssh: bool(required=False)
+  dh1_sha1: bool(required=False)
+  dh14_sha1: bool(required=False)
+  dh14_sha256: bool(required=False)
+  dh16_sha512: bool(required=False)
+  ecdh_sha2_nistp256: bool(required=False)
+  ecdh_sha2_nistp384: bool(required=False)
+  ecdh_sha2_nistp521: bool(required=False)
 
 fp_management_access_policy_telnet:
-  admin_state: any(bool(), enum('enabled', 'disabled'), required=False)
+  admin_state: bool(required=False)
   port: int(min=1, max=65535, required=False)
 
 fp_management_access_policy_https:
-  admin_state: any(bool(), enum('enabled', 'disabled'), required=False)
-  client_cert_auth_state: any(bool(), enum('enabled', 'disabled'), required=False)
+  admin_state: bool(required=False)
+  client_cert_auth_state: bool(required=False)
   dh: enum('1024', '2048', '4096',required=False)
   port: int(min=1, max=65535, required=False)
-  tlsv1: any(bool(), enum('yes', 'no'), required=False)
-  tlsv1_1: any(bool(), enum('yes', 'no'), required=False)
-  tlsv1_2: any(bool(), enum('yes', 'no'), required=False)
-  tlsv1_3: any(bool(), enum('yes', 'no'), required=False)
+  tlsv1: bool(required=False)
+  tlsv1_1: bool(required=False)
+  tlsv1_2: bool(required=False)
+  tlsv1_3: bool(required=False)
   key_ring: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
   allow_origins: regex('^[a-zA-Z0-9-_:/.,]{1,256}$', required=False)
 
 fp_management_access_policy_http:
-  admin_state: any(bool(), enum('enabled', 'disabled'), required=False)
+  admin_state: bool(required=False)
   port: int(min=1, max=65535, required=False)
   allow_origins: regex('^[a-zA-Z0-9-_:/.,]{1,256}$', required=False)
 
@@ -327,7 +327,7 @@ fp_switch_policies_psu_policies:
 
 fp_switch_policies_node_control_policies:
   name: regex('^[a-zA-Z0-9_.:-]{1,64}$')
-  dom: any(bool(), enum('enabled', 'disabled'), required=False)
+  dom: bool(required=False)
   telemetry: enum('netflow', 'telemetry', 'analytics', required=False)
 
 fp_leaf_interface_profiles:
@@ -450,7 +450,7 @@ fp_external_connectivity_policy_expected_state:
   maximum_minor_faults: int(min=0, required=False)
 
 fp_infra_dscp_translation_policy:
-  admin_state: any(bool(), enum('enabled', 'disabled'), required=False)
+  admin_state: bool(required=False)
   control_plane: any(enum('CS0', 'CS1', 'AF11', 'AF12', 'AF13', 'CS2', 'AF21', 'AF22', 'AF23', 'CS3', 'AF31', 'AF32', 'AF33', 'CS4', 'AF41', 'AF42', 'AF43', 'CS5', 'VA', 'EF', 'CS6', 'CS7'), int(min=0, max=63), required=False)
   policy_plane: any(enum('CS0', 'CS1', 'AF11', 'AF12', 'AF13', 'CS2', 'AF21', 'AF22', 'AF23', 'CS3', 'AF31', 'AF32', 'AF33', 'CS4', 'AF41', 'AF42', 'AF43', 'CS5', 'VA', 'EF', 'CS6', 'CS7'), int(min=0, max=63), required=False)
   span: any(enum('CS0', 'CS1', 'AF11', 'AF12', 'AF13', 'CS2', 'AF21', 'AF22', 'AF23', 'CS3', 'AF31', 'AF32', 'AF33', 'CS4', 'AF41', 'AF42', 'AF43', 'CS5', 'VA', 'EF', 'CS6', 'CS7'), int(min=0, max=63), required=False)
@@ -466,7 +466,7 @@ fp_vmware_vmm_domains:
   name: regex('^[a-zA-Z0-9_.:-]{1,64}$')
   access_mode: enum('read-only', 'read-write', required=False)
   delimiter: regex('^[|~!@^+=]$', required=False)
-  tag_collection: any(bool(), enum('yes', 'no'), required=False)
+  tag_collection: bool(required=False)
   vlan_pool: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
   allocation: enum('dynamic', 'static', required=False)
   security_domains: list(regex('^[a-zA-Z0-9_.:-]{1,64}$'), required=False) # @name(VMWare VMM Domain Sec Domain) @sheet_hidden()
@@ -500,7 +500,7 @@ fp_vmware_vmm_domains_vcenters:
   hostname_ip: any(regex('^[a-zA-Z0-9:][a-zA-Z0-9.:-]{0,254}$'), ip())
   datacenter: str(min=1, max=512)
   dvs_version: enum('unmanaged', '5.1', '5.5', '6.0', '6.5', '6.6','7.0', required=False)
-  statistics: any(bool(), enum('enabled', 'disabled'), required=False)
+  statistics: bool(required=False)
   credential_policy: regex('^[a-zA-Z0-9_.:-]{1,64}$')
   mgmt_epg: enum('inb', 'oob', required=False)
 
@@ -516,7 +516,7 @@ fp_vmware_vmm_domains_expected_state:
 
 fp_aaa:
   remote_user_login_policy: enum('assign-default-role', 'no-login', required=False)
-  default_fallback_check: any(bool(), enum('enabled', 'disabled'), required=False)
+  default_fallback_check: bool(required=False)
   default_realm: enum('local', 'tacacs', 'ldap', 'radius', required=False)
   default_login_domain: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
   console_realm: enum('local', 'tacacs', 'ldap', 'radius', required=False)
@@ -583,7 +583,7 @@ fp_aaa_tacacs_providers:
   timeout: int(min=0, max=60, required=False)
   retries: int(min=0, max=5, required=False)
   mgmt_epg: enum('inb', 'oob', required=False)
-  monitoring: any(bool(), enum('enabled', 'disabled'), required=False)
+  monitoring: bool(required=False)
   monitoring_username: regex('^[a-zA-Z0-9][a-zA-Z0-9_.@-]{0,31}$', required=False) # @sensitive()
   monitoring_password: str(required=False) # @sensitive()
   expected_state: include('fp_aaa_tacacs_providers_expected_state', required=False) # @no_external_doc() @name(Tacacs Provider Expected State) @sheet_hidden()
@@ -604,7 +604,7 @@ fp_aaa_users:
   certificate_name: str(min=1, max=128, required=False)
   description: regex('^[a-zA-Z0-9\\\\!#$%()*,-./:;@ _{|}~?&+]{1,128}$', required=False)
   status: enum('active', 'inactive', 'blocked', required=False)
-  expires: any(bool(), enum('yes', 'no'), required=False)
+  expires: bool(required=False)
   expire_date: any(enum('never'), timestamp(), required=False)
   domains: list(include('fp_aaa_users_domains'), required=False) # @name(User Domains) @ref_name(Domain) @sheet_hidden()
   certificates: list(include('fp_aaa_users_certificates'), required=False) # @name(User Certificates) @sheet_hidden()
@@ -667,11 +667,11 @@ fp_key_ring:
   private_key: regex('^[a-zA-Z0-9=\n\r/+ _.@-]{1,16384}$', required=False) # @sensitive()
 
 fp_aaa_ldap:
-  providers: list(include('fp_aa_ldap_providers'), required=False) # @name(LDAP Providers) @sheet_hidden()
-  group_map_rules: list(include('fp_aa_ldap_group_map_rules'), required=False) # @name(LDAP Group Map Rule) @sheet_hidden()
-  group_maps: list(include('fp_aa_ldap_group_maps'), required=False) # @name(LDAP Group Maps) @sheet_hidden()
+  providers: list(include('fp_aaa_ldap_providers'), required=False) # @name(LDAP Providers) @sheet_hidden()
+  group_map_rules: list(include('fp_aaa_ldap_group_map_rules'), required=False) # @name(LDAP Group Map Rule) @sheet_hidden()
+  group_maps: list(include('fp_aaa_ldap_group_maps'), required=False) # @name(LDAP Group Maps) @sheet_hidden()
 
-fp_aa_ldap_providers:
+fp_aaa_ldap_providers:
   hostname_ip: any(regex('^[a-zA-Z0-9:][a-zA-Z0-9.:-]{0,254}$'), ip())
   description: regex('^[a-zA-Z0-9\\\\!#$%()*,-./:;@ _{|}~?&+]{1,128}$', required=False)
   port: int(min=0, max=65535, required=False)
@@ -688,33 +688,33 @@ fp_aa_ldap_providers:
   server_monitoring: bool(required=False)
   monitoring_username: regex('^[a-zA-Z0-9][a-zA-Z0-9_.@-]{0,31}$', required=False) # @sensitive()
   monitoring_password: str(required=False) # @sensitive()
-  expected_state: include('fp_aa_ldap_providers_expected_state', required=False) # @no_external_doc() @name(LDAP Provider Exp State) @sheet_hidden()
+  expected_state: include('fp_aaa_ldap_providers_expected_state', required=False) # @no_external_doc() @name(LDAP Provider Exp State) @sheet_hidden()
 
-fp_aa_ldap_providers_expected_state:
+fp_aaa_ldap_providers_expected_state:
   minimum_health: int(min=0, max=100, required=False)
   maximum_critical_faults: int(min=0, required=False)
   maximum_major_faults: int(min=0, required=False)
   maximum_minor_faults: int(min=0, required=False)
 
-fp_aa_ldap_group_map_rules:
+fp_aaa_ldap_group_map_rules:
   name: regex('^[a-zA-Z0-9_.:-]{1,64}$')
   description: regex('^[a-zA-Z0-9\\\\!#$%()*,-./:;@ _{|}~?&+]{1,128}$', required=False)
   group_dn: str(required=False)
-  security_domains: list(include('fp_aa_ldap_group_map_rules_security_domains'), required=False) # @name(LDAP Gr Map Rules Sec Domains) @sheet_hidden()
+  security_domains: list(include('fp_aaa_ldap_group_map_rules_security_domains'), required=False) # @name(LDAP Gr Map Rules Sec Domains) @sheet_hidden()
 
-fp_aa_ldap_group_map_rules_security_domains:
+fp_aaa_ldap_group_map_rules_security_domains:
   name: regex('^[a-zA-Z0-9_.:-]{1,31}$')
-  roles: list(include('fp_aa_ldap_group_map_rules_security_domains_roles'), required=False) # @name(LDAP Gr Map Rules Sec Dom Roles) @sheet_hidden()
+  roles: list(include('fp_aaa_ldap_group_map_rules_security_domains_roles'), required=False) # @name(LDAP Gr Map Rules Sec Dom Roles) @sheet_hidden()
 
-fp_aa_ldap_group_map_rules_security_domains_roles:
+fp_aaa_ldap_group_map_rules_security_domains_roles:
   name: regex('^[a-zA-Z0-9_.-]{1,31}$')
   privilege_type: enum('write', 'read', required=False)
 
-fp_aa_ldap_group_maps:
+fp_aaa_ldap_group_maps:
   name: regex('^[a-zA-Z0-9_.:-]{1,64}$')
-  rules: list(include('fp_aa_ldap_group_maps_rules'), required=False) # @name(LDAP Group Map Rules) @sheet_hidden()
+  rules: list(include('fp_aaa_ldap_group_maps_rules'), required=False) # @name(LDAP Group Map Rules) @sheet_hidden()
 
-fp_aa_ldap_group_maps_rules:
+fp_aaa_ldap_group_maps_rules:
   name: regex('^[a-zA-Z0-9_.:-]{1,64}$')
 
 fp_geolocation:
@@ -789,7 +789,7 @@ fp_config_exports:
   format: enum('json', 'xml', required=False)
   remote_location: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
   scheduler: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
-  snapshot: any(bool(), enum('yes', 'no'), required=False)
+  snapshot: bool(required=False)
   expected_state: include('fp_config_exports_expected_state', required=False) # @no_external_doc() @name(Config Export Expected State) @sheet_hidden()
 
 fp_config_exports_expected_state:
@@ -821,18 +821,18 @@ fp_monitoring_snmp_traps_destinations:
 fp_monitoring_syslogs:
   name: regex('^[a-zA-Z0-9_.:-]{1,64}$')
   description: regex('^[a-zA-Z0-9\\\\!#$%()*,-./:;@ _{|}~?&+]{1,128}$', required=False)
-  audit: any(bool(), enum('yes', 'no'), required=False)
-  events: any(bool(), enum('yes', 'no'), required=False)
-  faults: any(bool(), enum('yes', 'no'), required=False)
-  session: any(bool(), enum('yes', 'no'), required=False)
+  audit: bool(required=False)
+  events: bool(required=False)
+  faults: bool(required=False)
+  session: bool(required=False)
   minimum_severity: enum('emergencies', 'alerts', 'critical', 'errors', 'warnings', 'notifications', 'information','debugging', required=False)
-  admin_state: any(bool(), enum('enabled', 'disabled'), required=False)
+  admin_state: bool(required=False)
   format: enum('aci', 'nxos', 'enhanced-log', required=False)
-  show_millisecond: any(bool(), enum('enabled', 'disabled'), required=False)
+  show_millisecond: bool(required=False)
   show_timezone: bool(required=False)
-  local_admin_state: any(bool(), enum('enabled', 'disabled'), required=False)
+  local_admin_state: bool(required=False)
   local_severity: enum('emergencies', 'alerts', 'critical', 'errors', 'warnings', 'notifications', 'information', 'debugging', required=False)
-  console_admin_state: any(bool(), enum('enabled', 'disabled'), required=False)
+  console_admin_state: bool(required=False)
   console_severity: enum('emergencies', 'alerts', 'critical', 'errors', 'warnings', 'notifications', 'information', 'debugging', required=False)
   destinations: list(include('fp_monitoring_syslogs_destinations'), required=False) # @name(Syslog Destinations)
 
@@ -841,7 +841,7 @@ fp_monitoring_syslogs_destinations:
   hostname_ip: any(regex('^[a-zA-Z0-9:][a-zA-Z0-9.:-]{0,254}$'), ip())
   protocol: enum('udp', 'tcp' ,'ssl', required=False)
   port: int(min=1, max=65535, required=False)
-  admin_state: any(bool(), enum('enabled', 'disabled'), required=False)
+  admin_state: bool(required=False)
   facility: enum('local0', 'local1' ,'local2' ,'local3' ,'local4' ,'local5', 'local6', 'local7', required=False)
   severity: enum('emergencies', 'alerts', 'critical', 'errors', 'warnings', 'notifications', 'information', 'debugging', required=False)
   mgmt_epg: enum('inb', 'oob', required=False)
@@ -912,7 +912,7 @@ fp_span:
 fp_span_source_groups:
   name: regex('^[a-zA-Z0-9_.:-]{1,64}$')
   description: regex('^[a-zA-Z0-9\\\\!#$%()*,-./:;@ _{|}~?&+]{1,128}$', required=False)
-  admin_state: any(bool(), enum('enabled', 'disabled'), required=False)
+  admin_state: bool(required=False)
   sources: list(include('fp_span_source_groups_sources'), required=False) # @name(Fabric SPAN SG Sources) @ref_name(Fabric SPAN Source Group Source) @sheet_hidden()
   destination: include('fp_span_source_groups_destination') # @name(Fabric SPAN SG Destinations) @sheet_hidden()
   expected_state: include('fp_span_source_groups_expected_state', required=False) # @no_external_doc() @name(Fabric SPAN SG Expected State) @sheet_hidden()
@@ -925,7 +925,7 @@ fp_span_source_groups_sources:
   name: regex('^[a-zA-Z0-9_.:-]{1,64}$')
   description: regex('^[a-zA-Z0-9\\\\!#$%()*,-./:;@ _{|}~?&+]{1,128}$', required=False)
   direction: enum('in', 'out', 'both', required=False)
-  span_drop: any(bool(), enum('yes', 'no'), required=False)
+  span_drop: bool(required=False)
   tenant: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
   vrf: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
   bridge_domain: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
@@ -953,7 +953,7 @@ fp_span_destination_groups:
   mtu: int(min=64, max=9216, required=False)
   ttl: int(min=1, max=255, required=False)
   version: enum(1, 2, required=False)
-  enforce_version: any(bool(), enum('yes', 'no'), required=False)
+  enforce_version: bool(required=False)
   tenant: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
   application_profile: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
   endpoint_group: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)

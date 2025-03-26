@@ -6,7 +6,7 @@
         "children": [
             {%- set comma1 = joiner(",") %}
             {%- if apic.new_interface_configuration | default(defaults.apic.new_interface_configuration) is false %}
-            {%- if apic.auto_generate_switch_pod_profiles | default(defaults.apic.auto_generate_switch_pod_profiles) | cisco.aac.aac_bool("enabled") == "enabled" or apic.auto_generate_fabric_spine_switch_interface_profiles | default(defaults.apic.auto_generate_fabric_spine_switch_interface_profiles) | cisco.aac.aac_bool("enabled") == "enabled" %}
+            {%- if apic.auto_generate_switch_pod_profiles | default(defaults.apic.auto_generate_switch_pod_profiles) or apic.auto_generate_fabric_spine_switch_interface_profiles | default(defaults.apic.auto_generate_fabric_spine_switch_interface_profiles) %}
             {%- for node in apic.node_policies.nodes | default([]) %}
             {%- if node.role == "spine" %}
             {%- set spine_switch_profile_name = (node.id ~ ":" ~ node.name) | regex_replace("^(?P<id>.+):(?P<name>.+)$", (apic.fabric_policies.spine_switch_profile_name | default(defaults.apic.fabric_policies.spine_switch_profile_name))) %}

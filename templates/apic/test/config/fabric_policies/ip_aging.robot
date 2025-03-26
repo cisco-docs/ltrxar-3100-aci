@@ -7,4 +7,4 @@ Resource        ../../apic_common.resource
 *** Test Cases ***
 Verify IP Aging
     ${r}=   GET On Session   apic   /api/mo/uni/infra/ipAgingP-default.json
-    Should Be Equal Value Json String   ${r.json()}    $..epIpAgingP.attributes.adminSt   {{ apic.fabric_policies.ip_aging | default(defaults.apic.fabric_policies.ip_aging) | cisco.aac.aac_bool("enabled") }}
+    Should Be Equal Value Json String   ${r.json()}    $..epIpAgingP.attributes.adminSt   {{ 'enabled' if apic.fabric_policies.ip_aging | default(defaults.apic.fabric_policies.ip_aging) else 'disabled' }}
