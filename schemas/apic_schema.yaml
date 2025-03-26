@@ -1073,7 +1073,7 @@ ap_routed_domain_expected_state:
 ap_aaep:
   name: regex('^[a-zA-Z0-9_.:-]{1,64}$')
   description: regex('^[a-zA-Z0-9\\\\!#$%()*,-./:;@ _{|}~?&+]{1,128}$', required=False)
-  infra_vlan: any(bool(), enum('enabled', 'disabled'), required=False)
+  infra_vlan: bool(required=False)
   physical_domains: list(regex('^[a-zA-Z0-9_.:-]{1,64}$'), required=False) # @name(AAEP Physical Domains) @ref_name(Physical Domain)
   routed_domains: list(regex('^[a-zA-Z0-9_.:-]{1,64}$'), required=False) # @name(AAEP Routed Domains) @ref_name(Routed Domain)
   vmware_vmm_domains: list(regex('^[a-zA-Z0-9_.:-]{1,64}$'), required=False) # @name(AAEP VMware VMM Domains) @ref_name(VMware VMM Domain) @sheet_hidden()
@@ -1108,32 +1108,32 @@ ap_aaep_expected_state:
   maximum_minor_faults: int(min=0, required=False)
 
 ap_mcp:
-  action: any(bool(), enum('enabled', 'disabled'), required=False)
-  admin_state: any(bool(), enum('enabled', 'disabled'), required=False)
+  action: bool(required=False)
+  admin_state: bool(required=False)
   frequency_sec: int(min=0, max=300, required=False)
   frequency_msec: int(min=0, max=999, required=False)
   initial_delay: int(min=0, max=1800, required=False)
   loop_detection: int(min=1, max=255, required=False)
-  per_vlan: any(bool(), enum('enabled', 'disabled'), required=False)
+  per_vlan: bool(required=False)
   key: str() # @sensitive()
 
 ap_qos:
-  preserve_cos: any(bool(), enum('enabled', 'disabled'), required=False)
+  preserve_cos: bool(required=False)
   qos_classes: list(include('ap_qos_class'), required=False) # @sheet_hidden()
 
 ap_qos_class:
   level: int(min=1, max=6)
-  admin_state: any(bool(), enum('enabled', 'disabled'), required=False)
+  admin_state: bool(required=False)
   mtu: int(min=1, max=9216, required=False)
   scheduling: enum('wrr', 'strict-priority', required=False)
   bandwidth_percent: int(min=0, max=100, required=False)
   congestion_algorithm: enum('tail-drop', 'wred', required=False)
   minimum_buffer: int(min=0, max=3, required=False)
-  pfc_state: any(bool(), enum('enabled', 'disabled'), required=False)
+  pfc_state: bool(required=False)
   no_drop_cos: enum('unspecified', 'cos0', 'cos1', 'cos2', 'cos3', 'cos4', 'cos5', 'cos6', 'cos7', required=False)
   pfc_scope: enum('tor', 'fabric', required=False)
-  ecn: any(bool(), enum('enabled', 'disabled'), required=False)
-  forward_non_ecn: any(bool(), enum('enabled', 'disabled'), required=False)
+  ecn: bool(required=False)
+  forward_non_ecn: bool(required=False)
   wred_max_threshold: int(min=0, max=100, required=False)
   wred_min_threshold: int(min=0, max=100, required=False)
   wred_probability: int(min=0, max=100, required=False)
@@ -1160,7 +1160,7 @@ ap_span_destination_groups:
   mtu: int(min=64, max=9216, required=False)
   ttl: int(min=1, max=255, required=False)
   version: enum(1, 2, required=False)
-  enforce_version: any(bool(), enum('yes', 'no'), required=False)
+  enforce_version: bool(required=False)
   tenant: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
   application_profile: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
   endpoint_group: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
@@ -1175,7 +1175,7 @@ ap_span_destination_groups_expected_state:
 ap_span_source_groups:
   name: regex('^[a-zA-Z0-9_.:-]{1,64}$')
   description: regex('^[a-zA-Z0-9\\\\!#$%()*,-./:;@ _{|}~?&+]{1,128}$', required=False)
-  admin_state: any(bool(), enum('enabled', 'disabled'), required=False)
+  admin_state: bool(required=False)
   sources: list(include('ap_span_source_groups_sources'), required=False) # @name(Access SPAN SG Sources) @ref_name(Source Group Source) @sheet_hidden()
   destination: include('ap_span_source_groups_destination') # @flatten()
   filter_group: regex('^[a-zA-Z0-9\\\\!#$%()*,-./:;@ _{|}~?&+]{1,128}$', required=False)
@@ -1189,7 +1189,7 @@ ap_span_source_groups_sources:
   name: regex('^[a-zA-Z0-9_.:-]{1,64}$')
   description: regex('^[a-zA-Z0-9\\\\!#$%()*,-./:;@ _{|}~?&+]{1,128}$', required=False)
   direction: enum('in', 'out', 'both', required=False)
-  span_drop: any(bool(), enum('yes', 'no'), required=False)
+  span_drop: bool(required=False)
   tenant: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
   application_profile: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
   endpoint_group: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
@@ -1236,7 +1236,7 @@ ap_vspan:
 ap_vspan_sessions:
   name: regex('^[a-zA-Z0-9_.:-]{1,64}$')
   description: regex('^[a-zA-Z0-9\\\\!#$%()*,-./:;@ _{|}~?&+]{1,128}$', required=False)
-  admin_state: any(bool(), enum('enabled', 'disabled'), required=False)
+  admin_state: bool(required=False)
   sources: list(include('ap_vspan_sessions_sources'), required=False) # @name(VSPAN Sources) @ref_name(VSPAN Source) @sheet_hidden()
   destination: include('ap_vspan_sessions_destination') # @name(VSPAN Destination Labels) @ref_name(VSPAN Destination Group) @sheet_hidden()
   expected_state: include('ap_vspan_sessions_expected_state', required=False) # @no_external_doc() @name(VSPAN Session Expected State) @sheet_hidden()
@@ -1405,17 +1405,17 @@ ap_interface_policies:
 
 ap_cdp_policy:
   name: regex('^[a-zA-Z0-9_.:-]{1,64}$')
-  admin_state: any(bool(), enum('enabled', 'disabled'))
+  admin_state: bool()
 
 ap_lldp_policy:
   name: regex('^[a-zA-Z0-9_.:-]{1,64}$')
-  admin_rx_state: any(bool(), enum('enabled', 'disabled'))
-  admin_tx_state: any(bool(), enum('enabled', 'disabled'))
+  admin_rx_state: bool()
+  admin_tx_state: bool()
 
 ap_link_level_policy:
   name: regex('^[a-zA-Z0-9_.:-]{1,64}$')
   speed: enum('auto', '100M', '1G', '10G', '25G', '40G', '100G', '400G', 'inherit', required=False)
-  auto: any(bool(), enum('on', 'off'), required=False)
+  auto: bool(required=False)
   fec_mode: enum('inherit', 'cl91-rs-fec', 'cl74-fc-fec', 'auto-fec', 'ieee-rs-fec', 'cons16-rs-fec', 'disable-fec', required=False)
   physical_media_type: enum('auto', 'sfp-10g-tx', required=False)
 
@@ -1424,11 +1424,11 @@ ap_port_channel_policy:
   mode: enum('off', 'active', 'passive', 'mac-pin', 'mac-pin-nicload')
   min_links: int(min=1, max=16, required=False)
   max_links: int(min=1, max=16, required=False)
-  suspend_individual: any(bool(), enum('yes', 'no'), required=False)
-  graceful_convergence: any(bool(), enum('yes', 'no'), required=False)
-  fast_select_standby: any(bool(), enum('yes', 'no'), required=False)
-  load_defer: any(bool(), enum('yes', 'no'), required=False)
-  symmetric_hash: any(bool(), enum('yes', 'no'), required=False)
+  suspend_individual: bool(required=False)
+  graceful_convergence: bool(required=False)
+  fast_select_standby: bool(required=False)
+  load_defer: bool(required=False)
+  symmetric_hash: bool(required=False)
   hash_key: enum('src-ip', 'dst-ip', 'l4-src-port', 'l4-dst-port', required=False)
 
 ap_port_channel_member_policy:
@@ -1438,12 +1438,12 @@ ap_port_channel_member_policy:
 
 ap_spanning_tree_policy:
   name: regex('^[a-zA-Z0-9_.:-]{1,64}$')
-  bpdu_filter: any(bool(), enum('yes', 'no'), required=False)
-  bpdu_guard: any(bool(), enum('yes', 'no'), required=False)
+  bpdu_filter: bool(required=False)
+  bpdu_guard: bool(required=False)
 
 ap_mcp_policy:
   name: regex('^[a-zA-Z0-9_.:-]{1,64}$')
-  admin_state: any(bool(), enum('enabled', 'disabled'))
+  admin_state: bool(required=False)
 
 ap_l2_policy:
   name: regex('^[a-zA-Z0-9_.:-]{1,64}$')

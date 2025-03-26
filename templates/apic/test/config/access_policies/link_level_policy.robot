@@ -12,7 +12,7 @@ Verify Link Level Interface Policy {{ link_level_policy_name }}
     ${r}=   GET On Session   apic   /api/mo/uni/infra/hintfpol-{{ link_level_policy_name }}.json
     Should Be Equal Value Json String   ${r.json()}    $..fabricHIfPol.attributes.name   {{ link_level_policy_name }}
     Should Be Equal Value Json String   ${r.json()}    $..fabricHIfPol.attributes.speed   {{ policy.speed | default(defaults.apic.access_policies.interface_policies.link_level_policies.speed) }}
-    Should Be Equal Value Json String   ${r.json()}    $..fabricHIfPol.attributes.autoNeg   {{ policy.auto | default(defaults.apic.access_policies.interface_policies.link_level_policies.auto) | cisco.aac.aac_bool("on") }}
+    Should Be Equal Value Json String   ${r.json()}    $..fabricHIfPol.attributes.autoNeg   {{ 'on' if policy.auto | default(defaults.apic.access_policies.interface_policies.link_level_policies.auto) else 'off' }}
     Should Be Equal Value Json String   ${r.json()}    $..fabricHIfPol.attributes.fecMode   {{ policy.fec_mode | default(defaults.apic.access_policies.interface_policies.link_level_policies.fec_mode) }}
 {% if policy.physical_media_type is defined %}
     Should Be Equal Value Json String   ${r.json()}    $..fabricHIfPol.attributes.portPhyMediaType   {{ policy.physical_media_type }}

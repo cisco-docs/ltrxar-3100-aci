@@ -14,7 +14,7 @@
                         "name": "{{ vspan_name }}",
                         "descr": "{{ vspan.description | default() }}",
                         "dn": "uni/infra/vsrcgrp-{{ vspan_name }}",
-                        "adminSt": "{% if vspan.admin_state | default(defaults.apic.access_policies.vspan.sessions.admin_state) | cisco.aac.aac_bool("enabled") == "enabled" %}start{% else %}stop{% endif %}",
+                        "adminSt": "{{ 'start' if vspan.admin_state | default(defaults.apic.access_policies.vspan.sessions.admin_state) else 'stop' }}",
                         "childAction": "deleteNonPresent"
                     },
                     "children": [

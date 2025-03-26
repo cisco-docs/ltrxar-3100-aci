@@ -63,7 +63,7 @@ Verify SPAN Destination Group {{ span_name }}
     Should Be Equal Value Json String   ${r.json()}    $..spanDestGrp.children..spanDest.children..spanRsDestEpg.attributes.mtu   {{ span.mtu | default(defaults.apic.access_policies.span.destination_groups.mtu) }}
     Should Be Equal Value Json String   ${r.json()}    $..spanDestGrp.children..spanDest.children..spanRsDestEpg.attributes.ttl   {{ span.ttl | default(defaults.apic.access_policies.span.destination_groups.ttl) }}
     Should Be Equal Value Json String   ${r.json()}    $..spanDestGrp.children..spanDest.children..spanRsDestEpg.attributes.ver   ver{{ span.version | default(defaults.apic.access_policies.span.destination_groups.version) }}
-    Should Be Equal Value Json String   ${r.json()}    $..spanDestGrp.children..spanDest.children..spanRsDestEpg.attributes.verEnforced   {{ span.enforce_version | default(defaults.apic.access_policies.span.destination_groups.enforce_version) | cisco.aac.aac_bool("yes") }}
+    Should Be Equal Value Json String   ${r.json()}    $..spanDestGrp.children..spanDest.children..spanRsDestEpg.attributes.verEnforced   {{ 'yes' if span.enforce_version | default(defaults.apic.access_policies.span.destination_groups.enforce_version) else 'no' }}
     Should Be Equal Value Json String   ${r.json()}    $..spanDestGrp.children..spanDest.children..spanRsDestEpg.attributes.tDn   uni/tn-{{ span.tenant | default(tenant.name) }}/ap-{{ application_profile_name }}/epg-{{ endpoint_group_name }}
 {% endif %}                                  
 

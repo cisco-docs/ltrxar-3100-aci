@@ -13,7 +13,7 @@ Verify SPAN Source Group {{ span_name }}
     Set Suite Variable   ${r}
     Should Be Equal Value Json String   ${r.json()}    $..spanSrcGrp.attributes.name   {{ span_name }}
     Should Be Equal Value Json String   ${r.json()}    $..spanSrcGrp.attributes.descr   {{ span.description | default() }}
-    Should Be Equal Value Json String   ${r.json()}    $..spanSrcGrp.attributes.adminSt   {{ span.admin_state | default(defaults.apic.access_policies.span.source_groups.admin_state) | cisco.aac.aac_bool("enabled") }}
+    Should Be Equal Value Json String   ${r.json()}    $..spanSrcGrp.attributes.adminSt   {{ 'enabled' if span.admin_state | default(defaults.apic.access_policies.span.source_groups.admin_state) else 'disabled' }}
 
 {% for source in span.sources | default([]) %}
 {% set source_name = source.name ~ defaults.apic.access_policies.span.source_groups.sources.name_suffix %}
@@ -21,7 +21,7 @@ Verify SPAN Source Group {{ span_name }} Source {{ source_name }}
     ${source}=   Set Variable   $..spanSrcGrp.children[?(@.spanSrc.attributes.name=='{{ source_name }}')].spanSrc
     Should Be Equal Value Json String   ${r.json()}    ${source}.attributes.name   {{ source_name }}
     Should Be Equal Value Json String   ${r.json()}    ${source}.attributes.dir   {{ source.direction | default(defaults.apic.access_policies.span.source_groups.sources.direction) }}
-    Should Be Equal Value Json String   ${r.json()}    ${source}.attributes.spanOnDrop   {{ source.span_drop | default(defaults.apic.access_policies.span.source_groups.sources.span_drop) | cisco.aac.aac_bool("yes") }}
+    Should Be Equal Value Json String   ${r.json()}    ${source}.attributes.spanOnDrop   {{ 'yes' if source.span_drop | default(defaults.apic.access_policies.span.source_groups.sources.span_drop) else 'no' }}
 {% if source.tenant is defined and source.application_profile is defined and source.endpoint_group is defined %}
 {% set application_profile_name = source.application_profile ~ defaults.apic.tenants.application_profiles.name_suffix %}      
 {% set endpoint_group_name = source.endpoint_group ~ defaults.apic.tenants.application_profiles.endpoint_groups.name_suffix %}

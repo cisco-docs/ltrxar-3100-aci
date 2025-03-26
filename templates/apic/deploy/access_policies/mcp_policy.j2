@@ -13,7 +13,7 @@
                         "annotation": "orchestrator:aac",
                         "name": "{{ mcp_policy_name }}",
                         "dn": "uni/infra/mcpIfP-{{ mcp_policy_name }}",
-                        "adminSt": "{{ policy.admin_state | cisco.aac.aac_bool("enabled") }}"
+                        "adminSt": "{{ 'enabled' if policy.admin_state else 'disabled' }}"
                     }
                 }
             }

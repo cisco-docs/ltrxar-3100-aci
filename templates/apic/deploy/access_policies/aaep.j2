@@ -51,7 +51,7 @@
                             }
                         }
                         {%- endfor %}
-                        {%- if aaep.infra_vlan | default(defaults.apic.access_policies.aaeps.infra_vlan) | cisco.aac.aac_bool("enabled") == 'enabled' %}{{ comma2() }}
+                        {%- if aaep.infra_vlan | default(defaults.apic.access_policies.aaeps.infra_vlan) %}{{ comma2() }}
                         {
                             "infraProvAcc": {
                                 "attributes": {

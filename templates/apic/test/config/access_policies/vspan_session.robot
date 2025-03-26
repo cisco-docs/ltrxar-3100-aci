@@ -13,7 +13,7 @@ Verify VSPAN Session {{ vspan_name }}
     Set Suite Variable   ${r}
     Should Be Equal Value Json String   ${r.json()}    $..spanVSrcGrp.attributes.name   {{ vspan_name }}
     Should Be Equal Value Json String   ${r.json()}    $..spanVSrcGrp.attributes.descr   {{ vspan.description | default() }}
-    Should Be Equal Value Json String   ${r.json()}    $..spanVSrcGrp.attributes.adminSt   {% if vspan.admin_state | default(defaults.apic.access_policies.vspan.sessions.admin_state) | cisco.aac.aac_bool("enabled") == "enabled" %}start{% else %}stop{% endif %}
+    Should Be Equal Value Json String   ${r.json()}    $..spanVSrcGrp.attributes.adminSt   {{ 'start' if vspan.admin_state | default(defaults.apic.access_policies.vspan.sessions.admin_state) else 'stop' }}
 
 {% for source in vspan.sources | default([]) %}
 {% set source_name = source.name ~ defaults.apic.access_policies.vspan.sessions.sources.name_suffix %}

@@ -11,6 +11,6 @@ Resource        ../../apic_common.resource
 Verify MCP Interface Policy {{ mcp_policy_name }}
     ${r}=   GET On Session   apic   /api/mo/uni/infra/mcpIfP-{{ mcp_policy_name }}.json
     Should Be Equal Value Json String   ${r.json()}    $..mcpIfPol.attributes.name   {{ mcp_policy_name }}
-    Should Be Equal Value Json String   ${r.json()}    $..mcpIfPol.attributes.adminSt   {{ policy.admin_state | cisco.aac.aac_bool("enabled") }}
+    Should Be Equal Value Json String   ${r.json()}    $..mcpIfPol.attributes.adminSt   {{ 'enabled' if policy.admin_state else 'disabled' }}
 
 {% endfor %}
