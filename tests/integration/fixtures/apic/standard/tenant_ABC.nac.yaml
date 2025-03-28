@@ -304,6 +304,7 @@ apic:
           node_profiles:
             - name: NP1
               bgp:
+                name: BGP_PROT1
                 timer_policy: BGP-TIMER1
                 as_path_policy: BGP-BEST-PATH1
               bgp_peers:

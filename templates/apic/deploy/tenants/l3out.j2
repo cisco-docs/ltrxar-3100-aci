@@ -722,6 +722,7 @@
                                     {
                                         "bgpProtP": {
                                             "attributes": {
+                                                "name": "{{ l3out.bgp.name | default() }}",
                                                 "annotation": "orchestrator:aac",
                                                 "childAction": "deleteNonPresent"
                                             },
@@ -1436,11 +1437,12 @@
                                         }
                                     }
                                     {%- endfor %}
-                                    {%- if np.bgp is defined %}{{ comma3() }}
+                                    {%- if np.bgp is defined %}{{ comma3() }}                                                                      
                                     {
                                         "bgpProtP": {
                                             "attributes": {
-                                                "annotation": "orchestrator:aac",
+                                                "annotation": "orchestrator:aac",                                            
+                                                "name": "{{ np.bgp.name | default() }}",                                       
                                                 "childAction": "deleteNonPresent"
                                             },
                                             "children": [
@@ -1471,6 +1473,7 @@
                                             ]
                                         }
                                     }
+                                    
                                     {%- endif %}
 
                                 ]

@@ -2392,6 +2392,7 @@ ten_l3outs:
 
 
 ten_l3outs_bgp:
+  name: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
   timer_policy: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
   as_path_policy: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
 
@@ -2577,6 +2578,7 @@ ten_l3outs_node_profiles_bgp_peers:
   import_route_control: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
 
 ten_l3outs_node_profiles_bgp:
+  name: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
   timer_policy: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
   as_path_policy: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
 

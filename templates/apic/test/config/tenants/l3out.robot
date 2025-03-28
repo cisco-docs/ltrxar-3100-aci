@@ -424,6 +424,10 @@ Verify L3out {{ l3out_name }} Node Profile {{ l3out_np_name }} Interface Profile
 
 Verify L3out {{ l3out_name }} BGP Protocol Profile
 
+{% if l3out.bgp.name is defined | default() %}                   
+    Should Be Equal Value Json String   ${r.json()}   $..bgpProtP.attributes.name  {{ l3out.bgp.name }}
+{% endif %}
+
 {% if l3out.bgp.timer_policy is defined %}
 {% set bgp_timer_policy_name = l3out.bgp.timer_policy ~ defaults.apic.tenants.policies.bgp_timer_policies.name_suffix %}                             
     Should Be Equal Value Json String   ${r.json()}   $..bgpRsBgpNodeCtxPol.attributes.tnBgpCtxPolName   {{ bgp_timer_policy_name }}
@@ -821,6 +825,10 @@ Verify L3out {{ l3out_name }} Node Profile {{ l3out_np_name }} Interface Profile
 {% if np.bgp is defined %}
 
 Verify L3out {{ l3out_name }} BGP Protocol Profile
+
+{% if np.bgp.name is defined | default() %}               
+    Should Be Equal Value Json String   ${r.json()}   $..bgpProtP.attributes.name  {{ np.bgp.name }}
+{% endif %}
 
 {% if np.bgp.timer_policy is defined %}
 {% set bgp_timer_policy_name = np.bgp.timer_policy ~ defaults.apic.tenants.policies.bgp_timer_policies.name_suffix %}                       

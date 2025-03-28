@@ -168,6 +168,7 @@ apic:
           node_profiles:
             - name: NODE_101
               bgp:
+                name: BGP_PROT1
                 timer_policy: BGP_TIMER1
                 as_path_policy: BGP_AS_PATH1
               nodes:
