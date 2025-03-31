@@ -104,7 +104,7 @@ Verify SR MPLS L3out {{ l3out_name }} Node Profile {{ l3out_np_name }} Interface
 {% for int in ip.interfaces | default([]) %}
 
 Verify SR MPLS L3out {{ l3out_name }} Node Profile {{ l3out_np_name }} Interface Profile {{ l3out_ip_name }} Interface {{ loop.index }}
-{% if int.port %}
+{% if int.port is defined %}
 {% set type = 'ap' %}
 {% set query = "nodes[?id==`" ~ int.node_id ~ "`].pod" %}
 {% set pod = int.pod_id | default(((apic.node_policies | default()) | community.general.json_query(query))[0] | default('1')) %}
