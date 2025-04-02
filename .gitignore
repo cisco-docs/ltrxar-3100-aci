@@ -393,6 +393,7 @@ $RECYCLE.BIN/
 
 # Test Results
 test_results/
+tests/results
 
 #Mac Book DS_Store
 .DS_Store
