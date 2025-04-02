@@ -314,31 +314,31 @@ No SNMP policies configured.
 {% if apic.fabric_policies.pod_policies.management_access_policies|length > 0 %}
 {% for policy in apic.fabric_policies.pod_policies.management_access_policies | default([]) %}
 {% set ssh_ciphers = [] %}
-{% if policy.ssh.aes128_ctr | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.ssh.aes128_ctr) | cisco.aac.aac_bool("yes") == "yes" %}{% set ssh_ciphers = ssh_ciphers + [("aes128-ctr")] %}{% endif %}
-{% if policy.ssh.aes128_gcm | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.ssh.aes128_gcm) | cisco.aac.aac_bool("yes") == "yes" %}{% set ssh_ciphers = ssh_ciphers + [("aes128-gcm@openssh.com")] %}{% endif %}
-{% if policy.ssh.aes192_ctr | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.ssh.aes192_ctr) | cisco.aac.aac_bool("yes") == "yes" %}{% set ssh_ciphers = ssh_ciphers + [("aes192-ctr")] %}{% endif %}
-{% if policy.ssh.aes256_ctr | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.ssh.aes256_ctr) | cisco.aac.aac_bool("yes") == "yes" %}{% set ssh_ciphers = ssh_ciphers + [("aes256-ctr")] %}{% endif %}
-{% if policy.ssh.aes256_gcm | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.ssh.aes256_gcm) | cisco.aac.aac_bool("yes") == "yes" %}{% set ssh_ciphers = ssh_ciphers + [("aes256-gcm@openssh.com")] %}{% endif %}
-{% if policy.ssh.chacha | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.ssh.chacha) | cisco.aac.aac_bool("yes") == "yes" %}{% set ssh_ciphers = ssh_ciphers + [("chacha20-poly1305@openssh.com")] %}{% endif %}
+{% if policy.ssh.aes128_ctr | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.ssh.aes128_ctr) %}{% set ssh_ciphers = ssh_ciphers + [("aes128-ctr")] %}{% endif %}
+{% if policy.ssh.aes128_gcm | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.ssh.aes128_gcm) %}{% set ssh_ciphers = ssh_ciphers + [("aes128-gcm@openssh.com")] %}{% endif %}
+{% if policy.ssh.aes192_ctr | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.ssh.aes192_ctr) %}{% set ssh_ciphers = ssh_ciphers + [("aes192-ctr")] %}{% endif %}
+{% if policy.ssh.aes256_ctr | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.ssh.aes256_ctr) %}{% set ssh_ciphers = ssh_ciphers + [("aes256-ctr")] %}{% endif %}
+{% if policy.ssh.aes256_gcm | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.ssh.aes256_gcm) %}{% set ssh_ciphers = ssh_ciphers + [("aes256-gcm@openssh.com")] %}{% endif %}
+{% if policy.ssh.chacha | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.ssh.chacha) %}{% set ssh_ciphers = ssh_ciphers + [("chacha20-poly1305@openssh.com")] %}{% endif %}
 {% set ssh_kexalgos = [] %}
-{% if policy.ssh.curve25519_sha256 | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.ssh.curve25519_sha256) | cisco.aac.aac_bool("yes") == "yes" %}{% set ssh_kexalgos = ssh_kexalgos + [("curve25519-sha256")] %}{% endif %}
-{% if policy.ssh.curve25519_sha256_libssh | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.ssh.curve25519_sha256_libssh) | cisco.aac.aac_bool("yes") == "yes" %}{% set ssh_kexalgos = ssh_kexalgos + [("curve25519-sha256@libssh.org")] %}{% endif %}
-{% if policy.ssh.dh1_sha1 | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.ssh.dh1_sha1) | cisco.aac.aac_bool("yes") == "yes" %}{% set ssh_kexalgos = ssh_kexalgos + [("diffie-hellman-group1-sha1")] %}{% endif %}
-{% if policy.ssh.dh14_sha1 | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.ssh.dh14_sha1) | cisco.aac.aac_bool("yes") == "yes" %}{% set ssh_kexalgos = ssh_kexalgos + [("diffie-hellman-group14-sha1")] %}{% endif %}
-{% if policy.ssh.dh14_sha256 | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.ssh.dh14_sha256) | cisco.aac.aac_bool("yes") == "yes" %}{% set ssh_kexalgos = ssh_kexalgos + [("diffie-hellman-group14-sha256")] %}{% endif %}
-{% if policy.ssh.dh16_sha512 | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.ssh.dh16_sha512) | cisco.aac.aac_bool("yes") == "yes" %}{% set ssh_kexalgos = ssh_kexalgos + [("diffie-hellman-group16-sha512")] %}{% endif %}
-{% if policy.ssh.ecdh_sha2_nistp256 | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.ssh.ecdh_sha2_nistp256) | cisco.aac.aac_bool("yes") == "yes" %}{% set ssh_kexalgos = ssh_kexalgos + [("ecdh-sha2-nistp256")] %}{% endif %}
-{% if policy.ssh.ecdh_sha2_nistp384 | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.ssh.ecdh_sha2_nistp384) | cisco.aac.aac_bool("yes") == "yes" %}{% set ssh_kexalgos = ssh_kexalgos + [("ecdh-sha2-nistp384")] %}{% endif %}
-{% if policy.ssh.ecdh_sha2_nistp521 | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.ssh.ecdh_sha2_nistp521) | cisco.aac.aac_bool("yes") == "yes" %}{% set ssh_kexalgos = ssh_kexalgos + [("ecdh-sha2-nistp521")] %}{% endif %}
+{% if policy.ssh.curve25519_sha256 | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.ssh.curve25519_sha256) %}{% set ssh_kexalgos = ssh_kexalgos + [("curve25519-sha256")] %}{% endif %}
+{% if policy.ssh.curve25519_sha256_libssh | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.ssh.curve25519_sha256_libssh) %}{% set ssh_kexalgos = ssh_kexalgos + [("curve25519-sha256@libssh.org")] %}{% endif %}
+{% if policy.ssh.dh1_sha1 | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.ssh.dh1_sha1) %}{% set ssh_kexalgos = ssh_kexalgos + [("diffie-hellman-group1-sha1")] %}{% endif %}
+{% if policy.ssh.dh14_sha1 | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.ssh.dh14_sha1) %}{% set ssh_kexalgos = ssh_kexalgos + [("diffie-hellman-group14-sha1")] %}{% endif %}
+{% if policy.ssh.dh14_sha256 | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.ssh.dh14_sha256) %}{% set ssh_kexalgos = ssh_kexalgos + [("diffie-hellman-group14-sha256")] %}{% endif %}
+{% if policy.ssh.dh16_sha512 | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.ssh.dh16_sha512) %}{% set ssh_kexalgos = ssh_kexalgos + [("diffie-hellman-group16-sha512")] %}{% endif %}
+{% if policy.ssh.ecdh_sha2_nistp256 | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.ssh.ecdh_sha2_nistp256) %}{% set ssh_kexalgos = ssh_kexalgos + [("ecdh-sha2-nistp256")] %}{% endif %}
+{% if policy.ssh.ecdh_sha2_nistp384 | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.ssh.ecdh_sha2_nistp384) %}{% set ssh_kexalgos = ssh_kexalgos + [("ecdh-sha2-nistp384")] %}{% endif %}
+{% if policy.ssh.ecdh_sha2_nistp521 | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.ssh.ecdh_sha2_nistp521) %}{% set ssh_kexalgos = ssh_kexalgos + [("ecdh-sha2-nistp521")] %}{% endif %}
 {% set ssh_macs = [] %}
-{% if policy.ssh.hmac_sha1 | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.ssh.hmac_sha1) | cisco.aac.aac_bool("yes") == "yes" %}{% set ssh_macs = ssh_macs + [("hmac-sha1")] %}{% endif %}
-{% if policy.ssh.hmac_sha2_256 | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.ssh.hmac_sha2_256) | cisco.aac.aac_bool("yes") == "yes" %}{% set ssh_macs = ssh_macs + [("hmac-sha2-256")] %}{% endif %}
-{% if policy.ssh.hmac_sha2_512 | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.ssh.hmac_sha2_512) | cisco.aac.aac_bool("yes") == "yes" %}{% set ssh_macs = ssh_macs + [("hmac-sha2-512")] %}{% endif %}
+{% if policy.ssh.hmac_sha1 | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.ssh.hmac_sha1) %}{% set ssh_macs = ssh_macs + [("hmac-sha1")] %}{% endif %}
+{% if policy.ssh.hmac_sha2_256 | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.ssh.hmac_sha2_256) %}{% set ssh_macs = ssh_macs + [("hmac-sha2-256")] %}{% endif %}
+{% if policy.ssh.hmac_sha2_512 | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.ssh.hmac_sha2_512) %}{% set ssh_macs = ssh_macs + [("hmac-sha2-512")] %}{% endif %}
 {% set ssl_protocols = [] %}
-{% if policy.https.tlsv1 | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.https.tlsv1) | cisco.aac.aac_bool("yes") == "yes" %}{% set ssl_protocols = ssl_protocols + [("TLSv1")] %}{% endif %}
-{% if policy.https.tlsv1_1 | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.https.tlsv1_1) | cisco.aac.aac_bool("yes") == "yes" %}{% set ssl_protocols = ssl_protocols + [("TLSv1.1")] %}{% endif %}
-{% if policy.https.tlsv1_2 | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.https.tlsv1_2) | cisco.aac.aac_bool("yes") == "yes" %}{% set ssl_protocols = ssl_protocols + [("TLSv1.2")] %}{% endif %}
-{% if policy.https.tlsv1_3 | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.https.tlsv1_3) | cisco.aac.aac_bool("yes") == "yes" %}{% set ssl_protocols = ssl_protocols + [("TLSv1.3")] %}{% endif %}
+{% if policy.https.tlsv1 | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.https.tlsv1) %}{% set ssl_protocols = ssl_protocols + [("TLSv1")] %}{% endif %}
+{% if policy.https.tlsv1_1 | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.https.tlsv1_1) %}{% set ssl_protocols = ssl_protocols + [("TLSv1.1")] %}{% endif %}
+{% if policy.https.tlsv1_2 | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.https.tlsv1_2) %}{% set ssl_protocols = ssl_protocols + [("TLSv1.2")] %}{% endif %}
+{% if policy.https.tlsv1_3 | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.https.tlsv1_3) %}{% set ssl_protocols = ssl_protocols + [("TLSv1.3")] %}{% endif %}
 
 #### {{policy.name}}
 
@@ -355,8 +355,8 @@ No SNMP policies configured.
 
 | Properties | Value |
 |---|---|
-| Admin State | {{policy.ssh.admin_state | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.ssh.admin_state) | cisco.aac.aac_bool("enabled")}} |
-| Password Auth State | {{policy.ssh.password_auth | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.ssh.password_auth) | cisco.aac.aac_bool("enabled")}} |
+| Admin State | {{'enabled' if policy.ssh.admin_state | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.ssh.admin_state) else 'disabled'}} |
+| Password Auth State | {{'enabled' if policy.ssh.password_auth | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.ssh.password_auth) else 'disabled'}} |
 | Port | {{policy.ssh.port | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.ssh.port)}} |
 | Ciphers | {{ssh_ciphers | join(',')}} |
 | KEX Algorithms | {{ssh_kexalgos | join(',')}} |
@@ -367,7 +367,7 @@ No SNMP policies configured.
 
 | Properties | Value |
 |---|---|
-| Admin State | {{policy.telnet.admin_state | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.telnet.admin_state) | cisco.aac.aac_bool("enabled")}} |
+| Admin State | {{'enabled' if policy.telnet.admin_state | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.telnet.admin_state) else 'disabled'}} |
 | Port | {{policy.telnet.port | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.telnet.port)}} |
 </caption>
 
@@ -375,7 +375,7 @@ No SNMP policies configured.
 
 | Properties | Value |
 |---|---|
-| Admin State | {{policy.http.admin_state | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.http.admin_state) | cisco.aac.aac_bool("enabled")}} |
+| Admin State | {{'enabled' if policy.http.admin_state | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.http.admin_state) else 'disabled'}} |
 | Port | {{policy.http.port | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.http.port)}} |
 </caption>
 
@@ -383,12 +383,12 @@ No SNMP policies configured.
 
 | Properties | Value |
 |---|---|
-| Admin State | {{policy.https.client_cert_auth_state | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.https.client_cert_auth_state) | cisco.aac.aac_bool("enabled")}} |
+| Admin State | {{'enabled' if policy.https.client_cert_auth_state | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.https.client_cert_auth_state) else 'disabled'}} |
 | Port | {{policy.https.port | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.https.port)}} |
 | SSL Protocols | {{ssl_protocols | join(',')}} |
 | DH Param | {{policy.https.dh | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.https.dh)}} |
 | Admin KeyRing | {{policy.https.key_ring | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.https.key_ring)}} |
-| Client Certificate Authentication state | {{policy.https.client_cert_auth_state | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.https.client_cert_auth_state) | cisco.aac.aac_bool("enabled")}} |
+| Client Certificate Authentication state | {{'enabled' if policy.https.client_cert_auth_state | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.https.client_cert_auth_state) else 'disabled'}} |
 </caption>
 {% endfor %}
 {% endif %}
@@ -1415,9 +1415,9 @@ No L3OUT Node Profiles configured.
 | L3OUT | Area ID | Area Type | Area Cost | Area Controls |
 |---|---|---|---|---|
 {% set area_ctrl = [] %}
-{% if l3out.ospf.area_control_redistribute | default(defaults.apic.tenants.l3outs.ospf.area_control_redistribute) | cisco.aac.aac_bool("yes")  == "yes" %}{% set area_ctrl = area_ctrl + [("redistribute")] %}{% endif %}
-{% if l3out.ospf.area_control_summary | default(defaults.apic.tenants.l3outs.ospf.area_control_summary) | cisco.aac.aac_bool("yes")  == "yes" %}{% set area_ctrl = area_ctrl + [("summary")] %}{% endif %}
-{% if l3out.ospf.area_control_suppress_fa | default(defaults.apic.tenants.l3outs.ospf.area_control_suppress_fa) | cisco.aac.aac_bool("yes")  == "yes" %}{% set area_ctrl = area_ctrl + [("suppress-fa")] %}{% endif %}
+{% if l3out.ospf.area_control_redistribute | default(defaults.apic.tenants.l3outs.ospf.area_control_redistribute) %}{% set area_ctrl = area_ctrl + [("redistribute")] %}{% endif %}
+{% if l3out.ospf.area_control_summary | default(defaults.apic.tenants.l3outs.ospf.area_control_summary) %}{% set area_ctrl = area_ctrl + [("summary")] %}{% endif %}
+{% if l3out.ospf.area_control_suppress_fa | default(defaults.apic.tenants.l3outs.ospf.area_control_suppress_fa) %}{% set area_ctrl = area_ctrl + [("suppress-fa")] %}{% endif %}
 | {{l3out.name ~ defaults.apic.tenants.l3outs.name_suffix}} | {{ l3out.ospf.area }} | {{l3out.ospf.area_type | default(defaults.apic.tenants.l3outs.ospf.area_type)}} | {{l3out.ospf.area_cost | default(defaults.apic.tenants.l3outs.ospf.area_cost)}} | {{ area_ctrl | join(',') }} |
 </caption>
 {% endif %}
