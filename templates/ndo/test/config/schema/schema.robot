@@ -37,10 +37,10 @@ Verify Schema {{ schema.name }} Template {{ template.name }} Application Profile
     Should Be Equal Value Json String   ${r.json()}   ${epg}.name   {{ epg_name }}
     Should Be Equal Value Json String   ${r.json()}   ${epg}.displayName   {{ epg_name }}
     Should Be Equal Value Json String   ${r.json()}   ${epg}.description   {{ epg.description | default() }}
-    Should Be Equal Value Json Boolean   ${r.json()}   ${epg}.uSegEpg   {{ epg.useg | default(defaults.ndo.schemas.templates.application_profiles.endpoint_groups.useg) | cisco.aac.aac_bool(True) }}
-    Should Be Equal Value Json String   ${r.json()}   ${epg}.intraEpg   {% if epg.intra_epg_isolation | default(defaults.ndo.schemas.templates.application_profiles.endpoint_groups.intra_epg_isolation) | cisco.aac.aac_bool(True) %}enforced{% else %}unenforced{% endif %} 
-    Should Be Equal Value Json Boolean   ${r.json()}   ${epg}.proxyArp   {{ epg.proxy_arp | default(defaults.ndo.schemas.templates.application_profiles.endpoint_groups.proxy_arp) | cisco.aac.aac_bool(True) }}
-    Should Be Equal Value Json Boolean   ${r.json()}   ${epg}.preferredGroup   {{ epg.preferred_group | default(defaults.ndo.schemas.templates.application_profiles.endpoint_groups.preferred_group) | cisco.aac.aac_bool(True) }}
+    Should Be Equal Value Json Boolean   ${r.json()}   ${epg}.uSegEpg   {{ epg.useg | default(defaults.ndo.schemas.templates.application_profiles.endpoint_groups.useg) }}
+    Should Be Equal Value Json String   ${r.json()}   ${epg}.intraEpg   {{ 'enforced' if epg.intra_epg_isolation | default(defaults.ndo.schemas.templates.application_profiles.endpoint_groups.intra_epg_isolation) else 'unenforced' }} 
+    Should Be Equal Value Json Boolean   ${r.json()}   ${epg}.proxyArp   {{  epg.proxy_arp | default(defaults.ndo.schemas.templates.application_profiles.endpoint_groups.proxy_arp) }}
+    Should Be Equal Value Json Boolean   ${r.json()}   ${epg}.preferredGroup   {{ epg.preferred_group | default(defaults.ndo.schemas.templates.application_profiles.endpoint_groups.preferred_group) }}
 {% if epg.bridge_domain.name is defined %}
 {% set bd_name = epg.bridge_domain.name ~ defaults.ndo.schemas.templates.bridge_domains.name_suffix %}
     ${schema_id}=   NDO Lookup   schemas/list-identity   {{ epg.bridge_domain.schema | default(schema.name) }}
@@ -72,9 +72,9 @@ Verify Schema {{ schema.name }} Template {{ template.name }} Application Profile
     ${subnet}=   Set Variable   $.templates[?(@.name=='{{ template.name }}')].anps[?(@.name=='{{ ap_name }}')].epgs[?(@.name=='{{ epg_name }}')].subnets[?(@.ip=='{{ subnet.ip }}')]
     Should Be Equal Value Json String   ${r.json()}   ${subnet}.ip   {{ subnet.ip }}
     Should Be Equal Value Json String   ${r.json()}   ${subnet}.scope   {{ subnet.scope | default(defaults.ndo.schemas.templates.application_profiles.endpoint_groups.subnets.scope) }}
-    Should Be Equal Value Json Boolean   ${r.json()}   ${subnet}.shared   {{ subnet.shared | default(defaults.ndo.schemas.templates.application_profiles.endpoint_groups.subnets.shared) | cisco.aac.aac_bool(True) }}
-    Should Be Equal Value Json Boolean   ${r.json()}   ${subnet}.noDefaultGateway   {{ subnet.no_default_gateway | default(defaults.ndo.schemas.templates.application_profiles.endpoint_groups.subnets.no_default_gateway) | cisco.aac.aac_bool(True) }}
-    Should Be Equal Value Json Boolean   ${r.json()}   ${subnet}.primary   {{ subnet.primary | default(defaults.ndo.schemas.templates.application_profiles.endpoint_groups.subnets.primary) | cisco.aac.aac_bool(True) }}
+    Should Be Equal Value Json Boolean   ${r.json()}   ${subnet}.shared   {{ subnet.shared | default(defaults.ndo.schemas.templates.application_profiles.endpoint_groups.subnets.shared) }}
+    Should Be Equal Value Json Boolean   ${r.json()}   ${subnet}.noDefaultGateway   {{ subnet.no_default_gateway | default(defaults.ndo.schemas.templates.application_profiles.endpoint_groups.subnets.no_default_gateway) }}
+    Should Be Equal Value Json Boolean   ${r.json()}   ${subnet}.primary   {{ subnet.primary | default(defaults.ndo.schemas.templates.application_profiles.endpoint_groups.subnets.primary) }}
 {% endfor %}
 
 {% for site in epg.sites | default([]) %}
@@ -119,7 +119,7 @@ Verify Schema {{ schema.name }} Template {{ template.name }} Application Profile
 {% if vmm.custom_epg_name is defined %}
     Should Be Equal Value Json String   ${r.json()}   ${vmm}.customEpgName   {{ vmm.custom_epg_name }}
 {% endif %}
-{% if vmm.u_segmentation | default(defaults.ndo.schemas.templates.application_profiles.endpoint_groups.sites.vmware_vmm_domains.u_segmentation) | cisco.aac.aac_bool(True) %}
+{% if vmm.u_segmentation | default(defaults.ndo.schemas.templates.application_profiles.endpoint_groups.sites.vmware_vmm_domains.u_segmentation) %}
     Should Be Equal Value Json Boolean   ${r.json()}   ${vmm}.allowMicroSegmentation   True
 {% if vmm.vlan_mode | default(defaults.ndo.schemas.templates.application_profiles.endpoint_groups.sites.vmware_vmm_domains.vlan_mode) == 'static' %}
     Should Be Equal Value Json String   ${r.json()}   ${vmm}.microSegVlan.vlan   {{ vmm.useg_vlan }}
@@ -188,9 +188,9 @@ Verify Schema {{ schema.name }} Template {{ template.name }} Application Profile
     Should Be Equal Value Json String   ${r.json()}   ${subnet}.ip   {{ subnet.ip }}
     Should Be Equal Value Json String   ${r.json()}   ${subnet}.description   {{ subnet.description | default() }}
     Should Be Equal Value Json String   ${r.json()}   ${subnet}.scope   {{ subnet.scope | default(defaults.ndo.schemas.templates.application_profiles.endpoint_groups.sites.subnets.scope) }}
-    Should Be Equal Value Json Boolean   ${r.json()}   ${subnet}.shared   {{ subnet.shared | default(defaults.ndo.schemas.templates.application_profiles.endpoint_groups.sites.subnets.shared) | cisco.aac.aac_bool(True) }}
-    Should Be Equal Value Json Boolean   ${r.json()}   ${subnet}.noDefaultGateway   {{ subnet.no_default_gateway | default(defaults.ndo.schemas.templates.application_profiles.endpoint_groups.sites.subnets.no_default_gateway) | cisco.aac.aac_bool(True) }}
-    Should Be Equal Value Json Boolean   ${r.json()}   ${subnet}.primary   {{ subnet.primary | default(defaults.ndo.schemas.templates.application_profiles.endpoint_groups.sites.subnets.primary) | cisco.aac.aac_bool(True) }}
+    Should Be Equal Value Json Boolean   ${r.json()}   ${subnet}.shared   {{ subnet.shared | default(defaults.ndo.schemas.templates.application_profiles.endpoint_groups.sites.subnets.shared) }}
+    Should Be Equal Value Json Boolean   ${r.json()}   ${subnet}.noDefaultGateway   {{ subnet.no_default_gateway | default(defaults.ndo.schemas.templates.application_profiles.endpoint_groups.sites.subnets.no_default_gateway) }}
+    Should Be Equal Value Json Boolean   ${r.json()}   ${subnet}.primary   {{ subnet.primary | default(defaults.ndo.schemas.templates.application_profiles.endpoint_groups.sites.subnets.primary) }}
 {% endfor %}
 
 {% for selector in site.selectors | default([]) %}
@@ -221,13 +221,13 @@ Verify Schema {{ schema.name }} Template {{ template.name }} VRF {{ vrf_name }}
     ${vrf}=   Set Variable   $.templates[?(@.name=='{{ template.name }}')].vrfs[?(@.name=='{{ vrf_name }}')]
     Should Be Equal Value Json String   ${r.json()}   ${vrf}.name   {{ vrf_name }}
     Should Be Equal Value Json String   ${r.json()}   ${vrf}.displayName   {{ vrf_name }}
-    Should Be Equal Value Json String   ${r.json()}   ${vrf}.ipDataPlaneLearning   {{ vrf.data_plane_learning | default(defaults.ndo.schemas.templates.vrfs.data_plane_learning) | cisco.aac.aac_bool("enabled") }}
-    Should Be Equal Value Json Boolean   ${r.json()}   ${vrf}.preferredGroup   {{ vrf.preferred_group | default(defaults.ndo.schemas.templates.vrfs.preferred_group) | cisco.aac.aac_bool(True) }}
-    Should Be Equal Value Json Boolean   ${r.json()}   ${vrf}.l3MCast   {{ vrf.l3_multicast | default(defaults.ndo.schemas.templates.vrfs.l3_multicast) | cisco.aac.aac_bool(True) }}
+    Should Be Equal Value Json String   ${r.json()}   ${vrf}.ipDataPlaneLearning   {{ 'enabled' if vrf.data_plane_learning | default(defaults.ndo.schemas.templates.vrfs.data_plane_learning) else 'disabled'}}
+    Should Be Equal Value Json Boolean   ${r.json()}   ${vrf}.preferredGroup   {{ vrf.preferred_group | default(defaults.ndo.schemas.templates.vrfs.preferred_group) }}
+    Should Be Equal Value Json Boolean   ${r.json()}   ${vrf}.l3MCast   {{ vrf.l3_multicast | default(defaults.ndo.schemas.templates.vrfs.l3_multicast) }}
     {% if vrf.site_aware_policy_enforcement is defined %}
     Should Be Equal Value Json Boolean   ${r.json()}   ${vrf}.siteAwarePolicyEnforcementMode   {{ vrf.site_aware_policy_enforcement }}
     {% endif %}
-    Should Be Equal Value Json Boolean   ${r.json()}   ${vrf}.vzAnyEnabled   {{ vrf.vzany | default(defaults.ndo.schemas.templates.vrfs.vzany) | cisco.aac.aac_bool(True) }}
+    Should Be Equal Value Json Boolean   ${r.json()}   ${vrf}.vzAnyEnabled   {{ vrf.vzany | default(defaults.ndo.schemas.templates.vrfs.vzany) }}
 {% for contract in vrf.contracts.consumers | default([]) %}
 {% set contract_name = contract.name ~ defaults.ndo.schemas.templates.contracts.name_suffix %}
     ${schema_id}=   NDO Lookup   schemas/list-identity   {{ contract.schema | default(schema.name) }}
@@ -260,11 +260,11 @@ Verify Schema {{ schema.name }} Template {{ template.name }} Bridge Domain {{ bd
     Should Be Equal Value Json String   ${r.json()}   ${bd}.displayName   {{ bd_name }}
     Should Be Equal Value Json String   ${r.json()}   ${bd}.description   {{ bd.description | default() }}
     Should Be Equal Value Json String   ${r.json()}   ${bd}.l2UnknownUnicast   {{ bd.l2_unknown_unicast | default(defaults.ndo.schemas.templates.bridge_domains.l2_unknown_unicast)}}
-    Should Be Equal Value Json Boolean   ${r.json()}   ${bd}.intersiteBumTrafficAllow   {{ bd.intersite_bum_traffic | default(defaults.ndo.schemas.templates.bridge_domains.intersite_bum_traffic) | cisco.aac.aac_bool(True) }}
-    Should Be Equal Value Json Boolean   ${r.json()}   ${bd}.optimizeWanBandwidth   {{ bd.optimize_wan_bandwidth | default(defaults.ndo.schemas.templates.bridge_domains.optimize_wan_bandwidth) | cisco.aac.aac_bool(True) }}
-    Should Be Equal Value Json Boolean   ${r.json()}   ${bd}.l2Stretch   {{ bd.l2_stretch | default(defaults.ndo.schemas.templates.bridge_domains.l2_stretch) | cisco.aac.aac_bool(True) }}
-    Should Be Equal Value Json Boolean   ${r.json()}   ${bd}.l3MCast   {{ bd.l3_multicast | default(defaults.ndo.schemas.templates.bridge_domains.l3_multicast) | cisco.aac.aac_bool(True) }}
-    Should Be Equal Value Json Boolean   ${r.json()}   ${bd}.unicastRouting  {{ bd.unicast_routing | default(defaults.ndo.schemas.templates.bridge_domains.unicast_routing) | cisco.aac.aac_bool(True) }}
+    Should Be Equal Value Json Boolean   ${r.json()}   ${bd}.intersiteBumTrafficAllow   {{ bd.intersite_bum_traffic | default(defaults.ndo.schemas.templates.bridge_domains.intersite_bum_traffic) }}
+    Should Be Equal Value Json Boolean   ${r.json()}   ${bd}.optimizeWanBandwidth   {{ bd.optimize_wan_bandwidth | default(defaults.ndo.schemas.templates.bridge_domains.optimize_wan_bandwidth) }}
+    Should Be Equal Value Json Boolean   ${r.json()}   ${bd}.l2Stretch   {{ bd.l2_stretch | default(defaults.ndo.schemas.templates.bridge_domains.l2_stretch) }}
+    Should Be Equal Value Json Boolean   ${r.json()}   ${bd}.l3MCast   {{ bd.l3_multicast | default(defaults.ndo.schemas.templates.bridge_domains.l3_multicast) }}
+    Should Be Equal Value Json Boolean   ${r.json()}   ${bd}.unicastRouting  {{ bd.unicast_routing | default(defaults.ndo.schemas.templates.bridge_domains.unicast_routing) }}
 {% if bd.ep_move_detection_mode is defined %}
     Should Be Equal Value Json Boolean   ${r.json()}   ${bd}.epMoveDetectMode  {{ bd.ep_move_detection_mode }}
 {% endif %}
@@ -275,7 +275,7 @@ Verify Schema {{ schema.name }} Template {{ template.name }} Bridge Domain {{ bd
     Should Be Equal Value Json String   ${r.json()}   ${bd}.multiDstPktAct   {{ bd.multi_destination_flooding | default(defaults.ndo.schemas.templates.bridge_domains.multi_destination_flooding) }}
     Should Be Equal Value Json String   ${r.json()}   ${bd}.unkMcastAct   {{ bd.unknown_ipv4_multicast | default(defaults.ndo.schemas.templates.bridge_domains.unknown_ipv4_multicast) }}
     Should Be Equal Value Json String   ${r.json()}   ${bd}.v6unkMcastAct   {{ bd.unknown_ipv6_multicast | default(defaults.ndo.schemas.templates.bridge_domains.unknown_ipv6_multicast) }}
-    Should Be Equal Value Json Boolean   ${r.json()}   ${bd}.arpFlood   {{ bd.arp_flooding | default(defaults.ndo.schemas.templates.bridge_domains.arp_flooding) | cisco.aac.aac_bool(True) }}
+    Should Be Equal Value Json Boolean   ${r.json()}   ${bd}.arpFlood   {{ bd.arp_flooding | default(defaults.ndo.schemas.templates.bridge_domains.arp_flooding) }}
 
 {% if bd.dhcp_relay_policy is defined %}
 {% set dhcp_relay_policy_name = bd.dhcp_relay_policy ~ defaults.ndo.policies.dhcp_relays.name_suffix %}
@@ -303,10 +303,10 @@ Verify Schema {{ schema.name }} Template {{ template.name }} Bridge Domain {{ bd
     ${subnet}=   Set Variable   $.templates[?(@.name=='{{ template.name }}')].bds[?(@.name=='{{ bd_name }}')].subnets[?(@.ip=='{{ subnet.ip }}')]
     Should Be Equal Value Json String   ${r.json()}   ${subnet}.ip   {{ subnet.ip }}
     Should Be Equal Value Json String   ${r.json()}   ${subnet}.scope   {{ subnet.scope | default(defaults.ndo.schemas.templates.bridge_domains.subnets.scope) }}
-    Should Be Equal Value Json Boolean   ${r.json()}   ${subnet}.shared   {{ subnet.shared | default(defaults.ndo.schemas.templates.bridge_domains.subnets.shared) | cisco.aac.aac_bool(True) }}
-    Should Be Equal Value Json Boolean   ${r.json()}   ${subnet}.noDefaultGateway   {{ subnet.no_default_gateway | default(defaults.ndo.schemas.templates.bridge_domains.subnets.no_default_gateway) | cisco.aac.aac_bool(True) }}
-    Should Be Equal Value Json Boolean   ${r.json()}   ${subnet}.querier   {{ subnet.querier | default(defaults.ndo.schemas.templates.bridge_domains.subnets.querier) | cisco.aac.aac_bool(True) }}
-    Should Be Equal Value Json Boolean   ${r.json()}   ${subnet}.primary   {{ subnet.primary | default(defaults.ndo.schemas.templates.bridge_domains.subnets.primary) | cisco.aac.aac_bool(True) }}
+    Should Be Equal Value Json Boolean   ${r.json()}   ${subnet}.shared   {{ subnet.shared | default(defaults.ndo.schemas.templates.bridge_domains.subnets.shared) }}
+    Should Be Equal Value Json Boolean   ${r.json()}   ${subnet}.noDefaultGateway   {{ subnet.no_default_gateway | default(defaults.ndo.schemas.templates.bridge_domains.subnets.no_default_gateway) }}
+    Should Be Equal Value Json Boolean   ${r.json()}   ${subnet}.querier   {{ subnet.querier | default(defaults.ndo.schemas.templates.bridge_domains.subnets.querier) }}
+    Should Be Equal Value Json Boolean   ${r.json()}   ${subnet}.primary   {{ subnet.primary | default(defaults.ndo.schemas.templates.bridge_domains.subnets.primary) }}
 {% endfor %}
 
 {% for site in bd.sites | default([]) %}
@@ -317,7 +317,7 @@ Verify Schema {{ schema.name }} Template {{ template.name }} Bridge Domain {{ bd
     ${site_id}=   NDO Lookup   sites   {{ site.name }}
     ${bd}=   Set Variable   $.sites[?(@.siteId=='${site_id}')&(@.templateName=='{{ template.name }}')].bds[?(@.bdRef=='/schemas/${schema_id}/templates/{{ template.name }}/bds/{{ bd_name }}')]
     Should Be Equal Value Json String   ${r.json()}   ${bd}.bdRef   /schemas/${schema_id}/templates/{{ template.name }}/bds/{{ bd_name }}
-    Should Be Equal Value Json Boolean   ${r.json()}   ${bd}.hostBasedRouting   {{ site.advertise_host_routes | default(defaults.ndo.schemas.templates.bridge_domains.sites.advertise_host_routes) | cisco.aac.aac_bool(True) }}
+    Should Be Equal Value Json Boolean   ${r.json()}   ${bd}.hostBasedRouting   {{ site.advertise_host_routes | default(defaults.ndo.schemas.templates.bridge_domains.sites.advertise_host_routes) }}
     Should Be Equal Value Json String   ${r.json()}   ${bd}.mac   {{ site.mac | default(defaults.ndo.schemas.templates.bridge_domains.sites.mac) }}
     ${l3outs}=   Create List   {{ l3outs | join('   ') }}
     Should Be Equal Value Json List   ${r.json()}   ${bd}.l3Outs   ${l3outs}
@@ -330,10 +330,10 @@ Verify Schema {{ schema.name }} Template {{ template.name }} Bridge Domain {{ bd
     ${subnet}=   Set Variable   $.sites[?(@.siteId=='${site_id}')&(@.templateName=='{{ template.name }}')].bds[?(@.bdRef=='/schemas/${schema_id}/templates/{{ template.name }}/bds/{{ bd_name }}')].subnets[?(@.ip=='{{ subnet.ip }}')]
     Should Be Equal Value Json String   ${r.json()}   ${subnet}.ip   {{ subnet.ip }}
     Should Be Equal Value Json String   ${r.json()}   ${subnet}.scope   {{ subnet.scope | default(defaults.ndo.schemas.templates.bridge_domains.sites.subnets.scope) }}
-    Should Be Equal Value Json Boolean   ${r.json()}   ${subnet}.shared   {{ subnet.shared | default(defaults.ndo.schemas.templates.bridge_domains.sites.subnets.shared) | cisco.aac.aac_bool(True) }}
-    Should Be Equal Value Json Boolean   ${r.json()}   ${subnet}.noDefaultGateway   {{ subnet.no_default_gateway | default(defaults.ndo.schemas.templates.bridge_domains.sites.subnets.no_default_gateway) | cisco.aac.aac_bool(True) }}
-    Should Be Equal Value Json Boolean   ${r.json()}   ${subnet}.querier   {{ subnet.querier | default(defaults.ndo.schemas.templates.bridge_domains.sites.subnets.querier) | cisco.aac.aac_bool(True) }}
-    Should Be Equal Value Json Boolean   ${r.json()}   ${subnet}.primary   {{ subnet.primary | default(defaults.ndo.schemas.templates.bridge_domains.sites.subnets.primary) | cisco.aac.aac_bool(True) }}
+    Should Be Equal Value Json Boolean   ${r.json()}   ${subnet}.shared   {{ subnet.shared | default(defaults.ndo.schemas.templates.bridge_domains.sites.subnets.shared) }}
+    Should Be Equal Value Json Boolean   ${r.json()}   ${subnet}.noDefaultGateway   {{ subnet.no_default_gateway | default(defaults.ndo.schemas.templates.bridge_domains.sites.subnets.no_default_gateway) }}
+    Should Be Equal Value Json Boolean   ${r.json()}   ${subnet}.querier   {{ subnet.querier | default(defaults.ndo.schemas.templates.bridge_domains.sites.subnets.querier) }}
+    Should Be Equal Value Json Boolean   ${r.json()}   ${subnet}.primary   {{ subnet.primary | default(defaults.ndo.schemas.templates.bridge_domains.sites.subnets.primary) }}
 {% endfor %}
 
 {% endfor %}
@@ -377,7 +377,7 @@ Verify Schema {{ schema.name }} Template {{ template.name }} Filter {{ filter_na
 {% else %}
     Should Be Equal Value Json String   ${r.json()}   ${entry}.ipProtocol   unspecified
 {% endif %}
-    Should Be Equal Value Json Boolean   ${r.json()}   ${entry}.stateful   {{ entry.stateful | default(defaults.ndo.schemas.templates.filters.entries.stateful) | cisco.aac.aac_bool(True) }}
+    Should Be Equal Value Json Boolean   ${r.json()}   ${entry}.stateful   {{ entry.stateful | default(defaults.ndo.schemas.templates.filters.entries.stateful) }}
     Should Be Equal Value Json String   ${r.json()}   ${entry}.sourceFrom   {{ get_protocol_from_port(entry.source_from_port | default(defaults.ndo.schemas.templates.filters.entries.source_from_port)) }}
     Should Be Equal Value Json String   ${r.json()}   ${entry}.sourceTo   {{ get_protocol_from_port(entry.source_to_port | default(entry.source_from_port | default(defaults.ndo.schemas.templates.filters.entries.source_from_port))) }}
     Should Be Equal Value Json String   ${r.json()}   ${entry}.destinationFrom   {{ get_protocol_from_port(entry.destination_from_port | default(defaults.ndo.schemas.templates.filters.entries.destination_from_port)) }}
@@ -398,7 +398,7 @@ Verify Schema {{ schema.name }} Template {{ template.name }} External EPG {{ epg
     ${epg}=   Set Variable   $.templates[?(@.name=='{{ template.name }}')].externalEpgs[?(@.name=='{{ epg_name }}')]
     Should Be Equal Value Json String   ${r.json()}   ${epg}.name   {{ epg_name }}
     Should Be Equal Value Json String   ${r.json()}   ${epg}.displayName   {{ epg_name }}
-    Should Be Equal Value Json Boolean   ${r.json()}   ${epg}.preferredGroup   {{ epg.preferred_group | default() | cisco.aac.aac_bool(True) }}
+    Should Be Equal Value Json Boolean   ${r.json()}   ${epg}.preferredGroup   {{ epg.preferred_group | default() }}
     Should Be Equal Value Json String   ${r.json()}   ${epg}.vrfRef    /schemas/${schema_id}/templates/{{ epg.vrf.template | default(template.name) }}/vrfs/{{ vrf_name }}
 {% if epg.l3out.name is defined %}
 {% set l3out_name = epg.l3out.name ~ defaults.ndo.schemas.templates.l3outs.name_suffix %}
@@ -435,15 +435,15 @@ Verify Schema {{ schema.name }} Template {{ template.name }} External EPG {{ epg
 
 {% for subnet in epg.subnets | default([]) %}
 {% set scope = [] %}
-{% if subnet.export_route_control | default(defaults.ndo.schemas.templates.external_endpoint_groups.subnets.export_route_control) | cisco.aac.aac_bool(True) %}{% set scope = scope + [('export-rtctrl')] %}{% endif %}
-{% if subnet.import_route_control | default(defaults.ndo.schemas.templates.external_endpoint_groups.subnets.import_route_control) | cisco.aac.aac_bool(True) %}{% set scope = scope + [('import-rtctrl')] %}{% endif %}
-{% if subnet.import_security | default(defaults.ndo.schemas.templates.external_endpoint_groups.subnets.import_security) | cisco.aac.aac_bool(True) %}{% set scope = scope + [('import-security')] %}{% endif %}
-{% if subnet.shared_route_control | default(defaults.ndo.schemas.templates.external_endpoint_groups.subnets.shared_route_control) | cisco.aac.aac_bool(True) %}{% set scope = scope + [('shared-rtctrl')] %}{% endif %}
-{% if subnet.shared_security | default(defaults.ndo.schemas.templates.external_endpoint_groups.subnets.shared_security) | cisco.aac.aac_bool(True) %}{% set scope = scope + [('shared-security')] %}{% endif %}
+{% if subnet.export_route_control | default(defaults.ndo.schemas.templates.external_endpoint_groups.subnets.export_route_control) %}{% set scope = scope + [('export-rtctrl')] %}{% endif %}
+{% if subnet.import_route_control | default(defaults.ndo.schemas.templates.external_endpoint_groups.subnets.import_route_control) %}{% set scope = scope + [('import-rtctrl')] %}{% endif %}
+{% if subnet.import_security | default(defaults.ndo.schemas.templates.external_endpoint_groups.subnets.import_security) %}{% set scope = scope + [('import-security')] %}{% endif %}
+{% if subnet.shared_route_control | default(defaults.ndo.schemas.templates.external_endpoint_groups.subnets.shared_route_control) %}{% set scope = scope + [('shared-rtctrl')] %}{% endif %}
+{% if subnet.shared_security | default(defaults.ndo.schemas.templates.external_endpoint_groups.subnets.shared_security) %}{% set scope = scope + [('shared-security')] %}{% endif %}
 {% set aggregate = [] %}
-{% if subnet.aggregate_export | default(defaults.ndo.schemas.templates.external_endpoint_groups.subnets.aggregate_export) | cisco.aac.aac_bool(True) %}{% set aggregate = aggregate + [('export-rtctrl')] %}{% endif %}
-{% if subnet.aggregate_import | default(defaults.ndo.schemas.templates.external_endpoint_groups.subnets.aggregate_import) | cisco.aac.aac_bool(True) %}{% set aggregate = aggregate + [('import-rtctrl')] %}{% endif %}
-{% if subnet.aggregate_shared | default(defaults.ndo.schemas.templates.external_endpoint_groups.subnets.aggregate_shared) | cisco.aac.aac_bool(True) %}{% set aggregate = aggregate + [('shared-rtctrl')] %}{% endif %}
+{% if subnet.aggregate_export | default(defaults.ndo.schemas.templates.external_endpoint_groups.subnets.aggregate_export) %}{% set aggregate = aggregate + [('export-rtctrl')] %}{% endif %}
+{% if subnet.aggregate_import | default(defaults.ndo.schemas.templates.external_endpoint_groups.subnets.aggregate_import) %}{% set aggregate = aggregate + [('import-rtctrl')] %}{% endif %}
+{% if subnet.aggregate_shared | default(defaults.ndo.schemas.templates.external_endpoint_groups.subnets.aggregate_shared) %}{% set aggregate = aggregate + [('shared-rtctrl')] %}{% endif %}
 
 Verify Schema {{ schema.name }} Template {{ template.name }} External EPG {{ epg_name }} Subnet {{ subnet.prefix }}
     ${subnet}=   Set Variable   $.templates[?(@.name=='{{ template.name }}')].externalEpgs[?(@.name=='{{ epg_name }}')].subnets[?(@.ip=='{{ subnet.prefix }}')]
