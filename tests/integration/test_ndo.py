@@ -169,7 +169,7 @@ def full_ndo_test(
         error = ndo_inst.post_or_put(
             "backups/{}/restore".format(ndo_backup_id), "", "PUT"
         )
-    elif version.startswith("4.2"):
+    elif version.startswith(("4.2", "4.3")):
         error = ndo_inst.post_or_put(
             "backups/{}/restore".format(ndo_backup_id), "", "POST"
         )
@@ -182,6 +182,9 @@ def full_ndo_test(
     # CSCwh37399
     if version.startswith("4.1") or version.startswith("4.2"):
         time.sleep(30)
+
+    if version.startswith("4.3"):
+        time.sleep(60)
 
     # Enable retries
     # ndo_inst.enable_retries()
@@ -240,7 +243,7 @@ def full_ndo_terraform(
         error = ndo_inst.post_or_put(
             "backups/{}/restore".format(ndo_backup_id), "", "PUT"
         )
-    elif version.startswith("4.2"):
+    elif version.startswith(("4.2", "4.3")):
         error = ndo_inst.post_or_put(
             "backups/{}/restore".format(ndo_backup_id), "", "POST"
         )
@@ -253,6 +256,9 @@ def full_ndo_terraform(
     # CSCwh37399
     if version.startswith("4.1") or version.startswith("4.2"):
         time.sleep(30)
+
+    if version.startswith("4.3"):
+        time.sleep(60)
 
     os.environ["MSO_URL"] = ndo_url
 
