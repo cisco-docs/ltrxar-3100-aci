@@ -396,6 +396,32 @@ def test_ndo_42(
     )
 
 
+@pytest.mark.ndo_43
+@pytest.mark.parametrize(
+    "data_paths, apic_url, snapshot_name, ndo_url, ndo_backup_id, version",
+    [
+        (
+            [
+                "tests/integration/fixtures/ndo/standard/",
+                "tests/integration/fixtures/ndo/standard_43/",
+                "defaults/",
+            ],
+            "https://10.50.202.13",
+            "ce2_defaultOneTime-2023-12-18T06-15-28.tar.gz",
+            "https://10.50.202.14",
+            "67eeb5e47d2ddd8e06216deb",
+            "4.3",
+        )
+    ],
+)
+def test_ndo_43(
+    data_paths, apic_url, snapshot_name, ndo_url, ndo_backup_id, version, tmpdir
+):
+    full_ndo_test(
+        data_paths, apic_url, snapshot_name, ndo_url, ndo_backup_id, version, tmpdir
+    )
+
+
 @pytest.mark.ndo_44
 @pytest.mark.parametrize(
     "data_paths, apic_url, snapshot_name, ndo_url, ndo_backup_id, version",
@@ -483,6 +509,47 @@ def test_ndo_terraform_37(
     ],
 )
 def test_ndo_terraform_42(
+    data_paths,
+    terraform_path,
+    apic_url,
+    snapshot_name,
+    ndo_url,
+    ndo_backup_id,
+    version,
+    tmpdir,
+):
+    full_ndo_terraform(
+        data_paths,
+        terraform_path,
+        apic_url,
+        snapshot_name,
+        ndo_url,
+        ndo_backup_id,
+        version,
+        tmpdir,
+    )
+
+
+@pytest.mark.ndo_43
+@pytest.mark.terraform
+@pytest.mark.parametrize(
+    "data_paths, terraform_path, apic_url, snapshot_name, ndo_url, ndo_backup_id, version",
+    [
+        (
+            [
+                "tests/integration/fixtures/ndo/standard/",
+                "tests/integration/fixtures/ndo/standard_43/",
+            ],
+            "tests/integration/fixtures/ndo/terraform_43",
+            "https://10.50.202.13",
+            "ce2_defaultOneTime-2023-12-18T06-15-28.tar.gz",
+            "https://10.50.202.14",
+            "64c8b1bcd531074f897f1b11",
+            "4.3",
+        )
+    ],
+)
+def test_ndo_terraform_43(
     data_paths,
     terraform_path,
     apic_url,

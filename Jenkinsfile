@@ -89,19 +89,6 @@ pipeline {
                         }
                     }
                 }
-                stage('Test NDO 3.7') {
-                    steps {
-                        lock(resource: 'nac-ci-apic2-6.0.5h', extra: [[resource: 'nac-ci-nd1-2.2.2d']]) {
-                            sh 'pytest -m "ndo_37 and not terraform"'
-                        }
-                    }
-                    post {
-                        always {
-                            junit 'ndo_3.7_xunit.xml'
-                            archiveArtifacts 'ndo_3.7_*.html, ndo_3.7_*.xml'
-                        }
-                    }
-                }
                 stage('Test NDO 4.2') {
                     steps {
                         lock(resource: 'nac-ci-apic3-6.0.5h', extra: [[resource: 'nac-ci-nd1-3.0.1i']]) {
@@ -112,6 +99,19 @@ pipeline {
                         always {
                             junit 'ndo_4.2_xunit.xml'
                             archiveArtifacts 'ndo_4.2_*.html, ndo_4.2_*.xml'
+                        }
+                    }
+                }
+                stage('Test NDO 4.3') {
+                    steps {
+                        lock(resource: 'nac-ci-apic2-6.0.5h', extra: [[resource: 'nac-ci-nd1-3.1.1l']]) {
+                            sh 'pytest -m "ndo_43 and not terraform"'
+                        }
+                    }
+                    post {
+                        always {
+                            junit 'ndo_4.3_xunit.xml'
+                            archiveArtifacts 'ndo_4.3_*.html, ndo_4.3_*.xml'
                         }
                     }
                 }
