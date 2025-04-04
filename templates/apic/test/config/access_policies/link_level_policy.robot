@@ -12,6 +12,10 @@ Verify Link Level Interface Policy {{ link_level_policy_name }}
     ${r}=   GET On Session   apic   /api/mo/uni/infra/hintfpol-{{ link_level_policy_name }}.json
     Should Be Equal Value Json String   ${r.json()}    $..fabricHIfPol.attributes.name   {{ link_level_policy_name }}
     Should Be Equal Value Json String   ${r.json()}    $..fabricHIfPol.attributes.speed   {{ policy.speed | default(defaults.apic.access_policies.interface_policies.link_level_policies.speed) }}
+{% if policy.link_delay_ms is defined %}
+    Should Be Equal Value Json String   ${r.json()}    $..fabricHIfPol.attributes.dfeDelayMs   {{ policy.link_delay_ms }}
+{% endif %}
+    Should Be Equal Value Json String   ${r.json()}    $..fabricHIfPol.attributes.linkDebounce   {{ policy.link_debounce_ms | default(defaults.apic.access_policies.interface_policies.link_level_policies.link_debounce_ms) }}
     Should Be Equal Value Json String   ${r.json()}    $..fabricHIfPol.attributes.autoNeg   {{ 'on' if policy.auto | default(defaults.apic.access_policies.interface_policies.link_level_policies.auto) else 'off' }}
     Should Be Equal Value Json String   ${r.json()}    $..fabricHIfPol.attributes.fecMode   {{ policy.fec_mode | default(defaults.apic.access_policies.interface_policies.link_level_policies.fec_mode) }}
 {% if policy.physical_media_type is defined %}

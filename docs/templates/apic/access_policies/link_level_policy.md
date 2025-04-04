@@ -15,6 +15,8 @@ apic:
       link_level_policies:
         - name: 10G
           speed: 10G
+          link_delay_ms: 10
+          link_debounce_ms: 110
           auto: true
           fec_mode: inherit
         - name: 10G-Copper

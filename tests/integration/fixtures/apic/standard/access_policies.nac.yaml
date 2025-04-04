@@ -304,6 +304,7 @@ apic:
           speed: 10G
           auto: true
           fec_mode: inherit
+          link_debounce_ms: 120
         - name: 100G
           speed: 100G
       port_channel_policies:

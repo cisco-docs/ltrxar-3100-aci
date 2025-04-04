@@ -21,6 +21,7 @@ apic:
           speed: 10G
           auto: true
           fec_mode: inherit
+          link_delay_ms: 20
       netflow_vmm_exporters:
         - name: VMM-EXPORTER1
           description: VMM exporter 1
