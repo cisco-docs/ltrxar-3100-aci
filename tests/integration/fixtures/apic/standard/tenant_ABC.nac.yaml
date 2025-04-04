@@ -17,8 +17,8 @@ apic:
           transit_route_tag_policy: TRP1
           bgp:
             timer_policy: BGP-TIMER1
-            ipv6_address_family_context_policy: BGP_ADDR_IPV6
-            ipv4_address_family_context_policy: BGP_ADDR_IPV4
+            ipv6_address_family_context_policy: BAFCP-IPV6
+            ipv4_address_family_context_policy: BAFCP-IPV4
             ipv4_import_route_target:
               - route-target:as2-nn2:10:10
               - route-target:as2-nn2:10:11
@@ -94,6 +94,10 @@ apic:
         - name: VRF3
           pim:
             mtu: 9000
+        - name: VRF4
+          bgp:
+            ipv6_address_family_context_policy: BAFCP-TEST
+            ipv4_address_family_context_policy: BAFCP-TEST
       bridge_domains:
         - name: BD1
           alias: ABC_BD1
@@ -1043,6 +1047,9 @@ apic:
             ibgp_max_ecmp: 19
             enable_host_route_leak: true
           - name: BGP-AFC2
+          - name: BAFCP-TEST
+          - name: BAFCP-IPV4
+          - name: BAFCP-IPV6
         bgp_route_summarization_policies:
           - name: BGP_SUMMARY
             description: BGP Summarization policy

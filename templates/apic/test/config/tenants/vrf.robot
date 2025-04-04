@@ -94,18 +94,18 @@ Verify BGP Timer Policy {{ vrf.bgp.timer_policy }}
  
 {% if vrf.bgp.ipv4_address_family_context_policy is defined %}
 
-Verify BGP Address Family Context {{ vrf.bgp.ipv4_address_family_context_policy }}
+Verify IPv4 BGP Address Family Context Policy {{ vrf.bgp.ipv4_address_family_context_policy }}
     {% set address_family_context_policy_name = vrf.bgp.ipv4_address_family_context_policy + defaults.apic.tenants.policies.bgp_address_family_context_policies.name_suffix %}
-    ${bgp_entry}=   Set Variable   $..fvCtx.children[?(@.fvRsCtxToBgpCtxAfPol.attributes.tnBgpCtxAfPolName=='{{ address_family_context_policy_name }}')].fvRsCtxToBgpCtxAfPol
+    ${bgp_entry}=   Set Variable   $..fvCtx.children[?(@.fvRsCtxToBgpCtxAfPol.attributes.af=='ipv4-ucast')].fvRsCtxToBgpCtxAfPol
     Should Be Equal Value Json String   ${r.json()}   ${bgp_entry}.attributes.tnBgpCtxAfPolName   {{ address_family_context_policy_name }}
     Should Be Equal Value Json String   ${r.json()}   ${bgp_entry}.attributes.af   ipv4-ucast
 {% endif %}
 
 {% if vrf.bgp.ipv6_address_family_context_policy is defined %}
 
-Verify BGP Address Family Context {{ vrf.bgp.ipv6_address_family_context_policy }}
+Verify IPv6 BGP Address Family Context Policy {{ vrf.bgp.ipv6_address_family_context_policy }}
     {% set address_family_context_policy_name = vrf.bgp.ipv6_address_family_context_policy + defaults.apic.tenants.policies.bgp_address_family_context_policies.name_suffix %}
-    ${bgp_entry}=   Set Variable   $..fvCtx.children[?(@.fvRsCtxToBgpCtxAfPol.attributes.tnBgpCtxAfPolName=='{{ address_family_context_policy_name }}')].fvRsCtxToBgpCtxAfPol
+    ${bgp_entry}=   Set Variable   $..fvCtx.children[?(@.fvRsCtxToBgpCtxAfPol.attributes.af=='ipv6-ucast')].fvRsCtxToBgpCtxAfPol
     Should Be Equal Value Json String   ${r.json()}   ${bgp_entry}.attributes.tnBgpCtxAfPolName   {{ address_family_context_policy_name }}
     Should Be Equal Value Json String   ${r.json()}   ${bgp_entry}.attributes.af   ipv6-ucast
 {% endif %}
