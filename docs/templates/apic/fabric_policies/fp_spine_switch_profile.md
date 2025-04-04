@@ -1,6 +1,6 @@
 # Fabric Spine Switch Profile
 
-Spine Switch Profiles can either be auto-generated, one per spine, by providing a naming convention or can be defined explicitly. In case of auto-generated profiles the following placeholders can be used when defining the naming convention:
+Spine Switch Profiles can either be auto-generated (one per spine) by providing a naming convention, or can be system-generated (one per spine), or can be defined explicitly. In case of auto-generated profiles the following placeholders can be used when defining the naming convention:
 
 * `\\g<id>`: gets replaced by the respective spine node ID
 * `\\g<name>`: gets replaced by the respective spine hostname
@@ -13,12 +13,31 @@ Location in GUI:
 
 ### Examples
 
+Auto-generated profiles:
+
 ```yaml
 apic:
-  auto_generate_switch_pod_profiles: true
+  auto_generate_fabric_spine_switch_interface_profiles: true
   fabric_policies:
     spine_switch_profile_name: "SPINE\\g<id>"
     spine_switch_selector_name: "SPINE\\g<id>"
+  node_policies:
+    nodes:
+      - id: 1001
+        role: spine
+        fabric_policy_group: ALL_SPINES
+```
+
+System-generated profiles:
+
+```yaml
+apic:
+  new_interface_configuration: true
+  node_policies:
+    nodes:
+      - id: 1001
+        role: spine
+        fabric_policy_group: ALL_SPINES
 ```
 
 Explicitly configured profiles:
@@ -27,13 +46,13 @@ Explicitly configured profiles:
 apic:
   fabric_policies:
     spine_switch_profiles:
-      - name: SPINE101
+      - name: SPINE1001
         selectors:
           - name: SEL1
-            policy: ALL_SPINE
+            policy: ALL_SPINES
             node_blocks:
               - name: BLOCK1
-                from: 101
+                from: 1001
         interface_profiles:
-          - SPINE101
+          - SPINE1001
 ```

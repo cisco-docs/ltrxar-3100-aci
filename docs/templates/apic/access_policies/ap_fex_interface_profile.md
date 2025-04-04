@@ -1,6 +1,6 @@
 # Access FEX Interface Profile
 
-FEX Interface Profiles can either be auto-generated, one per FEX, by providing a naming convention or can be defined explicitly. In case of auto-generated profiles the following placeholders can be used when defining the naming convention:
+FEX Interface Profiles can either be auto-generated (one per FEX) by providing a naming convention, or can be system-generated (one per FEX), or can be defined explicitly. In case of auto-generated profiles the following placeholders can be used when defining the naming convention:
 
 * `\\g<id>`: gets replaced by the respective leaf node ID
 * `\\g<name>`: gets replaced by the respective leaf hostname
@@ -14,13 +14,30 @@ Location in GUI:
 
 ### Examples
 
-Auto-generate profiles:
+Auto-generated profiles:
 
 ```yaml
 apic:
-  auto_generate_switch_pod_profiles: true
+  auto_generate_access_leaf_switch_interface_profiles: true
   access_policies:
     fex_profile_name: "LEAF\\g<id>-FEX\\g<fex>"
+  interface_policies:
+    nodes:
+      - id: 101
+        fexes:
+          - id: 101
+```
+
+System-generated profiles:
+
+```yaml
+apic:
+  new_interface_configuration: true
+  interface_policies:
+    nodes:
+      - id: 101
+        fexes:
+          - id: 101
 ```
 
 Explicitly configured profiles:
@@ -29,7 +46,7 @@ Explicitly configured profiles:
 apic:
   access_policies:
     fex_interface_profiles:
-      - name: LEAF1001-FEX101
+      - name: LEAF101-FEX101
         selectors:
           - name: SEL1
             policy_group: 10G-SERVER

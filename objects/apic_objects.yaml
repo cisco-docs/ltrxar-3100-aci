@@ -1244,7 +1244,16 @@ spine_objects:
     test_types:
       - config
     paths:
-      - apic.interface_policies
+      - apic.auto_generate_switch_pod_profiles
+      - apic.auto_generate_access_spine_switch_interface_profiles
+      - apic.access_policies.spine_interface_selector_name
+      - apic.interface_policies.nodes.id
+      - apic.interface_policies.nodes.interfaces.port
+      - apic.interface_policies.nodes.interfaces.description
+      - apic.interface_policies.nodes.interfaces.module
+      - apic.interface_policies.nodes.interfaces.policy_group
+      - apic.interface_policies.nodes.interfaces.shutdown
+      - apic.interface_policies.nodes.interfaces.expected_state
   - name: New Access Spine Interface Config
     template: new_interface_config
     folder: interface_policies
@@ -1276,7 +1285,27 @@ leaf_objects:
     test_types:
       - config
     paths:
-      - apic.interface_policies
+      - apic.auto_generate_switch_pod_profiles
+      - apic.auto_generate_access_leaf_switch_interface_profiles
+      - apic.access_policies.leaf_interface_selector_name
+      - apic.access_policies.leaf_interface_selector_sub_port_name
+      - apic.interface_selector_description
+      - apic.interface_policies.nodes.id
+      - apic.interface_policies.nodes.interfaces.port
+      - apic.interface_policies.nodes.interfaces.description
+      - apic.interface_policies.nodes.interfaces.module
+      - apic.interface_policies.nodes.interfaces.policy_group
+      - apic.interface_policies.nodes.interfaces.fex_id
+      - apic.interface_policies.nodes.interfaces.breakout
+      - apic.interface_policies.nodes.interfaces.shutdown
+      - apic.interface_policies.nodes.interfaces.expected_state
+      - apic.interface_policies.nodes.interfaces.sub_ports.port
+      - apic.interface_policies.nodes.interfaces.sub_ports.description
+      - apic.interface_policies.nodes.interfaces.sub_ports.module
+      - apic.interface_policies.nodes.interfaces.sub_ports.policy_group
+      - apic.interface_policies.nodes.interfaces.sub_ports.fex_id
+      - apic.interface_policies.nodes.interfaces.sub_ports.shutdown
+      - apic.interface_policies.nodes.interfaces.sub_ports.expected_state
   - name: Access FEX Interface Selector
     template: fex_interface_selector
     folder: interface_policies
@@ -1284,7 +1313,18 @@ leaf_objects:
     test_types:
       - config
     paths:
-      - apic.interface_policies
+      - apic.auto_generate_switch_pod_profiles
+      - apic.auto_generate_access_leaf_switch_interface_profiles
+      - apic.access_policies.fex_interface_selector_name
+      - apic.interface_selector_description
+      - apic.interface_policies.nodes.id
+      - apic.interface_policies.nodes.fexes.id
+      - apic.interface_policies.nodes.fexes.interfaces.port
+      - apic.interface_policies.nodes.fexes.interfaces.description
+      - apic.interface_policies.nodes.fexes.interfaces.module
+      - apic.interface_policies.nodes.fexes.interfaces.policy_group
+      - apic.interface_policies.nodes.fexes.interfaces.shutdown
+      - apic.interface_policies.nodes.fexes.interfaces.expected_state
   - name: New Access Leaf Interface Config
     template: new_interface_config
     folder: interface_policies

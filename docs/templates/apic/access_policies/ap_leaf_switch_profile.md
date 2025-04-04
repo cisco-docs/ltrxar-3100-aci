@@ -1,6 +1,6 @@
 # Access Leaf Switch Profile
 
-Leaf Switch Profiles can either be auto-generated, one per leaf, by providing a naming convention or can be defined explicitly. In case of auto-generated profiles the following placeholders can be used when defining the naming convention:
+Leaf Switch Profiles can either be auto-generated (one per leaf) by providing a naming convention, or can be system-generated (one per leaf), or can be defined explicitly. In case of auto-generated profiles the following placeholders can be used when defining the naming convention:
 
 * `\\g<id>`: gets replaced by the respective leaf node ID
 * `\\g<name>`: gets replaced by the respective leaf hostname
@@ -13,14 +13,31 @@ Location in GUI:
 
 ### Examples
 
-Auto-generate profiles:
+Auto-generated profiles:
 
 ```yaml
 apic:
-  auto_generate_switch_pod_profiles: true
+  auto_generate_access_leaf_switch_interface_profiles: true
   access_policies:
     leaf_switch_profile_name: "LEAF\\g<id>"
     leaf_switch_selector_name: "LEAF\\g<id>"
+  node_policies:
+    nodes:
+      - id: 101
+        role: leaf
+        access_policy_group: ALL_LEAFS
+```
+
+System-generated profiles:
+
+```yaml
+apic:
+  new_interface_configuration: true
+  node_policies:
+    nodes:
+      - id: 101
+        role: leaf
+        access_policy_group: ALL_LEAFS
 ```
 
 Explicitly configured profiles:
@@ -29,13 +46,13 @@ Explicitly configured profiles:
 apic:
   access_policies:
     leaf_switch_profiles:
-      - name: LEAF1001
+      - name: LEAF101
         selectors:
           - name: SEL1
             policy: ALL_LEAFS
             node_blocks:
               - name: BLOCK1
-                from: 1001
+                from: 101
         interface_profiles:
-          - LEAF1001
+          - LEAF101
 ```
