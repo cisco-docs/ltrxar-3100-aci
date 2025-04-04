@@ -56,4 +56,17 @@ apic:
             port_blocks:
               - name: BLOCK1
                 from_port: 2
+          - name: BRK-15
+            description: Breakout configuration
+            policy_group: BRK-10-4
+            port_blocks:
+              - name: 1-5
+                from_port: 5
+          - name: BRK-151
+            description: Breakout port 1/5/1
+            policy_group: 10G-SERVER
+            sub_port_blocks:
+              - name: '1-5-1'
+                from_port: 5
+                from_sub_port: 1
 ```
