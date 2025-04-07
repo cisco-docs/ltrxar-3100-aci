@@ -29,7 +29,7 @@ def validate_json(path):
 def render_templates(
     data_paths, output_path, templates_path, filters_path="", tests_path=""
 ):
-    """Render templates using iac-test package"""
+    """Render templates using nac-test package"""
     writer = RobotWriter(data_paths, filters_path, tests_path)
     writer.write(templates_path, output_path)
     if error_handler.fired:

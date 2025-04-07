@@ -8,7 +8,7 @@ import subprocess
 import time
 
 import errorhandler
-import iac_test.pabot
+import nac_test.pabot
 import pytest
 from aci import Apic
 from ndo import Ndo
@@ -112,7 +112,7 @@ def ndo_deploy_config(ndo_inst, config_path, version):
 
 
 def ndo_render_run_tests(ndo_url, data_paths, output_path):
-    """Render NDO test suites and run them using iac-test"""
+    """Render NDO test suites and run them using nac-test"""
 
     error = render_templates(
         data_paths,
@@ -126,7 +126,7 @@ def ndo_render_run_tests(ndo_url, data_paths, output_path):
 
     os.environ["MSO_URL"] = ndo_url
     try:
-        iac_test.pabot.run_pabot(output_path)
+        nac_test.pabot.run_pabot(output_path)
     except SystemExit as e:
         if e.code != 0:
             return "Robot testing failed."
@@ -550,7 +550,7 @@ def test_ndo_terraform_42(
             "https://10.50.202.13",
             "ce2_defaultOneTime-2023-12-18T06-15-28.tar.gz",
             "https://10.50.202.14",
-            "64c8b1bcd531074f897f1b11",
+            "67eeb5e47d2ddd8e06216deb",
             "4.3",
         )
     ],

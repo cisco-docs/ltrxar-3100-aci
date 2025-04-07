@@ -4,7 +4,7 @@
 
 import errorhandler
 import pytest
-from iac_validate.validator import Validator
+from nac_validate.validator import Validator
 
 pytestmark = pytest.mark.integration
 pytestmark = pytest.mark.validate
