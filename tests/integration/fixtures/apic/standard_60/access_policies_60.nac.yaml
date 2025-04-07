@@ -17,6 +17,7 @@ apic:
           auto: true
           fec_mode: inherit
           physical_media_type: sfp-10g-tx
+          link_delay_ms: 20
         - name: 10G-auto
           speed: 10G
           auto: true
