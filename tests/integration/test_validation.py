@@ -5,6 +5,7 @@
 import errorhandler
 import pytest
 from nac_validate.validator import Validator
+from pathlib import Path
 
 pytestmark = pytest.mark.integration
 pytestmark = pytest.mark.validate
@@ -31,7 +32,7 @@ def test_apic_validation(data_paths):
 
 @pytest.mark.parametrize("data_paths", [(["tests/integration/fixtures/ndo/standard/"])])
 def test_ndo_validation(data_paths):
-    validator = Validator(NDO_SCHEMA_PATH, ".rules/")
+    validator = Validator(NDO_SCHEMA_PATH, Path(".rules/"))
     validator.validate_syntax(data_paths)
     if validator.errors:
         pytest.fail("Syntactic validation has failed.")
