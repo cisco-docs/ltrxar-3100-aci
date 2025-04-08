@@ -100,6 +100,12 @@ class Rule:
             ],
         },
         {
+            "key": "apic.access_policies.leaf_interface_policy_groups.name",
+            "references": [
+                "apic.access_policies.leaf_interface_profiles.selectors.policy_group",
+            ],
+        },
+        {
             "key": "apic.access_policies.interface_policies.link_level_policies.name",
             "references": [
                 "apic.access_policies.leaf_interface_policy_groups.link_level_policy",
