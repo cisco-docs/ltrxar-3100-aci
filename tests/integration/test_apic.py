@@ -8,7 +8,7 @@ import subprocess
 import time
 
 import errorhandler
-import iac_test.pabot
+import nac_test.pabot
 import pytest
 from aci import Apic
 from util import (
@@ -59,7 +59,7 @@ def apic_deploy_config(apic_url, config_path):
 
 
 def apic_render_run_tests(apic_url, data_paths, output_path):
-    """Render APIC test suites and run them using iac-test"""
+    """Render APIC test suites and run them using nac-test"""
     error = render_templates(
         data_paths, output_path, APIC_TEST_TEMPLATES_PATH, filters_path=FILTERS_PATH
     )
@@ -67,7 +67,7 @@ def apic_render_run_tests(apic_url, data_paths, output_path):
         pytest.fail(error)
     os.environ["ACI_URL"] = apic_url
     try:
-        iac_test.pabot.run_pabot(output_path)
+        nac_test.pabot.run_pabot(output_path)
     except SystemExit as e:
         if e.code != 0:
             return "Robot testing failed."
