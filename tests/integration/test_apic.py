@@ -17,6 +17,7 @@ from util import (
     revert_snapshot,
     terraform_post_process,
 )
+from pathlib import Path
 
 pytestmark = pytest.mark.integration
 pytestmark = pytest.mark.apic
@@ -177,7 +178,7 @@ def full_apic_terraform_test(
             pytest.fail("Idempotency check failed.")
 
         # Run tests
-        data_paths.append(os.path.join(terraform_path, "defaults.yaml"))
+        data_paths.append(Path(os.path.join(terraform_path, "defaults.yaml")))
         error = apic_render_run_tests(
             apic_url, data_paths, os.path.join(tmpdir, "results/")
         )

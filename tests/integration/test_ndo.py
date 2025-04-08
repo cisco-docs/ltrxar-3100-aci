@@ -13,6 +13,7 @@ import pytest
 from aci import Apic
 from ndo import Ndo
 from util import validate_json, render_templates, terraform_post_process
+from pathlib import Path
 
 pytestmark = pytest.mark.integration
 pytestmark = pytest.mark.ndo
@@ -288,7 +289,7 @@ def full_ndo_terraform(
         )
         terraform_post_process("SECOND TERRAFORM APPLY", r)
 
-        data_paths.append(os.path.join(terraform_path, "defaults.yaml"))
+        data_paths.append(Path(os.path.join(terraform_path, "defaults.yaml")))
         # Render and run tests
         error = ndo_render_run_tests(
             ndo_url, data_paths, os.path.join(tmpdir, "results/")
