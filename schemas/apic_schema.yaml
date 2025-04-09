@@ -2391,7 +2391,7 @@ ten_l3outs:
   import_route_control_enforcement: bool(required=False)
   export_route_control_enforcement: bool(required=False)
   dhcp_labels: list(include('ten_dhcp_labels'), required=False) # @name(L3out DHCP Labels) @sheet_hidden()
-
+  route_maps: list(include('ten_l3outs_route_maps'), required=False) # @name(L3out Route Maps) (To support multiple L3out Route Maps)
 
 ten_l3outs_bgp:
   name: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
@@ -2767,6 +2767,13 @@ ten_l3outs_export_route_map:
   type: enum('combinable', 'global', required=False) # @name(Export Route Map Type)
   contexts: list(include('ten_l3outs_export_route_map_context'), required=False) # @name(L3out Export Route Map Contexts)
 
+ten_l3outs_route_maps:
+  name: regex('^[a-zA-Z0-9_.:-]{1,64}$') # @name(Route Map Name)
+  description: regex('^[a-zA-Z0-9\\\\!#$%()*,-./:;@ _{|}~?&+]{1,128}$', required=False) # @name(Route Map Description)
+  type: enum('combinable', 'global', required=False) # @name(Route Map Type)
+  contexts: list(include('ten_l3outs_route_maps_context'), required=False)
+
+
 ten_l3outs_default_route_leak_policy:
   always: bool(required=False)
   criteria: enum('only', 'in-addition', required=False)
@@ -2791,6 +2798,14 @@ ten_l3outs_export_route_map_context:
   action: enum('permit', 'deny', required=False)
   order: int(min=0, max=9, required=False)
   match_rules: list(regex('^[a-zA-Z0-9_.:-]{1,64}$'), required=False) # @name(L3out Export RM Con Match Rules)
+  set_rule: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
+
+ten_l3outs_route_maps_context:
+  name: regex('^[a-zA-Z0-9_.:-]{1,64}$')
+  description: regex('^[a-zA-Z0-9\\\\!#$%()*,-./:;@ _{|}~?&+]{1,128}$', required=False)
+  action: enum('permit', 'deny', required=False)
+  order: int(min=0, max=9, required=False)
+  match_rules: list(regex('^[a-zA-Z0-9_.:-]{1,64}$'), required=False) # @name(L3out RM Con Match Rules)
   set_rule: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
 
 ten_l3outs_expected_state:

@@ -886,6 +886,45 @@ Verify L3out {{ l3out_name }} Import Route Map Context {{ context_name }}
 
 {% endif %}
 
+{% if l3out.route_maps is defined %}
+{% for route_map in l3out.route_maps | default([]) %}
+{% set route_map_name = route_map.name ~ defaults.apic.tenants.l3outs.route_maps.name_suffix %}
+
+Verify L3out {{ l3out_name }} Route Maps {{route_map_name}}
+
+    ${route_map}=   Set Variable   $..l3extOut.children[?(@.rtctrlProfile.attributes.name=={{ route_map_name }})]
+    Should Be Equal Value Json String   ${r.json()}   ${route_map}..rtctrlProfile.attributes.name   {{ route_map_name }}
+    Should Be Equal Value Json String   ${r.json()}   ${route_map}..rtctrlProfile.attributes.descr   {{ route_map.description | default() }}
+    Should Be Equal Value Json String   ${r.json()}   ${route_map}..rtctrlProfile.attributes.type   {{ route_map.type | default(defaults.apic.tenants.l3outs.route_maps.type) }}
+
+{% for context in route_map.contexts | default([]) %}
+{% set context_name = context.name ~ defaults.apic.tenants.l3outs.route_maps.contexts.name_suffix %}
+
+Verify L3out {{ l3out_name }} Route Maps Context {{ context_name }}
+    ${route_map}=   Set Variable   $..l3extOut.children[?(@.rtctrlProfile.attributes.name=={{ route_map_name }})]   
+    ${context}=   Set Variable   ${route_map}..rtctrlProfile.children[?(@.rtctrlCtxP.attributes.name=='{{ context_name }}')]
+    Should Be Equal Value Json String   ${r.json()}   ${context}..rtctrlCtxP.attributes.name   {{ context_name }}
+    Should Be Equal Value Json String   ${r.json()}   ${context}..rtctrlCtxP.attributes.descr   {{ context.description | default() }}
+    Should Be Equal Value Json String   ${r.json()}   ${context}..rtctrlCtxP.attributes.action   {{ context.action | default(defaults.apic.tenants.l3outs.route_maps.contexts.action) }}
+    Should Be Equal Value Json String   ${r.json()}   ${context}..rtctrlCtxP.attributes.order   {{ context.order | default(defaults.apic.tenants.l3outs.route_maps.contexts.order) }}
+{% if context.set_rule is defined %}
+{% set rule_name = context.set_rule ~ defaults.apic.tenants.policies.set_rules.name_suffix %}
+    Should Be Equal Value Json String   ${r.json()}   ${context}..rtctrlRsScopeToAttrP.attributes.tnRtctrlAttrPName   {{ rule_name }}
+{% endif %}
+
+{% if context.match_rules is defined %}
+{% for rule in context.match_rules | default([]) %}
+{% set match_rule_name_with_suffix = rule ~ defaults.apic.tenants.policies.match_rules.name_suffix %}
+  Should Be Equal Value Json String   ${r.json()}   $..rtctrlCtxP.children[?(@.rtctrlRsCtxPToSubjP.attributes.tnRtctrlSubjPName=='{{ match_rule_name_with_suffix }}')]
+{% endfor %}
+{% endif %}
+
+{% endfor %}
+
+{% endfor %}
+
+{% endif %}
+
 {% if l3out.export_route_map is defined %}
 
 Verify L3out {{ l3out_name }} Export Route Map

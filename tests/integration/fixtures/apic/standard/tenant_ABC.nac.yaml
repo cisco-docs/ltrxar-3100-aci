@@ -444,6 +444,29 @@ apic:
                 match_rules:
                   - MATCH2
                 set_rule: SET2
+          route_maps:
+            - name: ROUTE_MAP1
+              description: desc
+              type: global
+              contexts:
+                - name: CONTEXT1
+                  description: desc1
+                  action: deny
+                  order: 2
+                  match_rules:
+                    - MATCH1
+                  set_rule: SET1
+            - name: ROUTE_MAP2
+              description: desc2
+              type: combinable
+              contexts:
+                - name: CONTEXT2
+                  description: desc3
+                  action: deny
+                  order: 2
+                  match_rules:
+                    - MATCH2
+                  set_rule: SET2
         - name: L3OUT3
           vrf: VRF2
           domain: ROUTED1

@@ -305,8 +305,20 @@ apic:
                 match_rules:
                 - MATCH1
                 set_rule: SET1
+          route_maps:
+            - name: example-name
+              description: desc
+              type: global
+              contexts:
+              - name: CONTEXT1
+                  description: desc1
+                  action: deny
+                  order: 2
+                  match_rules:
+                  - MATCH1
+                  set_rule: SET1
           export_route_map:
-          name: example-export-name
+            name: example-export-name
             contexts:
               - name: CONTEXT1
                 match_rules:
