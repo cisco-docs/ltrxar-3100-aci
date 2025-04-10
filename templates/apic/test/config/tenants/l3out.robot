@@ -892,7 +892,7 @@ Verify L3out {{ l3out_name }} Import Route Map Context {{ context_name }}
 
 Verify L3out {{ l3out_name }} Route Maps {{route_map_name}}
 
-    ${route_map}=   Set Variable   $..l3extOut.children[?(@.rtctrlProfile.attributes.name=={{ route_map_name }})]
+    ${route_map}=   Set Variable   $..l3extOut.children[?(@.rtctrlProfile.attributes.name=='{{ route_map_name }}')]
     Should Be Equal Value Json String   ${r.json()}   ${route_map}..rtctrlProfile.attributes.name   {{ route_map_name }}
     Should Be Equal Value Json String   ${r.json()}   ${route_map}..rtctrlProfile.attributes.descr   {{ route_map.description | default() }}
     Should Be Equal Value Json String   ${r.json()}   ${route_map}..rtctrlProfile.attributes.type   {{ route_map.type | default(defaults.apic.tenants.l3outs.route_maps.type) }}
@@ -901,7 +901,7 @@ Verify L3out {{ l3out_name }} Route Maps {{route_map_name}}
 {% set context_name = context.name ~ defaults.apic.tenants.l3outs.route_maps.contexts.name_suffix %}
 
 Verify L3out {{ l3out_name }} Route Maps Context {{ context_name }}
-    ${route_map}=   Set Variable   $..l3extOut.children[?(@.rtctrlProfile.attributes.name=={{ route_map_name }})]   
+    ${route_map}=   Set Variable   $..l3extOut.children[?(@.rtctrlProfile.attributes.name=='{{ route_map_name }}')]   
     ${context}=   Set Variable   ${route_map}..rtctrlProfile.children[?(@.rtctrlCtxP.attributes.name=='{{ context_name }}')]
     Should Be Equal Value Json String   ${r.json()}   ${context}..rtctrlCtxP.attributes.name   {{ context_name }}
     Should Be Equal Value Json String   ${r.json()}   ${context}..rtctrlCtxP.attributes.descr   {{ context.description | default() }}
