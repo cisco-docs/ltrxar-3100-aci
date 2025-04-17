@@ -22,3 +22,19 @@ apic:
           - id: 1
             remote_pool: 10.2.0.0/24
 ```
+
+Auto-generated Pod Profiles Full Example:
+
+```yaml
+apic:
+  auto_generate_switch_pod_profiles: true
+  fabric_policies:
+    pod_profile_name: POD\g<id>
+    pod_profile_pod_selector_name: POD\g<id>
+    pod_policy_groups:
+      - name: Policy1
+  pod_policies:
+    pods:
+      - id: 1
+        policy: Policy1
+```
