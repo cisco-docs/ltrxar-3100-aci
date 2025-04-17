@@ -24,7 +24,7 @@
                             "spanFilterEntry": {
                                 "attributes": {
                                     "annotation": "orchestrator:aac",
-                                    "name": "{{ entry_name }}",
+                                    "name": "{{ entry_name | default() }}",
                                     "descr": "{{ entry.description | default() }}",
                                     "dstAddr": "{{ entry.destination_ip }}",
                                     "dstPortFrom": "{{ entry.destination_from_port | default(defaults.apic.access_policies.span.filter_groups.entries.destination_from_port) }}",

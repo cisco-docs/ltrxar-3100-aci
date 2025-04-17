@@ -20,9 +20,9 @@ Verify SPAN Filter Group {{ filter_name }}
 
 {% for entry in filter_.entries | default([]) %}
 {% set entry_name = entry.name ~ defaults.apic.access_policies.span.filter_groups.entries.name_suffix %}
-Verify SPAN Filter Group {{ filter_name }} Entry {{ entry_name }}
-    ${entry}=   Set Variable   $..spanFilterGrp.children[?(@.spanFilterEntry.attributes.name=='{{ entry_name }}')].spanFilterEntry
-    Should Be Equal Value Json String   ${r.json()}    ${entry}.attributes.name   {{ entry_name }}
+Verify SPAN Filter Group {{ filter_name }} Src {{ entry.source_ip }} Dst {{ entry.destination_ip }}
+    ${entry}=   Set Variable   $..spanFilterGrp.children[?(@.spanFilterEntry.attributes.srcAddr=='{{ entry.source_ip }}' & @.spanFilterEntry.attributes.dstAddr=='{{ entry.destination_ip }}')].spanFilterEntry
+    Should Be Equal Value Json String   ${r.json()}    ${entry}.attributes.name   {{ entry_name | default() }}
     Should Be Equal Value Json String   ${r.json()}    ${entry}.attributes.descr   {{ entry.description | default() }}
     Should Be Equal Value Json String   ${r.json()}    ${entry}.attributes.dstAddr   {{ entry.destination_ip }}
     Should Be Equal Value Json String   ${r.json()}    ${entry}.attributes.dstPortFrom   {{ get_protocol_from_port(entry.destination_from_port | default(defaults.apic.access_policies.span.filter_groups.entries.destination_from_port)) }}
