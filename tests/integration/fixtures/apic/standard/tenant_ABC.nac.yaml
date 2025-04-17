@@ -1059,7 +1059,7 @@ apic:
           - name: BGP_PP3
         bgp_best_path_policies:
           - name: BGP-BEST-PATH1
-            control_type: multi-path-relax
+            as_path_multipath_relax: true
           - name: BGP-BEST-PATH2
         bgp_address_family_context_policies:
           - name: BGP-AFC1

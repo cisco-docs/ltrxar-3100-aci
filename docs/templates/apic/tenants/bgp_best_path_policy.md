@@ -14,5 +14,18 @@ apic:
       policies:
         bgp_best_path_policies:
           - name: BGP-BEST-PATH1
-            control_type: multi-path-relax
+            as_path_multipath_relax: true
+```
+
+Example with `ignore_igp_metric` (ACI 6.1+):
+
+```yaml
+apic:
+  tenants:
+    - name: ABC
+      policies:
+        bgp_best_path_policies:
+          - name: BGP-BEST-PATH1
+            as_path_multipath_relax: true
+            ignore_igp_metric: true
 ```

@@ -10,8 +10,9 @@
             {%- set comma1 = joiner(",") %}
             {%- for bpp in tenant.policies.bgp_best_path_policies | default([]) %}{{ comma1() }}
             {% set bpp_name = bpp.name ~ defaults.apic.tenants.policies.bgp_best_path_policies.name_suffix %}
-            {% set control_type = "" %}
-            {% if bpp.control_type | default(defaults.apic.tenants.policies.bgp_best_path_policies.control_type) == "multi-path-relax" %}{% set control_type = "asPathMultipathRelax" %}{% endif %}
+            {% set control_type = [] %}
+            {% if bpp.as_path_multipath_relax | default(defaults.apic.tenants.policies.bgp_best_path_policies.as_path_multipath_relax) %}{% set control_type = control_type + [("asPathMultipathRelax")] %}{% endif %}
+            {% if bpp.ignore_igp_metric | default(defaults.apic.tenants.policies.bgp_best_path_policies.ignore_igp_metric) %}{% set control_type = control_type + [("ignoreIgpMetric")] %}{% endif %}
             {
 
                 "bgpBestPathCtrlPol": {
@@ -20,7 +21,7 @@
                         "name": "{{ bpp_name }}",
                         "descr": "{{ bpp.description | default() }}",
                         "dn": "uni/tn-{{ tenant.name }}/bestpath-{{ bpp_name }}",
-                        "ctrl": "{{ control_type }}"
+                        "ctrl": "{{ control_type | join(',') }}"
                     }
                 }
             }

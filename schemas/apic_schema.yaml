@@ -3104,7 +3104,8 @@ ten_bgp_timer_policy:
 ten_bgp_best_path_policy:
   name: regex('^[a-zA-Z0-9_.:-]{1,64}$')
   description: regex('^[a-zA-Z0-9\\\\!#$%()*,-./:;@ _{|}~?&+]{1,128}$', required=False)
-  control_type: enum('default', 'multi-path-relax', required=False)
+  as_path_multipath_relax: bool(required=False)
+  ignore_igp_metric: bool(required=False)
 
 ten_bgp_address_family_context_policy:
   name: regex('^[a-zA-Z0-9_.:-]{1,64}$')
