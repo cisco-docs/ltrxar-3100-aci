@@ -159,7 +159,7 @@ apic:
             - dhcp_relay_policy: INFRA-DHCP-RELAY1
               dhcp_option_policy: DHCP-OPTION1
               scope: infra
-        - name: BD3
+        - name: BD5
           vrf: VRF1
           arp_flooding: false
           multi_destination_flooding: encap-flood
@@ -677,8 +677,8 @@ apic:
               bridge_domain: BD1
             - name: EPG3
               bridge_domain: BD1
-            - name: EPG4
-              bridge_domain: BD3
+            - name: EPG5
+              bridge_domain: BD5
               flood_in_encap: true
               intra_epg_isolation: true
               preferred_group: true
