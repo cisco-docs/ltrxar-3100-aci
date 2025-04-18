@@ -104,10 +104,9 @@ apic:
           mac: 00:22:BD:F8:19:FE
           virtual_mac: 00:23:BD:F8:19:12
           ep_move_detection: true
-          arp_flooding: false
+          arp_flooding: true
           ip_dataplane_learning: false
           limit_ip_learn_to_subnets: false
-          multi_destination_flooding: encap-flood
           unknown_unicast: flood
           clear_remote_mac_entries: true
           unknown_ipv4_multicast: flood
@@ -160,6 +159,10 @@ apic:
             - dhcp_relay_policy: INFRA-DHCP-RELAY1
               dhcp_option_policy: DHCP-OPTION1
               scope: infra
+        - name: BD3
+          vrf: VRF1
+          arp_flooding: false
+          multi_destination_flooding: encap-flood
       l3outs:
         - name: L3OUT1
           alias: L3OUT1-ALIAS
@@ -674,6 +677,11 @@ apic:
               bridge_domain: BD1
             - name: EPG3
               bridge_domain: BD1
+            - name: EPG4
+              bridge_domain: BD3
+              flood_in_encap: true
+              intra_epg_isolation: true
+              preferred_group: true
           useg_endpoint_groups:
             - name: uSeg_EPG1
               bridge_domain: BD2
