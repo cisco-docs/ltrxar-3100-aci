@@ -14,10 +14,6 @@ apic:
 
     apic_conn_pref: ooband
 
-    atomic_counter:
-      admin_state: true
-      mode: path
-
     banners:
       apic_gui_alias: APIC GUI BANNER
       apic_gui_banner_url: APIC GUI BANNER URL
