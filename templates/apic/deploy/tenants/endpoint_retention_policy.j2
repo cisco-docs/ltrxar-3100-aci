@@ -1,0 +1,32 @@
+{# iterate_list apic.tenants name item[2] #}
+{% set tenant = ((apic | default()) | community.general.json_query('tenants[?name==`' ~ item[2] ~ '`]'))[0] %}
+{
+    "fvTenant": {
+        "attributes": {
+            "dn": "uni/tn-{{ tenant.name }}",
+            "name": "{{ tenant.name }}"
+        },
+        "children": [
+            {%- set comma1 = joiner(",") %}
+            {%- for endpoint_retention_policy in tenant.policies.endpoint_retention_policies | default([]) %}{{ comma1() }}
+            {% set endpoint_retention_policy_name = endpoint_retention_policy.name ~ defaults.apic.tenants.policies.endpoint_retention_policies.name_suffix %}
+            {
+                "fvEpRetPol": {
+                    "attributes": {
+                        "annotation": "orchestrator:aac",
+                        "descr": "{{ endpoint_retention_policy.description | default () }}",
+                        "dn": "uni/tn-{{ tenant.name }}/epRPol-{{ endpoint_retention_policy_name }}",
+                        "name": "{{ endpoint_retention_policy_name }}",
+                        "holdIntvl": "{{ endpoint_retention_policy.hold_interval | default(defaults.apic.tenants.policies.endpoint_retention_policies.hold_interval) }}",
+                        "bounceAgeIntvl": "{{ "infinite" if endpoint_retention_policy.bounce_entry_aging_interval | default(defaults.apic.tenants.policies.endpoint_retention_policies.bounce_entry_aging_interval) == 0 else endpoint_retention_policy.bounce_entry_aging_interval | default(defaults.apic.tenants.policies.endpoint_retention_policies.bounce_entry_aging_interval) }}",
+                        "localEpAgeIntvl": "{{ "infinite" if endpoint_retention_policy.local_endpoint_aging_interval | default(defaults.apic.tenants.policies.endpoint_retention_policies.local_endpoint_aging_interval) == 0 else endpoint_retention_policy.local_endpoint_aging_interval | default(defaults.apic.tenants.policies.endpoint_retention_policies.local_endpoint_aging_interval) }}",
+                        "remoteEpAgeIntvl": "{{ "infinite" if endpoint_retention_policy.remote_endpoint_aging_interval | default(defaults.apic.tenants.policies.endpoint_retention_policies.remote_endpoint_aging_interval) == 0 else endpoint_retention_policy.remote_endpoint_aging_interval | default(defaults.apic.tenants.policies.endpoint_retention_policies.remote_endpoint_aging_interval) }}",
+                        "moveFreq": "{{ "none" if endpoint_retention_policy.move_frequency | default(defaults.apic.tenants.policies.endpoint_retention_policies.move_frequency) == 0 else endpoint_retention_policy.move_frequency | default(defaults.apic.tenants.policies.endpoint_retention_policies.move_frequency) }}"
+                    }
+                }
+            }
+            {%- endfor %}
+
+        ]
+    }
+}

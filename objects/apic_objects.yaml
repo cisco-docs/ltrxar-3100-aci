@@ -1602,6 +1602,20 @@ tenant_objects:
       - config
     paths:
       - apic.tenants.policies.dhcp_option_policies
+  - name: Endpoint Retention Policy
+    template: endpoint_retention_policy
+    folder: tenants
+    aci_classes:
+      - fvEpRetPol
+    match_dn: 'uni\/tn-%%TENANT%%\/epRPol-.*'
+    scope:
+      - user
+      - mgmt
+      - infra
+    test_types:
+      - config
+    paths:
+      - apic.tenants.policies.endpoint_retention_policies
   - name: Route Tag Policy
     template: route_tag_policy
     folder: tenants

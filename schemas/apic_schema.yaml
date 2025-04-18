@@ -1859,7 +1859,7 @@ ten_vrf:
   enforcement_direction: enum('ingress', 'egress', required=False)
   enforcement_preference: enum('enforced', 'unenforced', required=False)
   preferred_group: bool(required=False)
-  endpoint_retention_policy: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False) # @no_doc()
+  endpoint_retention_policy: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
   monitoring_policy: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False) # @no_doc()
   transit_route_tag_policy: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
   leaked_internal_prefixes: list(include('ten_vrf_leaked_internal_prefixes'), required=False) # @name(VRF Leaked Internal Prefixes) @ref_name(Leaked Internal Prefix) @sheet_hidden()
@@ -1998,6 +1998,7 @@ ten_bridge_domains:
   igmp_interface_policy: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
   igmp_snooping_policy: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
   nd_interface_policy: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
+  endpoint_retention_policy: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
   expected_state: include('ten_bridge_domain_expected_state', required=False) # @no_external_doc() @name(Bridge Domain Expected State) @sheet_hidden()
 
 ten_bridge_domain_subnets:
@@ -3002,6 +3003,7 @@ ten_policies:
   bgp_address_family_context_policies: list(include('ten_bgp_address_family_context_policy'), required=False) # @name(BGP Add Fam Context Policies) @sheet_hidden()
   dhcp_relay_policies: list(include('ten_dhcp_relay_policy'), required=False) # @ref_name(DHCP Relay Policies) @sheet_hidden()
   dhcp_option_policies: list(include('ten_dhcp_option_policy'), required=False) # @ref_name(DHCP Option Policies) @sheet_hidden()
+  endpoint_retention_policies: list(include('ten_endpoint_retention_policies'), required=False) # @sheet_hidden()
   route_tag_policies: list(include('ten_route_tag_policies'), required=False) # @sheet_hidden()
   route_control_route_maps: list(include('ten_route_control_route_maps'), required=False) # @ref_name(Route Control Route Maps)
   match_rules: list(include('ten_match_rule'), required=False) # @ref_name(Match Rules)
@@ -3141,6 +3143,15 @@ ten_dhcp_options:
   name: regex('^[a-zA-Z0-9_.:-]{1,64}$')
   id: int(min=1, max=255, required=False)
   data: regex('^[a-zA-Z0-9\\\\!#$%()*,-./:;@ _{|}~?&+]{1,64}$', required=False)
+
+ten_endpoint_retention_policies:
+  name: regex('^[a-zA-Z0-9_.:-]{1,64}$')
+  description: regex('^[a-zA-Z0-9\\\\!#$%()*,-./:;@ _{|}~?&+]{1,128}$', required=False)
+  hold_interval: int(min=5, max=65535, required=False)
+  bounce_entry_aging_interval: any(int(0),int(min=150, max=65535), required=False)
+  local_endpoint_aging_interval: any(int(0),int(min=120, max=65535), required=False)
+  remote_endpoint_aging_interval: any(int(0),int(min=120, max=65535), required=False)
+  move_frequency: int(min=0, max=65535, required=False)
 
 ten_route_tag_policies:
   name: regex('^[a-zA-Z0-9_.:-]{1,64}$')

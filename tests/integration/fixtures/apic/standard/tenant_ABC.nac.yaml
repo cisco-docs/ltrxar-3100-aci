@@ -94,6 +94,7 @@ apic:
         - name: VRF3
           pim:
             mtu: 9000
+          endpoint_retention_policy: ERP1
         - name: VRF4
           bgp:
             ipv6_address_family_context_policy: BAFCP-TEST
@@ -153,6 +154,7 @@ apic:
         - name: BD2
           ndo_managed: true
           vrf: VRF2
+          endpoint_retention_policy: ERP1
           subnets:
             - ip: 2.2.2.2/24
           dhcp_labels:
@@ -1270,6 +1272,15 @@ apic:
             scope_type: bd
             scope: BD1
             ip_sla_policy: EXAMPLE
+        endpoint_retention_policies:
+        - name: ERP1
+          description: My Endpoint Retention policy
+          hold_interval: 180
+          bounce_entry_aging_interval: 0
+          remote_endpoint_aging_interval: 180
+          local_endpoint_aging_interval: 180
+          move_frequency: 0
+        - name: ERP2
       services:
         l4l7_devices:
           - name: DEV1

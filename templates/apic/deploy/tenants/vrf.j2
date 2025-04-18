@@ -732,7 +732,17 @@
                         }
                         {%- endfor %}
                         {%- endif %}
-
+                        {%- if vrf.endpoint_retention_policy is defined %} {{ comma1() }}
+                        {% set endpoint_retention_policy_name = vrf.endpoint_retention_policy ~ defaults.apic.tenants.policies.endpoint_retention_policies.name_suffix %}
+                        {
+                            "fvRsCtxToEpRet": {
+                                "attributes": {
+                                    "annotation": "orchestrator:aac",
+                                    "tnFvEpRetPolName": "{{ endpoint_retention_policy_name }}"
+                                }
+                            }
+                        }
+                        {%- endif %}
                     ]
                 }
             }

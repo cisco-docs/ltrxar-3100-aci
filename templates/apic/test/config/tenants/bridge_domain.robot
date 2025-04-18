@@ -46,6 +46,10 @@ Verify Bridge Domain {{ bd_name }}
 {% if bd.pim_destination_filter is defined %}
     Should Be Equal Value Json String   ${r.json()}   $..pimBDDestFilterPol..rtdmcRsFilterToRtMapPol.attributes.tDn   uni/tn-{{ tenant.name }}/rtmap-{{ bd.pim_destination_filter ~ defaults.apic.tenants.policies.multicast_route_maps.name_suffix }}
 {% endif %}
+{% if bd.endpoint_retention_policy is defined %}
+{% set endpoint_retention_policy_name = bd.endpoint_retention_policy ~ defaults.apic.tenants.policies.endpoint_retention_policies.name_suffix %}
+    Should Be Equal Value Json String   ${r.json()}   $..fvBD.children..fvRsBdToEpRet.attributes.tnFvEpRetPolName   {{ endpoint_retention_policy_name }}
+{% endif %}
 
 {% for dhcp_label in bd.dhcp_labels | default([]) %}
 {% set dhcp_relay_policy_name = dhcp_label.dhcp_relay_policy ~ defaults.apic.tenants.policies.dhcp_relay_policies.name_suffix %}

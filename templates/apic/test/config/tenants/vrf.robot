@@ -34,6 +34,11 @@ Verify VRF {{ vrf_name }}
     Should Be Equal Value Json String   ${r.json()}   $..fvCtx.attributes.pcEnfPref   {{ vrf.enforcement_preference | default(defaults.apic.tenants.vrfs.enforcement_preference) }}
     Should Be Equal Value Json String   ${r.json()}   $..vzAny.attributes.prefGrMemb   {{ 'enabled' if vrf.preferred_group | default(defaults.apic.tenants.vrfs.preferred_group) else 'disabled' }}
 
+{% if vrf.endpoint_retention_policy is defined %}
+{% set endpoint_retention_policy_name = vrf.endpoint_retention_policy ~ defaults.apic.tenants.policies.endpoint_retention_policies.name_suffix %}
+    Should Be Equal Value Json String   ${r.json()}   $..fvCtx.children..fvRsCtxToEpRet.attributes.tnFvEpRetPolName   {{ endpoint_retention_policy_name }}
+{% endif %}
+
 {% for prefix in vrf.leaked_internal_prefixes | default([]) %}
 
 Verify VRF {{ vrf_name }} Leaked Internal Prefix {{ prefix.prefix }}
