@@ -19,7 +19,7 @@ Verify SPAN Filter Group {{ filter_name }}
     Should Be Equal Value Json String   ${r.json()}    $..spanFilterGrp.attributes.descr   {{ filter_.description | default() }}
 
 {% for entry in filter_.entries | default([]) %}
-{% set entry_name = entry.name ~ defaults.apic.access_policies.span.filter_groups.entries.name_suffix %}
+{% set entry_name = entry.name | default() ~ defaults.apic.access_policies.span.filter_groups.entries.name_suffix %}
 Verify SPAN Filter Group {{ filter_name }} Src {{ entry.source_ip }} Dst {{ entry.destination_ip }}
     ${entry}=   Set Variable   $..spanFilterGrp.children[?(@.spanFilterEntry.attributes.srcAddr=='{{ entry.source_ip }}' & @.spanFilterEntry.attributes.dstAddr=='{{ entry.destination_ip }}')].spanFilterEntry
     Should Be Equal Value Json String   ${r.json()}    ${entry}.attributes.name   {{ entry_name | default() }}
