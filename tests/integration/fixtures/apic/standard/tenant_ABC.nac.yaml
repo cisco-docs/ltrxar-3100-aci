@@ -165,6 +165,7 @@ apic:
           vrf: VRF1
           arp_flooding: false
           multi_destination_flooding: encap-flood
+          unknown_unicast: flood
       l3outs:
         - name: L3OUT1
           alias: L3OUT1-ALIAS
