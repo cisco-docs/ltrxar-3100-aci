@@ -833,6 +833,37 @@ apic:
                 - filter: FILTER2
         - name: CON3
         - name: CON4
+        - name: CON5
+          subjects:
+          - name: SUB1
+            reverse_filter_ports: false
+            consumer_to_provider:
+              service_graph: TEMPLATE1
+              qos_class: "level1"
+              target_dscp: "CS0"
+              filters:
+                - filter: FILTER1
+                  action: permit
+                  priority: default
+                  log: true
+                  no_stats: false
+            provider_to_consumer:
+              service_graph: TEMPLATE2
+              qos_class: "level1"
+              target_dscp: "CS0"
+              filters:
+                - filter: FILTER2
+                  action: permit
+                  priority: default
+                  log: true
+                  no_stats: false
+          - name: SUB2
+            consumer_to_provider:
+              filters:
+                - filter: FILTER1
+            provider_to_consumer:
+              filters:
+                - filter: FILTER2
       imported_contracts:
         - name: IMPORT-CON1
           tenant: DEF

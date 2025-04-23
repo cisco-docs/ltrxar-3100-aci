@@ -2301,9 +2301,38 @@ ten_contracts_subjects:
   qos_class: enum('level1', 'level2', 'level3', 'level4', 'level5', 'level6', 'unspecified', required=False)
   target_dscp: any(enum('CS0', 'CS1', 'AF11', 'AF12', 'AF13', 'CS2', 'AF21', 'AF22', 'AF23', 'CS3', 'AF31', 'AF32', 'AF33', 'CS4', 'AF41', 'AF42', 'AF43', 'CS5', 'VA', 'EF', 'CS6', 'CS7', 'unspecified'), int(min=0, max=63), required=False)
   service_graph: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
+  reverse_filter_ports: bool(required=False)
   filters: list(include('ten_contracts_subjects_filters'), required=False) # @name(Contract Subject Filters)
+  consumer_to_provider: include('ten_contracts_subjects_consumer_to_provider', required=False) # @name(Contract Subject Consumer to Provider)
+  provider_to_consumer: include('ten_contracts_subjects_provider_to_consumer', required=False) # @name(Contract Subject Provider to Consumer)
+
+ten_contracts_subjects_consumer_to_provider:
+  qos_class: enum('level1', 'level2', 'level3', 'level4', 'level5', 'level6', 'unspecified', required=False)
+  target_dscp: any(enum('CS0', 'CS1', 'AF11', 'AF12', 'AF13', 'CS2', 'AF21', 'AF22', 'AF23', 'CS3', 'AF31', 'AF32', 'AF33', 'CS4', 'AF41', 'AF42', 'AF43', 'CS5', 'VA', 'EF', 'CS6', 'CS7', 'unspecified'), int(min=0, max=63), required=False)
+  service_graph: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
+  filters: list(include('ten_contracts_subjects_consumer_to_provider_filters'), required=False) # @name(Contract Subject Consumer To Provider Filters)
+
+ten_contracts_subjects_provider_to_consumer:
+  qos_class: enum('level1', 'level2', 'level3', 'level4', 'level5', 'level6', 'unspecified', required=False)
+  target_dscp: any(enum('CS0', 'CS1', 'AF11', 'AF12', 'AF13', 'CS2', 'AF21', 'AF22', 'AF23', 'CS3', 'AF31', 'AF32', 'AF33', 'CS4', 'AF41', 'AF42', 'AF43', 'CS5', 'VA', 'EF', 'CS6', 'CS7', 'unspecified'), int(min=0, max=63), required=False)
+  service_graph: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
+  filters: list(include('ten_contracts_subjects_provider_to_consumer_filters'), required=False) # @name(Contract Subject Provider To Consumer Filters)
 
 ten_contracts_subjects_filters:
+  filter: regex('^[a-zA-Z0-9_.:-]{1,64}$')
+  action: enum('permit', 'deny', required=False)
+  priority: enum('default', 'level1', 'level2', 'level3', required=False)
+  log: bool(required=False)
+  no_stats: bool(required=False)
+
+ten_contracts_subjects_consumer_to_provider_filters:
+  filter: regex('^[a-zA-Z0-9_.:-]{1,64}$')
+  action: enum('permit', 'deny', required=False)
+  priority: enum('default', 'level1', 'level2', 'level3', required=False)
+  log: bool(required=False)
+  no_stats: bool(required=False)
+
+ten_contracts_subjects_provider_to_consumer_filters:
   filter: regex('^[a-zA-Z0-9_.:-]{1,64}$')
   action: enum('permit', 'deny', required=False)
   priority: enum('default', 'level1', 'level2', 'level3', required=False)

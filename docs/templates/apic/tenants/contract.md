@@ -48,4 +48,42 @@ apic:
                   priority: default
                   log: true
                   no_stats: false
+``` 
+
+Example of unidirectional contract:
+
+```yaml
+apic:
+  tenants:
+    - name: ABC
+      contracts:
+        - name: CON1
+          alias: CON1-ALIAS
+          description: My Desc
+          scope: global
+          subjects:
+            - name: SUB2
+              alias: SUB2-ALIAS
+              description: My Desc
+              reverse_port_filters: false
+              consumer_to_provider:
+                qos_class: level3
+                target_dscp: AF13
+                service_graph: TEMPLATE2
+                filters:
+                - filter: FILTER1
+                  action: permit
+                  priority: default
+                  log: true
+                  no_stats: false
+              provider_to_consumer:
+                qos_class: level3
+                target_dscp: AF13
+                service_graph: TEMPLATE2
+                filters:
+                - filter: FILTER1
+                  action: permit
+                  priority: default
+                  log: true
+                  no_stats: false
 ```
