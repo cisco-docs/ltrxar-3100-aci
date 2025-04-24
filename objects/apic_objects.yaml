@@ -968,7 +968,7 @@ objects:
     test_types:
       - config
     paths:
-      - apic.access_policies.interface_policies.netflow_exporter
+      - apic.access_policies.interface_policies.netflow_exporters
   - name: Netflow VMM Exporter
     template: netflow_vmm_exporter
     folder: access_policies
@@ -977,7 +977,7 @@ objects:
     test_types:
       - config
     paths:
-      - apic.access_policies.interface_policies.netflow_vmm_exporter
+      - apic.access_policies.interface_policies.netflow_vmm_exporters
   - name: Netflow Record
     template: netflow_record
     folder: access_policies
@@ -986,7 +986,7 @@ objects:
     test_types:
       - config
     paths:
-      - apic.access_policies.interface_policies.netflow_record
+      - apic.access_policies.interface_policies.netflow_records
   - name: Netflow Monitor
     template: netflow_monitor
     folder: access_policies
@@ -995,7 +995,7 @@ objects:
     test_types:
       - config
     paths:
-      - apic.access_policies.interface_policies.netflow_monitor
+      - apic.access_policies.interface_policies.netflow_monitors
   - name: MACsec Parameters Policy
     template: macsec_parameters_policy
     folder: access_policies
