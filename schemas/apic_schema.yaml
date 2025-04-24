@@ -3637,6 +3637,7 @@ ten_ser_redirect_policies:
   resilient_hashing: bool(required=False)
   redirect_backup_policy: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
   threshold_down_action: enum('permit', 'deny', 'bypass', required=False)
+  rewrite_source_mac: bool(required=False)
   l1l2_destinations: list(include('ten_ser_redirect_policies_l1l2_destinations'), required=False) # @name(Redirect Policy L1L2 Dest) @sheet_hidden()
   l3_destinations: list(include('ten_ser_redirect_policies_l3_destinations'), required=False) # @name(Redirect Policy L3 Dest) @sheet_hidden()
   ip_sla_policy: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)

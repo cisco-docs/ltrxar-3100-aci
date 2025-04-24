@@ -20,6 +20,9 @@ Verify Redirect Policy {{ pol_name }}
     Should Be Equal Value Json String   ${r.json()}   $..vnsSvcRedirectPol.attributes.hashingAlgorithm   {{ pol.hashing | default(defaults.apic.tenants.services.redirect_policies.hashing) }}
     Should Be Equal Value Json String   ${r.json()}   $..vnsSvcRedirectPol.attributes.maxThresholdPercent   {{ pol.max_threshold | default(defaults.apic.tenants.services.redirect_policies.max_threshold) }}
     Should Be Equal Value Json String   ${r.json()}   $..vnsSvcRedirectPol.attributes.minThresholdPercent   {{ pol.min_threshold | default(defaults.apic.tenants.services.redirect_policies.min_threshold) }}
+{% if pol.rewrite_source_mac is defined %}
+    Should Be Equal Value Json String   ${r.json()}   $..vnsSvcRedirectPol.attributes.srcMacRewriteEnabled   {{ 'yes' if pol.rewrite_source_mac else 'no' }}
+{% endif %}
     Should Be Equal Value Json String   ${r.json()}   $..vnsSvcRedirectPol.attributes.thresholdDownAction   {{ pol.threshold_down_action | default(defaults.apic.tenants.services.redirect_policies.threshold_down_action) }}
     Should Be Equal Value Json String   ${r.json()}   $..vnsSvcRedirectPol.attributes.programLocalPodOnly   {{ 'yes' if pol.pod_aware | default(defaults.apic.tenants.services.redirect_policies.pod_aware) else 'no' }} 
     Should Be Equal Value Json String   ${r.json()}   $..vnsSvcRedirectPol.attributes.resilientHashEnabled   {{ 'yes' if pol.resilient_hashing | default(defaults.apic.tenants.services.redirect_policies.resilient_hashing) else 'no' }}

@@ -221,3 +221,6 @@ apic:
                 concrete_interfaces:
                   - device: DEV1
                     interface_name: INT2
+        redirect_policies:
+          - name: PBR3
+            rewrite_source_mac: true

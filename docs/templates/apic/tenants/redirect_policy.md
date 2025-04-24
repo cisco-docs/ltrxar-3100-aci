@@ -58,6 +58,7 @@ apic:
             threshold_down_action: permit
             resilient_hashing: false
             redirect_backup_policy: L4L7_REDIRECT_BACKUP1
+            rewrite_source_mac: false
             l3_destinations:
               - description: My Desc
                 name: L3_DEST1

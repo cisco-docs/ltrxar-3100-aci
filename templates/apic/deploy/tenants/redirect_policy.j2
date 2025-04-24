@@ -31,6 +31,9 @@
                                     "minThresholdPercent": "{{ pol.min_threshold | default(defaults.apic.tenants.services.redirect_policies.min_threshold) }}",
                                     "programLocalPodOnly": "{{ 'yes' if pol.pod_aware | default(defaults.apic.tenants.services.redirect_policies.pod_aware) else 'no' }}",
                                     "resilientHashEnabled": "{{ 'yes' if pol.resilient_hashing | default(defaults.apic.tenants.services.redirect_policies.resilient_hashing) else 'no' }}",
+                                    {% if pol.rewrite_source_mac is defined %}
+                                    "srcMacRewriteEnabled": "{{ 'yes' if pol.rewrite_source_mac else 'no' }}",
+                                    {% endif %}
                                     "thresholdDownAction": "{{ pol.threshold_down_action | default(defaults.apic.tenants.services.redirect_policies.threshold_down_action) }}",
                                     "thresholdEnable": "{{ 'yes' if pol.threshold | default(defaults.apic.tenants.services.redirect_policies.threshold) else 'no' }}",
                                     "childAction": "deleteNonPresent"
