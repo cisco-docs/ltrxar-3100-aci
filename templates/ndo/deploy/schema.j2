@@ -245,8 +245,11 @@
                             {% else %}
                             "filterRef": "/schemas/%%schemas%{{ filter.schema | default(schema.name) }}%%/templates/{{ filter.template | default(template.name) }}/filters/{{ filter_name }}",
                             {% endif %}
+                            {% set directives = [] %}
+                            {% if filter.log | default(defaults.ndo.schemas.templates.contracts.filters.log) %}{% set directives = directives + [('"log"')] %}{% endif %}
+                            {% if filter.policy_compression | default(defaults.ndo.schemas.templates.contracts.filters.policy_compression) %}{% set directives = directives + [('"no_stats"')] %}{% endif %}
                             "directives": [
-                                "{{ 'log' if filter.log | default(defaults.ndo.schemas.templates.contracts.filters.log) else 'none' }}"
+                                {{ directives | join(',') }}
                             ]
                         }
                         {%- endfor %}
@@ -264,9 +267,11 @@
                             {% else %}
                             "filterRef": "/schemas/%%schemas%{{ filter.schema | default(schema.name) }}%%/templates/{{ filter.template | default(template.name) }}/filters/{{ filter_name }}",
                             {% endif %}
+                            {% set directives = [] %}
+                            {% if filter.log | default(defaults.ndo.schemas.templates.contracts.filters.log) %}{% set directives = directives + [('"log"')] %}{% endif %}
+                            {% if filter.policy_compression | default(defaults.ndo.schemas.templates.contracts.filters.policy_compression) %}{% set directives = directives + [('"no_stats"')] %}{% endif %}
                             "directives": [
-                                "{{ 'log' if filter.log | default(defaults.ndo.schemas.templates.contracts.filters.log) else 'none' }}"
-
+                                {{ directives | join(',') }}
                             ]
                         }
                         {%- endfor %}
@@ -282,9 +287,11 @@
                             {% else %}
                             "filterRef": "/schemas/%%schemas%{{ filter.schema | default(schema.name) }}%%/templates/{{ filter.template | default(template.name) }}/filters/{{ filter_name }}",
                             {% endif %}
+                            {% set directives = [] %}
+                            {% if filter.log | default(defaults.ndo.schemas.templates.contracts.filters.log) %}{% set directives = directives + [('"log"')] %}{% endif %}
+                            {% if filter.policy_compression | default(defaults.ndo.schemas.templates.contracts.filters.policy_compression) %}{% set directives = directives + [('"no_stats"')] %}{% endif %}
                             "directives": [
-                                "{{ 'log' if filter.log | default(defaults.ndo.schemas.templates.contracts.filters.log) else 'none' }}"
-
+                                {{ directives | join(',') }}
                             ]
                         }
                         {%- endfor %}

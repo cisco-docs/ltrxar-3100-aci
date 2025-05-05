@@ -496,6 +496,7 @@ t_contracts_filters:
   schema: str(required=False) # @ref_table(ndo.schemas)
   template: str(required=False) # @ref_table(schemas.templates)
   log: bool(required=False)
+  policy_compression: bool(required=False)
 
 t_contracts_service_graph:
   name: regex('^[a-zA-Z0-9_.:-]{1,64}$') # @name(Service Graph Name)

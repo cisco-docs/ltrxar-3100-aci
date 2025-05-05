@@ -350,6 +350,71 @@ Verify Schema {{ schema.name }} Template {{ template.name }} Contract {{ contrac
     Should Be Equal Value Json String   ${r.json()}   ${contract}.scope   {{ contract.scope | default(defaults.ndo.schemas.templates.contracts.scope) }}
     Should Be Equal Value Json String   ${r.json()}   ${contract}.filterType   {{ contract.type | default(defaults.ndo.schemas.templates.contracts.type) }}
 
+{% if contract.type == bothWay %}
+{% for filter in contract.filters | default([]) %}
+{% set filter_name = filter.name ~ defaults.ndo.schemas.templates.filters.name_suffix %}
+{% set directives = [] %}
+{% if filter.log | default(defaults.ndo.schemas.templates.contracts.filters.log) %}{% set directives = directives + [('"log"')] %}{% endif %}
+{% if filter.policy_compression | default(defaults.ndo.schemas.templates.contracts.filters.policy_compression) %}{% set directives = directives + [('"no_stats"')] %}{% endif %}
+
+Verify Schema {{ schema.name }} Template {{ template.name }} Contract {{ contract_name }} Filter Chain {{ filter_name }}
+    ${filter}=   Set Variable   $.templates[?(@.name=='{{ template.name }}')].contracts[?(@.name=='{{ contract_name }}')].filterRelationships[?(@.name=='{{ filter_name }}')]
+    ${directives} =   Create List   {{ directives | join('   ') }}
+    ${schema_id}=   NDO Lookup   schemas/list-identity   {{ filter.schema | default(schema.name) }}
+    Should Be Equal Value Json String   ${r.json()}   ${filter}.name   {{ filter_name }}
+    Should Be Equal Value Json List   ${r.json()}   ${filter}.directives   ${directives}
+{% if filter.schema | default(schema.name) == schema.name %}
+    Should Be Equal Value Json String   ${r.json()}   ${filter}.filterRef   /templates/{{ filter.template | default(template.name) }}/filters/{{ filter_name }}
+{% else %}
+    Should Be Equal Value Json String   ${r.json()}   ${filter}.filterRef   /schemas/${schema_id}/templates/{{ filter.template | default(template.name) }}/filters/{{ filter_name }}
+{% endif %}
+
+{% endfor %}
+{% endif %}
+
+{% if contract.type == oneWay %}
+{% for filter in contract.provider_to_consumer_filters | default([]) %}
+{% set filter_name = filter.name ~ defaults.ndo.schemas.templates.filters.name_suffix %}
+{% set directives = [] %}
+{% if filter.log | default(defaults.ndo.schemas.templates.contracts.filters.log) %}{% set directives = directives + [('"log"')] %}{% endif %}
+{% if filter.policy_compression | default(defaults.ndo.schemas.templates.contracts.filters.policy_compression) %}{% set directives = directives + [('"no_stats"')] %}{% endif %}
+
+Verify Schema {{ schema.name }} Template {{ template.name }} Contract {{ contract_name }} Provider To Consumer Filter Chain {{ filter_name }}
+    ${filter}=   Set Variable   $.templates[?(@.name=='{{ template.name }}')].contracts[?(@.name=='{{ contract_name }}')].filterRelationshipsProviderToConsumer[?(@.name=='{{ filter_name }}')]
+    ${directives} =   Create List   {{ directives | join('   ') }}
+    ${schema_id}=   NDO Lookup   schemas/list-identity   {{ filter.schema | default(schema.name) }}
+    Should Be Equal Value Json String   ${r.json()}   ${filter}.name   {{ filter_name }}
+    Should Be Equal Value Json List   ${r.json()}   ${filter}.directives   ${directives}
+{% if filter.schema | default(schema.name) == schema.name %}
+    Should Be Equal Value Json String   ${r.json()}   ${filter}.filterRef   /templates/{{ filter.template | default(template.name) }}/filters/{{ filter_name }}
+{% else %}
+    Should Be Equal Value Json String   ${r.json()}   ${filter}.filterRef   /schemas/${schema_id}/templates/{{ filter.template | default(template.name) }}/filters/{{ filter_name }}
+{% endif %}
+
+{% endfor %}
+
+{% for filter in contract.consumer_to_provider_filters | default([]) %}
+{% set filter_name = filter.name ~ defaults.ndo.schemas.templates.filters.name_suffix %}
+{% set directives = [] %}
+{% if filter.log | default(defaults.ndo.schemas.templates.contracts.filters.log) %}{% set directives = directives + [('"log"')] %}{% endif %}
+{% if filter.policy_compression | default(defaults.ndo.schemas.templates.contracts.filters.policy_compression) %}{% set directives = directives + [('"no_stats"')] %}{% endif %}
+
+Verify Schema {{ schema.name }} Template {{ template.name }} Contract {{ contract_name }} Consumer To Provider Filter Chain {{ filter_name }}
+    ${filter}=   Set Variable   $.templates[?(@.name=='{{ template.name }}')].contracts[?(@.name=='{{ contract_name }}')].filterRelationshipsConsumerToProvider[?(@.name=='{{ filter_name }}')]
+    ${directives} =   Create List   {{ directives | join('   ') }}
+    ${schema_id}=   NDO Lookup   schemas/list-identity   {{ filter.schema | default(schema.name) }}
+    Should Be Equal Value Json String   ${r.json()}   ${filter}.name   {{ filter_name }}
+    Should Be Equal Value Json List   ${r.json()}   ${filter}.directives   ${directives}
+{% if filter.schema | default(schema.name) == schema.name %}
+    Should Be Equal Value Json String   ${r.json()}   ${filter}.filterRef   /templates/{{ filter.template | default(template.name) }}/filters/{{ filter_name }}
+{% else %}
+    Should Be Equal Value Json String   ${r.json()}   ${filter}.filterRef   /schemas/${schema_id}/templates/{{ filter.template | default(template.name) }}/filters/{{ filter_name }}
+{% endif %}
+
+{% endfor %}
+
+{% endif %}
+
 {% endfor %}
 
 {% for filter in template.filters | default([]) %}

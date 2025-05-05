@@ -22,6 +22,7 @@ ndo:
                   schema: ABC
                   template: TEMPLATE1
                   log: true
+                  policy_compression: true
               service_graph:
                 name: SG1
                 nodes:

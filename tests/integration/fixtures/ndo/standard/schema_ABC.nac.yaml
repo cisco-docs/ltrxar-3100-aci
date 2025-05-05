@@ -234,6 +234,8 @@ ndo:
               type: bothWay
               filters:
                 - name: FILTER1
+                  log: true
+                  policy_compression: true
               service_graph:
                 name: SG1
                 nodes:
@@ -272,6 +274,23 @@ ndo:
               type: bothWay
               filters:
                 - name: FILTER1
+            - name: CONTRACT3
+              scope: tenant
+              type: oneWay
+              consumer_to_provider_filters:
+                - name: FILTER1
+                  log: true
+                  policy_compression: true
+              provider_to_consumer_filters:
+                - name: FILTER2
+                  log: true
+                  policy_compression: true
+            - name: CONTRACT4
+              type: oneWay
+              consumer_to_provider_filters:
+                - name: FILTER1
+              provider_to_consumer_filters:
+                - name: FILTER2
           service_graphs:
             - name: SG1
               description: My Desc
