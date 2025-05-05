@@ -266,17 +266,26 @@ Verify L3out {{ l3out_name }} Node {{ node.node_id }} Interface {{ loop.index }}
     Should Be Equal Value Json String   ${r.json()}   ${int}..l3extRsPathL3OutAtt.attributes.tDn   {{ tDn }}
     {% if type != 'vpc' and int.ip_shared is defined %}
     Should Be Equal Value Json String   ${r.json()}   ${int}..l3extIp.attributes.addr   {{ int.ip_shared }}
+        {% if int.ip_shared_dhcp_relay | default(defaults.apic.tenants.l3outs.nodes.interfaces.ip_shared_dhcp_relay) %}
+    Should Not Be Empty    ${int}..dhcpRelayGwExtIp.attributes
+        {% endif %}
     {% endif %}
     {% if type == 'vpc' %}
     ${ip1}=   Set Variable   ${int}..l3extRsPathL3OutAtt.children[?(@.l3extMember.attributes.addr=='{{ int.ip_a }}')]
     Should Be Equal Value Json String   ${r.json()}   ${ip1}..l3extMember.attributes.addr   {{ int.ip_a }}
         {% if int.ip_shared is defined %}
     Should Be Equal Value Json String   ${r.json()}   ${ip1}..l3extIp.attributes.addr   {{ int.ip_shared }}
+            {% if int.ip_shared_dhcp_relay | default(defaults.apic.tenants.l3outs.nodes.interfaces.ip_shared_dhcp_relay) %}
+    Should Not Be Empty    ${int}..dhcpRelayGwExtIp.attributes
+            {% endif %}
         {% endif %}
     ${ip2}=   Set Variable   ${int}..l3extRsPathL3OutAtt.children[?(@.l3extMember.attributes.addr=='{{ int.ip_b }}')]
     Should Be Equal Value Json String   ${r.json()}   ${ip2}..l3extMember.attributes.addr   {{ int.ip_b }}
         {% if int.ip_shared is defined %}
     Should Be Equal Value Json String   ${r.json()}   ${ip2}..l3extIp.attributes.addr   {{ int.ip_shared }}
+            {% if int.ip_shared_dhcp_relay | default(defaults.apic.tenants.l3outs.nodes.interfaces.ip_shared_dhcp_relay) %}
+    Should Not Be Empty    ${int}..dhcpRelayGwExtIp.attributes
+            {% endif %}
         {% endif %}
     {% endif %}
 {% else %}
@@ -665,17 +674,26 @@ Verify L3out {{ l3out_name }} Node Profile {{ l3out_np_name }} Interface Profile
     Should Be Equal Value Json String   ${r.json()}   ${int}..l3extRsPathL3OutAtt.attributes.tDn   {{ tDn }}
     {% if type != 'vpc' and int.ip_shared is defined %}
     Should Be Equal Value Json String   ${r.json()}   ${int}..l3extIp.attributes.addr   {{ int.ip_shared }}
+        {% if int.ip_shared_dhcp_relay | default(defaults.apic.tenants.l3outs.node_profiles.interface_profiles.interfaces.ip_shared_dhcp_relay) %}
+    Should Not Be Empty    ${int}..dhcpRelayGwExtIp.attributes
+        {% endif %}
     {% endif %}
     {% if type == 'vpc' %}
     ${ip1}=   Set Variable   ${int}..l3extRsPathL3OutAtt.children[?(@.l3extMember.attributes.addr=='{{ int.ip_a }}')]
     Should Be Equal Value Json String   ${r.json()}   ${ip1}..l3extMember.attributes.addr   {{ int.ip_a }}
         {% if int.ip_shared is defined %}
     Should Be Equal Value Json String   ${r.json()}   ${ip1}..l3extIp.attributes.addr   {{ int.ip_shared }}
+            {% if int.ip_shared_dhcp_relay | default(defaults.apic.tenants.l3outs.node_profiles.interface_profiles.interfaces.ip_shared_dhcp_relay) %}
+    Should Not Be Empty    ${int}..dhcpRelayGwExtIp.attributes
+            {% endif %}
         {% endif %}
     ${ip2}=   Set Variable   ${int}..l3extRsPathL3OutAtt.children[?(@.l3extMember.attributes.addr=='{{ int.ip_b }}')]
     Should Be Equal Value Json String   ${r.json()}   ${ip2}..l3extMember.attributes.addr   {{ int.ip_b }}
         {% if int.ip_shared is defined %}
     Should Be Equal Value Json String   ${r.json()}   ${ip2}..l3extIp.attributes.addr   {{ int.ip_shared }}
+            {% if int.ip_shared_dhcp_relay | default(defaults.apic.tenants.l3outs.node_profiles.interface_profiles.interfaces.ip_shared_dhcp_relay) %}
+    Should Not Be Empty    ${int}..dhcpRelayGwExtIp.attributes
+            {% endif %}
         {% endif %}
     {% endif %}
 {% else %}

@@ -122,6 +122,16 @@ apic:
                   loopbacks:
                     - 2a01:8f0:ff0e:7000::4:122/128
                     - 10.1.10.102
+              interface_profiles:
+                - name: IP1
+                  interfaces:
+                    - node_id: 101
+                      port: 12
+                      vlan: 303
+                      svi: true
+                      ip: 172.16.100.2/24
+                      ip_shared: 172.16.100.1/24
+                      ip_shared_dhcp_relay: true
 
       sr_mpls_l3outs:
         - name: ABC_SR_MPLS_L3OUT

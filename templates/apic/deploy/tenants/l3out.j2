@@ -471,6 +471,17 @@
                                                                         "annotation": "orchestrator:aac",
                                                                         "addr": "{{ int.ip_shared }}"
                                                                     }
+                                                                    {%- if (not int.floating_svi) and (int.ip_shared_dhcp_relay | default(defaults.apic.tenants.l3outs.nodes.interfaces.ip_shared_dhcp_relay)) %}{{ comma5() }}
+                                                                    "children": [
+                                                                        {
+                                                                            "dhcpRelayGwExtIp": {
+                                                                                "attributes": {
+                                                                                    "annotation": "orchestrator:aac"
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                    ]
+                                                                    {%- endif %}
                                                                 }
                                                             }
                                                             {%- endif %}
@@ -491,6 +502,17 @@
                                                                                     "annotation": "orchestrator:aac",
                                                                                     "addr": "{{ int.ip_shared }}"
                                                                                 }
+                                                                                {%- if (not int.floating_svi) and (int.ip_shared_dhcp_relay | default(defaults.apic.tenants.l3outs.nodes.interfaces.ip_shared_dhcp_relay)) %}{{ comma5() }}
+                                                                                "children": [
+                                                                                    {
+                                                                                        "dhcpRelayGwExtIp": {
+                                                                                            "attributes": {
+                                                                                                "annotation": "orchestrator:aac"
+                                                                                            }
+                                                                                        }
+                                                                                    }
+                                                                                ]
+                                                                                {%- endif %}
                                                                             }
                                                                         }
                                                                     ]
@@ -514,6 +536,17 @@
                                                                                     "annotation": "orchestrator:aac",
                                                                                     "addr": "{{ int.ip_shared }}"
                                                                                 }
+                                                                                {%- if (not int.floating_svi) and (int.ip_shared_dhcp_relay | default(defaults.apic.tenants.l3outs.nodes.interfaces.ip_shared_dhcp_relay)) %}{{ comma5() }}
+                                                                                "children": [
+                                                                                    {
+                                                                                        "dhcpRelayGwExtIp": {
+                                                                                            "attributes": {
+                                                                                                "annotation": "orchestrator:aac"
+                                                                                            }
+                                                                                        }
+                                                                                    }
+                                                                                ]
+                                                                                {%- endif %}
                                                                             }
                                                                         }
                                                                     ]
@@ -1190,6 +1223,17 @@
                                                                         "annotation": "orchestrator:aac",
                                                                         "addr": "{{ int.ip_shared }}"
                                                                     }
+                                                                    {%- if (not int.floating_svi) and (int.ip_shared_dhcp_relay | default(defaults.apic.tenants.l3outs.node_profiles.interface_profiles.interfaces.ip_shared_dhcp_relay)) %}{{ comma5() }}
+                                                                    "children": [
+                                                                        {
+                                                                            "dhcpRelayGwExtIp": {
+                                                                                "attributes": {
+                                                                                    "annotation": "orchestrator:aac"
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                    ]
+                                                                    {%- endif %}
                                                                 }
                                                             }
                                                             {%- endif %}
@@ -1210,6 +1254,17 @@
                                                                                     "annotation": "orchestrator:aac",
                                                                                     "addr": "{{ int.ip_shared }}"
                                                                                 }
+                                                                                {%- if (not int.floating_svi) and (int.ip_shared_dhcp_relay | default(defaults.apic.tenants.l3outs.node_profiles.interface_profiles.interfaces.ip_shared_dhcp_relay)) %}{{ comma5() }}
+                                                                                "children": [
+                                                                                    {
+                                                                                        "dhcpRelayGwExtIp": {
+                                                                                            "attributes": {
+                                                                                                "annotation": "orchestrator:aac"
+                                                                                            }
+                                                                                        }
+                                                                                    }
+                                                                                ]
+                                                                                {%- endif %}
                                                                             }
                                                                         }
                                                                     ]
@@ -1233,6 +1288,17 @@
                                                                                     "annotation": "orchestrator:aac",
                                                                                     "addr": "{{ int.ip_shared }}"
                                                                                 }
+                                                                                {%- if (not int.floating_svi) and (int.ip_shared_dhcp_relay | default(defaults.apic.tenants.l3outs.node_profiles.interface_profiles.interfaces.ip_shared_dhcp_relay)) %}{{ comma5() }}
+                                                                                "children": [
+                                                                                    {
+                                                                                        "dhcpRelayGwExtIp": {
+                                                                                            "attributes": {
+                                                                                                "annotation": "orchestrator:aac"
+                                                                                            }
+                                                                                        }
+                                                                                    }
+                                                                                ]
+                                                                                {%- endif %}
                                                                             }
                                                                         }
                                                                     ]

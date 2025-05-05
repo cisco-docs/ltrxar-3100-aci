@@ -263,6 +263,7 @@ apic:
                   ip_a: 14.14.14.1/24
                   ip_b: 14.14.14.2/24
                   ip_shared: 14.14.14.3/24
+                  ip_shared_dhcp_relay: true
                   link_local_address: fe80::ffff:ffff:ffff:ffff
                   mode: native
                   bgp_peers:
