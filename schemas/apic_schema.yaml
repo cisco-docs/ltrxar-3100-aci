@@ -2303,8 +2303,8 @@ ten_contracts_subjects:
   service_graph: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
   reverse_filter_ports: bool(required=False)
   filters: list(include('ten_contracts_subjects_filters'), required=False) # @name(Contract Subject Filters)
-  consumer_to_provider: include('ten_contracts_subjects_consumer_to_provider', required=False) # @name(Contract Subject Consumer to Provider)
-  provider_to_consumer: include('ten_contracts_subjects_provider_to_consumer', required=False) # @name(Contract Subject Provider to Consumer)
+  consumer_to_provider: include('ten_contracts_subjects_consumer_to_provider', required=False) # @name(Subject Consumer to Provider)
+  provider_to_consumer: include('ten_contracts_subjects_provider_to_consumer', required=False) # @name(Subject Provider to Consumer)
 
 ten_contracts_subjects_consumer_to_provider:
   qos_class: enum('level1', 'level2', 'level3', 'level4', 'level5', 'level6', 'unspecified', required=False)
