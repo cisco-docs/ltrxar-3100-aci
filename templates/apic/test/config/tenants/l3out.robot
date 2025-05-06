@@ -328,9 +328,12 @@ Verify L3out {{ l3out_name }} Node {{ node.node_id }} Interface {{ loop.index }}
 {% set ns.bgp = true %}
 {% set ctrl = [] %}
 {% set af = [] %}
+{% set peer_ctrl = [] %}
+{% set priv_as_ctrl = [] %}
 {% if ( tenant.name == 'infra' ) and ( l3out.remote_leaf | default(defaults.apic.tenants.l3outs.remote_leaf) or l3out.multipod | default(defaults.apic.tenants.l3outs.multipod) ) %}
 {% set ctrl = [("allow-self-as")] %}
 {% set af = [("af-ucast")] %}
+{% if peer.bfd | default(defaults.apic.tenants.l3outs.nodes.interfaces.bgp_peers.bfd) %}{% set peer_ctrl = peer_ctrl + [("bfd")] %}{% endif %}
 {% else %}
 {% if peer.allow_self_as | default(defaults.apic.tenants.l3outs.nodes.interfaces.bgp_peers.allow_self_as) %}{% set ctrl = ctrl + [("allow-self-as")] %}{% endif %}
 {% if peer.as_override | default(defaults.apic.tenants.l3outs.nodes.interfaces.bgp_peers.as_override) %}{% set ctrl = ctrl + [("as-override")] %}{% endif %}
@@ -338,10 +341,8 @@ Verify L3out {{ l3out_name }} Node {{ node.node_id }} Interface {{ loop.index }}
 {% if peer.next_hop_self | default(defaults.apic.tenants.l3outs.nodes.interfaces.bgp_peers.next_hop_self) %}{% set ctrl = ctrl + [("nh-self")] %}{% endif %}
 {% if peer.send_community | default(defaults.apic.tenants.l3outs.nodes.interfaces.bgp_peers.send_community) %}{% set ctrl = ctrl + [("send-com")] %}{% endif %}
 {% if peer.send_ext_community | default(defaults.apic.tenants.l3outs.nodes.interfaces.bgp_peers.send_ext_community) %}{% set ctrl = ctrl + [("send-ext-com")] %}{% endif %}
-{% set peer_ctrl = [] %}
 {% if peer.bfd | default(defaults.apic.tenants.l3outs.nodes.interfaces.bgp_peers.bfd) %}{% set peer_ctrl = peer_ctrl + [("bfd")] %}{% endif %}
 {% if peer.disable_connected_check | default(defaults.apic.tenants.l3outs.nodes.interfaces.bgp_peers.disable_connected_check) %}{% set peer_ctrl = peer_ctrl + [("dis-conn-check")] %}{% endif %}
-{% set priv_as_ctrl = [] %}
 {% if peer.remove_all_private_as | default(defaults.apic.tenants.l3outs.nodes.interfaces.bgp_peers.remove_all_private_as) %}{% set priv_as_ctrl = priv_as_ctrl + [("remove-all")] %}{% endif %}
 {% if peer.remove_private_as | default(defaults.apic.tenants.l3outs.nodes.interfaces.bgp_peers.remove_private_as) %}{% set priv_as_ctrl = priv_as_ctrl + [("remove-exclusive")] %}{% endif %}
 {% if peer.replace_private_as_with_local_as | default(defaults.apic.tenants.l3outs.nodes.interfaces.bgp_peers.replace_private_as_with_local_as) %}{% set priv_as_ctrl = priv_as_ctrl + [("replace-as")] %}{% endif %}
@@ -507,7 +508,7 @@ Verify L3out {{ l3out_name }} Node Profile {{ l3out_np_name }} Node {{ node.node
 {% endfor %}
 
 {% endfor %}
-
+ 
 {% for peer in np.bgp_peers | default([]) %}
 {% set ctrl = [] %}
 {% if peer.allow_self_as | default(defaults.apic.tenants.l3outs.node_profiles.bgp_peers.allow_self_as) %}{% set ctrl = ctrl + [("allow-self-as")] %}{% endif %}
@@ -736,9 +737,12 @@ Verify L3out {{ l3out_name }} Node Profile {{ l3out_np_name }} Interface Profile
 {% set ns.bgp = true %}
 {% set ctrl = [] %}
 {% set af = [] %}
+{% set peer_ctrl = [] %}
+{% set priv_as_ctrl = [] %}
 {% if ( tenant.name == 'infra' ) and ( l3out.remote_leaf | default(defaults.apic.tenants.l3outs.remote_leaf) or l3out.multipod | default(defaults.apic.tenants.l3outs.multipod) ) %}
 {% set ctrl = [("allow-self-as")] %}
 {% set af = [("af-ucast")] %}
+{% if peer.bfd | default(defaults.apic.tenants.l3outs.nodes.interfaces.bgp_peers.bfd) %}{% set peer_ctrl = peer_ctrl + [("bfd")] %}{% endif %}
 {% else %}
 {% if peer.allow_self_as | default(defaults.apic.tenants.l3outs.nodes.interfaces.bgp_peers.allow_self_as) %}{% set ctrl = ctrl + [("allow-self-as")] %}{% endif %}
 {% if peer.as_override | default(defaults.apic.tenants.l3outs.nodes.interfaces.bgp_peers.as_override) %}{% set ctrl = ctrl + [("as-override")] %}{% endif %}
@@ -746,10 +750,8 @@ Verify L3out {{ l3out_name }} Node Profile {{ l3out_np_name }} Interface Profile
 {% if peer.next_hop_self | default(defaults.apic.tenants.l3outs.nodes.interfaces.bgp_peers.next_hop_self) %}{% set ctrl = ctrl + [("nh-self")] %}{% endif %}
 {% if peer.send_community | default(defaults.apic.tenants.l3outs.nodes.interfaces.bgp_peers.send_community) %}{% set ctrl = ctrl + [("send-com")] %}{% endif %}
 {% if peer.send_ext_community | default(defaults.apic.tenants.l3outs.nodes.interfaces.bgp_peers.send_ext_community) %}{% set ctrl = ctrl + [("send-ext-com")] %}{% endif %}
-{% set peer_ctrl = [] %}
 {% if peer.bfd | default(defaults.apic.tenants.l3outs.nodes.interfaces.bgp_peers.bfd) %}{% set peer_ctrl = peer_ctrl + [("bfd")] %}{% endif %}
 {% if peer.disable_connected_check | default(defaults.apic.tenants.l3outs.nodes.interfaces.bgp_peers.disable_connected_check) %}{% set peer_ctrl = peer_ctrl + [("dis-conn-check")] %}{% endif %}
-{% set priv_as_ctrl = [] %}
 {% if peer.remove_all_private_as | default(defaults.apic.tenants.l3outs.nodes.interfaces.bgp_peers.remove_all_private_as) %}{% set priv_as_ctrl = priv_as_ctrl + [("remove-all")] %}{% endif %}
 {% if peer.remove_private_as | default(defaults.apic.tenants.l3outs.nodes.interfaces.bgp_peers.remove_private_as) %}{% set priv_as_ctrl = priv_as_ctrl + [("remove-exclusive")] %}{% endif %}
 {% if peer.replace_private_as_with_local_as | default(defaults.apic.tenants.l3outs.nodes.interfaces.bgp_peers.replace_private_as_with_local_as) %}{% set priv_as_ctrl = priv_as_ctrl + [("replace-as")] %}{% endif %}

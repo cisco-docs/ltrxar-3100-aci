@@ -20,7 +20,7 @@ Resource        ../../../apic_common.resource
 
 Verify Access Leaf Interface Node {{ _node.id }} Port {{ module }}/{{ int.port }}
     ${r}=   GET On Session   apic   /api/mo/uni/infra/portconfnode-{{ _node.id }}-card-{{ module }}-port-{{ int.port }}-sub-0.json
-{% if (int.breakout is not defined) and (int.breakout != 'none') %}
+{% if (int.breakout is not defined) and (int.breakout | default() != 'none') %} 
 {% if int.policy_group is defined %}
 {% set query = "leaf_interface_policy_groups[?name=='" ~ int.policy_group ~ "'].type[]" %}
 {% set type = (apic.access_policies | community.general.json_query(query)) %}
