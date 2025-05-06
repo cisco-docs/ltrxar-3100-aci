@@ -8,7 +8,7 @@ Resource        ../../apic_common.resource
 Verify AAA Settings
     ${r}=   GET On Session   apic   /api/mo/uni/userext/authrealm.json   params=rsp-subtree=full
     Should Be Equal Value Json String   ${r.json()}    $..aaaAuthRealm.attributes.defRolePolicy   {{ apic.fabric_policies.aaa.remote_user_login_policy | default(defaults.apic.fabric_policies.aaa.remote_user_login_policy) }}
-    Should Be Equal Value Json String   ${r.json()}    $..aaaDefaultAuth.attributes.fallbackCheck   {{ 'true' if apic.fabric_policies.aaa.default_fallback_check | default(defaults.apic.fabric_policies.aaa.default_fallback_check) else 'no' }} 
+    Should Be Equal Value Json String   ${r.json()}    $..aaaDefaultAuth.attributes.fallbackCheck   {{ 'true' if apic.fabric_policies.aaa.default_fallback_check | default(defaults.apic.fabric_policies.aaa.default_fallback_check) else 'false' }} 
     Should Be Equal Value Json String   ${r.json()}    $..aaaDefaultAuth.attributes.realm   {{ apic.fabric_policies.aaa.default_realm | default(defaults.apic.fabric_policies.aaa.default_realm) }}
 {% if apic.fabric_policies.aaa.default_realm | default(defaults.apic.fabric_policies.aaa.default_realm) in ["tacacs", "radius", "ldap"] %}
     Should Be Equal Value Json String   ${r.json()}    $..aaaDefaultAuth.attributes.providerGroup   {{ apic.fabric_policies.aaa.default_login_domain | default(defaults.apic.fabric_policies.aaa.default_login_domain) }}

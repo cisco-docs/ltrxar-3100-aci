@@ -29,7 +29,7 @@
                             "aaaDefaultAuth": {
                                 "attributes": {
                                     "annotation": "orchestrator:aac",
-                                    "fallbackCheck": "{{ 'true' if apic.fabric_policies.aaa.default_fallback_check | default(defaults.apic.fabric_policies.aaa.default_fallback_check) else 'no' }}",
+                                    "fallbackCheck": "{{ 'true' if apic.fabric_policies.aaa.default_fallback_check | default(defaults.apic.fabric_policies.aaa.default_fallback_check) else 'false' }}",
                                     {% if apic.fabric_policies.aaa.default_realm | default(defaults.apic.fabric_policies.aaa.default_realm) in ["tacacs", "radius", "ldap"] %}
                                     "providerGroup": "{{ apic.fabric_policies.aaa.default_login_domain | default(defaults.apic.fabric_policies.aaa.default_login_domain) }}",
                                     {% endif %}
