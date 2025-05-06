@@ -186,6 +186,8 @@ class Ndo:
 
     def _query_objs(self, path, key=None, **kwargs):
         """Retrieve objects via REST GET and optionally filter by key"""
+        if path == "schemas":
+            path == "schemas/list-identity"
         if path == "tenants/allowed-users":
             return self._query_tenant_users()
         found = []
