@@ -13,7 +13,7 @@ Verify Maintenance Policy {{ update_group_name }}
     Should Be Equal Value Json String   ${r.json()}    $..maintMaintP.attributes.name   {{ update_group_name }}
 
 {% if group.target_version is defined%}
-    Should Be Equal Value Json String   ${r.json()}    $..maintMaintP.attributes.target_version   {{ group.target_version }}
+    Should Be Equal Value Json String   ${r.json()}    $..maintMaintP.attributes.version   {{ group.target_version }}
 {% endif %}
 
 {% if group.scheduler is defined%}
