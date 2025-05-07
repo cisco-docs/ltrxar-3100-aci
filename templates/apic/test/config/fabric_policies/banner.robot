@@ -11,3 +11,7 @@ Verify Banners
     Should Be Equal Value Json String   ${r.json()}    $..aaaPreLoginBanner.attributes.guiMessage   {{ apic.fabric_policies.banners.apic_gui_banner_url | default(defaults.apic.fabric_policies.banners.apic_gui_banner_url) }}
 {% endif %}
     Should Be Equal Value Json String   ${r.json()}    $..aaaPreLoginBanner.attributes.guiTextMessage   {{ apic.fabric_policies.banners.apic_gui_alias | default(defaults.apic.fabric_policies.banners.apic_gui_alias) }}
+{% if apic.fabric_policies.banners.apic_app_banner is defined %}
+    Should Be Equal Value Json String   ${r.json()}    $..aaaPreLoginBanner.attributes.bannerMessage   {{ apic.fabric_policies.banners.apic_app_banner | default(defaults.apic.fabric_policies.banners.apic_app_banner) }}
+    Should Be Equal Value Json String   ${r.json()}    $..aaaPreLoginBanner.attributes.bannerMessageSeverity   {{ apic.fabric_policies.banners.apic_app_banner_severity | default(defaults.apic.fabric_policies.banners.apic_app_banner_severity) }}
+{% endif %}

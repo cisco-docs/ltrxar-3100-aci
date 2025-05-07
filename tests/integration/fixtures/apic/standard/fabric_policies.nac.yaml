@@ -19,6 +19,8 @@ apic:
       apic_gui_banner_url: APIC GUI BANNER URL
       apic_cli_banner: APIC CLI BANNER
       switch_cli_banner: SWITCH CLI BANNER
+      apic_app_banner: APIC APP BANNER
+      apic_app_banner_severity: warning
 
     rogue_ep_control:
       admin_state: false

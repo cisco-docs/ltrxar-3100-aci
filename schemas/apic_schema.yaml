@@ -101,6 +101,8 @@ fp_banners:
   apic_gui_banner_message: str(required=False)
   apic_cli_banner: str(required=False)
   switch_cli_banner: str(required=False)
+  apic_app_banner: str(required=False)
+  apic_app_banner_severity: enum('critical', 'info', 'warning', required=False)
   escape_html: bool(required=False)
 
 fp_ep_loop_protection:
