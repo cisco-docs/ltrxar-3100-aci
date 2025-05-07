@@ -351,32 +351,6 @@ def full_ndo_terraform(
             os.remove(state_backup_path)
 
 
-@pytest.mark.ndo_37
-@pytest.mark.parametrize(
-    "data_paths, apic_url, snapshot_name, ndo_url, ndo_backup_id, version",
-    [
-        (
-            [
-                "tests/integration/fixtures/ndo/standard/",
-                "tests/integration/fixtures/ndo/standard_37/",
-                "defaults/",
-            ],
-            "https://10.50.202.13",
-            "ce2_defaultOneTime-2023-12-18T06-15-28.tar.gz",
-            "https://10.50.202.14",
-            "64c8b1bcd531074f897f1b11",
-            "3.7",
-        )
-    ],
-)
-def test_ndo_37(
-    data_paths, apic_url, snapshot_name, ndo_url, ndo_backup_id, version, tmpdir
-):
-    full_ndo_test(
-        data_paths, apic_url, snapshot_name, ndo_url, ndo_backup_id, version, tmpdir
-    )
-
-
 @pytest.mark.ndo_42
 @pytest.mark.parametrize(
     "data_paths, apic_url, snapshot_name, ndo_url, ndo_backup_id, version",
@@ -452,47 +426,6 @@ def test_ndo_44(
 ):
     full_ndo_test(
         data_paths, apic_url, snapshot_name, ndo_url, ndo_backup_id, version, tmpdir
-    )
-
-
-@pytest.mark.ndo_37
-@pytest.mark.terraform
-@pytest.mark.parametrize(
-    "data_paths, terraform_path, apic_url, snapshot_name, ndo_url, ndo_backup_id, version",
-    [
-        (
-            [
-                "tests/integration/fixtures/ndo/standard/",
-                "tests/integration/fixtures/ndo/standard_37/",
-            ],
-            "tests/integration/fixtures/ndo/terraform_37",
-            "https://10.50.202.13",
-            "ce2_defaultOneTime-2023-12-18T06-15-28.tar.gz",
-            "https://10.50.202.14",
-            "64c8b1bcd531074f897f1b11",
-            "3.7",
-        )
-    ],
-)
-def test_ndo_terraform_37(
-    data_paths,
-    terraform_path,
-    apic_url,
-    snapshot_name,
-    ndo_url,
-    ndo_backup_id,
-    version,
-    tmpdir,
-):
-    full_ndo_terraform(
-        data_paths,
-        terraform_path,
-        apic_url,
-        snapshot_name,
-        ndo_url,
-        ndo_backup_id,
-        version,
-        tmpdir,
     )
 
 
