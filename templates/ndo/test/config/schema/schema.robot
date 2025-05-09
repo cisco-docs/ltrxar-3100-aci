@@ -360,7 +360,7 @@ Verify Schema {{ schema.name }} Template {{ template.name }} Contract {{ contrac
 Verify Schema {{ schema.name }} Template {{ template.name }} Contract {{ contract_name }} Filter Chain {{ filter_name }}
     ${schema_id}=   NDO Lookup   schemas/list-identity   {{ filter.schema | default(schema.name) }}
     ${filter}=   Set Variable   $.templates[?(@.name=='{{ template.name }}')].contracts[?(@.name=='{{ contract_name }}')].filterRelationships[?(@.filterRef=='/schemas/${schema_id}/templates/{{ filter.template | default(template.name) }}/filters/{{ filter_name }}')]
-    ${directives} =   Create List   {{ directives | join('   ') }}
+    ${directives} =   Create List   {{ directives | join('   ') if directives != [] else 'none'}}
     Should Be Equal Value Json String   ${r.json()}   ${filter}.filterRef   /schemas/${schema_id}/templates/{{ filter.template | default(template.name) }}/filters/{{ filter_name }}
     Should Be Equal Value Json List   ${r.json()}   ${filter}.directives   ${directives}
 {% endfor %}
@@ -376,7 +376,7 @@ Verify Schema {{ schema.name }} Template {{ template.name }} Contract {{ contrac
 Verify Schema {{ schema.name }} Template {{ template.name }} Contract {{ contract_name }} Provider To Consumer Filter Chain {{ filter_name }}
     ${schema_id}=   NDO Lookup   schemas/list-identity   {{ filter.schema | default(schema.name) }}
     ${filter}=   Set Variable   $.templates[?(@.name=='{{ template.name }}')].contracts[?(@.name=='{{ contract_name }}')].filterRelationshipsProviderToConsumer[?(@.filterRef=='/schemas/${schema_id}/templates/{{ filter.template | default(template.name) }}/filters/{{ filter_name }}')]
-    ${directives} =   Create List   {{ directives | join('   ') }}
+    ${directives} =   Create List   {{ directives | join('   ') if directives != [] else 'none' }}
     Should Be Equal Value Json String   ${r.json()}   ${filter}.filterRef   /schemas/${schema_id}/templates/{{ filter.template | default(template.name) }}/filters/{{ filter_name }}
     Should Be Equal Value Json List   ${r.json()}   ${filter}.directives   ${directives}
 {% endfor %}
@@ -390,7 +390,7 @@ Verify Schema {{ schema.name }} Template {{ template.name }} Contract {{ contrac
 Verify Schema {{ schema.name }} Template {{ template.name }} Contract {{ contract_name }} Consumer To Provider Filter Chain {{ filter_name }}
     ${schema_id}=   NDO Lookup   schemas/list-identity   {{ filter.schema | default(schema.name) }}
     ${filter}=   Set Variable   $.templates[?(@.name=='{{ template.name }}')].contracts[?(@.name=='{{ contract_name }}')].filterRelationshipsConsumerToProvider[?(@.filterRef=='/schemas/${schema_id}/templates/{{ filter.template | default(template.name) }}/filters/{{ filter_name }}')]
-    ${directives} =   Create List   {{ directives | join('   ') }}
+    ${directives} =   Create List   {{ directives | join('   ') if directives != [] else 'none' }}
     Should Be Equal Value Json String   ${r.json()}   ${filter}.filterRef   /schemas/${schema_id}/templates/{{ filter.template | default(template.name) }}/filters/{{ filter_name }}
     Should Be Equal Value Json List   ${r.json()}   ${filter}.directives   ${directives}
 {% endfor %}
