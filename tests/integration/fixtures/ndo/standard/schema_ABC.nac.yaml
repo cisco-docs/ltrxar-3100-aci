@@ -24,7 +24,6 @@ ndo:
                       scope: private
                       shared: false
                       no_default_gateway: true
-                      primary: true
                   contracts:
                     consumers:
                       - name: CONTRACT1
@@ -97,7 +96,6 @@ ndo:
                           scope: private
                           shared: false
                           no_default_gateway: false
-                          primary: true
                 - name: EPG2
                   bridge_domain:
                     name: BD2
