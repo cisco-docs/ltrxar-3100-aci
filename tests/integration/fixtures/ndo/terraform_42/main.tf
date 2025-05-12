@@ -11,7 +11,7 @@ provider "mso" {
 }
 
 module "ndo" {
-  source = "github.com/netascode/terraform-mso-nac-ndo.git?ref=main"
+  source = "/Users/juchowan/terraform-mso-nac-ndo"
 
   yaml_directories = ["../standard", "../standard_42"]
 
