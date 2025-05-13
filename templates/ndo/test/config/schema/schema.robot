@@ -350,7 +350,7 @@ Verify Schema {{ schema.name }} Template {{ template.name }} Contract {{ contrac
     Should Be Equal Value Json String   ${r.json()}   ${contract}.scope   {{ contract.scope | default(defaults.ndo.schemas.templates.contracts.scope) }}
     Should Be Equal Value Json String   ${r.json()}   ${contract}.filterType   {{ contract.type | default(defaults.ndo.schemas.templates.contracts.type) }}
 
-{% if contract.type == "bothWay" %}
+{% if contract.type == "bothWay" | default(defaults.ndo.schemas.templates.contracts.type) %}
 {% for filter in contract.filters | default([]) %}
 {% set filter_name = filter.name ~ defaults.ndo.schemas.templates.filters.name_suffix %}
 {% set directives = [] %}
@@ -366,7 +366,7 @@ Verify Schema {{ schema.name }} Template {{ template.name }} Contract {{ contrac
 {% endfor %}
 {% endif %}
 
-{% if contract.type == "oneWay" %}
+{% if contract.type == "oneWay" | default(defaults.ndo.schemas.templates.contracts.type) %}
 {% for filter in contract.provider_to_consumer_filters | default([]) %}
 {% set filter_name = filter.name ~ defaults.ndo.schemas.templates.filters.name_suffix %}
 {% set directives = [] %}
