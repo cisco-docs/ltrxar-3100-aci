@@ -13,5 +13,7 @@ Verify LLDP Interface Policy {{ lldp_policy_name }}
     Should Be Equal Value Json String   ${r.json()}    $..lldpIfPol.attributes.name   {{ lldp_policy_name }}
     Should Be Equal Value Json String   ${r.json()}    $..lldpIfPol.attributes.adminRxSt   {{ 'enabled' if policy.admin_rx_state else 'disabled' }}
     Should Be Equal Value Json String   ${r.json()}    $..lldpIfPol.attributes.adminTxSt   {{ 'enabled' if policy.admin_tx_state else 'disabled' }}
-
+    {% if policy.dcbxp_version is defined %}
+    Should Be Equal Value Json String   ${r.json()}    $..lldpIfPol.attributes.portDCBXPVer   {{ policy.dcbxp_version }}
+    {% endif %}
 {% endfor %}

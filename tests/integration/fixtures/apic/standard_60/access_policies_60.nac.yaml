@@ -22,6 +22,11 @@ apic:
           speed: 10G
           auto: true
           fec_mode: inherit
+      lldp_policies:
+        - name: LLDP-ENABLED-DCBXP
+          admin_rx_state: true
+          admin_tx_state: true
+          dcbxp_version: IEEE
 
     switch_policies:
       vpc_policies:

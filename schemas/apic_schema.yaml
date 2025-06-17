@@ -1413,6 +1413,7 @@ ap_lldp_policy:
   name: regex('^[a-zA-Z0-9_.:-]{1,64}$')
   admin_rx_state: bool()
   admin_tx_state: bool()
+  dcbxp_version: enum('CEE', 'IEEE', required=False)
 
 ap_link_level_policy:
   name: regex('^[a-zA-Z0-9_.:-]{1,64}$')

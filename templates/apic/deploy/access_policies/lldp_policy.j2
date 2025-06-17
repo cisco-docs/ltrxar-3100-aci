@@ -13,6 +13,9 @@
                         "annotation": "orchestrator:aac",
                         "name": "{{ lldp_policy_name }}",
                         "dn": "uni/infra/lldpIfP-{{ lldp_policy_name }}",
+                        {% if policy.dcbxp_version is defined %}
+                        "portDCBXPVer": "{{ policy.dcbxp_version }}",
+                        {% endif %}
                         "adminRxSt": "{{ 'enabled' if policy.admin_rx_state else 'disabled' }}",
                         "adminTxSt": "{{ 'enabled' if policy.admin_tx_state else 'disabled' }}"
                     }
