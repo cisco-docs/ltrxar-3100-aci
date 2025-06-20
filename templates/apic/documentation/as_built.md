@@ -1241,7 +1241,7 @@ No Remote Locations configured.
 
 The table below lists the tenants configured in the fabric.
 
-<caption name="apic.tenants|default([])|length Tenants">
+<caption name="{{apic.tenants|default([])|length}} Tenants">
 
 | Name | Description | Monitoring Policy | Security Domains |
 |---|---|---|---|
@@ -1270,19 +1270,33 @@ No Application Profiles configured
 
 #### Endpoint Groups (EPGs)
 
+{% set ns_epg = namespace(epgs_configured = false) %}
 {% for ap in tenant.application_profiles | default([]) %}
 {% if ap.endpoint_groups|length > 0 %}
-{% set epgs_configured = true %}
+{% set ns_epg.epgs_configured = true %}
 {% endif %}
 {% endfor %}
-{% if epgs_configured %}
+
+{% if ns_epg.epgs_configured %}
 <caption name="Endpoint Groups - {{tenant.name}}">
 
-| Application Profile | Endpoint Group | Bridge Domain |
-|---|---|---|
+| Application Profile | Endpoint Group | Physical Domain | Bridge Domain | Contract - Consumer | Contract - Provider |
+|---|---|---|---|---|---|
 {% for ap in tenant.application_profiles | default([]) %}
 {% for epg in ap.endpoint_groups | default([]) %}
-| {{ ap.name ~ defaults.apic.tenants.application_profiles.name_suffix }} | {{ epg.name ~ defaults.apic.tenants.application_profiles.endpoint_groups.name_suffix }} | {{ epg.bridge_domain ~ defaults.apic.tenants.bridge_domains.name_suffix }} |
+{% set physical_domains_list = [] %}
+{% for physical_domain in epg.physical_domains | default([]) %}
+{% set _ = physical_domains_list.append(physical_domain) %}
+{% endfor %}
+{% set contract_consumers_list = [] %}
+{% for contract_consumer in epg.contracts.consumers | default([]) %}
+{% set _ = contract_consumers_list.append(contract_consumer) %}
+{% endfor %}
+{% set contract_providers_list = [] %}
+{% for contract_provider in epg.contracts.providers | default([]) %}
+{% set _ = contract_providers_list.append(contract_provider) %}
+{% endfor %}
+| {{ ap.name ~ defaults.apic.tenants.application_profiles.name_suffix }} | {{ epg.name ~ defaults.apic.tenants.application_profiles.endpoint_groups.name_suffix }} | {{ physical_domains_list | default([]) | join("<br>") }} | {{ epg.bridge_domain ~ defaults.apic.tenants.bridge_domains.name_suffix }} | {{ contract_consumers_list | default([]) | join("<br>") }} | {{ contract_providers_list | default([]) | join("<br>") }} |
 {% endfor %}
 {% endfor %}
 </caption>
@@ -1292,23 +1306,26 @@ No Endpoint Groups configured
 
 ##### EPG Static Bindings
 
+{% set ns_epg_static_ports = namespace(epg_static_ports_configured = false) %}
+
 {% for ap in tenant.application_profiles | default([]) %}
 {% for epg in ap.endpoint_groups | default([]) %}
 {% if epg.static_ports|length > 0 %}
 {% set epg_static_ports_configured = true %}
+{% set ns_epg_static_ports.epg_static_ports_configured = true %}
 {% endif %}
 {% endfor %}
 {% endfor %}
-{% if epg_static_ports_configured %}
+{% if ns_epg_static_ports.epg_static_ports_configured %}
 <caption name="EPG Static Bindings - {{tenant.name}}">
 
-| App Profile | EPG | Encap | Path | Deployment Immediacy | Mode |
-|---|---|---|---|---|---|
+| EPG | Encap | Path | Deployment Immediacy | Mode |
+|---|---|---|---|---|
 {% for ap in tenant.application_profiles | default([]) %}
 {% for epg in ap.endpoint_groups | default([]) %}
 {% for static_port in epg.static_ports | default([]) %}
-{% set pod_id = "1" %}{% for node in apic.node_policies.nodes | default([]) %}{% if node.id == static_port.node_id %}{% set pod_id = node.pod | default(defaults.apic.node_policies.nodes.pod)%}{%endif%}{% endfor %}
-| {{ap.name ~ defaults.apic.tenants.application_profiles.name_suffix}} | {{epg.name ~ defaults.apic.tenants.application_profiles.endpoint_groups.name_suffix}} | vlan-{{static_port.vlan}} | {% if static_port.node2_id is defined %}topology/pod-{{pod_id}}/protpaths-{{static_port.node_id}}-{{static_port.node2_id}}/pathep-[{{static_port.channel}}]{%else%}topology/pod-{{pod_id}}/paths-{{static_port.node_id}}/pathep-[eth{{static_port.module|default(defaults.apic.tenants.application_profiles.endpoint_groups.static_ports.module)}}/{{static_port.port}}]{%endif%} | {{static_port.deployment_immediacy | default(defaults.apic.tenants.application_profiles.endpoint_groups.static_ports.deployment_immediacy)}} | {{static_port.mode | default(defaults.apic.tenants.application_profiles.endpoint_groups.static_ports.mode)}} |
+{% set ns = namespace(pod_id="1") %}{% for node in apic.node_policies.nodes | default([]) %}{% if node.id == static_port.node_id %}{% set ns.pod_id = node.pod | default(defaults.apic.node_policies.nodes.pod)%}{%endif%}{% endfor %}
+| {{epg.name ~ defaults.apic.tenants.application_profiles.endpoint_groups.name_suffix}} | vlan-{{static_port.vlan}} | {% if static_port.channel is defined and static_port.node2_id is defined %}topology/pod-{{ns.pod_id}}/protpaths-{{static_port.node_id}}-{{static_port.node2_id}}/pathep-[{{static_port.channel}}]{% elif static_port.channel is defined and static_port.node2_id is not defined %}topology/pod-{{ns.pod_id}}/paths-{{static_port.node_id}}/pathep-[{{static_port.channel}}]{%else%}topology/pod-{{ns.pod_id}}/paths-{{static_port.node_id}}/pathep-[eth{{static_port.module|default(defaults.apic.tenants.application_profiles.endpoint_groups.static_ports.module)}}/{{static_port.port}}]{%endif%} | {{static_port.deployment_immediacy | default(defaults.apic.tenants.application_profiles.endpoint_groups.static_ports.deployment_immediacy)}} | {{static_port.mode | default(defaults.apic.tenants.application_profiles.endpoint_groups.static_ports.mode)}} |
 {% endfor %}
 {% endfor %}
 {% endfor %}
@@ -1322,10 +1339,10 @@ No EPG Static Bindings configured.
 {% if tenant.vrfs|length > 0 %}
 <caption name="VRFs - {{tenant.name}}">
 
-| Tenant | Name | Policy Enforcement | Policy Enforcement Direction | Preferred Group |
+| Name | Policy Enforcement | Policy Enforcement Direction | Preferred Group |
 |---|---|---|---|---|
 {% for vrf in tenant.vrfs | default([])%}
-| {{tenant.name}} | {{vrf.name ~ defaults.apic.tenants.vrfs.name_suffix}} | {{vrf.enforcement_preference | default(defaults.apic.tenants.vrfs.enforcement_preference)}} | {{vrf.enforcement_direction | default(defaults.apic.tenants.vrfs.enforcement_direction)}} | {{vrf.preferred_group | default(defaults.tenants.vrfs.preferred_group)}} |
+| {{vrf.name ~ defaults.apic.tenants.vrfs.name_suffix}} | {{vrf.enforcement_preference | default(defaults.apic.tenants.vrfs.enforcement_preference)}} | {{vrf.enforcement_direction | default(defaults.apic.tenants.vrfs.enforcement_direction)}} | {{vrf.preferred_group | default(defaults.tenants.vrfs.preferred_group)}} |
 {% endfor %}
 </caption>
 {% else %}
@@ -1408,10 +1425,10 @@ No contracts are being consumed by VRFs.
 
 <caption name="VRF(s) Properties - {{tenant.name}}">
 
-| VRF | Create SNMP Context | DNS Labels | IP Dataplane Learning | Endpoint Retention Policy | Monitoring Policy |
+| VRF | DNS Labels | IP Dataplane Learning | Endpoint Retention Policy |
 |---|---|---|---|---|---|
 {% for vrf in tenant.vrfs | default([])%}
-| {{ tenant.name }} | {{vrf.name ~ defaults.apic.tenants.vrfs.name_suffix}} | {{vrf.dns_labels|default([])|join(", ")}} | {% if vrf.data_plane_learning | default(defaults.apic.tenants.vrfs.data_plane_learning) %}enabled{%else%}disabled{%endif%} | | |
+| {{vrf.name ~ defaults.apic.tenants.vrfs.name_suffix}} | {{vrf.dns_labels|default([])|join(", ")}} | {% if vrf.data_plane_learning | default(defaults.apic.tenants.vrfs.data_plane_learning) %}enabled{%else%}disabled{%endif%} | {{ vrf.endpoint_retention_policy	| default("") }} |
 {% endfor %}
 </caption>
 {% endif %}
@@ -1447,10 +1464,14 @@ No Bridge Domains configured.
 | Name | VRF | Description | External L3 Domain | Routing Protocol |
 |---|---|---|---|---|
 {% set ns = namespace(bgp=False,ospf=False,eigrp=False)%}
-{% for node in l3out.node_profiles | default([])%}
-{% if node.bgp_peers is defined%}
+{% for node_profile in l3out.node_profiles | default([])%}
+{% for interfaces in node_profile.interface_profiles | default([])%}
+{% for interface in interfaces.interfaces | default([])%}
+{% if node_profile.bgp_peers is defined or interface.bgp_peers is defined %}
 {% set ns.bgp = True%}
 {% endif %}
+{% endfor %}
+{% endfor %}
 {% endfor %}
 {% if l3out.ospf is defined %}
 {% set ns.ospf = True%}
@@ -1460,25 +1481,25 @@ No Bridge Domains configured.
 {% if ns.ospf %}{% set _ = protocols.append("OSPF")%}{%endif%}
 | {{l3out.name ~ defaults.apic.tenants.l3outs.name_suffix}} | {{l3out.vrf ~ defaults.apic.tenants.vrfs.name_suffix}} | {{l3out.description | default("")}} | {{l3out.domain ~ defaults.access_policies.routed_domains.name_suffix}} | {{protocols | join(", ")}} |
 </caption>
-{%endfor%}
-{% else %}
-No L3OUTs configured.
-{% endif %}
 
 ###### Node and Interface Profiles
 
-{% if l3out.node_profiles is defined%}
+{% if l3out.node_profiles is defined %}
 <caption name="Logical Node Profile(s) ({{l3out.name}}) - {{tenant.name}}">
 
-| Name | Description | Node ID | Router ID / Is Loopback | Static Route / Next Hop |
+| Name | Description | Node ID | Router ID / Is Loopback | Static Route / Next Hop - Preference |
 |---|---|---|---|---|
-{% for node_profile in l3out.node_profiles | default([]) %}
+{% for node_profile in l3out.node_profiles | default([])%}
 {% for node in node_profile.nodes | default([]) %}
+{% if node.static_routes is defined %}
 {% for route in node.static_routes | default([]) %}
 {% for next_hop in route.next_hops | default([]) %}
-| {{ node_profile.name ~ defaults.apic.tenants.l3outs.nodes.node_profiles.name_suffix }} | | {{node.router_id}} / {% if node.router_id_as_loopback | default(defaults.apic.tenants.l3outs.node_profiles.nodes.router_id_as_loopback)%}yes{%else%}no{%endif%} | {{route.prefix}} / {{next_hop.ip}} |
+| {{ node_profile.name ~ defaults.apic.tenants.l3outs.node_profiles.name_suffix }} | {{ node.description | default("") }} | {{ node.node_id | default("") }} | {{node.router_id}} / {% if node.router_id_as_loopback | default(defaults.apic.tenants.l3outs.node_profiles.nodes.router_id_as_loopback)%}yes{%else%}no{%endif%} |  {{route.prefix}} / {{next_hop.ip}} - {{next_hop.preference | default(defaults.apic.tenants.l3outs.node_profiles.nodes.static_routes.next_hops.preference) }} |
 {% endfor %}
 {% endfor %}
+{%else%}
+| {{ node_profile.name ~ defaults.apic.tenants.l3outs.node_profiles.name_suffix }} | {{ node.description | default("") }} | {{ node.node_id | default("") }} | {{node.router_id}} / {% if node.router_id_as_loopback | default(defaults.apic.tenants.l3outs.node_profiles.nodes.router_id_as_loopback)%}yes{%else%}no{%endif%} |  {{""}} |
+{%endif%}
 {% endfor %}
 {% endfor %}
 </caption>
@@ -1486,16 +1507,47 @@ No L3OUTs configured.
 No L3OUT Node Profiles configured.
 {% endif %}
 
-{% if l3out.ospf is defined %}
+{% if ns.ospf %}
 <caption name="Logical Interface Profile(s) ({{l3out.name}}) - {{tenant.name}}">
 
-| Node Profile | Node | Path | Type | IP Address | Encap | OPSF Interface Profile | Auth Type | Auth Key Id |
-|---|---|---|---|---|---|---|---|---|
+| Node Profile | Node | Path | IP Address | Secondary IP | Encap | Mode | MTU | OSPF Interface Profile | Auth Type | Auth Key Id |
+|---|---|---|---|---|---|---|---|---|---|
 {% for node_prof in l3out.node_profiles | default([])%}
 {% for int_prof in node_prof.interface_profiles | default([])%}
 {% for int in int_prof.interfaces | default([])%}
 {% set ns = namespace(pod_id="1") %}{% for node in apic.node_policies.nodes | default([]) %}{% if node.id == int.node_id %}{% set ns.pod_id = node.pod | default(defaults.apic.node_policies.nodes.pod)%}{%endif%}{% endfor %}
-| {{node_prof.name }} | {% if int.node2_id is defined %}{{ int.node_id ~","~int.node2_id}}{%else%}{{int.node_id}}{%endif%} | {% if int.node2_id is defined %}topology/pod-{{ns.pod_id}}/protpaths-{{int.node_id}}-{{int.node2_id}}/pathep-[{{int.channel}}]{%else%}topology/pod-{{ns.pod_id}}/paths-{{int.node_id}}/pathep-[eth{{int.module|default(defaults.apic.l3outs.node_profiles.interface_profiles.interfaces.module)}}/{{int.port}}]{%endif%} | {{int.ip | default(defaults.apic.tenants.l3outs.node_profiles.interface_profiles.interfaces.ip)}} | {% if int.vlan is defined %}{{ "vlan-"~int.vlan }}{%endif%} | | | |
+| {{int_prof.name ~ defaults.apic.tenants.l3outs.node_profiles.interface_profiles.name_suffix  }} | {% if int.node2_id is defined %}{{ int.node_id ~","~int.node2_id}}{%else%}{{int.node_id}}{%endif%} | {% if int.channel is defined and int.node2_id is defined %}topology/pod-{{ns.pod_id}}/protpaths-{{int.node_id}}-{{int.node2_id}}/pathep-[{{int.channel}}]{% elif int.channel is defined and int.node2_id is not defined %}topology/pod-{{ns.pod_id}}/paths-{{int.node_id}}/pathep-[{{int.channel}}]{%else%}topology/pod-{{ns.pod_id}}/paths-{{int.node_id}}/pathep-[eth{{int.module|default(defaults.apic.l3outs.node_profiles.interface_profiles.interfaces.module)}}/{{int.port}}]{%endif%} | {{int.ip | default(defaults.apic.tenants.l3outs.node_profiles.interface_profiles.interfaces.ip)}} | {{ int.ip_shared | default("") }} | {% if int.vlan is defined %}{{ "vlan-"~int.vlan }}{%endif%} | {% if int.svi | default(defaults.apic.tenants.l3outs.node_profiles.nodes.interface_profiles.interfaces.svi) is true %}{{ int.mode | default(defaults.apic.tenants.l3outs.node_profiles.interface_profiles.interfaces.mode) }}{%else%}-{% endif%} | {{int.mtu | default(defaults.apic.tenants.l3outs.node_profiles.interface_profiles.interface.mtu)}} |  {{ int_prof.ospf.policy | default("") }} | {{ int_prof.ospf.auth_type | default(defaults.apic.tenants.l3outs.node_profiles.interface_profiles.ospf.auth_type) }} | {{ int_prof.ospf.auth_key_id | default(defaults.apic.tenants.l3outs.node_profiles.interface_profiles.ospf.auth_key_id) }} |
+{% endfor %}
+{% endfor %}
+{% endfor %}
+</caption>
+
+{% elif ns.bgp %}
+<caption name="Logical Interface Profile(s) ({{l3out.name}}) - {{tenant.name}}">
+
+| Node Profile | Node | Path | IP Address | Secondary IP | Encap | Mode | MTU | BGP peer |
+|---|---|---|---|---|---|---|---|---|---|---|
+{% for node_prof in l3out.node_profiles | default([])%}
+{% for int_prof in node_prof.interface_profiles | default([])%}
+{% for int in int_prof.interfaces | default([])%}
+{% set bgp_peers_list =[] %}
+{% set ns = namespace(pod_id="1") %}{% for node in apic.node_policies.nodes | default([]) %}{% if node.id == int.node_id %}{% set ns.pod_id = node.pod | default(defaults.apic.node_policies.nodes.pod)%}{%endif%}{% endfor %}
+| {{int_prof.name ~ defaults.apic.tenants.l3outs.node_profiles.interface_profiles.name_suffix }} | {% if int.node2_id is defined %}{{ int.node_id ~","~int.node2_id}}{%else%}{{int.node_id}}{%endif%} | {% if int.channel is defined and int.node2_id is defined %}topology/pod-{{ns.pod_id}}/protpaths-{{int.node_id}}-{{int.node2_id}}/pathep-[{{int.channel}}]{% elif int.channel is defined and int.node2_id is not defined %}topology/pod-{{ns.pod_id}}/paths-{{int.node_id}}/pathep-[{{int.channel}}]{%else%}topology/pod-{{ns.pod_id}}/paths-{{int.node_id}}/pathep-[eth{{int.module|default(defaults.apic.tenants.l3outs.node_profiles.interface_profiles.interfaces.module)}}/{{int.port}}]{%endif%} | {{int.ip | default(defaults.apic.tenants.l3outs.node_profiles.interface_profiles.interfaces.ip)}} | {{ int.ip_shared | default("") }} | {% if int.vlan is defined %}{{ "vlan-"~int.vlan }}{%endif%} | {% if int.svi | default(defaults.apic.tenants.l3outs.node_profiles.interface_profiles.interfaces.svi) is true %}{{ int.mode | default(defaults.apic.tenants.l3outs.node_profiles.interface_profiles.interfaces.mode) }}{%else%}-{% endif%} | {{int.mtu | default(defaults.apic.tenants.l3outs.node_profiles.interface_profiles.interface.mtu)}} |  {% for bgp_peer in int.bgp_peers %}{% set _ = bgp_peers_list.append(bgp_peer.ip) %}{% endfor %}{{ bgp_peers_list | join("<br>") }} |
+{% endfor %}
+{% endfor %}
+{% endfor %}
+</caption>
+
+<caption name="BGP Peer(s) ({{l3out.name}}) - {{tenant.name}}">
+
+| Node Profile | Node | BGP Peer | BGP Peer Configuration |
+|---|---|---|---|---|---|---|---|---|
+{% for node_prof in l3out.node_profiles | default([])%}
+{% for int_prof in node_prof.interface_profiles | default([])%}
+{% for int in int_prof.interfaces | default([])%}
+{% for bgp_peer in int.bgp_peers | default([])%}
+| {{ int_prof.name }} | {% if int.node2_id is defined %}{{ int.node_id ~","~int.node2_id}}{%else%}{{int.node_id}}{%endif%} | {{ bgp_peer.ip }} | Remote AS: {{ bgp_peer.remote_as | default("") }}<br>TTL: {{bgp_peer.ttl|default(defaults.apic.tenants.l3outs.node_profiles.interface_profiles.interfaces.bgp_peers.ttl)}}<br>Allow Self AS: {{bgp_peer.allow_self_as|default(defaults.apic.tenants.l3outs.node_profiles.interface_profiles.interfaces.bgp_peers.allow_self_as)}}<br>AS Override: {{bgp_peer.as_override|default(defaults.apic.tenants.l3outs.node_profiles.interface_profiles.interfaces.bgp_peers.as_override)}}<br>Disable Peer AS Check: {{bgp_peer.disable_peer_as_check|default(defaults.apic.tenants.l3outs.node_profiles.interface_profiles.interfaces.bgp_peers.disable_peer_as_check)}}<br>Next Hop Self: {{bgp_peer.next_hop_self|default(defaults.apic.tenants.l3outs.node_profiles.interface_profiles.interfaces.bgp_peers.next_hop_self)}}<br>Send Community: {{bgp_peer.send_community|default(defaults.apic.tenants.l3outs.node_profiles.interface_profiles.interfaces.bgp_peers.send_community)}}<br>Send Ext Community: {{bgp_peer.send_ext_community|default(defaults.apic.tenants.l3outs.node_profiles.interface_profiles.interfaces.bgp_peers.send_ext_community)}}<br>Allowed Self As Count: {{bgp_peer.allowed_self_as_count|default(defaults.apic.tenants.l3outs.node_profiles.interface_profiles.interfaces.bgp_peers.allowed_self_as_count)}}<br>BFD: {{bgp_peer.bfd|default(defaults.apic.tenants.l3outs.node_profiles.interface_profiles.interfaces.bgp_peers.bfd)}}<br>Disable Connected Check: {{bgp_peer.disable_connected_check|default(defaults.apic.tenants.l3outs.node_profiles.interface_profiles.interfaces.bgp_peers.disable_connected_check)}}<br>Weight: {{bgp_peer.weight|default(defaults.apic.tenants.l3outs.node_profiles.interface_profiles.interfaces.bgp_peers.weight)}}<br>Remove All Private AS: {{bgp_peer.remove_all_private_as|default(defaults.apic.tenants.l3outs.node_profiles.interface_profiles.interfaces.bgp_peers.remove_all_private_as)}}<br>Remove Private AS: {{bgp_peer.remove_private_as|default(defaults.apic.tenants.l3outs.node_profiles.interface_profiles.interfaces.bgp_peers.remove_private_as)}}<br>Replace Private AS With Local AS: {{bgp_peer.replace_private_as_with_local_as|default(defaults.apic.tenants.l3outs.node_profiles.interface_profiles.interfaces.bgp_peers.replace_private_as_with_local_as)}}<br>Unicast Address Family: {{bgp_peer.unicast_address_family|default(defaults.apic.tenants.l3outs.node_profiles.interface_profiles.interfaces.bgp_peers.unicast_address_family)}}<br>Multicast Address Family: {{bgp_peer.multicast_address_family|default(defaults.apic.tenants.l3outs.node_profiles.interface_profiles.interfaces.bgp_peers.multicast_address_family)}}<br>Admin State: {{bgp_peer.admin_state|default(defaults.apic.tenants.l3outs.node_profiles.interface_profiles.interfaces.bgp_peers.admin_state)}}<br>Local AS: {{bgp_peer.local_as|default("")}}<br>AS Propagate: {% if bgp_peer.as_propagate == "dual-as" %}noPrepend+replace-as+dual-as{% elif bgp_peer.as_propagate == "no-prepend" %}no-prepend{%elif bgp_peer.as_propagate == "replace-as"%}no-prepend+replace-as{%else%}{{defaults.apic.tenants.l3outs.node_profiles.interface_profiles.interfaces.bgp_peers.as_propagate}}{%endif%}<br>Peer Prefix Policy: {{bgp_peer.peer_prefix_policy|default("")}}<br>Export Route Control: {{bgp_peer.export_route_control|default("")}}<br>Import Route Control: {{bgp_peer.import_route_control|default("")}}<br>|
+{% endfor %}
 {% endfor %}
 {% endfor %}
 {% endfor %}
@@ -1504,13 +1556,13 @@ No L3OUT Node Profiles configured.
 {% elif l3out.node_profiles is defined %}
 <caption name="Logical Interface Profile(s) ({{l3out.name}}) - {{tenant.name}}">
 
-| Node Profile | Node | Path | Type | IP Address | Encap |
-|---|---|---|---|---|---|
+| Node Profile | Node | Path | IP Address | Secondary IP | Encap | Mode | MTU |
+|---|---|---|---|---|---|---|
 {% for node_prof in l3out.node_profiles | default([])%}
 {% for int_prof in node_prof.interface_profiles | default([])%}
 {% for int in int_prof.interfaces | default([])%}
 {% set ns = namespace(pod_id="1") %}{% for node in apic.node_policies.nodes | default([]) %}{% if node.id == int.node_id %}{% set ns.pod_id = node.pod | default(defaults.apic.node_policies.nodes.pod)%}{%endif%}{% endfor %}
-| {{node_prof.name }} | {% if int.node2_id is defined %}{{ int.node_id ~","~int.node2_id}}{%else%}{{int.node_id}}{%endif%} | {% if int.node2_id is defined %}topology/pod-{{ns.pod_id}}/protpaths-{{int.node_id}}-{{int.node2_id}}/pathep-[{{int.channel}}]{%else%}topology/pod-{{ns.pod_id}}/paths-{{int.node_id}}/pathep-[eth{{int.module|default(defaults.apic.l3outs.node_profiles.interface_profiles.interfaces.module)}}/{{int.port}}]{%endif%} | {{int.ip | default(defaults.apic.tenants.l3outs.node_profiles.interface_profiles.interfaces.ip)}} | {% if int.vlan is defined %}{{ "vlan-"~int.vlan }}{%endif%} |
+| {{int_prof.name ~ defaults.apic.tenants.l3outs.node_profiles.interface_profiles.name_suffix }} | {% if int.node2_id is defined %}{{ int.node_id ~","~int.node2_id}}{%else%}{{int.node_id}}{%endif%} | {% if int.channel is defined and int.node2_id is defined %}topology/pod-{{ns.pod_id}}/protpaths-{{int.node_id}}-{{int.node2_id}}/pathep-[{{int.channel}}]{% elif int.channel is defined and int.node2_id is not defined %}topology/pod-{{ns.pod_id}}/paths-{{int.node_id}}/pathep-[{{int.channel}}]{%else%}topology/pod-{{ns.pod_id}}/paths-{{int.node_id}}/pathep-[eth{{int.module|default(defaults.apic.tenants.l3outs.node_profiles.interface_profiles.interfaces.module)}}/{{int.port}}]{%endif%} | {{int.ip | default(defaults.apic.tenants.l3outs.node_profiles.interface_profiles.interfaces.ip)}} | {{ int.ip_shared | default("") }} | {% if int.vlan is defined %}{{ "vlan-"~int.vlan }}{%endif%} | {% if int.svi | default(defaults.apic.tenants.l3outs.node_profiles.interface_profiles.interfaces.svi) is true %}{{ int.mode | default(defaults.apic.tenants.l3outs.node_profiles.interface_profiles.interfaces.mode) }}{%else%}-{% endif%} | {{int.mtu | default(defaults.apic.tenants.l3outs.node_profiles.interface_profiles.interface.mtu)}} |
 {% endfor %}
 {% endfor %}
 {% endfor %}
@@ -1541,7 +1593,7 @@ No L3OUT Node Profiles configured.
 {% for subnet in extepg.subnets | default([])%}
 {% set scopes = []%}
 {% if subnet.import_security | default(defaults.apic.tenants.l3outs.external_endpoint_groups.subnets.import_security) %}{% set _ = scopes.append("External Subnets for the External EPG")%}{%endif%}{% if subnet.shared_security | default(defaults.apic.tenants.l3outs.external_endpoint_groups.subnets.shared_security)%}{% set _ = scopes.append("Shared Security Import Subnet")%}{%endif%}
-| {{tenant.name}} | {{l3out.name ~ defaults.apic.tenants.l3outs.name_suffix}} | {{extepg.name ~ defaults.apic.tenants.l3outs.external_endpoint_groups.name_suffix}} | {{ subnet.prefix }} | {% if subnet.prefix == "0.0.0.0/0" and subnet.export_route_control | default(defaults.apic.tenants.l3outs.external_endpoint_groups.export_route_control) and subnet.aggregate_export_route_control | default(defaults.apic.tenants.l3outs.external_point_groups.aggregate_export_route_control)%}0.0.0.0/0 le 32{%elif subnet.export_route_control|default(defaults.apic.tenants.l3outs.external_endpoint_groups.export_route_control) and subnet.bgp_route_summarization|default(defaults.apic.tenants.l3outs.external_endpoint_groups.bgp_route_summarization) %}{{subnet.prefix}}{%else%} {%endif%} | {{scopes|join("<br>")}} | {%if subnet.export_route_control|default(defaults.apic.tenants.l3outs.external_endpoint_groups.export_route_control) and subnet.bgp_route_summarization|default(defaults.apic.tenants.l3outs.external_endpoint_groups.bgp_route_summarization) %}{{subnet.prefix}}{%endif%} |
+| {{extepg.name ~ defaults.apic.tenants.l3outs.external_endpoint_groups.name_suffix}} | {{ subnet.prefix }} | {% if subnet.prefix == "0.0.0.0/0" and subnet.export_route_control | default(defaults.apic.tenants.l3outs.external_endpoint_groups.export_route_control) and subnet.aggregate_export_route_control | default(defaults.apic.tenants.l3outs.external_endpoint_groups.aggregate_export_route_control) %}0.0.0.0/0 le 32{% elif subnet.export_route_control | default(defaults.apic.tenants.l3outs.external_endpoint_groups.export_route_control) and subnet.bgp_route_summarization | default(defaults.apic.tenants.l3outs.external_endpoint_groups.bgp_route_summarization) %}{{ subnet.prefix }}{% else %}-{% endif %} |  {{ scopes | join("<br>") }} | {%if subnet.export_route_control|default(defaults.apic.tenants.l3outs.external_endpoint_groups.export_route_control) and subnet.bgp_route_summarization|default(defaults.apic.tenants.l3outs.external_endpoint_groups.bgp_route_summarization) %}{{subnet.prefix}}{%endif%} |
 {% endfor %}
 {% endfor %}
 </caption>
@@ -1549,6 +1601,10 @@ No L3OUT Node Profiles configured.
 No External Network Profiles (External EPGs) configured.
 {% endif %}
 
+{%endfor%}
+{% else %}
+No L3OUTs configured.
+{% endif %}
 #### Security Policies
 
 ##### Contracts
@@ -1570,30 +1626,31 @@ No contracts configured.
 {% endif %}
 
 ##### Subjects
+{% set ns_subjects = namespace(subjects_configured = false) %}
 
-{% for contract in tenants.contracts | default([]) %}
+{% for contract in tenant.contracts | default([]) %}
 {% for subject in contract.subjects | default([]) %}
 {% if subject.filters|length >0 %}
-{% set subjects_configured = true %}
+{% set ns_subjects.subjects_configured = true %}
 {% endif %}
 {% endfor %}
 {% endfor %}
-{% if subjects_configured %}
+{% if ns_subjects.subjects_configured %}
 <caption name="Subjects - {{tenant.name}}">
 
-| Contract | Subject | Description | QoS-Class | Reverse Filter Ports | Filter | Action |
+| Contract | Subject | Description | QoS-Class | Service Graph | Reverse Filter Ports | Filter | Action |
 |---|---|---|---|---|---|---|
-{% for contract in tenants.contracts | default([]) %}
+{% for contract in tenant.contracts | default([]) %}
 {% for subject in contract.subjects | default([]) %}
 {% for filter in subject.filters | default([])%}
-| {{contract.name ~ defaults.apic.tenants.contracts.name_suffix}} | {{subject.name ~ defaults.apic.tenants.contracts.subjects.name_suffix}} | {{subject.description | default("")}} | {{subject.qos_class | default(defaults.apic.tenants.contracts.subjects.qos_class)}} | | {{filter.name}} | {{ filter.action | default(defaults.apic.tenants.contracts.subjects.filters.action)}} |
+| {{contract.name ~ defaults.apic.tenants.contracts.name_suffix}} | {{subject.name ~ defaults.apic.tenants.contracts.subjects.name_suffix}} | {{subject.description | default("")}} | {{subject.qos_class | default(defaults.apic.tenants.contracts.subjects.qos_class)}} | {{ subject.service_graph | default("") }} | {{ subject.reverse_filter_ports | default("") }} | {{filter.filter  | default("") }} | {{ filter.action | default(defaults.apic.tenants.contracts.subjects.filters.action)}} |
 {% endfor %}
 {% endfor %}
 {% endfor %}
-{% for contract in tenants.oob_contracts | default([]) %}
+{% for contract in tenant.oob_contracts | default([]) %}
 {% for subject in contract.subjects | default([]) %}
 {% for filter in subject.filters | default([])%}
-| {{subject.name ~ defaults.apic.tenants.contracts.subjects.name_suffix}} | {{contract.name ~ defaults.apic.tenants.contracts.name_suffix}} | {{tenant.name}} | {{subject.description | default("")}} | | | {{filter.name}} | |
+| {{contract.name ~ defaults.apic.tenants.contracts.name_suffix}} | {{subject.name ~ defaults.apic.tenants.contracts.subjects.name_suffix}} | {{subject.description | default("")}} | {{subject.qos_class | default(defaults.apic.tenants.contracts.subjects.qos_class)}} | {{ subject.service_graph | default("") }}  |  {{ subject.reverse_filter_ports | default("") }} | {{filter.filter | default("") }} |  {{ filter.action | default(defaults.apic.tenants.contracts.subjects.filters.action)}} |
 {% endfor %}
 {% endfor %}
 {% endfor %}
@@ -1607,13 +1664,13 @@ No contract subjects configured.
 {% if tenant.filters|length > 0 %}
 <caption name="Filters - {{tenant.name}}">
 
-| Filter Name | Entry | EtherType | ARP Flag | IP Protocol | Src Port From | Src Port To | Dst Port From | Dst Port To | TCP Rules |
-|---|---|---|---|---|---|---|---|---|---|
+| Filter Name | Entry | EtherType | IP Protocol | Src Port From | Src Port To | Dst Port From | Dst Port To | TCP Rules |
+|---|---|---|---|---|---|---|---|---|
 {% for filter in tenant.filters | default([])%}
 {% for entry in filter.entries | default([]) %}
 {% set properties = [] %}
 {% if entry.stateful | default(defaults.apic.tenants.filters.entries.stateful) %}{% set x = properties.append("Stateful: Enabled")%}{%else%}{%set _ = properties.append("Stateful: Disabled")%}{%endif%}
-| {{ filter.name ~ defaults.apic.tenants.filters.name_suffix}} | {{entry.name ~ defaults.apic.tenants.filters.entries.name_suffix}} | {{entry.ethertype | default(defaults.apic.tenants.filters.entries.ethertype)}} | | {{entry.protocol | default(defaults.apic.tenants.filters.entries.protocol)}} | {{entry.source_from_port | default(defaults.apic.tenants.filters.subjects.entries.source_from_port)}} | {{entry.source_to_port|default("")}} | {{entry.destination_from_port | default(defaults.apic.tenants.filters.entries.destination_from_port)}} | {{entry.destination_to_port | default("")}} | {{properties|join("<br>")}} |
+| {{ filter.name ~ defaults.apic.tenants.filters.name_suffix}} | {{entry.name ~ defaults.apic.tenants.filters.entries.name_suffix}} | {{entry.ethertype | default(defaults.apic.tenants.filters.entries.ethertype)}} | {% if entry.ethertype == "unspecified" %}{%else%}{{entry.protocol | default(defaults.apic.tenants.filters.entries.protocol)}}{%endif%}| {{entry.source_from_port | default(defaults.apic.tenants.filters.entries.source_from_port)}} | {{entry.source_to_port|default("")}} | {{entry.destination_from_port | default(defaults.apic.tenants.filters.entries.destination_from_port)}} | {{entry.destination_to_port | default("")}} | {{properties|join("<br>")}} |
 {% endfor %}
 {% endfor %}
 </caption>
@@ -1623,8 +1680,22 @@ No contract filters configured.
 
 #### Policies (Protocol)
 
-##### BGP Policies
+##### BGP Policies - BGP Timers
 
+{% if tenant.policies.bgp_timer_policies|length > 0 %}
+<caption name="BGP Timers - {{tenant.name}}">
+
+| Name | Description | Keepalive Interval | Hold Interval |
+|---|---|---|---|
+{% for bgp_timer in tenant.policies.bgp_timer_policies | default([]) %}
+| {{ bgp_timer.name ~ defaults.apic.tenants.policies.bgp_timer_policies.name_suffix}} | {{bgp_timer.description | default("")}} | {{bgp_timer.keepalive_interval | default(defaults.apic.tenants.policies.bgp_timer_policies.keepalive_interval)}} | {{bgp_timer.hold_interval | default(defaults.apic.tenants.policies.bgp_timer_policies.hold_interval)}} |
+{% endfor %}
+</caption>
+{% else %}
+No BGP Timers configured.
+{% endif %}
+
+##### BGP Policies - BGP Address Family Context
 {% if tenant.policies.bgp_address_family_context_policies|length > 0 %}
 <caption name="BGP Address Family Context - {{tenant.name}}">
 
@@ -1635,8 +1706,9 @@ No contract filters configured.
 {% endfor %}
 </caption>
 {% else %}
-No BGP Policies configured.
+No BGP Address Family Context configured.
 {% endif %}
+
 
 ##### OSPF Policies
 
@@ -1742,7 +1814,7 @@ No Route-Maps configured.
 |---|---|---|---|---|---|---|
 {% for mr in tenant.policies.match_rules | default([]) %}
 {% for prefix in mr.prefixes | default([])%}
-| {{ tenant.name }} | {{mr.name ~ defaults.apic.tenants.policies.match_rules.name_suffix}} | {{mr.description | default("")}} | {{prefix.ip}} | {{prefix.aggregate | default(defaults.apic.tenants.policies.match_rules.prefixes.aggregate)}} | {{prefix.from_length | default(defaults.apic.tenants.policies.match_rules.prefixes.from_length)}} | {{prefix.to_length | default(defaults.apic.tenants.policies.match_rules.prefixes.to_length)}} |
+| {{mr.name ~ defaults.apic.tenants.policies.match_rules.name_suffix}} | {{mr.description | default("")}} | {{prefix.ip}} | {{prefix.aggregate | default(defaults.apic.tenants.policies.match_rules.prefixes.aggregate)}} | {{prefix.from_length | default(defaults.apic.tenants.policies.match_rules.prefixes.from_length)}} | {{prefix.to_length | default(defaults.apic.tenants.policies.match_rules.prefixes.to_length)}} |
 {% endfor %}
 {% endfor %}
 </caption>
@@ -1808,5 +1880,182 @@ No Regex Community Match Rules configured.
 {% else %}
 No Set Rules configured.
 {% endif %}
+##### Redirect Policy
+
+{% if tenant.services.redirect_policies|length > 0 %}
+<caption name="Redirect Policy - {{tenant.name}}">
+
+| Name | type | hashing |
+|---|---|---|
+{% for redirect_pol in tenant.services.redirect_policies | default([]) %}
+| {{ redirect_pol.name ~ defaults.apic.tenants.services.redirect_policies.name_suffix }} | {{ redirect_pol.type | default(defaults.apic.tenants.services.redirect_policies.type) }} | {{ redirect_pol.hashing | default(defaults.apic.tenants.services.redirect_policies.hashing) }} |
+{% endfor %}
+</caption>
+
+<caption name="L3 destinations - Redirect Policy">
+| Name | l3_destinations - IP | l3_destinations - mac |
+|---|---|---|
+{% for redirect_pol in tenant.services.redirect_policies %}
+{% for dest in redirect_pol.l3_destinations %}
+| {{ redirect_pol.name ~ defaults.apic.tenants.services.redirect_policies.name_suffix }} | {{ dest.ip }} | {{ dest.mac }} |
+{% endfor %}
+{% endfor %}
+
+</caption>
+
+{% else %}
+No Redirect Policy Policies 
+{% endif %}
+
+#### Services (L4-L7)
+
+##### L4L7 Device
+
+{% if tenant.services.l4l7_devices|length > 0 %}
+<caption name="L4L7 Device - {{tenant.name}}">
+
+| Name | Service_type | Type | Physical_domain | Function |
+|---|---|---|---|---|
+{% for l4l7_device in tenant.services.l4l7_devices | default([]) %} 
+| {{ l4l7_device.name ~ defaults.apic.tenants.services.l4l7_devices.name_suffix }} | {{ l4l7_device.service_type | default("") }} | {{ l4l7_device.type | default("") }} | {{ l4l7_device.physical_domain | default("") }} | {{ l4l7_device.function | default("") }} |
+{% endfor %}
+</caption>
+
+<caption name="concrete_devices - L4L7 Device">
+| L4L7 Device | Concrete Device Name | Concrete Interface Name | Path |
+|---|---|---|---|
+{% for l4l7_device in tenant.services.l4l7_devices | default([]) %} 
+{% for concrete_device in l4l7_device.concrete_devices | default([]) %} 
+{% for concrete_device_interface in concrete_device.interfaces | default([]) %}
+{% set ns = namespace(pod_id="1") %}{% for node in apic.node_policies.nodes | default([]) %}{% if node.id == concrete_device_interface.node_id %}{% set ns.pod_id = node.pod | default(defaults.apic.node_policies.nodes.pod)%}{%endif%}{% endfor %}
+| {{ l4l7_device.name ~ defaults.apic.tenants.services.l4l7_devices.name_suffix }} | {{ concrete_device.name ~ defaults.apic.tenants.services.l4l7_devices.concrete_devices.name_suffix }} | {{ concrete_device_interface.name ~ defaults.apic.tenants.services.l4l7_devices.concrete_devices.interfaces.name_suffix }} | {% if concrete_device_interface.channel is defined and concrete_device_interface.node2_id is defined %}topology/pod-{{ns.pod_id}}/protpaths-{{concrete_device_interface.node_id}}-{{concrete_device_interface.node2_id}}/pathep-[{{concrete_device_interface.channel}}]{% elif concrete_device_interface.channel is defined and concrete_device_interface.node2_id is not defined %}topology/pod-{{ns.pod_id}}/paths-{{concrete_device_interface.node_id}}/pathep-[{{concrete_device_interface.channel}}]{%else%}topology/pod-{{ns.pod_id}}/paths-{{concrete_device_interface.node_id}}/pathep-[eth{{concrete_device_interface.module|default(defaults.apic.tenants.services.l4l7_devices.concrete_devices.interfaces.module)}}/{{concrete_device_interface.port}}]{%endif%} |
+{% endfor %}
+{% endfor %}
+{% endfor %}
+</caption>
+
+<caption name="logical_interfaces - L4L7 Device">
+| L4L7 Device | Logical Interface Name | Concrete Device Name | Concrete interface Name | vlan |
+|---|---|---|---|---|
+{% for l4l7_device in tenant.services.l4l7_devices | default([]) %} 
+{% for logical_interface in l4l7_device.logical_interfaces | default([]) %} 
+{% for concrete_interface in logical_interface.concrete_interfaces | default([]) %}
+| {{ l4l7_device.name ~ defaults.apic.tenants.services.l4l7_devices.name_suffix }} | {{ logical_interface.name ~ defaults.apic.tenants.services.l4l7_devices.logical_interfaces.name_suffix }} | {{ concrete_interface.device ~ defaults.apic.tenants.services.l4l7_devices.concrete_devices.name_suffix }} | {{ concrete_interface.interface_name ~ defaults.apic.tenants.services.l4l7_devices.concrete_devices.interfaces.name_suffix }} | {{ logical_interface.vlan }} |
+{% endfor %}
+{% endfor %}
+{% endfor %}
+</caption>
+
+{% else %}
+No L4L7 Device
+{% endif %}
+
+##### Service Graph Template
+
+{% if tenant.services.service_graph_templates|length > 0 %}
+<caption name="Service Graph Template - {{tenant.name}}">
+
+| Name | Template_type | Redirect | Device Name |
+|---|---|---|---|
+{% for service_graph_template in tenant.services.service_graph_templates | default([]) %} 
+| {{ service_graph_template.name ~ defaults.apic.tenants.services.l4l7_devices.name_suffix }} | {{ service_graph_template.template_type | default(defaults.apic.tenants.services.service_graph_templates.template_type) }} | {{ service_graph_template.redirect | default(defaults.apic.tenants.services.service_graph_templates.redirect) }} | {{ service_graph_template.device.name | default("") }} |
+{% endfor %}
+</caption>
+
+{% else %}
+No Service Graph Template
+{% endif %}
+
+##### Device Selection Policy
+
+{% if tenant.services.device_selection_policies|length > 0 %}
+<caption name="Device Selection Policy - {{tenant.name}}">
+
+| Contract Name | Service Graph Template Name | consumer - Redirect Policy | consumer - Logical Interface | consumer - Bridge Domain | provider - Redirect Policy | provider - Logical Interface | provider - Bridge Domain |
+|---|---|---|---|---|---|---|---|
+{% for device_selection_policy in tenant.services.device_selection_policies | default([]) %} 
+| {{ device_selection_policy.service_graph_template }} | {{ device_selection_policy.contract }} | {{ device_selection_policy.consumer.redirect_policy.name }} | {{ device_selection_policy.consumer.logical_interface }} | {{ device_selection_policy.consumer.bridge_domain.name }} | {{ device_selection_policy.provider.redirect_policy.name }} | {{ device_selection_policy.provider.logical_interface }} | {{ device_selection_policy.provider.bridge_domain.name }} |
+{% endfor %}
+</caption>
+
+{% else %}
+No Device Selection Policy
+{% endif %}
+
+{% if tenant.name == "mgmt"%}
+#### Node Management EPGs
+
+##### INB Endpoint Group
+{% if tenant.inb_endpoint_groups|length > 0 %}
+<caption name="INB Endpoint Group - {{tenant.name}}">
+
+| Name | vlan | Bridge Domain | Static Route | Contract - Consumer | Contract - Provider |
+|---|---|---|---|---|---|
+{% for inb_endpoint_group in tenant.inb_endpoint_groups | default([]) %} 
+{% set static_route_list = [] %}
+{% for static_route in inb_endpoint_group.static_routes | default([]) %}
+{% set _ = static_route_list.append(static_route) %}
+{% endfor %}
+{% set contract_consumer_list = [] %}
+{% for contract_consumer in inb_endpoint_group.contracts.consumers | default([]) %}
+{% set _ = contract_consumer_list.append(contract_consumer) %}
+{% endfor %}
+{% set contract_providers_list = [] %}
+{% for contract_providers in inb_endpoint_group.contracts.providers | default([]) %}
+{% set _ = contract_providers_list.append(contract_providers) %}
+{% endfor %}
+| {{ inb_endpoint_group.name ~ defaults.apic.tenants.inb_endpoint_groups.name_suffix }} | {{ inb_endpoint_group.vlan }} | {{ inb_endpoint_group.bridge_domain }} | {{ static_route_list | join("<br>") }} | {{ contract_consumer_list | default([]) | join("<br>") }} | {{ contract_providers_list | default([]) | join("<br>") }} |
+{% endfor %}
+</caption>
+
+{% else %}
+No INB Endpoint Group
+{% endif %}
+
+##### OOB Endpoint Group
+{% if tenant.oob_endpoint_groups|length > 0 %}
+<caption name="OOB Endpoint Group - {{tenant.name}}">
+
+| Name | Contract - Provider |
+|---|---|
+{% for oob_endpoint_group in tenant.oob_endpoint_groups | default([]) %} 
+{% set contract_providers_list = [] %}
+{% for contract_providers in oob_endpoint_group.oob_contracts.providers | default([]) %}
+{% set _ = contract_providers_list.append(contract_providers) %}
+{% endfor %}
+| {{ oob_endpoint_group.name ~ defaults.apic.tenants.oob_endpoint_groups.name_suffix | default(defaults.apic.tenants.oob_endpoint_groups.name) }} | {{ contract_providers_list | default([]) | join("<br>") }} |
+{% endfor %}
+</caption>
+
+{% else %}
+No OOB Endpoint Group
+{% endif %}
+
+#### OOB External Management Instance
+{% if tenant.ext_mgmt_instances|length > 0 %}
+<caption name="OOB External Management Instance - {{tenant.name}}">
+
+| Name | Subnets | Contract - Consumer |
+|---|---|---|
+{% for ext_mgmt_instance in tenant.ext_mgmt_instances | default([]) %} 
+{% set subnets_list = [] %}
+{% for subnet in ext_mgmt_instance.subnets | default([]) %}
+{% set _ = subnets_list.append(subnet) %}
+{% endfor %}
+{% set contract_consumer_list = [] %}
+{% for contract_consumer in ext_mgmt_instance.oob_contracts.consumers | default([]) %}
+{% set _ = contract_consumer_list.append(contract_consumer) %}
+{% endfor %}
+| {{ ext_mgmt_instance.name ~ defaults.apic.tenants.ext_mgmt_instance.name_suffix }} | {{ subnets_list | default([]) | join("<br>") }} | {{ contract_consumer_list | default([]) | join("<br>") }} |
+{% endfor %}
+</caption>
+
+{% else %}
+No OOB External Management Instance
+{% endif %}
+{% else %}
+{% endif %}
+
+
 
 {%endfor%}
