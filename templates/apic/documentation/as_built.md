@@ -41,10 +41,11 @@ This section describes the system wide configuration.
 
 | Properties | Value |
 |---|---|
-| Administrative State: |  {{apic.fabric_policies.date_time_format.admin_state | default(defaults.apic.fabric_policies.date_time_format.admin_state)}} |
-| Loop Detection Interval: |  {{apic.fabric_policies.date_time_format.detection_interval | default(defaults.apic.fabric_policies.date_time_format.detection_interval)}} |
-| Loop Detection Multiplication Factor: |  {{apic.fabric_policies.date_time_format.detection_multiplier | default(defaults.apic.fabric_policies.date_time_format.detection_multiplier)}} |
-| Action: |  {{apic.fabric_policies.date_time_format.action | default(defaults.apic.fabric_policies.date_time_format.action)}} |
+| Administrative State: |  {{apic.fabric_policies.ep_loop_protection.admin_state | default(defaults.apic.fabric_policies.ep_loop_protection.admin_state)}} |
+| Loop Detection Interval: |  {{apic.fabric_policies.ep_loop_protection.detection_interval | default(defaults.apic.fabric_policies.ep_loop_protection.detection_interval)}} |
+| Loop Detection Multiplication Factor: |  {{apic.fabric_policies.ep_loop_protection.detection_multiplier | default(defaults.apic.fabric_policies.ep_loop_protection.detection_multiplier)}} |
+| Action - Port Disable:  |  {{apic.fabric_policies.ep_loop_protection.port_disable | default(defaults.apic.fabric_policies.ep_loop_protection.port_disable)}} |
+| Action - BD Learn Disable:  |  {{apic.fabric_policies.ep_loop_protection.bd_learn_disable | default(defaults.apic.fabric_policies.ep_loop_protection.bd_learn_disable)}} |
 </caption>
 
 ### Rogue EP Control
@@ -78,7 +79,7 @@ This section describes the system wide configuration.
 | Enforce Subnet Check: | {{apic.fabric_policies.global_settings.enforce_subnet_check | default(defaults.apic.fabric_policies.global_settings.enforce_subnet_check)}} |
 | Enforce EPG VLAN Validation: | {{apic.fabric_policies.global_settings.overlapping_vlan_validation | default(defaults.apic.fabric_policies.global_settings.overlapping_vlan_validation)}} |
 | Enforce Domain Validation: | {{apic.fabric_policies.global_settings.domain_validation | default(defaults.apic.fabric_policies.global_settings.domain_validation)}} |
-| Opflex Client Authentication: | |
+| Opflex Client Authentication: | {{apic.fabric_policies.global_settings.opflex_authentication | default(defaults.apic.fabric_policies.global_settings.opflex_authentication)}} |
 | Reallocate Gipo: | {{apic.fabric_policies.global_settings.reallocate_gipo | default(defaults.apic.fabric_policies.global_settings.reallocate_gipo)}} |
 | Restrict Infra VLAN Traffic: | |
 </caption>
@@ -106,10 +107,25 @@ This section describes the system wide configuration.
 
 | Properties | Value |
 |---|---|
-| Port Tracking State: | {{apic.fabric_policies.port_tracking_admin_state | default(defaults.apic.fabric_policies.port_tracking_admin_state)}} |
-| Delay restore timer: | {{apic.fabric_policies.delay | default(defaults.apic.fabric_policies.delay)}} |
-| Number of active fabric ports that triggers port tracking: | {{apic.fabric_policies.min_links | default(defaults.apic.fabric_policies.min_links)}} |
-| Include APIC ports when port tracking is triggered: | |
+| Port Tracking State: | {{apic.fabric_policies.port_tracking.admin_state | default(defaults.apic.fabric_policies.port_tracking.admin_state)}} |
+| Delay restore timer: | {{apic.fabric_policies.port_tracking.delay | default(defaults.apic.fabric_policies.port_tracking.delay)}} |
+| Number of active fabric ports that triggers port tracking: | {{apic.fabric_policies.port_tracking.min_links | default(defaults.apic.fabric_policies.port_tracking.min_links)}} |
+| Include APIC ports when port tracking is triggered: | {{apic.fabric_policies.port_tracking.include_apic | default(defaults.apic.fabric_policies.port_tracking.include_apic)}} |
+</caption>
+
+### PTP
+
+<caption name="PTP">
+
+| Properties | Value |
+|---|---|
+| PTP admin State: | {{apic.fabric_policies.ptp.admin_state | default(defaults.apic.fabric_policies.ptp.admin_state)}} |
+| Global Domain: | {{apic.fabric_policies.ptp.global_domain | default(defaults.apic.fabric_policies.ptp.global_domain)}} |
+| PTP Profile: | {{apic.fabric_policies.ptp.profile | default(defaults.apic.fabric_policies.ptp.profile)}} |
+| Announce Interval: | {{apic.fabric_policies.ptp.announce_interval | default(defaults.apic.fabric_policies.ptp.announce_interval)}} |
+| Sync Interval: | {{apic.fabric_policies.ptp.sync_interval | default(defaults.apic.fabric_policies.ptp.sync_interval)}} |
+| Delay Request Interval: | {{apic.fabric_policies.ptp.delay_interval | default(defaults.apic.fabric_policies.ptp.delay_interval)}} |
+| Announce Timeout: | {{apic.fabric_policies.ptp.announce_timeout | default(defaults.apic.fabric_policies.ptp.announce_timeout)}} |
 </caption>
 
 ### Remote Leaf POD Redundancy
@@ -307,6 +323,25 @@ No SNMP Client Group Policies configured.
 {%endfor%}
 {% else %}
 No SNMP policies configured.
+{% endif %}
+
+### SNMP Trap
+{% if apic.fabric_policies.monitoring.snmp_traps|length>0 %}
+{% for pol in apic.fabric_policies.monitoring.snmp_traps | default([])%}
+{{pol.name ~ defaults.apic.fabric_policies.monitoring.snmp_traps.name_suffix}}
+<caption name="SNMP Trap: {{pol.name ~ defaults.apic.fabric_policies.monitoring.snmp_traps.name_suffix}}"> 
+
+| Hostname/IP | Port | Version | Security/Community Name | v3 Security level | Management EPG |
+|---|---|---|---|---|---|
+{% for host in pol.destinations | default([])%}
+{% set default = defaults.apic.fabric_policies.monitoring.snmp_traps.destinations %}
+| {{host.hostname_ip | default(default.destinations.port)}} | {{host.port | default(default.port)}} | {{host.version | default(default.version)}} | {{host.community}} | {{host.security | default(default.security)}} | {{host.mgmt_epg | default(default.mgmt_epg)}} |
+{% endfor %}
+
+</caption>
+{% endfor %}
+{% else %}
+No SNMP Trap configured.
 {% endif %}
 
 ### Management Access Policy
@@ -575,6 +610,71 @@ No Pod Policy Groups configured.
 {% endfor %}
 {% endif %}
 </caption>
+
+### Fabric ISIS BFD
+
+<caption name="Fabric ISIS BFD">
+
+| Properties | Value |
+|---|---|
+| BFD ISIS Policy Configuration | {{apic.fabric_policies.fabric_isis_bfd | default(defaults.apic.fabric_policies.fabric_isis_bfd) }} |
+</caption>
+
+### DSCP class-CoS translation policy for L3 traffic
+
+<caption name="DSCP class-CoS translation policy for L3 traffic">
+
+| Properties | Value |
+|---|---|
+| Admin State | {{apic.fabric_policies.infra_dscp_translation_policy.admin_state | default(defaults.apic.fabric_policies.infra_dscp_translation_policy.admin_state) }} |
+| User Level 1 | {{apic.fabric_policies.infra_dscp_translation_policy.level_1 | default(defaults.apic.fabric_policies.infra_dscp_translation_policy.level_1) }} |
+| User Level 2 | {{apic.fabric_policies.infra_dscp_translation_policy.level_2 | default(defaults.apic.fabric_policies.infra_dscp_translation_policy.level_2) }} |
+| User Level 3 | {{apic.fabric_policies.infra_dscp_translation_policy.level_3 | default(defaults.apic.fabric_policies.infra_dscp_translation_policy.level_3) }} |
+| User Level 4 | {{apic.fabric_policies.infra_dscp_translation_policy.level_4 | default(defaults.apic.fabric_policies.infra_dscp_translation_policy.level_4) }} |
+| User Level 5 | {{apic.fabric_policies.infra_dscp_translation_policy.level_5 | default(defaults.apic.fabric_policies.infra_dscp_translation_policy.level_5) }} |
+| User Level 6 | {{apic.fabric_policies.infra_dscp_translation_policy.level_6 | default(defaults.apic.fabric_policies.infra_dscp_translation_policy.level_6) }} |
+| Control Plane Traffic	 | {{apic.fabric_policies.infra_dscp_translation_policy.control_plane | default(defaults.apic.fabric_policies.infra_dscp_translation_policy.control_plane) }} |
+| Policy Plane Traffic | {{apic.fabric_policies.infra_dscp_translation_policy.policy_plane | default(defaults.apic.fabric_policies.infra_dscp_translation_policy.policy_plane) }} |
+| Span Traffic | {{apic.fabric_policies.infra_dscp_translation_policy.span | default(defaults.apic.fabric_policies.infra_dscp_translation_policy.span) }} |
+| Traceroute Traffic | {{apic.fabric_policies.infra_dscp_translation_policy.traceroute | default(defaults.apic.fabric_policies.infra_dscp_translation_policy.traceroute) }} |
+</caption>
+
+### PSU Switch Policy
+
+{% if apic.fabric_policies.switch_policies.psu_policies %}
+<caption name="PSU Switch Policy">
+
+| Name | Adminitsrative State |
+|---|---|
+{% for pol in apic.fabric_policies.switch_policies.psu_policies | default([]) %}
+{% if pol.admin_state == "n1red" %}
+| {{pol.name ~ defaults.apic.fabric_policies.switch_policies.psu_policies.name_suffix}}  | N+1 Redundancy |
+{% elif pol.admin_state == "nnred" %}
+| {{pol.name ~ defaults.apic.fabric_policies.switch_policies.psu_policies.name_suffix}}  | N+N Redundancy |
+{% elif pol.admin_state == "combined" %}
+| {{pol.name ~ defaults.apic.fabric_policies.switch_policies.psu_policies.name_suffix}}  | Combined |
+{% endif %}
+{% endfor %}
+</caption>
+
+{% else %}
+No PSU Switch Policy configured.
+{% endif %}
+
+### Node Control Switch Policy
+
+{% if apic.fabric_policies.switch_policies.node_control_policies|length > 0 %}
+<caption name="Node Control Switch Policy">
+
+| Name | Enabled DOM | Feature Selection |
+|---|---|---|
+{% for pol in apic.fabric_policies.switch_policies.node_control_policies | default([]) %}
+| {{pol.name ~ defaults.apic.fabric_policies.switch_policies.node_control_policies.name_suffix}} | {{pol.dom}} | {{pol.telemetry}} |
+{% endfor %}
+</caption>
+{% else %}
+No Node Control Switch Policy configured.
+{% endif %}
 
 ## Access Policies
 
@@ -845,9 +945,8 @@ No MCP Interface Policies configured.
 
 | Administrative State | Control | Initial Delay (sec) | Loop Detect Multiplier | Loop Protection Action | Transmit Frequency (sec) |
 |---|---|---|---|---|---|
-{% for pol in apic.access_policies.mcp | default([]) %}
+{% set pol = apic.access_policies.mcp %}
 | {{pol.admin_state | default(defaults.apic.access_policies.mcp.admin_state)}} | {% if apic.access_policies.mcp.per_vlan | default(defaults.apic.access_policies.mcp.per_vlan) %}pdu-per-vlan{%endif%} | {{pol.apic.access_policies.mcp.initial_delay | default(defaults.apic.access_policies.mcp.initial_delay)}} | {{pol.loop_detection | default(defaults.apic.access_policies.mcp.loop_detection)}} | {{pol.loop_detection | default(defaults.apic.access_policies.mcp.loop_detection)}} | {{pol.frequency_sec | default(defaults.apic.access_policies.mcp.frequency_sec)}} |
-{% endfor %}
 </caption>
 {% else %}
 No MCP Global Policies configured.
@@ -885,6 +984,18 @@ No STP Interface Policies configured.
 {% else %}
 No Virtual Port Channel Security Policy configured.
 {% endif %}
+
+### Error Disabled Recovery Policy
+
+<caption name="Error Disabled Recovery Policy">
+
+| Properties | Value |
+|---|---|
+| Error disable recovery interval| {{apic.fabric_policies.err_disabled_recovery.interval | default(apic.fabric_policies.err_disabled_recovery.interval)}} |
+| Frequent EP move | {{apic.fabric_policies.err_disabled_recovery.ep_move | default(apic.fabric_policies.err_disabled_recovery.ep_move)}} |
+| BPDU guard | {{apic.fabric_policies.err_disabled_recovery.bpdu_guard | default(apic.fabric_policies.err_disabled_recovery.bpdu_guard)}} |
+| Loop indication by MCP | {{apic.fabric_policies.err_disabled_recovery.mcp_loop | default(apic.fabric_policies.err_disabled_recovery.mcp_loop)}} |
+</caption>
 
 ### AAEPS
 
@@ -1076,23 +1187,20 @@ This section describes the Admin Policies.
 </caption>
 
 ### Schedulers
-
+{% if apic.fabric_policies.schedulers %}
 {% for scheduler in apic.fabric_policies.schedulers | default([]) %}
 {% if scheduler.recurring_windows|length > 0 %}
-{% set schedulers_configured = true %}
-{% endif %}
-{% endfor %}
-{% if schedulers_configured %}
-<caption name="Scheduler(s)">
+<caption name="Scheduler(s): {{scheduler.name ~ defaults.apic.fabric_policies.schedulers.name_suffix}}">
+{{scheduler.name ~ defaults.apic.fabric_policies.schedulers.name_suffix}}
 
 | Name | Day | Hour | Minute | Max Concurrent Nodes | Max Running Time (DD:HH:MM:SS) |
 |---|---|---|---|---|---|
-{% for scheduler in apic.fabric_policies.schedulers | default([]) %}
 {% for recurring in scheduler.recurring_windows | default([])%}
-| {{scheduler.name ~ apic.fabric_policies.schedulers.name_suffix}} | {{recurring.day}} | {{recurring.hour}} | {{recurring.minute}} | | |
-{% endfor %}
+| {{recurring.name ~ defaults.apic.fabric_policies.schedulers.recurring_windows.name_suffix}} | {{recurring.day}} | {{recurring.hour}} | {{recurring.minute}} | | |
 {% endfor %}
 </caption>
+{% endif %}
+{% endfor %}
 {% else %}
 No Schedulers configured.
 {% endif %}
