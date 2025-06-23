@@ -179,6 +179,7 @@ apic:
                       description: My Desc
                       next_hops:
                         - ip: 6.6.6.6
+                          track_list: TRACK_POL
               interface_profiles:
                 - name: NODE_101
                   description: NODE_101 Description
@@ -255,6 +256,7 @@ apic:
                   next_hops:
                     - ip: 6.6.6.6
                       description: My Next Hop Desc
+                      ip_sla_policy: IP_SLA1
               interfaces:
                 - channel: VPC1
                   svi: true

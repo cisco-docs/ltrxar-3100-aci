@@ -2499,6 +2499,9 @@ ten_l3outs_nodes_static_routes_next_hops:
   description: regex('^[a-zA-Z0-9\\\\!#$%()*,-./:;@ _{|}~?&+]{1,128}$', required=False)
   preference: int(min=0, max=255, required=False)
   type: enum('prefix', 'none', required=False)
+  ip_sla_policy: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
+  track_list: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
+
 
 ten_l3outs_nodes_interfaces:
   description: regex('^[a-zA-Z0-9\\\\!#$%()*,-./:;@ _{|}~?&+]{1,128}$', required=False)
@@ -2639,6 +2642,9 @@ ten_l3outs_node_profiles_nodes_static_routes_next_hops:
   description: regex('^[a-zA-Z0-9\\\\!#$%()*,-./:;@ _{|}~?&+]{1,128}$', required=False)
   preference: int(min=0, max=255, required=False)
   type: enum('prefix', 'none', required=False)
+  ip_sla_policy: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
+  track_list: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
+
 
 ten_l3outs_node_profiles_interface_profiles:
   name: regex('^[a-zA-Z0-9_.:-]{1,64}$')

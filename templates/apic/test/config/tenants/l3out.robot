@@ -129,8 +129,10 @@ Verify L3out {{ l3out_name }} Node {{ node.node_id }} Static Route {{ sr.prefix 
     Should Be Equal Value Json String   ${r.json()}   ${route}..ipRouteP.attributes.pref   {{ sr.preference | default(defaults.apic.tenants.l3outs.nodes.static_routes.preference) }}
     Should Be Equal Value Json String   ${r.json()}   ${route}..ipRouteP.attributes.rtCtrl   {{ 'bfd' if sr.bfd | default(defaults.apic.tenants.l3outs.nodes.static_routes.bfd) }} 
 {% if sr.track_list is defined %}
-    Should Be Equal Value Json String   ${r.json()}   ${route}..ipRsRouteTrack.attributes.tDn  uni/tn-{{ tenant.name }}/tracklist-{{ sr.track_list}}
+{% set list_name = sr.track_list ~ defaults.apic.tenants.policies.track_lists.name_suffix %}
+    Should Be Equal Value Json String   ${r.json()}   ${route}..ipRsRouteTrack.attributes.tDn  uni/tn-{{ tenant.name }}/tracklist-{{ list_name }}
 {% endif %}
+
 
 {% for nh in sr.next_hops | default([]) %}
 
@@ -142,6 +144,14 @@ Verify L3out {{ l3out_name }} Node {{ node.node_id }} Static Route {{ sr.prefix 
     Should Be Equal Value Json String   ${r.json()}   ${nh}..ipNexthopP.attributes.descr   {{ nh.description | default() }}
     Should Be Equal Value Json String   ${r.json()}   ${nh}..ipNexthopP.attributes.pref   {{ get_preference_from_num(nh.preference | default(defaults.apic.tenants.l3outs.node_profiles.nodes.static_routes.next_hops.preference)) }}
     Should Be Equal Value Json String   ${r.json()}   ${nh}..ipNexthopP.attributes.type   {{ nh.type | default(defaults.apic.tenants.l3outs.node_profiles.nodes.static_routes.next_hops.type) }}
+{% if nh.ip_sla_policy is defined %}
+{% set list_name = vrf_name ~ "_" ~ nh.ip %}
+    Should Be Equal Value Json String   ${r.json()}   ${nh}..ipRsNHTrackMember.attributes.tDn  uni/tn-{{ tenant.name }}/trackmember-{{ list_name }}
+    Should Be Equal Value Json String   ${r.json()}   ${nh}..ipRsNexthopRouteTrack.attributes.tDn  uni/tn-{{ tenant.name }}/tracklist-{{ list_name }}
+{% elif nh.track_list is defined %}
+{% set list_name = nh.track_list ~ defaults.apic.tenants.policies.track_lists.name_suffix %}
+    Should Be Equal Value Json String   ${r.json()}   ${nh}..ipRsNexthopRouteTrack.attributes.tDn  uni/tn-{{ tenant.name }}/tracklist-{{ list_name }}
+{% endif %}
 
 {% endfor %}
 
@@ -490,8 +500,10 @@ Verify L3out {{ l3out_name }} Node Profile {{ l3out_np_name }} Node {{ node.node
     Should Be Equal Value Json String   ${r.json()}   ${route}..ipRouteP.attributes.pref   {{ sr.preference | default(defaults.apic.tenants.l3outs.node_profiles.nodes.static_routes.preference) }}
     Should Be Equal Value Json String   ${r.json()}   ${route}..ipRouteP.attributes.rtCtrl   {{ 'bfd' if sr.bfd | default(defaults.apic.tenants.l3outs.node_profiles.nodes.static_routes.bfd) }} 
 {% if sr.track_list is defined %}
-    Should Be Equal Value Json String   ${r.json()}   ${route}..ipRsRouteTrack.attributes.tDn  uni/tn-{{ tenant.name }}/tracklist-{{ sr.track_list}}
+{% set list_name = sr.track_list ~ defaults.apic.tenants.policies.track_lists.name_suffix %}
+    Should Be Equal Value Json String   ${r.json()}   ${route}..ipRsRouteTrack.attributes.tDn  uni/tn-{{ tenant.name }}/tracklist-{{ list_name }}
 {% endif %}
+
 
 {% for nh in sr.next_hops | default([]) %}
 
@@ -504,6 +516,14 @@ Verify L3out {{ l3out_name }} Node Profile {{ l3out_np_name }} Node {{ node.node
     Should Be Equal Value Json String   ${r.json()}   ${nh}..ipNexthopP.attributes.descr   {{ nh.description | default() }}
     Should Be Equal Value Json String   ${r.json()}   ${nh}..ipNexthopP.attributes.pref   {{ get_preference_from_num(nh.preference | default(defaults.apic.tenants.l3outs.node_profiles.nodes.static_routes.next_hops.preference)) }}
     Should Be Equal Value Json String   ${r.json()}   ${nh}..ipNexthopP.attributes.type   {{ nh.type | default(defaults.apic.tenants.l3outs.node_profiles.nodes.static_routes.next_hops.type) }}
+{% if nh.ip_sla_policy is defined %}
+{% set list_name = vrf_name ~ "_" ~ nh.ip %}
+    Should Be Equal Value Json String   ${r.json()}   ${nh}..ipRsNHTrackMember.attributes.tDn  uni/tn-{{ tenant.name }}/trackmember-{{ list_name }}
+    Should Be Equal Value Json String   ${r.json()}   ${nh}..ipRsNexthopRouteTrack.attributes.tDn  uni/tn-{{ tenant.name }}/tracklist-{{ list_name }}
+{% elif nh.track_list is defined %}
+{% set list_name = nh.track_list ~ defaults.apic.tenants.policies.track_lists.name_suffix %}
+    Should Be Equal Value Json String   ${r.json()}   ${nh}..ipRsNexthopRouteTrack.attributes.tDn  uni/tn-{{ tenant.name }}/tracklist-{{ list_name }}
+{% endif %}
 
 {% endfor %}
 

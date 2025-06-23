@@ -238,7 +238,9 @@ apic:
                       preference: 2
                       description: My Next Hop Desc
                       type: prefix
+                      track_list: TRACK_LIST_1
                     - ip: 7.1.1.1
+                      ip_sla_policy: EXAMPLE
                   track_list: TRACK_LIST_1
               interfaces:
                 - port: 10
@@ -351,6 +353,9 @@ apic:
                       preference: 1
                       next_hops:
                         - ip: 8.8.8.9
+                          ip_sla_policy: EXAMPLE
+                        - ip: 9.9.9.9
+                          track_list: TRACK_LIST_1
               interface_profiles:
                 - name: IP1
                   description: IP1 Description

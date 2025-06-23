@@ -90,7 +90,38 @@
                                                                         "nhAddr": "{{ nh.ip }}",
                                                                         "pref": "{{ nh.preference | default(defaults.apic.tenants.l3outs.nodes.static_routes.next_hops.preference) }}",
                                                                         "type": "{{ nh.type | default(defaults.apic.tenants.l3outs.nodes.static_routes.next_hops.type) }}"
-                                                                    }
+                                                                    },
+                                                                    "children": [
+                                                                        {%- set comma6 = joiner(",") %}
+                                                                        {%- if nh.ip_sla_policy is defined %}{{ comma6() }}
+                                                                        {%- set vrf_name = l3out.vrf ~ ('' if l3out.vrf in ('inb', 'obb', 'overlay-1') else defaults.apic.tenants.vrfs.name_suffix) %}
+                                                                        {
+                                                                            "ipRsNHTrackMember": {
+                                                                                "attributes": {
+                                                                                    "annotation": "orchestrator:aac",
+                                                                                    "tDn": "uni/tn-{{ tenant.name }}/trackmember-{{ vrf_name }}_{{ nh.ip }}"
+                                                                                }
+                                                                            }
+                                                                        },
+                                                                        {
+                                                                            "ipRsNexthopRouteTrack": {
+                                                                                "attributes": {
+                                                                                    "annotation": "orchestrator:aac",
+                                                                                    "tDn": "uni/tn-{{ tenant.name }}/tracklist-{{ vrf_name }}_{{ nh.ip }}"
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                        {%- elif nh.track_list is defined %}{{ comma6() }}
+                                                                        {
+                                                                            "ipRsNexthopRouteTrack": {
+                                                                                "attributes": {
+                                                                                    "annotation": "orchestrator:aac",
+                                                                                    "tDn": "uni/tn-{{ tenant.name }}/tracklist-{{ nh.track_list ~ defaults.apic.tenants.policies.track_lists.name_suffix }}"
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                        {%- endif %}
+                                                                    ]
                                                                 }
                                                             }
                                                             {%- endfor %}
@@ -99,7 +130,7 @@
                                                                 "ipRsRouteTrack": {
                                                                     "attributes": {
                                                                         "annotation": "orchestrator:aac",
-                                                                        "tDn": "uni/tn-{{ tenant.name }}/tracklist-{{ sr.track_list }}"
+                                                                        "tDn": "uni/tn-{{ tenant.name }}/tracklist-{{ sr.track_list ~ defaults.apic.tenants.policies.track_lists.name_suffix }}"
                                                                     }
                                                                 }
                                                             }
@@ -855,7 +886,38 @@
                                                                         "nhAddr": "{{ nh.ip }}",
                                                                         "pref": "{{ nh.preference | default(defaults.apic.tenants.l3outs.node_profiles.nodes.static_routes.next_hops.preference) }}",
                                                                         "type": "{{ nh.type | default(defaults.apic.tenants.l3outs.node_profiles.nodes.static_routes.next_hops.type) }}"
-                                                                    }
+                                                                    },
+                                                                    "children": [
+                                                                        {%- set comma6 = joiner(",") %}
+                                                                        {%- if nh.ip_sla_policy is defined %}{{ comma6() }}
+                                                                        {%- set vrf_name = l3out.vrf ~ ('' if l3out.vrf in ('inb', 'obb', 'overlay-1') else defaults.apic.tenants.vrfs.name_suffix) %}
+                                                                        {
+                                                                            "ipRsNHTrackMember": {
+                                                                                "attributes": {
+                                                                                    "annotation": "orchestrator:aac",
+                                                                                    "tDn": "uni/tn-{{ tenant.name }}/trackmember-{{ vrf_name }}_{{ nh.ip }}"
+                                                                                }
+                                                                            }
+                                                                        },
+                                                                        {
+                                                                            "ipRsNexthopRouteTrack": {
+                                                                                "attributes": {
+                                                                                    "annotation": "orchestrator:aac",
+                                                                                    "tDn": "uni/tn-{{ tenant.name }}/tracklist-{{ vrf_name }}_{{ nh.ip }}"
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                        {%- elif nh.track_list is defined %}{{ comma6() }}
+                                                                        {
+                                                                            "ipRsNexthopRouteTrack": {
+                                                                                "attributes": {
+                                                                                    "annotation": "orchestrator:aac",
+                                                                                    "tDn": "uni/tn-{{ tenant.name }}/tracklist-{{ nh.track_list ~ defaults.apic.tenants.policies.track_lists.name_suffix }}"
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                        {%- endif %}
+                                                                    ]
                                                                 }
                                                             }
                                                             {%- endfor %}
@@ -864,7 +926,7 @@
                                                                 "ipRsRouteTrack": {
                                                                     "attributes": {
                                                                         "annotation": "orchestrator:aac",
-                                                                        "tDn": "uni/tn-{{ tenant.name }}/tracklist-{{ sr.track_list }}"
+                                                                        "tDn": "uni/tn-{{ tenant.name }}/tracklist-{{ sr.track_list ~ defaults.apic.tenants.policies.track_lists.name_suffix }}"
                                                                     }
                                                                 }
                                                             }
