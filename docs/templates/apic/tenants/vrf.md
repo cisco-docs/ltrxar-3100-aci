@@ -32,6 +32,7 @@ apic:
           enforcement_direction: egress
           enforcement_preference: unenforced
           transit_route_tag_policy: TRP1
+          endpoint_retention_policy: ERP1
           bgp:
             timer_policy: BGP-TIMER1
             ipv4_import_route_target:

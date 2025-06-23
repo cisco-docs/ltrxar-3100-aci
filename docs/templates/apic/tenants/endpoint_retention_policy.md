@@ -13,9 +13,9 @@ apic:
   tenants:
     - name: ABC
       policies:
-        route_tag_policies:
-          - name: TAG1
-            description: DESC1
+        endpoint_retention_policies:
+          - name: ERP1
+            description: My Endpoint Retention policy
             hold_interval: 180
             bounce_entry_aging_interval: 180
             remote_endpoint_aging_interval: 180
