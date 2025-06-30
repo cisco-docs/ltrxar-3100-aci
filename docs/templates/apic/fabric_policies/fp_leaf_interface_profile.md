@@ -20,6 +20,9 @@ apic:
   auto_generate_fabric_leaf_switch_interface_profiles: true
   fabric_policies:
     leaf_interface_profile_name: "LEAF\\g<id>"
+  interface_policies:
+    nodes:
+      - id: 101
 ```
 
 System-generated profiles:
@@ -39,4 +42,19 @@ apic:
   fabric_policies:
     leaf_interface_profiles:
       - name: LEAF101
+        selectors:
+          - name: SEL1
+            description: Leaf Interface Profile Description
+            policy_group: 10G-SERVER
+            port_blocks:
+              - name: BLOCK1
+                description: Server ABC
+                from_port: 1
+          - name: SUB-151
+            description: Breakout port 1/5/1
+            policy_group: 10G-SERVER
+            sub_port_blocks:
+              - name: '1-5-1'
+                from_port: 5
+                from_sub_port: 1
 ```

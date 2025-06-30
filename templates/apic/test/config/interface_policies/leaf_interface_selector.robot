@@ -16,6 +16,7 @@ Resource        ../../../apic_common.resource
 {% if apic.interface_policies is defined %}
 
 {% for int in (apic.interface_policies | default() | community.general.json_query(query) | default([])) %}
+{% if int.fabric | default(defaults.apic.interface_policies.nodes.interfaces.fabric) is false %}
 {% set module = int.module | default(defaults.apic.interface_policies.nodes.interfaces.module) %}
 {% set leaf_interface_selector_name = (module ~ ":" ~ int.port) | regex_replace("^(?P<mod>.+):(?P<port>.+)$", (apic.access_policies.leaf_interface_selector_name | default(defaults.apic.access_policies.leaf_interface_selector_name))) %}
 
@@ -83,6 +84,8 @@ Verify Access Leaf Interface Profile {{ leaf_interface_profile_name }} Selector 
     Should Be Equal Value Json String   ${r.json()}    $..infraSubPortBlk.attributes.toSubPort   {{ sub.port }}
 
 {% endfor %}
+
+{% endif %}
 
 {% endfor %}
 

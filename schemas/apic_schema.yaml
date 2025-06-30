@@ -38,6 +38,8 @@ fabric_policies:
   leaf_switch_profile_name: str(min=1, max=64, required=False)
   leaf_switch_selector_name: str(min=1, max=64, required=False)
   leaf_interface_profile_name: str(min=1, max=64, required=False)
+  leaf_interface_selector_name: str(min=1, max=64, required=False)
+  leaf_interface_selector_sub_port_name: str(min=1, max=64, required=False)
   spine_switch_profile_name: str(min=1, max=64, required=False)
   spine_switch_selector_name: str(min=1, max=64, required=False)
   spine_interface_profile_name: str(min=1, max=64, required=False)
@@ -334,6 +336,7 @@ fp_switch_policies_node_control_policies:
 
 fp_leaf_interface_profiles:
   name: regex('^[a-zA-Z0-9_.:-]{1,64}$')
+  selectors: list(include('fp_leaf_interface_profiles_selectors'), required=False) # @name(Fabric Leaf Int Prof Selectors) @ref_name(Selector) @sheet_hidden()
   expected_state: include('fp_leaf_interface_profiles_expected_state', required=False) # @no_external_doc()  @name(Leaf Int Profile Expected State) @sheet_hidden()
 
 fp_leaf_interface_profiles_expected_state:
@@ -341,6 +344,31 @@ fp_leaf_interface_profiles_expected_state:
   maximum_critical_faults: int(min=0, required=False)
   maximum_major_faults: int(min=0, required=False)
   maximum_minor_faults: int(min=0, required=False)
+
+fp_leaf_interface_profiles_selectors:
+  name: regex('^[a-zA-Z0-9_.,:-]{1,64}$')
+  description: regex('^[a-zA-Z0-9\\\\!#$%()*,-./:;@ _{|}~?&+]{1,128}$', required=False)
+  policy_group: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
+  port_blocks: list(include('fp_leaf_interface_profiles_selectors_port_blocks'), required=False) # @name(Fabric Leaf Int Prof Sel Blocks) @ref_name(Port Block) @sheet_hidden()
+  sub_port_blocks: list(include('fp_leaf_interface_profiles_selectors_sub_port_blocks'), required=False) # @name(Fabric Leaf IntP Sel Sub Blocks) @ref_name(Sub Port Block) @sheet_hidden()
+
+fp_leaf_interface_profiles_selectors_port_blocks:
+  name: regex('^[a-zA-Z0-9_.:-]{1,64}$')
+  description: regex('^[a-zA-Z0-9\\\\!#$%()*,-./:;@ _{|}~?&+]{1,128}$', required=False)
+  from_module: int(min=1, max=9, required=False)
+  from_port: int(min=1, max=127)
+  to_module: int(min=1, max=9, required=False)
+  to_port: int(min=1, max=127, required=False)
+
+fp_leaf_interface_profiles_selectors_sub_port_blocks:
+  name: regex('^[a-zA-Z0-9_.:-]{1,64}$')
+  description: regex('^[a-zA-Z0-9\\\\!#$%()*,-./:;@ _{|}~?&+]{1,128}$', required=False)
+  from_module: int(min=1, max=9, required=False)
+  from_port: int(min=1, max=127)
+  to_module: int(min=1, max=9, required=False)
+  to_port: int(min=1, max=127, required=False)
+  from_sub_port: int(min=1, max=16)
+  to_sub_port: int(min=1, max=16, required=False)
 
 fp_spine_interface_profiles:
   name: regex('^[a-zA-Z0-9_.:-]{1,64}$')

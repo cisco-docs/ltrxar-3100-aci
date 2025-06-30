@@ -58,3 +58,19 @@ apic:
       admin_state: true
       detection_interval: 180
       detection_multiplier: 10
+    leaf_interface_profiles:
+      - name: LEAF-INT-PROF2
+        selectors:
+          - name: SEL1
+            policy_group: ACC1
+            port_blocks:
+              - name: BLK1
+                description: INT-DESC
+                from_port: 1
+                to_port: 2
+            sub_port_blocks:
+              - name: SUBBLK1
+                description: SUBBLK-DESC
+                from_port: 1
+                from_sub_port: 1
+                to_sub_port: 2

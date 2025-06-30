@@ -1347,6 +1347,31 @@ leaf_objects:
     paths:
       - apic.new_interface_configuration
       - apic.interface_policies
+  - name: Fabric Leaf Interface Selector
+    template: fabric_leaf_interface_selector
+    folder: interface_policies
+    aci_classes: []
+    test_types:
+      - config
+    paths:
+      - apic.auto_generate_switch_pod_profiles
+      - apic.auto_generate_fabric_leaf_switch_interface_profiles
+      - apic.fabric_policies.leaf_interface_selector_name
+      - apic.fabric_policies.leaf_interface_selector_sub_port_name
+      - apic.interface_selector_description
+      - apic.interface_policies.nodes.id
+      - apic.interface_policies.nodes.interfaces.port
+      - apic.interface_policies.nodes.interfaces.description
+      - apic.interface_policies.nodes.interfaces.module
+      - apic.interface_policies.nodes.interfaces.policy_group
+      - apic.interface_policies.nodes.interfaces.shutdown
+      - apic.interface_policies.nodes.interfaces.expected_state
+      - apic.interface_policies.nodes.interfaces.sub_ports.port
+      - apic.interface_policies.nodes.interfaces.sub_ports.description
+      - apic.interface_policies.nodes.interfaces.sub_ports.module
+      - apic.interface_policies.nodes.interfaces.sub_ports.policy_group
+      - apic.interface_policies.nodes.interfaces.sub_ports.shutdown
+      - apic.interface_policies.nodes.interfaces.sub_ports.expected_state
 
 tenant_objects:
   - name: VRF

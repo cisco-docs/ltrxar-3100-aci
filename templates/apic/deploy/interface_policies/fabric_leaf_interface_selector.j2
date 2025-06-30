@@ -1,22 +1,22 @@
 {# iterate_list apic.node_policies.nodes id item[1] #}
 {
-    "infraInfra": {
+    "fabricInst": {
         "attributes": {
-            "dn": "uni/infra"
+            "dn": "uni/fabric"
         },
         "children": [
             {%- set comma1 = joiner(",") %}
             {%- if apic.new_interface_configuration | default(defaults.apic.new_interface_configuration) is false %}
-            {%- if apic.auto_generate_switch_pod_profiles | default(defaults.apic.auto_generate_switch_pod_profiles) or apic.auto_generate_access_leaf_switch_interface_profiles | default(defaults.apic.auto_generate_access_leaf_switch_interface_profiles) %}
+            {%- if apic.auto_generate_switch_pod_profiles | default(defaults.apic.auto_generate_switch_pod_profiles) or apic.auto_generate_fabric_leaf_switch_interface_profiles | default(defaults.apic.auto_generate_fabric_leaf_switch_interface_profiles) %}
             {%- for _node in apic.node_policies.nodes | default([]) %}
             {%- if _node.role == "leaf" and _node.id | string == item[1] %}
-            {%- set leaf_interface_profile_name = (_node.id ~ ":" ~ _node.name) | regex_replace("^(?P<id>.+):(?P<name>.+)$", (apic.access_policies.leaf_interface_profile_name | default(defaults.apic.access_policies.leaf_interface_profile_name))) %}{{ comma1() }}
+            {%- set leaf_interface_profile_name = (_node.id ~ ":" ~ _node.name) | regex_replace("^(?P<id>.+):(?P<name>.+)$", (apic.fabric_policies.leaf_interface_profile_name | default(defaults.apic.fabric_policies.leaf_interface_profile_name))) %}{{ comma1() }}
             {
-                "infraAccPortP": {
+                "fabricLePortP": {
                     "attributes": {
                         "annotation": "orchestrator:aac",
                         "name": "{{ leaf_interface_profile_name }}",
-                        "dn": "uni/infra/accportprof-{{ leaf_interface_profile_name }}",
+                        "dn": "uni/fabric/leportp-{{ leaf_interface_profile_name }}",
                         "childAction": "deleteNonPresent"
                     },
                     "children": [
@@ -24,14 +24,14 @@
                         {%- set query = "nodes[?id==`" ~ _node.id ~ "`].interfaces[]" %}
                         {%- if apic.interface_policies is defined %}
                         {%- for int in (apic.interface_policies | default() | community.general.json_query(query) | default([])) %}
-                        {%- if int.fabric | default(defaults.apic.interface_policies.nodes.interfaces.fabric) is false %}
+                        {%- if int.fabric | default(defaults.apic.interface_policies.nodes.interfaces.fabric) is true %}
                         {%- set module = int.module | default(defaults.apic.interface_policies.nodes.interfaces.module) %}
-                        {%- set leaf_interface_selector_name = (module ~ ":" ~ int.port) | regex_replace("^(?P<mod>.+):(?P<port>.+)$", (apic.access_policies.leaf_interface_selector_name | default(defaults.apic.access_policies.leaf_interface_selector_name))) %}{{ comma2() }}
+                        {%- set leaf_interface_selector_name = (module ~ ":" ~ int.port) | regex_replace("^(?P<mod>.+):(?P<port>.+)$", (apic.fabric_policies.leaf_interface_selector_name | default(defaults.apic.fabric_policies.leaf_interface_selector_name))) %}{{ comma2() }}
                         {
-                            "infraHPortS": {
+                            "fabricLFPortS": {
                                 "attributes": {
                                     "annotation": "orchestrator:aac",
-                                    "dn": "uni/infra/accportprof-{{ leaf_interface_profile_name }}/hports-{{ leaf_interface_selector_name }}-typ-range",
+                                    "dn": "uni/fabric/leportp-{{ leaf_interface_profile_name }}/lefabports-{{ leaf_interface_selector_name }}-typ-range",
                                     "name": "{{ leaf_interface_selector_name }}",
                                     {% if apic.interface_selector_description | default(defaults.apic.interface_selector_description) is true %}
                                     "descr": "{{ int.description | default() }}",
@@ -40,38 +40,21 @@
                                     "childAction": "deleteNonPresent"
                                 },
                                 "children": [
-                                    {% if int.fex_id is defined %}
-                                    {% set fex_profile_name = (_node.id ~ ":" ~ _node.name~ ":" ~ int.fex_id) | regex_replace("^(?P<id>.+):(?P<name>.+):(?P<fex>.+)$", (apic.access_policies.fex_profile_name | default(defaults.apic.access_policies.fex_profile_name))) %}
+                                    {% if int.policy_group is defined %}
                                     {
-                                        "infraRsAccBaseGrp": {
-                                            "attributes": {
-                                                "annotation": "orchestrator:aac",
-                                                "fexId": "{{ int.fex_id }}",
-                                                "tDn": "uni/infra/fexprof-{{ fex_profile_name }}/fexbundle-{{ fex_profile_name }}"
-                                            }
-                                        }
-                                    },
-                                    {% elif int.policy_group is defined %}
-                                    {
-                                        "infraRsAccBaseGrp": {
+                                        "fabricRsLePortPGrp": {
                                             "attributes": {
                                                 "annotation": "orchestrator:aac",
                                                 {% set query = "leaf_interface_policy_groups[?name=='" ~ int.policy_group ~ "'].type[]" %}
-                                                {% set type = (apic.access_policies | community.general.json_query(query)) %}
-                                                {% set policy_group_name = int.policy_group ~ defaults.apic.access_policies.leaf_interface_policy_groups.name_suffix %}
-                                                {% if type[0] in ["pc", "vpc"] %}
-                                                "tDn": "uni/infra/funcprof/accbundle-{{ policy_group_name }}"
-                                                {% elif type[0] == "breakout" %}
-                                                "tDn": "uni/infra/funcprof/brkoutportgrp-{{ policy_group_name }}"
-                                                {% else %}
-                                                "tDn": "uni/infra/funcprof/accportgrp-{{ policy_group_name }}"
-                                                {% endif %}
+                                                {% set type = (apic.fabric_policies | community.general.json_query(query)) %}
+                                                {% set policy_group_name = int.policy_group ~ defaults.apic.fabric_policies.leaf_interface_policy_groups.name_suffix %}
+                                                "tDn": "uni/fabric/funcprof/leportgrp-{{ policy_group_name }}"
                                             }
                                         }
                                     },
                                     {% endif %}
                                     {
-                                        "infraPortBlk": {
+                                        "fabricPortBlk": {
                                             "attributes": {
                                                 "annotation": "orchestrator:aac",
                                                 "descr": "{{ int.description | default() }}",
@@ -88,12 +71,12 @@
                         }
                         {%- for sub in int.sub_ports | default([]) %}
                         {%- set module = sub.module | default(defaults.apic.interface_policies.nodes.interfaces.module) %}
-                        {%- set leaf_interface_selector_sub_port_name = (module ~ ":" ~ int.port ~ ":" ~ sub.port ) | regex_replace("^(?P<mod>.+):(?P<port>.+):(?P<sport>.+)$", (apic.access_policies.leaf_interface_selector_sub_port_name | default(defaults.apic.access_policies.leaf_interface_selector_sub_port_name))) %}{{ comma2() }}
+                        {%- set leaf_interface_selector_sub_port_name = (module ~ ":" ~ int.port ~ ":" ~ sub.port ) | regex_replace("^(?P<mod>.+):(?P<port>.+):(?P<sport>.+)$", (apic.fabric_policies.leaf_interface_selector_sub_port_name | default(defaults.apic.fabric_policies.leaf_interface_selector_sub_port_name))) %}{{ comma2() }}
                         {
-                            "infraHPortS": {
+                            "fabricLFPortS": {
                                 "attributes": {
                                     "annotation": "orchestrator:aac",
-                                    "dn": "uni/infra/accportprof-{{ leaf_interface_profile_name }}/hports-{{ leaf_interface_selector_sub_port_name }}-typ-range",
+                                    "dn": "uni/fabric/leportp-{{ leaf_interface_profile_name }}/lefabports-{{ leaf_interface_selector_sub_port_name }}-typ-range",
                                     "name": "{{ leaf_interface_selector_sub_port_name }}",
                                     {% if apic.interface_selector_description | default(defaults.apic.interface_selector_description) is true %}
                                     "descr": "{{ sub.description | default() }}",
@@ -102,36 +85,21 @@
                                     "childAction": "deleteNonPresent"
                                 },
                                 "children": [
-                                    {% if sub.fex_id is defined %}
-                                    {% set fex_profile_name = (_node.id ~ ":" ~ _node.name~ ":" ~ sub.fex_id) | regex_replace("^(?P<id>.+):(?P<name>.+):(?P<fex>.+)$", (apic.access_policies.fex_profile_name | default(defaults.apic.access_policies.fex_profile_name))) %}
+                                    {% if sub.policy_group is defined %}
                                     {
-                                        "infraRsAccBaseGrp": {
-                                            "attributes": {
-                                                "annotation": "orchestrator:aac",
-                                                "fexId": "{{ sub.fex_id }}",
-                                                "tDn": "uni/infra/fexprof-{{ fex_profile_name }}/fexbundle-{{ fex_profile_name }}"
-                                            }
-                                        }
-                                    },
-                                    {% elif sub.policy_group is defined %}
-                                    {
-                                        "infraRsAccBaseGrp": {
+                                        "fabricRsLePortPGrp": {
                                             "attributes": {
                                                 "annotation": "orchestrator:aac",
                                                 {% set query = "leaf_interface_policy_groups[?name=='" ~ sub.policy_group ~ "'].type[]" %}
-                                                {% set type = (apic.access_policies | community.general.json_query(query)) %}
-                                                {% set policy_group_name = sub.policy_group ~ defaults.apic.access_policies.leaf_interface_policy_groups.name_suffix %}
-                                                {% if type[0] in ["pc", "vpc"] %}
-                                                "tDn": "uni/infra/funcprof/accbundle-{{ policy_group_name }}"
-                                                {% else %}
-                                                "tDn": "uni/infra/funcprof/accportgrp-{{ policy_group_name }}"
-                                                {% endif %}
+                                                {% set type = (apic.fabric_policies | community.general.json_query(query)) %}
+                                                {% set policy_group_name = sub.policy_group ~ defaults.apic.fabric_policies.leaf_interface_policy_groups.name_suffix %}
+                                                "tDn": "uni/fabric/funcprof/leportgrp-{{ policy_group_name }}"
                                             }
                                         }
                                     },
                                     {% endif %}
                                     {
-                                        "infraSubPortBlk": {
+                                        "fabricSubPortBlk": {
                                             "attributes": {
                                                 "annotation": "orchestrator:aac",
                                                 "descr": "{{ sub.description | default() }}",
