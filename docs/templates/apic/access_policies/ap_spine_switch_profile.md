@@ -38,6 +38,7 @@ apic:
       - id: 1001
         role: spine
         access_policy_group: ALL_SPINES
+```
 
 Explicitly configured profiles:
 
