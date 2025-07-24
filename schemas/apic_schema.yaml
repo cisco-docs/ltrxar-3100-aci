@@ -571,7 +571,7 @@ fp_aaa_management_settings:
   password_history_count: int(min=0, max=15, required=False)
   web_token_timeout: int(min=300, max=9600, required=False)
   web_token_max_validity: int(min=4, max=24, required=False)
-  web_session_idle_timeout: int(min=600, max=65525, required=False)
+  web_session_idle_timeout: int(min=60, max=65525, required=False)
   include_refresh_session_records: bool(required=False)
   enable_login_block: bool(required=False)
   login_block_duration: int(min=1, max=1440, required=False)
