@@ -306,6 +306,7 @@ ndo:
           sites:
             - APIC1
         - name: TEMPLATE2
+          deploy_order: 2
           tenant: NDO1
           sites:
             - APIC1
