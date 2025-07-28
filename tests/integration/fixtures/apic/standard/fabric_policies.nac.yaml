@@ -506,6 +506,11 @@ apic:
         psu_policy: NNRED
         node_control_policy: TELEMETRY
 
+    leaf_interface_policy_groups:
+      - name: ALL_LEAFS
+        description: All Leaf Interfaces
+        link_level_policy: link-level-policy1
+
     leaf_switch_profiles:
       - name: LEAF-PROF1
         selectors:

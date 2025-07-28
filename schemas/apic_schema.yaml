@@ -72,6 +72,7 @@ fabric_policies:
   switch_policies: include('fp_switch_policies', required=False) # @name(Fabric Switch Profiles)
   leaf_switch_policy_groups: list(include('fp_leaf_switch_policy_groups'), required=False) # @name(Fabric Leaf SW Policy Groups) @ref_name(Fabric Leaf Switch Policy Group)
   spine_switch_policy_groups: list(include('fp_spine_switch_policy_groups'), required=False) # @name(Fabric Spine SW Policy Groups) @ref_name(Fabric Spine Switch Policy Group)
+  leaf_interface_policy_groups: list(include('fp_leaf_interface_policy_groups'), required=False) # @name(Leaf Interface Policy Groups) @ref_name(Leaf Interface Policy Groups)
   leaf_switch_profiles: list(include('fp_leaf_switch_profiles'), required=False) # @name(Fabric Leaf SW Profiles) @ref_name(Fabric Leaf Switch Profile) @sheet_hidden()
   spine_switch_profiles: list(include('fp_spine_switch_profiles'), required=False) # @name(Fabric Spine SW Profiles) @ref_name(Fabric Spine Switch Profile) @sheet_hidden()
   leaf_interface_profiles: list(include('fp_leaf_interface_profiles'), required=False) # @name(Fabric Leaf Interface Profiles) @ref_name(Fabric Leaf Interface Profile) @sheet_hidden()
@@ -435,6 +436,11 @@ fp_spine_switch_policy_groups:
   inventory_policy: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False) # @no_doc()
   twamp_server_policy: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False) # @no_doc()
   twamp_receiver_policy: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False) # @no_doc()
+
+fp_leaf_interface_policy_groups:
+  name: regex('^[a-zA-Z0-9_.:-]{1,64}$')
+  description: regex('^[a-zA-Z0-9\\\\!#$%()*,-./:;@ _{|}~?&+]{1,128}$', required=False)
+  link_level_policy: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
 
 fp_spine_switch_profiles:
   name: regex('^[a-zA-Z0-9_.:-]{1,64}$')

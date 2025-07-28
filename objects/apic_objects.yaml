@@ -650,6 +650,15 @@ objects:
       - config
     paths:
       - apic.fabric_policies.spine_switch_policy_groups
+  - name: Leaf Fabric Port Policy Group
+    template: fp_leaf_interface_policy_group
+    folder: fabric_policies
+    aci_classes:
+      - fabricLePortPGrp
+    test_types:
+      - config
+    paths:
+      - apic.fabric_policies.leaf_interface_policy_groups
   - name: External Connectivity Policy
     template: ext_conn_policy
     folder: fabric_policies
