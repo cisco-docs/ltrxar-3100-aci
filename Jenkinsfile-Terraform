@@ -1,7 +1,7 @@
 pipeline {
     agent {
         docker {
-            image 'danischm/nac:0.1.5'
+            image 'danischm/nac:0.1.6-beta0'
             label 'digidev'
             args '-u root'
         }
@@ -73,7 +73,7 @@ pipeline {
                 stage('Test NDO 4.2 Terraform') {
                     steps {
                         lock(resource: 'nac-ci-apic3-6.0.5h', extra: [[resource: 'nac-ci-nd1-3.0.1i']]) {
-                            sh 'pytest -m "ndo_42 and terraform"'
+                            sh 'pytest -s -m "ndo_42 and terraform"'
                         }
                     }
                     post {
@@ -86,7 +86,7 @@ pipeline {
                 stage('Test NDO 4.3 Terraform') {
                     steps {
                         lock(resource: 'nac-ci-apic2-6.0.5h', extra: [[resource: 'nac-ci-nd1-3.1.1l']]) {
-                            sh 'pytest -m "ndo_43 and terraform"'
+                            sh 'pytest -s -m "ndo_43 and terraform"'
                         }
                     }
                     post {
