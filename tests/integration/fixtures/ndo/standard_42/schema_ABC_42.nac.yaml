@@ -4,6 +4,7 @@ ndo:
     - name: ABC
       templates:
         - name: TEMPLATE3
+          deploy_order: 3
           tenant: NDO1
           bridge_domains:
             - name: BD4

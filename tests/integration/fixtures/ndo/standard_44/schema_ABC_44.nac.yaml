@@ -5,6 +5,7 @@ ndo:
       templates:
         - name: TEMPLATE3
           tenant: NDO1
+          deploy_order: 3
           bridge_domains:
             - name: BD4
               l2_unknown_unicast: proxy

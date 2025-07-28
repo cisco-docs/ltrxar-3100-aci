@@ -311,9 +311,7 @@ def full_ndo_terraform(
             "ndo_tf_{}_xunit.xml".format(version),
         )
         if error:
-            # Ignore errors for now as we don't have feature parity with Ansible
-            # pytest.fail(error)
-            pass
+            pytest.fail(error)
 
         r = subprocess.run(
             [

@@ -1,5 +1,6 @@
 ---
 ndo:
+  undeploy_order: true
   system_config:
     banner:
       alias: My Banner New

@@ -11,6 +11,7 @@ ndo:
   tenants: list(include('tenants'), required=False) # @ref_name(Tenant)
   policies: include('policies', required=False)
   schemas: list(include('schemas'), required=False) # @ref_name(Schema)
+  undeploy_order: bool(required=False)
 
 system_config:
   banner: include('sc_banner', required=False)
