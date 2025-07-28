@@ -57,10 +57,10 @@
                     "attributes": {
                         "annotation": "orchestrator:aac",
                         "dn": "uni/userext/pwdstrengthprofile",
-                        "pwdMinLength": {{ apic.fabric_policies.aaa.management_settings.password_strength_profile.password_mininum_length | default(defaults.apic.fabric_policies.aaa.management_settings.password_strength_profile.password_mininum_length) }},
-                        "pwdMaxLength": {{ apic.fabric_policies.aaa.management_settings.password_strength_profile.password_maximum_length | default(defaults.apic.fabric_policies.aaa.management_settings.password_strength_profile.password_maximum_length) }},
-                        "pwdStrengthTestType": {{ apic.fabric_policies.aaa.management_settings.password_strength_profile.password_strength_test_type | default(defaults.apic.fabric_policies.aaa.management_settings.password_strength_profile.password_strength_test_type) }},
-                        "pwdClassFlags": {{ apic.fabric_policies.aaa.management_settings.password_strength_profile.password_class_flags | default(defaults.apic.fabric_policies.aaa.management_settings.password_strength_profile.password_class_flags) | sort() | join(',') }}
+                        "pwdMinLength": "{{ apic.fabric_policies.aaa.management_settings.password_strength_profile.password_mininum_length | default(defaults.apic.fabric_policies.aaa.management_settings.password_strength_profile.password_mininum_length) }}",
+                        "pwdMaxLength": "{{ apic.fabric_policies.aaa.management_settings.password_strength_profile.password_maximum_length | default(defaults.apic.fabric_policies.aaa.management_settings.password_strength_profile.password_maximum_length) }}",
+                        "pwdStrengthTestType": "{{ apic.fabric_policies.aaa.management_settings.password_strength_profile.password_strength_test_type | default(defaults.apic.fabric_policies.aaa.management_settings.password_strength_profile.password_strength_test_type) }}",
+                        "pwdClassFlags": "{{ apic.fabric_policies.aaa.management_settings.password_strength_profile.password_class_flags | default(defaults.apic.fabric_policies.aaa.management_settings.password_strength_profile.password_class_flags) | sort() | join(',') }}"
                     }
                 }
             },
