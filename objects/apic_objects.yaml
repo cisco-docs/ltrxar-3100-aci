@@ -2118,8 +2118,6 @@ tenant_objects:
       - config
     paths:
       - apic.tenants.policies.track_lists
-      - apic.tenants.l3outs.node_profiles.nodes.static_routes.next_hops
-      - apic.tenants.l3outs.nodes.static_routes.next_hops
   - name: Track Member
     template: track_member
     folder: tenants
@@ -2132,8 +2130,6 @@ tenant_objects:
       - config
     paths:
       - apic.tenants.policies.track_members
-      - apic.tenants.l3outs.node_profiles.nodes.static_routes.next_hops
-      - apic.tenants.l3outs.nodes.static_routes.next_hops
 test_objects:
   - name: System
     template: system
