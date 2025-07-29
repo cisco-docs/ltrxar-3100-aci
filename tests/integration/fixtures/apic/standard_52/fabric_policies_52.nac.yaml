@@ -74,3 +74,19 @@ apic:
                 from_port: 1
                 from_sub_port: 1
                 to_sub_port: 2
+    spine_interface_profiles:
+      - name: SPINE-INT-PROF2
+        selectors:
+          - name: SEL1
+            policy_group: ACC1
+            port_blocks:
+              - name: BLK1
+                description: INT-DESC
+                from_port: 1
+                to_port: 2
+            sub_port_blocks:
+              - name: SUBBLK1
+                description: SUBBLK-DESC
+                from_port: 1
+                from_sub_port: 1
+                to_sub_port: 2

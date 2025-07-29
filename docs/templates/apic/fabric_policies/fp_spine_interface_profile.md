@@ -20,6 +20,9 @@ apic:
   auto_generate_fabric_spine_switch_interface_profiles: true
   fabric_policies:
     spine_interface_profile_name: "SPINE\\g<id>"
+  interface_policies:
+    nodes:
+      - id: 101
 ```
 
 System-generated profiles:
@@ -29,7 +32,7 @@ apic:
   new_interface_configuration: true
   interface_policies:
     nodes:
-      - id: 1001
+      - id: 101
 ```
 
 Explicitly configured profiles:
@@ -39,4 +42,18 @@ apic:
   fabric_policies:
     spine_interface_profiles:
       - name: SPINE1001
+        selectors:
+          - name: SEL1
+            policy_group: IPN
+            port_blocks:
+              - name: BLOCK1
+                description: IPN1
+                from_port: 1
+          - name: BRK1
+            description: Sub port 1/5/1
+            policy_group: 10G-SERVER
+            sub_port_blocks:
+              - name: '1-5-1'
+                from_port: 5
+                from_sub_port: 1
 ```

@@ -43,6 +43,8 @@ fabric_policies:
   spine_switch_profile_name: str(min=1, max=64, required=False)
   spine_switch_selector_name: str(min=1, max=64, required=False)
   spine_interface_profile_name: str(min=1, max=64, required=False)
+  spine_interface_selector_name: str(min=1, max=64, required=False)
+  spine_interface_selector_sub_port_name: str(min=1, max=64, required=False)
   pod_profile_name: str(min=1, max=64, required=False)
   pod_profile_pod_selector_name: str(min=1, max=64, required=False)
   config_passphrase: str(min=0, max=32, required=False) # @sensitive()
@@ -377,15 +379,29 @@ fp_spine_interface_profiles:
   expected_state: include('fp_spine_interface_profiles_expected_state', required=False) # @no_external_doc() @name(Spine Int Prof Expected State) @sheet_hidden()
 
 fp_spine_interface_profiles_selectors:
-  name: regex('^[a-zA-Z0-9_.:-]{1,64}$')
-  port_blocks: list(include('fp_spine_interface_profiles_selectors_port_blocks'), required=False) # @name(Fabric Spine Int Prof Sel Block) @ref_name(Port Block) @sheet_hidden()
+  name: regex('^[a-zA-Z0-9_.,:-]{1,64}$')
+  description: regex('^[a-zA-Z0-9\\\\!#$%()*,-./:;@ _{|}~?&+]{1,128}$', required=False)
+  policy_group: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
+  port_blocks: list(include('fp_spine_interface_profiles_selectors_port_blocks'), required=False) # @name(Fabric Spine Int Prof Sel Blocks) @ref_name(Port Block) @sheet_hidden()
+  sub_port_blocks: list(include('fp_spine_interface_profiles_selectors_sub_port_blocks'), required=False) # @name(Fabric Spine IntP Sel Sub Blocks) @ref_name(Sub Port Block) @sheet_hidden()
 
 fp_spine_interface_profiles_selectors_port_blocks:
   name: regex('^[a-zA-Z0-9_.:-]{1,64}$')
+  description: regex('^[a-zA-Z0-9\\\\!#$%()*,-./:;@ _{|}~?&+]{1,128}$', required=False)
   from_module: int(min=1, max=9, required=False)
   from_port: int(min=1, max=127)
   to_module: int(min=1, max=9, required=False)
   to_port: int(min=1, max=127, required=False)
+
+fp_spine_interface_profiles_selectors_sub_port_blocks:
+  name: regex('^[a-zA-Z0-9_.:-]{1,64}$')
+  description: regex('^[a-zA-Z0-9\\\\!#$%()*,-./:;@ _{|}~?&+]{1,128}$', required=False)
+  from_module: int(min=1, max=9, required=False)
+  from_port: int(min=1, max=127)
+  to_module: int(min=1, max=9, required=False)
+  to_port: int(min=1, max=127, required=False)
+  from_sub_port: int(min=1, max=16)
+  to_sub_port: int(min=1, max=16, required=False)
 
 fp_spine_interface_profiles_expected_state:
   minimum_health: int(min=0, max=100, required=False)

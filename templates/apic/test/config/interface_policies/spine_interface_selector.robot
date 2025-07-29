@@ -15,6 +15,7 @@ Resource        ../../../apic_common.resource
 {% set query = "nodes[?id==`" ~ node.id ~ "`].interfaces[]" %}
 {% if apic.interface_policies is defined %}
 {% for int in (apic.interface_policies | default() | community.general.json_query(query) | default([])) %}
+{% if int.fabric | default(defaults.apic.interface_policies.nodes.interfaces.fabric) is false %}
 {% set module = int.module | default(defaults.apic.interface_policies.nodes.interfaces.module) %}
 {% set spine_interface_selector_name = (module ~ ":" ~ int.port) | regex_replace("^(?P<mod>.+):(?P<port>.+)$", (apic.access_policies.spine_interface_selector_name | default(defaults.apic.access_policies.spine_interface_selector_name))) %}
 
@@ -32,6 +33,7 @@ Verify Access Spine Interface Profile {{ spine_interface_profile_name }} Selecto
     Should Be Equal Value Json String   ${r.json()}    $..infraRsSpAccGrp.attributes.tDn   uni/infra/funcprof/spaccportgrp-{{ policy_group_name }}
 {% endif %}
 
+{% endif %}
 {% endfor %}
 {% endif %}
 

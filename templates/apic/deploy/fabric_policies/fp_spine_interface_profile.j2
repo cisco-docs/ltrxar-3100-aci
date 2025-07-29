@@ -29,8 +29,77 @@
                     "attributes": {
                         "annotation": "orchestrator:aac",
                         "name": "{{ spine_interface_profile_name }}",
-                        "dn": "uni/fabric/spportp-{{ spine_interface_profile_name }}"
-                    }
+                        "dn": "uni/fabric/spportp-{{ spine_interface_profile_name }}",
+                        "childAction": "deleteNonPresent"
+                    },
+                    "children": [
+                        {%- set comma2 = joiner(",") %}
+                        {%- for sel in prof.selectors | default([]) %}
+                        {%- set spine_interface_selector_name = sel.name ~ defaults.apic.fabric_policies.spine_interface_profiles.selectors.name_suffix %}{{ comma2() }}
+                        {
+                            "fabricSFPortS": {
+                                "attributes": {
+                                    "annotation": "orchestrator:aac",
+                                    "dn": "uni/fabric/spportp-{{ spine_interface_profile_name }}/spfabports-{{ spine_interface_selector_name }}-typ-range",
+                                    "name": "{{ spine_interface_selector_name }}",
+                                    "descr": "{{ sel.description | default() }}",
+                                    "type": "range",
+                                    "childAction": "deleteNonPresent"
+                                },
+                                "children": [
+                                    {% set comma3 = joiner(",") %}
+                                    {%- if sel.policy_group is defined %}{{ comma3() }}
+                                    {
+                                        "fabricRsSpPortPGrp": {
+                                            "attributes": {
+                                                "annotation": "orchestrator:aac",
+                                                {% set policy_group_name = sel.policy_group ~ defaults.apic.fabric_policies.spine_interface_policy_groups.name_suffix %}
+                                                "tDn": "uni/fabric/funcprof/spportgrp-{{ policy_group_name }}"
+                                            }
+                                        }
+                                    }
+                                    {%- endif %}
+                                    {%- for blk in sel.port_blocks | default([]) %}
+                                    {%- set block_name = blk.name ~ defaults.apic.fabric_policies.spine_interface_profiles.selectors.port_blocks.name_suffix %}{{ comma3() }}
+                                    {
+                                        "fabricPortBlk": {
+                                            "attributes": {
+                                                "annotation": "orchestrator:aac",
+                                                "descr": "{{ blk.description | default() }}",
+                                                "fromCard": "{{ blk.from_module | default(defaults.apic.fabric_policies.spine_interface_profiles.selectors.port_blocks.from_module) }}",
+                                                "fromPort": "{{ blk.from_port }}",
+                                                "name": "{{ block_name }}",
+                                                "toCard": "{{ blk.to_module | default(blk.from_module | default(defaults.apic.fabric_policies.spine_interface_profiles.selectors.port_blocks.from_module)) }}",
+                                                "toPort": "{{ blk.to_port | default(blk.from_port) }}"
+                                            }
+                                        }
+                                    }
+                                    {%- endfor %}
+                                    {%- for sub_blk in sel.sub_port_blocks | default([]) %}
+                                    {%- set sub_block_name = sub_blk.name ~ defaults.apic.fabric_policies.spine_interface_profiles.selectors.sub_port_blocks.name_suffix %}{{ comma3() }}
+                                    {
+                                        "fabricSubPortBlk": {
+                                            "attributes": {
+                                                "annotation": "orchestrator:aac",
+                                                "descr": "{{ sub_blk.description | default() }}",
+                                                "fromCard": "{{ sub_blk.from_module | default(defaults.apic.fabric_policies.spine_interface_profiles.selectors.sub_port_blocks.from_module) }}",
+                                                "fromPort": "{{ sub_blk.from_port }}",
+                                                "name": "{{ sub_block_name }}",
+                                                "toCard": "{{ sub_blk.to_module | default(sub_blk.from_module | default(defaults.apic.fabric_policies.spine_interface_profiles.selectors.sub_port_blocks.from_module)) }}",
+                                                "toPort": "{{ sub_blk.to_port | default(sub_blk.from_port) }}",
+                                                "fromSubPort": "{{ sub_blk.from_sub_port }}",
+                                                "toSubPort": "{{ sub_blk.to_sub_port | default(sub_blk.from_sub_port) }}"                                              
+                                            }
+                                        }
+                                    }
+                                    {%- endfor %}
+
+                                ]
+                            }
+                        }
+                        {%- endfor %}
+
+                    ]
                 }
             }
             {%- endfor %}
