@@ -1309,14 +1309,38 @@ apic:
             scope: BD1
             ip_sla_policy: EXAMPLE
         endpoint_retention_policies:
-        - name: ERP1
-          description: My Endpoint Retention policy
-          hold_interval: 180
-          bounce_entry_aging_interval: 0
-          remote_endpoint_aging_interval: 180
-          local_endpoint_aging_interval: 180
-          move_frequency: 0
-        - name: ERP2
+          - name: ERP1
+            description: My Endpoint Retention policy
+            hold_interval: 180
+            bounce_entry_aging_interval: 0
+            remote_endpoint_aging_interval: 180
+            local_endpoint_aging_interval: 180
+            move_frequency: 0
+          - name: ERP2
+        monitoring:
+          policies:
+            - name: test
+              snmp_traps:
+                - name: TRAP1
+                  destination_group: 2.2.2.2
+                - name: TRAP2
+              syslogs:
+                - name: syslog1
+                  audit: false
+                  events: false
+                  faults: false
+                  session: true
+                  minimum_severity: alerts
+                  destination_group: dest1
+                - name: syslog2
+              fault_severity_policies:
+                - class: vzRsSubjFiltAtt
+                  faults:
+                    - fault_id: F1127
+                      initial_severity: warning
+                      target_severity: inherit
+                      description: test
+                    - fault_id: F0756
       services:
         l4l7_devices:
           - name: DEV1

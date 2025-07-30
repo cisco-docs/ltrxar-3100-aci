@@ -311,6 +311,7 @@ objects:
   - name: Monitoring Policy
     template: monitoring_policy
     folder: fabric_policies
+    match_dn: 'uni/fabric/moncommon.*|uni/fabric/monfab-.*'
     test_types:
       - config
     aci_classes:
@@ -1908,6 +1909,22 @@ tenant_objects:
       - config
     paths:
       - apic.tenants.policies.endpoint_ip_tags
+  - name: Tenant Monitoring Policies
+    template: tenant_monitoring_policy
+    folder: tenants
+    match_dn: 'uni\/tn-%%TENANT%%\/monepg-.*'
+    aci_classes:
+      - monEPGPol
+      - syslogSrc
+      - snmpSrc
+      - monEPGTarget
+      - faultSevAsnP
+    scope:
+      - user
+    paths:
+      - apic.tenants.policies.monitoring.policies
+    test_types:
+      - config
   - name: Redirect Policy
     template: redirect_policy
     folder: tenants

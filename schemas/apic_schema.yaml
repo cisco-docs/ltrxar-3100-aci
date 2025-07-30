@@ -3115,6 +3115,7 @@ ten_policies:
   track_members: list(include('ten_track_members'), required=False) # @sheet_hidden()
   endpoint_mac_tags: list(include('ten_endpoint_mac_tags'), required=False) # @sheet_hidden()
   endpoint_ip_tags: list(include('ten_endpoint_ip_tags'), required=False) # @sheet_hidden()
+  monitoring: include('ten_monitoring', required=False)
 
 ten_ospf_interface_policies:
   name: regex('^[a-zA-Z0-9_.:-]{1,64}$')
@@ -3860,3 +3861,35 @@ expected_state:
   maximum_critical_faults: int(min=0, required=False)
   maximum_major_faults: int(min=0, required=False)
   maximum_minor_faults: int(min=0, required=False)
+
+ten_monitoring:
+  policies: list(include('ten_monitoring_policies'), required=False) # @no_doc() @name(Tenant Monitoring Policies) @sheet_hidden()
+
+ten_monitoring_policies:
+  name: regex('^[a-zA-Z0-9_.:-]{1,64}$') # @name(Tenant Monitoring Policy Name)
+  snmp_traps: list(include('ten_monitoring_snmp_traps'), required=False) # @ref_name(Tenant SNMP Trap)
+  syslogs: list(include('ten_monitoring_syslogs'), required=False) # @ref_name(Tenant Syslog)
+  fault_severity_policies: list(include('ten_monitoring_fault_severity_policies'), required=False) # @ref_name(Tenant Monitoirng Fault Sev Pol)
+
+ten_monitoring_snmp_traps:
+  name: regex('^[a-zA-Z0-9_.:-]{1,64}$')
+  destination_group: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False) # @name(Tenant SNMP Trap Destination)
+
+ten_monitoring_syslogs:
+  name: regex('^[a-zA-Z0-9_.:-]{1,64}$')
+  audit: bool(required=False)
+  events: bool(required=False)
+  faults: bool(required=False)
+  session: bool(required=False)
+  minimum_severity: enum('emergencies', 'alerts', 'critical', 'errors', 'warnings', 'notifications', 'information','debugging', required=False)
+  destination_group: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False) # @name(Tenant Syslog Destination)
+
+ten_monitoring_fault_severity_policies:
+  class: regex('^[a-zA-Z0-9_.:-]{1,64}$')
+  faults: list(include('ten_monitoring_fault_severity_policies_faults'), required=False) # @ref_name(Tenant Mon Fault Sev Pol Faults)
+
+ten_monitoring_fault_severity_policies_faults:
+  fault_id: regex('^[a-zA-Z0-9_.:-]{1,64}$')
+  initial_severity: enum('warning', 'minor', 'major', 'critical', 'inherit', 'squelched', required=False)
+  target_severity: enum('warning', 'minor', 'major', 'critical', 'inherit', required=False)
+  description: regex('^[a-zA-Z0-9\\\\!#$%()*,-./:;@ _{|}~?&+]{1,128}$', required=False)
