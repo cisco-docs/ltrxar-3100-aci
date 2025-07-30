@@ -382,8 +382,8 @@ fp_spine_interface_profiles_selectors:
   name: regex('^[a-zA-Z0-9_.,:-]{1,64}$')
   description: regex('^[a-zA-Z0-9\\\\!#$%()*,-./:;@ _{|}~?&+]{1,128}$', required=False)
   policy_group: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
-  port_blocks: list(include('fp_spine_interface_profiles_selectors_port_blocks'), required=False) # @name(Fabric Spine Int Prof Sel Blocks) @ref_name(Port Block) @sheet_hidden()
-  sub_port_blocks: list(include('fp_spine_interface_profiles_selectors_sub_port_blocks'), required=False) # @name(Fabric Spine IntP Sel Sub Blocks) @ref_name(Sub Port Block) @sheet_hidden()
+  port_blocks: list(include('fp_spine_interface_profiles_selectors_port_blocks'), required=False) # @name(Fabric Spine Int Sel Blocks) @ref_name(Port Block) @sheet_hidden()
+  sub_port_blocks: list(include('fp_spine_interface_profiles_selectors_sub_port_blocks'), required=False) # @name(Fabric Spine Int Sel Sub Blocks) @ref_name(Sub Port Block) @sheet_hidden()
 
 fp_spine_interface_profiles_selectors_port_blocks:
   name: regex('^[a-zA-Z0-9_.:-]{1,64}$')
