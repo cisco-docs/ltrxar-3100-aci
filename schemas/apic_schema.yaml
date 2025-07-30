@@ -3869,7 +3869,7 @@ ten_monitoring_policies:
   name: regex('^[a-zA-Z0-9_.:-]{1,64}$') # @name(Tenant Monitoring Policy Name)
   snmp_traps: list(include('ten_monitoring_snmp_traps'), required=False) # @ref_name(Tenant SNMP Trap)
   syslogs: list(include('ten_monitoring_syslogs'), required=False) # @ref_name(Tenant Syslog)
-  fault_severity_policies: list(include('ten_monitoring_fault_severity_policies'), required=False) # @ref_name(Tenant Monitoirng Fault Sev Pol)
+  fault_severity_policies: list(include('ten_monitoring_fault_severity_policies'), required=False) # @ref_name(Tenant Monitoring Fault Sev Pol)
 
 ten_monitoring_snmp_traps:
   name: regex('^[a-zA-Z0-9_.:-]{1,64}$')
