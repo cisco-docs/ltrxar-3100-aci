@@ -3863,7 +3863,7 @@ expected_state:
   maximum_minor_faults: int(min=0, required=False)
 
 ten_monitoring:
-  policies: list(include('ten_monitoring_policies'), required=False) # @no_doc() @name(Tenant Monitoring Policies) @sheet_hidden()
+  policies: list(include('ten_monitoring_policies'), required=False) # @name(Tenant Monitoring Policies) @sheet_hidden()
 
 ten_monitoring_policies:
   name: regex('^[a-zA-Z0-9_.:-]{1,64}$') # @name(Tenant Monitoring Policy Name)
