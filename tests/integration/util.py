@@ -4,6 +4,8 @@
 
 import os
 import pytest
+import subprocess
+import re
 
 import errorhandler
 from nac_test.robot_writer import RobotWriter
@@ -87,3 +89,58 @@ class TimeoutHTTPAdapter(HTTPAdapter):
         if timeout is None:
             kwargs["timeout"] = self.timeout
         return super().send(request, **kwargs)
+
+
+def get_latest_git_tag():
+    """Get the latest git tag from the terraform-aci-nac-aci repository"""
+    try:
+        # Get the latest tag from the GitHub repository
+        result = subprocess.run(
+            [
+                "git",
+                "ls-remote",
+                "--tags",
+                "--refs",
+                "https://github.com/netascode/terraform-aci-nac-aci.git",
+            ],
+            capture_output=True,
+            text=True,
+            timeout=30,
+        )
+
+        if result.returncode != 0:
+            print(f"Warning: Failed to fetch git tags: {result.stderr}")
+            return "1.0.1"  # fallback version
+
+        # Parse the output to find version tags
+        tags = []
+        for line in result.stdout.strip().split("\n"):
+            if line.strip():
+                # Extract tag name from "hash refs/tags/tagname"
+                parts = line.split("/")
+                if len(parts) >= 3:
+                    tag = parts[-1]
+                    # Only consider semantic version tags (e.g., v1.0.1, 1.0.1)
+                    if re.match(r"^v?\d+\.\d+\.\d+", tag):
+                        # Remove 'v' prefix if present
+                        clean_tag = tag.lstrip("v")
+                        tags.append(clean_tag)
+
+        if not tags:
+            print("Warning: No semantic version tags found, using fallback")
+            return "1.0.1"
+
+        # Sort tags by semantic version and get the latest
+        def version_key(version):
+            return tuple(map(int, version.split(".")))
+
+        latest_tag = sorted(tags, key=version_key, reverse=True)[0]
+        print(f"Using latest git tag: {latest_tag}")
+        return latest_tag
+
+    except subprocess.TimeoutExpired:
+        print("Warning: Timeout while fetching git tags, using fallback")
+        return "1.0.1"
+    except Exception as e:
+        print(f"Warning: Error fetching git tags: {e}, using fallback")
+        return "1.0.1"

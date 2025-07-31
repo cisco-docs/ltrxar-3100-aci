@@ -70,6 +70,19 @@ pipeline {
                         }
                     }
                 }
+                stage('Test APIC 6.0 Terraform Upgrade') {
+                    steps {
+                        lock(resource: 'nac-ci-apic1-6.0.4c') {
+                            sh 'pytest -m "apic_upgrade and terraform"'
+                        }
+                    }
+                    post {
+                        always {
+                            junit 'apic_tf_upgrade_xunit.xml'
+                            archiveArtifacts 'apic_tf_upgrade_*.html, apic_tf_upgrade_*.xml, apic_tf_upgrade_plan.txt'
+                        }
+                    }
+                }
                 stage('Test NDO 4.2 Terraform') {
                     steps {
                         lock(resource: 'nac-ci-apic3-6.0.5h', extra: [[resource: 'nac-ci-nd1-3.0.1i']]) {
