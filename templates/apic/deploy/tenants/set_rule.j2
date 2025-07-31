@@ -108,7 +108,7 @@
                                 "attributes": {
                                     "annotation": "orchestrator:aac",
                                     "metricType": "{{ rule.metric_type }}",
-                                    "type": "metric"
+                                    "type": "metric-type"
                                 }
                             }
                         }
@@ -124,7 +124,7 @@
                                     "type": "community"
                                 }
                             }
-                        }                        
+                        }
                         {%- endfor %}
                         {%- for as_path in rule.set_as_paths | default([]) %}{{ comma2() }}
                         {
@@ -200,7 +200,7 @@
                             }
                         }
                         {%- endif %}
-                    
+
                     ]
                 }
             }
