@@ -2938,7 +2938,7 @@ ten_inb_endpoint_groups_expected_state:
   maximum_minor_faults: int(min=0, required=False)
 
 ten_oob_endpoint_groups:
-  name: regex('^[a-zA-Z0-9_.:-]{1,64}$')
+  name: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
   oob_contracts: include('ten_oob_endpoint_groups_oob_contracts', required=False) # @flatten()
   static_routes: list(ip(), required=False) # @name(OOB EPG Static Routes) @sheet_hidden()
   expected_state: include('ten_oob_endpoint_groups_expected_state', required=False) # @no_external_doc() @name(OOB EPG Expected State) @sheet_hidden()
