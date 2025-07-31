@@ -3115,7 +3115,7 @@ ten_policies:
   track_members: list(include('ten_track_members'), required=False) # @sheet_hidden()
   endpoint_mac_tags: list(include('ten_endpoint_mac_tags'), required=False) # @sheet_hidden()
   endpoint_ip_tags: list(include('ten_endpoint_ip_tags'), required=False) # @sheet_hidden()
-  monitoring: include('ten_monitoring', required=False)
+  monitoring: include('ten_monitoring', required=False) # @name(Tenant Monitorings) @ref_name(Tenant Monitoring) @sheet_hidden()
 
 ten_ospf_interface_policies:
   name: regex('^[a-zA-Z0-9_.:-]{1,64}$')
@@ -3863,17 +3863,17 @@ expected_state:
   maximum_minor_faults: int(min=0, required=False)
 
 ten_monitoring:
-  policies: list(include('ten_monitoring_policies'), required=False) # @name(Tenant Monitoring Policies) @sheet_hidden()
+  policies: list(include('ten_monitoring_policies'), required=False) # @name(Tenant Monitoring Policies) @ref_name(Tenant Monitoring Policy)
 
 ten_monitoring_policies:
-  name: regex('^[a-zA-Z0-9_.:-]{1,64}$') # @name(Tenant Monitoring Policy Name)
-  snmp_traps: list(include('ten_monitoring_snmp_traps'), required=False) # @ref_name(Tenant SNMP Trap)
-  syslogs: list(include('ten_monitoring_syslogs'), required=False) # @ref_name(Tenant Syslog)
-  fault_severity_policies: list(include('ten_monitoring_fault_severity_policies'), required=False) # @ref_name(Tenant Monitoring Fault Sev Pol)
+  name: regex('^[a-zA-Z0-9_.:-]{1,64}$')
+  snmp_traps: list(include('ten_monitoring_snmp_traps'), required=False) # @name(Tenant SNMP Traps) @ref_name(Tenant SNMP Trap)
+  syslogs: list(include('ten_monitoring_syslogs'), required=False) # @name(Tenant Syslogs) @ref_name(Tenant Syslog)
+  fault_severity_policies: list(include('ten_monitoring_fault_severity_policies'), required=False) # @name(Tenant Fault Severity Policies) @ref_name(Tenant Fault Class)
 
 ten_monitoring_snmp_traps:
   name: regex('^[a-zA-Z0-9_.:-]{1,64}$')
-  destination_group: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False) # @name(Tenant SNMP Trap Destination)
+  destination_group: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
 
 ten_monitoring_syslogs:
   name: regex('^[a-zA-Z0-9_.:-]{1,64}$')
@@ -3882,11 +3882,11 @@ ten_monitoring_syslogs:
   faults: bool(required=False)
   session: bool(required=False)
   minimum_severity: enum('emergencies', 'alerts', 'critical', 'errors', 'warnings', 'notifications', 'information','debugging', required=False)
-  destination_group: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False) # @name(Tenant Syslog Destination)
+  destination_group: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
 
 ten_monitoring_fault_severity_policies:
-  class: regex('^[a-zA-Z0-9_.:-]{1,64}$')
-  faults: list(include('ten_monitoring_fault_severity_policies_faults'), required=False) # @ref_name(Tenant Mon Fault Sev Pol Faults)
+  class: regex('^[a-zA-Z0-9_.:-]{1,64}$') # @name(Tenant Fault Class)
+  faults: list(include('ten_monitoring_fault_severity_policies_faults'), required=False) # @name(Tenant Fault Sev Policy Faults) @ref_name(Tenant Fault Class)
 
 ten_monitoring_fault_severity_policies_faults:
   fault_id: regex('^[a-zA-Z0-9_.:-]{1,64}$')
