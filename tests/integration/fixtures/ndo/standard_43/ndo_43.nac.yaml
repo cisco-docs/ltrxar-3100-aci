@@ -1,5 +1,6 @@
 ---
 ndo:
+  undeploy_order: true
   sites:
     - name: APIC1
       apic_urls:

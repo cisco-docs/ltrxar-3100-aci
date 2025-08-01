@@ -16,11 +16,11 @@ ndo:
                   bridge_domain:
                     name: BD1
                   subnets:
-                    - ip: 2.2.2.2/24
+                    - ip: 22.22.22.22/24
                       scope: private
                       shared: false
                       no_default_gateway: true
-                    - ip: 3.3.3.3/24
+                    - ip: 33.33.33.33/24
                       scope: private
                       shared: false
                       no_default_gateway: true
@@ -36,7 +36,7 @@ ndo:
                           deployment_immediacy: immediate
                           resolution_immediacy: immediate
                       vmware_vmm_domains:
-                        - name: VMM1
+                        - name: VMM2
                           deployment_immediacy: lazy
                           resolution_immediacy: immediate
                           vlan_mode: static
@@ -137,7 +137,7 @@ ndo:
                   scope: private
                   shared: false
                   querier: false
-                - ip: 4.4.4.4/24
+                - ip: 44.44.44.44/24
                   scope: private
                   shared: false
                   querier: false

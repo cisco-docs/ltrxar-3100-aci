@@ -484,19 +484,19 @@ def full_ndo_terraform_upgrade_test(
         )
         terraform_post_process("TERRAFORM INIT", r)
 
-        # Run Terraform plan after upgrade to ensure no changes are needed and pipe plan output to a txt file
-        plan_command = f"{terraform_binary} plan -no-color | tee plan.txt"
+        # Run first Terraform plan after upgrade to ensure no changes are needed and pipe plan output to a txt file
+        plan_command = f"{terraform_binary} plan -no-color | tee plan1.txt"
         r = subprocess.run(
             plan_command, cwd=terraform_path, capture_output=True, text=True, shell=True
         )
-        terraform_post_process("TERRAFORM PLAN", r, ignore_errors=True)
+        terraform_post_process("FIRST TERRAFORM PLAN", r, ignore_errors=True)
 
         shutil.copy(
-            os.path.join(terraform_path, "plan.txt"),
-            "ndo_tf_upgrade_plan.txt",
+            os.path.join(terraform_path, "plan1.txt"),
+            "ndo_tf_upgrade_plan1.txt",
         )
 
-        # Run Terraform apply after upgrade
+        # Run first Terraform apply after upgrade
         apply_args = [
             terraform_binary,
             "apply",
@@ -507,7 +507,36 @@ def full_ndo_terraform_upgrade_test(
         r = subprocess.run(
             apply_args, cwd=terraform_path, capture_output=True, text=True
         )
-        terraform_post_process("TERRAFORM APPLY AFTER UPGRADE", r, ignore_errors=True)
+        terraform_post_process(
+            "FIRST TERRAFORM APPLY AFTER UPGRADE", r, ignore_errors=True
+        )
+
+        # Run second Terraform plan after upgrade to ensure no changes are needed and pipe plan output to a txt file
+        plan_command = f"{terraform_binary} plan -no-color | tee plan2.txt"
+        r = subprocess.run(
+            plan_command, cwd=terraform_path, capture_output=True, text=True, shell=True
+        )
+        terraform_post_process("SECOND TERRAFORM PLAN", r, ignore_errors=True)
+
+        shutil.copy(
+            os.path.join(terraform_path, "plan2.txt"),
+            "ndo_tf_upgrade_plan2.txt",
+        )
+
+        # Run second Terraform apply after upgrade
+        apply_args = [
+            terraform_binary,
+            "apply",
+            "-auto-approve",
+            "-no-color",
+            "-parallelism=3",
+        ]
+        r = subprocess.run(
+            apply_args, cwd=terraform_path, capture_output=True, text=True
+        )
+        terraform_post_process(
+            "SECOND TERRAFORM APPLY AFTER UPGRADE", r, ignore_errors=True
+        )
 
         # Run tests
         data_paths.append(Path(os.path.join(terraform_path, "defaults.yaml")))
@@ -536,13 +565,16 @@ def full_ndo_terraform_upgrade_test(
     finally:
         state_path = os.path.join(terraform_path, "terraform.tfstate")
         state_backup_path = os.path.join(terraform_path, "terraform.tfstate.backup")
-        plan_path = os.path.join(terraform_path, "plan.txt")
+        plan_path1 = os.path.join(terraform_path, "plan1.txt")
+        plan_path2 = os.path.join(terraform_path, "plan2.txt")
         if os.path.exists(state_path):
             os.remove(state_path)
         if os.path.exists(state_backup_path):
             os.remove(state_backup_path)
-        if os.path.exists(plan_path):
-            os.remove(plan_path)
+        if os.path.exists(plan_path1):
+            os.remove(plan_path1)
+        if os.path.exists(plan_path2):
+            os.remove(plan_path2)
 
 
 @pytest.mark.ndo_42
