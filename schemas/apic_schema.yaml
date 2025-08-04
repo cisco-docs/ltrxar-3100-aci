@@ -2985,7 +2985,7 @@ ten_ap_endpoint_groups_l4l7_address_pools:
 ten_sr_mpls_l3outs:
   name: regex('^[a-zA-Z0-9_.:-]{1,64}$')
   alias: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
-  description: regex('^[a-zA-Z0-9\\!#$%()*,-./:;@ _{|}~?&+]{1,128}$', required=False)
+  description: regex('^[a-zA-Z0-9\\\\!#$%()*,-./:;@ _{|}~?&+]{1,128}$', required=False)
   vrf: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
   domain: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
   transport_data_plane: enum('sr_mpls', 'mpls', required=False)
@@ -3147,7 +3147,7 @@ ten_eigrp_interface_policies:
 
 ten_ospf_timer_policies:
   name: regex('^[a-zA-Z0-9_.:-]{1,64}$')
-  description: regex('^[a-zA-Z0-9\\!#$%()*,-./:;@ _{|}~?&+]{1,128}$', required=False)
+  description: regex('^[a-zA-Z0-9\\\\!#$%()*,-./:;@ _{|}~?&+]{1,128}$', required=False)
   reference_bandwidth: int(min=1, max=4000000, required=False)
   distance: int(min=1, max=255, required=False)
   max_ecmp: int(min=1, max=64, required=False)
