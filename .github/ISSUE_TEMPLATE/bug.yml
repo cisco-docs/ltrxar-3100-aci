@@ -1,0 +1,69 @@
+name: Bug Report
+description: Template to submit a bug against ACI as Code
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this bug report!
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: A clear and concise description of what the defect is.
+      placeholder: Tell us what you see!
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction-steps
+    attributes:
+      label: Reproduction Steps
+      description: Steps to reproduce the behavior.
+      placeholder: |
+        1. Go to '...'
+        2. Click on '....'
+        3. Scroll down to '....'
+        4. See error
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: Expected Behavior
+      description: A clear and concise description of what you expected to happen.
+      placeholder: Describe what you expected to happen.
+    validations:
+      required: true
+
+  - type: input
+    id: customer-name
+    attributes:
+      label: Associated Customer
+      description: Provide customer name if applicable.
+      placeholder: Customer name
+    validations:
+      required: false
+
+  - type: dropdown
+    id: services-as-code
+    attributes:
+      label: Is this a customer of Services as Code (LCS)?
+      description: Is the issue opened for a customer with paid Services as Code support?
+      options:
+        - "No"
+        - "Yes"
+      default: 0
+    validations:
+      required: true
+
+  - type: input
+    id: customer-pid
+    attributes:
+      label: Customer PID/DID
+      description: Provide PID or deal ID to prioritize the issue.
+      placeholder: Customer PID or deal ID
+    validations:
+      required: false
