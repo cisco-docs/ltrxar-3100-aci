@@ -63,8 +63,8 @@ body:
   - type: input
     id: customer-pid
     attributes:
-      label: Customer PID/DID
-      description: Provide PID or deal ID to prioritize the issue.
-      placeholder: Customer PID or deal ID
+      label: Project PID/DID
+      description: Provide Project PID or deal ID to prioritize the issue.
+      placeholder: Project Project PID or deal ID
     validations:
       required: false
