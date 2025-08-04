@@ -24,11 +24,10 @@ body:
       description: Specify the ACI or NDO version related to the enhancement.
       placeholder: ACI/NDO Version
       options:
-        - "4.x"
-        - "5.x"
-        - "6.0.x"
-        - "6.1.x"
-      default: 0
+        - label: 4.x
+        - label: 5.x
+        - label: 6.0.x
+        - label: 6.1.x
     validations:
       required: false
 
