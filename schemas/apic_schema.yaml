@@ -2352,7 +2352,7 @@ ten_contracts_subjects:
   alias: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
   description: regex('^[a-zA-Z0-9\\\\!#$%()*,-./:;@ _{|}~?&+]{1,128}$', required=False)
   qos_class: enum('level1', 'level2', 'level3', 'level4', 'level5', 'level6', 'unspecified', required=False)
-  target_dscp: any(enum('CS0', 'CS1', 'AF11', 'AF12', 'AF13', 'CS2', 'AF21', 'AF22', 'AF23', 'CS3', 'AF31', 'AF32', 'AF33', 'CS4', 'AF41', 'AF42', 'AF43', 'CS5', 'VA', 'EF', 'CS6', 'CS7', 'unspecified'), int(min=0, max=63), required=False)
+  target_dscp: any(enum('CS0', 'CS1', 'AF11', 'AF12', 'AF13', 'CS2', 'AF21', 'AF22', 'AF23', 'CS3', 'AF31', 'AF32', 'AF33', 'CS4', 'AF32', 'AF33', 'CS4', 'AF41', 'AF42', 'AF43', 'CS5', 'VA', 'EF', 'CS6', 'CS7', 'unspecified'), int(min=0, max=63), required=False)
   service_graph: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
   reverse_filter_ports: bool(required=False)
   filters: list(include('ten_contracts_subjects_filters'), required=False) # @name(Contract Subject Filters)
@@ -2361,13 +2361,13 @@ ten_contracts_subjects:
 
 ten_contracts_subjects_consumer_to_provider:
   qos_class: enum('level1', 'level2', 'level3', 'level4', 'level5', 'level6', 'unspecified', required=False)
-  target_dscp: any(enum('CS0', 'CS1', 'AF11', 'AF12', 'AF13', 'CS2', 'AF21', 'AF22', 'AF23', 'CS3', 'AF31', 'AF32', 'AF33', 'CS4', 'AF41', 'AF42', 'AF43', 'CS5', 'VA', 'EF', 'CS6', 'CS7', 'unspecified'), int(min=0, max=63), required=False)
+  target_dscp: any(enum('CS0', 'CS1', 'AF11', 'AF12', 'AF13', 'CS2', 'AF21', 'AF22', 'AF23', 'CS3', 'AF31', 'AF32', 'AF33', 'CS4', 'AF32', 'AF33', 'CS4', 'AF41', 'AF42', 'AF43', 'CS5', 'VA', 'EF', 'CS6', 'CS7', 'unspecified'), int(min=0, max=63), required=False)
   service_graph: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
   filters: list(include('ten_contracts_subjects_consumer_to_provider_filters'), required=False) # @name(Consumer To Provider Filters)
 
 ten_contracts_subjects_provider_to_consumer:
   qos_class: enum('level1', 'level2', 'level3', 'level4', 'level5', 'level6', 'unspecified', required=False)
-  target_dscp: any(enum('CS0', 'CS1', 'AF11', 'AF12', 'AF13', 'CS2', 'AF21', 'AF22', 'AF23', 'CS3', 'AF31', 'AF32', 'AF33', 'CS4', 'AF41', 'AF42', 'AF43', 'CS5', 'VA', 'EF', 'CS6', 'CS7', 'unspecified'), int(min=0, max=63), required=False)
+  target_dscp: any(enum('CS0', 'CS1', 'AF11', 'AF12', 'AF13', 'CS2', 'AF21', 'AF22', 'AF23', 'CS3', 'AF31', 'AF32', 'AF33', 'CS4', 'AF32', 'AF33', 'CS4', 'AF41', 'AF42', 'AF43', 'CS5', 'VA', 'EF', 'CS6', 'CS7', 'unspecified'), int(min=0, max=63), required=False)
   service_graph: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
   filters: list(include('ten_contracts_subjects_provider_to_consumer_filters'), required=False) # @name(Provider To Consumer Filters)
 
