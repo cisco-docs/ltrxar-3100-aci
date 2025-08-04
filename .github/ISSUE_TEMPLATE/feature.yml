@@ -1,5 +1,5 @@
-name: Feature Request
-description: Template to submit a feature request against ACI as Code
+name: Enhancement Request
+description: Template to submit a enhancement request against ACI as Code
 labels: ["enhancement"]
 body:
   - type: markdown
