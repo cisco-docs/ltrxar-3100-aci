@@ -22,7 +22,6 @@ body:
     attributes:
       label: ACI/NDO Version
       description: Specify the ACI or NDO version related to the enhancement.
-      placeholder: ACI/NDO Version
       options:
         - label: 4.x
         - label: 5.x
