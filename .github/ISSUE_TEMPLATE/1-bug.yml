@@ -1,3 +1,4 @@
+---
 name: Bug Report
 description: Template to submit a bug against ACI as Code
 labels: ["bug"]
