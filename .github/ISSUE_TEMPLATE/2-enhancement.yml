@@ -23,10 +23,13 @@ body:
       label: ACI/NDO Version
       description: Specify the ACI or NDO version related to the enhancement.
       options:
-        - label: 4.x
-        - label: 5.x
-        - label: 6.0.x
-        - label: 6.1.x
+        - label: ACI 4.x
+        - label: ACI 5.x
+        - label: ACI 6.0.x
+        - label: ACI 6.1.x
+        - label: NDO 4.2
+        - label: NDO 4.3
+        - label: NDO 4.4
     validations:
       required: false
 
