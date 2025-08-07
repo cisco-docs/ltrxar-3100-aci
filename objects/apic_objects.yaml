@@ -1915,10 +1915,6 @@ tenant_objects:
     match_dn: 'uni\/tn-%%TENANT%%\/monepg-.*'
     aci_classes:
       - monEPGPol
-      - syslogSrc
-      - snmpSrc
-      - monEPGTarget
-      - faultSevAsnP
     scope:
       - user
     paths:

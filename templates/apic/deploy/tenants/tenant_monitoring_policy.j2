@@ -17,7 +17,8 @@
                         "annotation": "orchestrator:aac",
                         "name": "{{ policy_name }}",
                         "dn": "uni/tn-{{ tenant.name }}/monepg-{{ policy_name }}",
-                        "descr": "{{ policy.description | default() }}"
+                        "descr": "{{ policy.description | default() }}",
+                        "childAction": "deleteNonPresent"
                     },
                     "children" : [
                         {%- set comma2 = joiner(",") %}
@@ -84,7 +85,8 @@
                                 "attributes": {
                                     "annotation": "orchestrator:aac",
                                     "dn": "uni/tn-{{ tenant.name }}/monepg-{{ policy_name }}/tarepg-{{ cl.class }}",
-                                    "scope": "{{ cl.class }}"
+                                    "scope": "{{ cl.class }}",
+                                    "childAction": "deleteNonPresent"
                                 },
                                 "children": [
                                 {%- set comma3 = joiner(",") %}
