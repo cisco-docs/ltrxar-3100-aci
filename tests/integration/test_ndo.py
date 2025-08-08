@@ -616,7 +616,7 @@ def test_ndo_42(
             "https://10.50.202.13",
             "ce2_defaultOneTime-2023-12-18T06-15-28.tar.gz",
             "https://10.50.202.14",
-            "67eeb5e47d2ddd8e06216deb",
+            "68961d1d784a2aadc330ba86",
             "4.3",
         )
     ],
@@ -710,12 +710,53 @@ def test_ndo_terraform_42(
             "https://10.50.202.13",
             "ce2_defaultOneTime-2023-12-18T06-15-28.tar.gz",
             "https://10.50.202.14",
-            "67eeb5e47d2ddd8e06216deb",
+            "68961d1d784a2aadc330ba86",
             "4.3",
         )
     ],
 )
 def test_ndo_terraform_43(
+    data_paths,
+    terraform_path,
+    apic_url,
+    snapshot_name,
+    ndo_url,
+    ndo_backup_id,
+    version,
+    tmpdir,
+):
+    full_ndo_terraform(
+        data_paths,
+        terraform_path,
+        apic_url,
+        snapshot_name,
+        ndo_url,
+        ndo_backup_id,
+        version,
+        tmpdir,
+    )
+
+
+@pytest.mark.ndo_43_legacy_utils
+@pytest.mark.terraform
+@pytest.mark.parametrize(
+    "data_paths, terraform_path, apic_url, snapshot_name, ndo_url, ndo_backup_id, version",
+    [
+        (
+            [
+                "tests/integration/fixtures/ndo/standard/",
+                "tests/integration/fixtures/ndo/standard_43/",
+            ],
+            "tests/integration/fixtures/ndo/terraform_43_legacy_utils",
+            "https://10.50.202.13",
+            "ce2_defaultOneTime-2023-12-18T06-15-28.tar.gz",
+            "https://10.50.202.14",
+            "68961d1d784a2aadc330ba86",
+            "4.3",
+        )
+    ],
+)
+def test_ndo_terraform_43_legacy_utils(
     data_paths,
     terraform_path,
     apic_url,
