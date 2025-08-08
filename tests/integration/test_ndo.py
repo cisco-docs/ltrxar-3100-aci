@@ -616,7 +616,7 @@ def test_ndo_42(
             "https://10.50.202.13",
             "ce2_defaultOneTime-2023-12-18T06-15-28.tar.gz",
             "https://10.50.202.14",
-            "68961d1d784a2aadc330ba86",
+            "689639d9784a2aadc330ba97",
             "4.3",
         )
     ],
@@ -710,7 +710,7 @@ def test_ndo_terraform_42(
             "https://10.50.202.13",
             "ce2_defaultOneTime-2023-12-18T06-15-28.tar.gz",
             "https://10.50.202.14",
-            "68961d1d784a2aadc330ba86",
+            "689639d9784a2aadc330ba97",
             "4.3",
         )
     ],
@@ -751,7 +751,7 @@ def test_ndo_terraform_43(
             "https://10.50.202.13",
             "ce2_defaultOneTime-2023-12-18T06-15-28.tar.gz",
             "https://10.50.202.14",
-            "68961d1d784a2aadc330ba86",
+            "689639d9784a2aadc330ba97",
             "4.3",
         )
     ],

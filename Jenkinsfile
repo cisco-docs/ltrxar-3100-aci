@@ -104,7 +104,7 @@ pipeline {
                 }
                 stage('Test NDO 4.3') {
                     steps {
-                        lock(resource: 'nac-ci-apic2-6.0.5h', extra: [[resource: 'nac-ci-nd1-3.1.1l']]) {
+                        lock(resource: 'nac-ci-apic2-6.0.5h', extra: [[resource: 'nac-ci-nd1-3.1.1n']]) {
                             sh 'pytest -m "ndo_43 and not terraform"'
                         }
                     }
