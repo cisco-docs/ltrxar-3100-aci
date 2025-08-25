@@ -1661,7 +1661,7 @@ ap_bfd_ipv4_ipv6_policy:
 
 ap_forwarding_scale_policy:
   name: regex('^[a-zA-Z0-9_.:-]{1,64}$')
-  profile: enum('dual-stack', 'ipv4', 'high-dual-stack', 'high-lpm', required=False)
+  profile: enum('dual-stack', 'ipv4', 'high-dual-stack', 'high-lpm', 'high-policy', 'high-ipv4-ep', 'mcast-heavy', 'max-lpm', required=False)
 
 ap_leaf_switch_profiles:
   name: regex('^[a-zA-Z0-9_.:-]{1,64}$')

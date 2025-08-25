@@ -32,3 +32,25 @@ apic:
       vpc_policies:
         - name: VPC400
           delay_restore_timer: 210
+      forwarding_scale_policies:
+        - name: HIGH-LPM
+          profile: high-lpm
+        - name: HIGH-POLICY
+          profile: high-policy
+        - name: HIGH_IPV4_EP
+          profile: high-ipv4-ep
+        - name: MCAST-HEAVY
+          profile: mcast-heavy
+        - name: MAX-LPM
+          profile: max-lpm
+    leaf_switch_policy_groups:
+      - name: HIGH_LPM
+        forwarding_scale_policy: HIGH-LPM
+      - name: HIGH_POLICY
+        forwarding_scale_policy: HIGH-POLICY
+      - name: HIGH_IPV4_EP
+        forwarding_scale_policy: HIGH_IPV4_EP
+      - name: MCAST_HEAVY
+        forwarding_scale_policy: MCAST-HEAVY
+      - name: MAX_LPM
+        forwarding_scale_policy: MAX-LPM
