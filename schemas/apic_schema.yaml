@@ -2925,6 +2925,12 @@ ten_inb_endpoint_groups:
   contracts: include('ten_inb_endpoint_groups_contracts', required=False) # @flatten()
   static_routes: list(ip(), required=False) # @name(INB EPG Static Routes) @sheet_hidden()
   expected_state: include('ten_inb_endpoint_groups_expected_state', required=False) # @no_external_doc() @name(INB EPG Expected State) @sheet_hidden()
+  subnets: list(include('ten_inb_endpoint_groups_subnets'), required=False)  # @name(INB EPG Subnets) @sheet_hidden()
+
+ten_inb_endpoint_groups_subnets:
+  ip: ip()
+  public: bool(required=False)
+  shared: bool(required=False)
 
 ten_inb_endpoint_groups_contracts:
   consumers: list(regex('^[a-zA-Z0-9_.:-]{1,64}$'), required=False) # @name(INB EPG Consumers) @ref_name(Contract)

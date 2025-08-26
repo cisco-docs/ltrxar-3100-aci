@@ -18,6 +18,19 @@ Verify Inband Endpoint Group {{ epg_name }}
     Should Be Equal Value Json String   ${r.json()}   $..mgmtInB.attributes.encap   vlan-{{ epg.vlan }}
     Should Be Equal Value Json String   ${r.json()}   $..mgmtRsMgmtBD.attributes.tnFvBDName   {{ bd_name }}
 
+{%- set comma2 = joiner(",") %}
+{%- for subnet in epg.subnets | default([]) %}{{ comma2() }}
+{% set scope = [] %}
+{% if subnet.public | default(defaults.apic.tenants.inb_endpoint_groups.subnets.public) %}{% set scope = scope + [("public")] %}{% else %}{% set scope = scope + [("private")] %}{% endif %}
+{% if subnet.shared | default(defaults.apic.tenants.inb_endpoint_groups.subnets.shared) %}{% set scope = scope + [("shared")] %}{% endif %}
+
+Verify Endpoint Group {{ epg_name }} Subnet {{ subnet.ip }}
+    ${subnet}=   Set Variable   $..mgmtInB.children[?(@.fvSubnet.attributes.ip=='{{ subnet.ip }}')]
+    Should Be Equal Value Json String   ${r.json()}   ${subnet}..fvSubnet.attributes.ip   {{ subnet.ip }}
+    Should Be Equal Value Json String   ${r.json()}   ${subnet}..fvSubnet.attributes.scope   {{ scope | join(',') }}
+
+{% endfor %}
+
 {% for contract in epg.contracts.providers | default([]) %}
 {% set contract_name = contract ~ defaults.apic.tenants.contracts.name_suffix %}
 

@@ -13,11 +13,16 @@ apic:
             providers:
               - STD-CON1
               - STD-CON2
+          subnets:
+            - ip: 1.1.1.1/24
+              public: true
+              shared: true
           expected_state:
             minimum_health: 0
             maximum_critical_faults: 1000
             maximum_major_faults: 1000
             maximum_minor_faults: 1000
+
       filters:
         - name: ALL
           entries:
