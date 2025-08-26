@@ -65,7 +65,7 @@ apic:
             - name: SUB2
               alias: SUB2-ALIAS
               description: My Desc
-              reverse_port_filters: false
+              reverse_filter_ports: false
               consumer_to_provider:
                 qos_class: level3
                 target_dscp: AF13
