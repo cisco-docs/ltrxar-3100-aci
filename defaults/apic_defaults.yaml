@@ -833,6 +833,7 @@ defaults:
         name_suffix: ""
         ndo_managed: false
         mac: 00:22:BD:F8:19:FF
+        virtual_mac: not-applicable
         ep_move_detection: false
         arp_flooding: true
         ip_dataplane_learning: true

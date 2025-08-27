@@ -24,7 +24,7 @@ Verify Bridge Domain {{ bd_name }}
     Should Be Equal Value Json String   ${r.json()}   $..fvBD.attributes.ipLearning   {{ 'yes' if bd.ip_dataplane_learning | default(defaults.apic.tenants.bridge_domains.ip_dataplane_learning) else 'no' }}
     Should Be Equal Value Json String   ${r.json()}   $..fvBD.attributes.limitIpLearnToSubnets  {{ 'yes' if bd.limit_ip_learn_to_subnets | default(defaults.apic.tenants.bridge_domains.limit_ip_learn_to_subnets) else 'no' }}
     Should Be Equal Value Json String   ${r.json()}   $..fvBD.attributes.mac   {{ bd.mac | default(defaults.apic.tenants.bridge_domains.mac) }}
-    Should Be Equal Value Json String   ${r.json()}   $..fvBD.attributes.vmac   {{ bd.virtual_mac | default() }}
+    Should Be Equal Value Json String   ${r.json()}   $..fvBD.attributes.vmac   {{ bd.virtual_mac | default(defaults.apic.tenants.bridge_domains.virtual_mac) }}
     Should Be Equal Value Json String   ${r.json()}   $..fvBD.attributes.mcastAllow   {{ 'yes' if bd.l3_multicast | default(defaults.apic.tenants.bridge_domains.l3_multicast) else 'no' }}
     {% if bd.multicast_arp_drop is defined %}
         Should Be Equal Value Json String   ${r.json()}   $..fvBD.attributes.mcastARPDrop   {{ 'yes' if bd.multicast_arp_drop else 'no' }}
