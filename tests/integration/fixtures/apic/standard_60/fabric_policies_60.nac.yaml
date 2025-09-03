@@ -46,3 +46,6 @@ apic:
       syslogs:
         - name: syslog3
           format: enhanced-log
+    control_plane_mtu:
+      mtu: 6000
+      apic_mtu_apply: true

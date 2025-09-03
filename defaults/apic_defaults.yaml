@@ -27,6 +27,8 @@ defaults:
       apic_conn_pref: inband
       atomic_counter:
         mode: trail
+      control_plane_mtu:
+        mtu: 9000
       banners:
         apic_gui_alias: ""
         apic_gui_banner_url: ""

@@ -13,6 +13,14 @@ objects:
     delete: false
     paths:
       - apic.fabric_policies.config_passphrase
+  - name: Control Plane MTU
+    template: control_plane_mtu
+    folder: fabric_policies
+    delete: false
+    test_types:
+      - config
+    paths:
+      - apic.fabric_policies.control_plane_mtu
   - name: Date and Time Format
     template: date_time_format
     folder: fabric_policies

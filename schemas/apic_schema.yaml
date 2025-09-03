@@ -95,10 +95,16 @@ fabric_policies:
   interface_policies: include('fp_interface_policies', required=False) # @name(Fabric Interface Policies) @sheet_hidden()
   sr_mpls_global_configuration: include('fp_sr_mpls_global_configuration', required=False) # @sheet_hidden()
   atomic_counter: include('fp_atomic_counter', required=False) # @sheet_hidden()
+  control_plane_mtu: include('fp_control_plane_mtu', required=False) # @name(Control Plane MTU) @sheet_hidden()
+
 
 fp_atomic_counter:
   mode: enum('path', 'trail', required=False)
   admin_state: bool()
+
+fp_control_plane_mtu:
+  mtu: int(min=576, max=9000, required=False)
+  apic_mtu_apply: bool(required=False)
 
 fp_banners:
   apic_gui_alias: str(required=False)
