@@ -8,11 +8,16 @@ class Rule:
         results = []
         try:
             has_redirect_policy = False
-            tenants = inventory.get("apic", {}).get("tenants", {})
+            tenants = inventory.get("apic", {}).get("tenants", [])
+            if tenants is None:
+                tenants = []
+
             for tenant in tenants:
                 for redirect_policies in tenant.get("services", {}).get(
                     "redirect_policies", {}
                 ):
+                    if redirect_policies is None:
+                        redirect_policies = {}
                     if redirect_policies.get("type", ""):
                         has_redirect_policy = True
 

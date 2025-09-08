@@ -7,7 +7,9 @@ class Rule:
     def match(cls, inventory):
         results = []
         try:
-            nodes = inventory["apic"]["node_policies"]["nodes"]
+            nodes = inventory.get("apic", {}).get("node_policies", {}).get("nodes", [])
+            if nodes is None:
+                nodes = []
 
             for node in nodes:
                 if node.get("pod") == 0 and node.get("role") != "apic":

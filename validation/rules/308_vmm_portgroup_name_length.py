@@ -11,12 +11,19 @@ class Rule:
 
         try:
             tenants = inventory.get("apic", {}).get("tenants", [])
+            if tenants is None:
+                tenants = []
+
             for tenant in tenants:
                 tn_name = tenant["name"]
                 application_profiles = tenant.get("application_profiles", [])
+                if application_profiles is None:
+                    application_profiles = []
                 for app in application_profiles:
                     ap_name = app["name"]
                     endpoint_groups = app.get("endpoint_groups", [])
+                    if endpoint_groups is None:
+                        endpoint_groups = []
                     for epg in endpoint_groups:
                         epg_name = epg["name"]
                         vmware_vmm_domains = epg.get(

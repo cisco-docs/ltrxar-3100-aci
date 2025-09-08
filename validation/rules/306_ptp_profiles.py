@@ -7,7 +7,13 @@ class Rule:
     def match(cls, inventory):
         results = []
         try:
-            ptp_profiles = inventory["apic"]["access_policies"]["ptp_profiles"]
+            ptp_profiles = (
+                inventory.get("apic", {})
+                .get("access_policies", {})
+                .get("ptp_profiles", [])
+            )
+            if ptp_profiles is None:
+                ptp_profiles = []
 
             for ptp in ptp_profiles:
                 if ptp.get("template", "aes67") == "aes67":

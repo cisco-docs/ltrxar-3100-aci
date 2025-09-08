@@ -13,9 +13,18 @@ class Rule:
                 .get("span", {})
                 .get("source_groups", [])
             )
+            if source_groups is None:
+                source_groups = []
+
             for src_grp in source_groups:
-                for src in src_grp.get("sources", []):
-                    for path in src.get("access_paths", []):
+                srcs = src_grp.get("sources", [])
+                if srcs is None:
+                    srcs = []
+                for src in srcs:
+                    paths = src.get("access_paths", [])
+                    if paths is None:
+                        paths = []
+                    for path in paths:
                         if path["type"] == "vpc":
                             if "channel" not in path:
                                 results.append(
