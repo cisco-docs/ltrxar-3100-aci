@@ -49,9 +49,6 @@ pipeline {
             }
         }
         stage('Test') {
-            when {
-                branch 'master'
-            }
             parallel {
                 stage('Test APIC 4.2') {
                     steps {
