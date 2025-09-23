@@ -39,7 +39,7 @@ Verify Contract {{ contract_name }} Subject {{ subject_name }}
 {% set filter_name = filter.filter ~ defaults.apic.tenants.filters.name_suffix %}
 {% set directives = [] %}
 {% if filter.log | default(defaults.apic.tenants.contracts.subjects.filters.log) %}{% set directives = directives + [("log")] %}{% endif %}
-{% if filter.no_stats | default(defaults.apic.tenants.contracts.subjects.filters.no_stats) %}{% set directives = directives + [("no-stats")] %}{% endif %}
+{% if filter.no_stats | default(defaults.apic.tenants.contracts.subjects.filters.no_stats) %}{% set directives = directives + [("no_stats")] %}{% endif %}
 
 Verify Contract {{ contract_name }} Subject {{ subject_name }} Filter {{ filter_name }}
     ${filter}=   Set Variable   $..vzBrCP.children[?(@.vzSubj.attributes.name=='{{ subject_name }}')].vzSubj.children[?(@.vzRsSubjFiltAtt.attributes.tnVzFilterName=='{{ filter_name }}')]
@@ -63,7 +63,7 @@ Verify Contract {{ contract_name }} Subject {{ subject_name }} Consumer_to_Provi
 {% set filter_name = filter.filter ~ defaults.apic.tenants.filters.name_suffix %}
 {% set directives = [] %}
 {% if filter.log | default(defaults.apic.tenants.contracts.subjects.consumer_to_provider.filters.log) %}{% set directives = directives + [("log")] %}{% endif %}
-{% if filter.no_stats | default(defaults.apic.tenants.contracts.subjects.consumer_to_provider.filters.no_stats) %}{% set directives = directives + [("no-stats")] %}{% endif %}
+{% if filter.no_stats | default(defaults.apic.tenants.contracts.subjects.consumer_to_provider.filters.no_stats) %}{% set directives = directives + [("no_stats")] %}{% endif %}
 
 Verify Contract {{ contract_name }} Subject {{ subject_name }} Consumer_to_Provider Filter {{ filter_name }}
     ${filter}=   Set Variable   $..vzBrCP.children[?(@.vzSubj.attributes.name=='{{ subject_name }}')].vzSubj.children[?(@.vzInTerm)].vzInTerm.children[?(@.vzRsFiltAtt.attributes.tnVzFilterName=='{{ filter_name }}')]
@@ -87,7 +87,7 @@ Verify Contract {{ contract_name }} Subject {{ subject_name }} Unidirectional Pr
 {% set filter_name = filter.filter ~ defaults.apic.tenants.filters.name_suffix %}
 {% set directives = [] %}
 {% if filter.log | default(defaults.apic.tenants.contracts.subjects.provider_to_consumer.filters.log) %}{% set directives = directives + [("log")] %}{% endif %}
-{% if filter.no_stats | default(defaults.apic.tenants.contracts.subjects.provider_to_consumer.filters.no_stats) %}{% set directives = directives + [("no-stats")] %}{% endif %}
+{% if filter.no_stats | default(defaults.apic.tenants.contracts.subjects.provider_to_consumer.filters.no_stats) %}{% set directives = directives + [("no_stats")] %}{% endif %}
 
 Verify Contract {{ contract_name }} Subject {{ subject_name }} Provider_to_Consumer Filter {{ filter_name }}
     ${filter}=   Set Variable   $..vzBrCP.children[?(@.vzSubj.attributes.name=='{{ subject_name }}')].vzSubj.children[?(@.vzOutTerm)].vzOutTerm.children[?(@.vzRsFiltAtt.attributes.tnVzFilterName=='{{ filter_name }}')]
