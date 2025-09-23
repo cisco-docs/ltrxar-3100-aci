@@ -18,7 +18,9 @@
                         "dn": "uni/tn-{{ tenant.name }}/ctx-{{ vrf_name }}",
                         "nameAlias": "{{ vrf.alias | default() }}",
                         "ipDataPlaneLearning": "{{ 'enabled' if vrf.data_plane_learning | default(defaults.apic.tenants.vrfs.data_plane_learning) else 'disabled' }}",
+                        {%- if not vrf.ndo_managed | default(defaults.apic.tenants.vrfs.ndo_managed) %}
                         "pcEnfDir": "{{ vrf.enforcement_direction | default(defaults.apic.tenants.vrfs.enforcement_direction) }}",
+                        {%- endif %}
                         "pcEnfPref": "{{ vrf.enforcement_preference | default(defaults.apic.tenants.vrfs.enforcement_preference) }}",
                         "descr": "{{ vrf.description | default() }}",
                         "childAction": "deleteNonPresent"

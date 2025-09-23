@@ -1342,7 +1342,7 @@ No EPG Static Bindings configured.
 | Name | Policy Enforcement | Policy Enforcement Direction | Preferred Group |
 |---|---|---|---|---|
 {% for vrf in tenant.vrfs | default([])%}
-| {{vrf.name ~ defaults.apic.tenants.vrfs.name_suffix}} | {{vrf.enforcement_preference | default(defaults.apic.tenants.vrfs.enforcement_preference)}} | {{vrf.enforcement_direction | default(defaults.apic.tenants.vrfs.enforcement_direction)}} | {{vrf.preferred_group | default(defaults.tenants.vrfs.preferred_group)}} |
+| {{vrf.name ~ defaults.apic.tenants.vrfs.name_suffix}} | {{vrf.enforcement_preference | default(defaults.apic.tenants.vrfs.enforcement_preference)}} | {% if vrf.ndo_managed | default(defaults.apic.tenants.vrfs.ndo_managed) %}NDO Managed{% else %}{{vrf.enforcement_direction | default(defaults.apic.tenants.vrfs.enforcement_direction)}}{% endif %} | {{vrf.preferred_group | default(defaults.tenants.vrfs.preferred_group)}} |
 {% endfor %}
 </caption>
 {% else %}

@@ -30,7 +30,9 @@ Verify VRF {{ vrf_name }}
     Should Be Equal Value Json String   ${r.json()}   $..fvCtx.attributes.nameAlias   {{ vrf.alias | default() }}
     Should Be Equal Value Json String   ${r.json()}   $..fvCtx.attributes.descr   {{ vrf.description | default() }}
     Should Be Equal Value Json String   ${r.json()}   $..fvCtx.attributes.ipDataPlaneLearning   {{ 'enabled' if vrf.data_plane_learning | default(defaults.apic.tenants.vrfs.data_plane_learning) else 'disabled' }}
+{% if not vrf.ndo_managed | default(defaults.apic.tenants.vrfs.ndo_managed) %}
     Should Be Equal Value Json String   ${r.json()}   $..fvCtx.attributes.pcEnfDir   {{ vrf.enforcement_direction | default(defaults.apic.tenants.vrfs.enforcement_direction) }}
+{% endif %}
     Should Be Equal Value Json String   ${r.json()}   $..fvCtx.attributes.pcEnfPref   {{ vrf.enforcement_preference | default(defaults.apic.tenants.vrfs.enforcement_preference) }}
     Should Be Equal Value Json String   ${r.json()}   $..vzAny.attributes.prefGrMemb   {{ 'enabled' if vrf.preferred_group | default(defaults.apic.tenants.vrfs.preferred_group) else 'disabled' }}
 
