@@ -50,7 +50,7 @@ Verify Inband Endpoint Group {{ epg_name }} Contract consumers {{ contract_name 
 {% endfor %}
 
 {% for contract in epg.contracts.imported_consumers | default([]) %}
-{% set contract_name = contract ~ defaults.apic.tenants.imported_consumers.name_suffix %}
+{% set contract_name = contract ~ defaults.apic.tenants.imported_contracts.name_suffix %}
 
 Verify Inband Endpoint Group {{ epg_name }} Imported Contract {{ contract_name }}
     ${con}=   Set Variable   $..mgmtInB.children[?(@.fvRsConsIf.attributes.tnVzCPIfName=='{{ contract_name }}')]
