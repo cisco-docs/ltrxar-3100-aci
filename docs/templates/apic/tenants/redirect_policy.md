@@ -8,6 +8,31 @@ Location in GUI:
 
 ### Examples
 
+Example-1: This data model creates an L3-type Redirect Policy named `L4L7_PBR`, which redirects traffic to the PBR destinations specified under `l3_destinations`. The L3 PBR node interface is expected to reside within an L3Out (specified in the Device Selection Policies).
+
+To monitor destination health and prevent traffic black-holing, the IP SLA Policy `PingEach20sec` and Redirect Health Group `L4L7RedirectHealthGroup` are utilized. These monitoring policies are defined in the following modules:
+
+- apic.tenants.policies.ip_sla_policies
+- apic.tenants.services.redirect_health_groups
+
+```yaml
+apic:
+  tenants:
+    - name: PBR_ServGraph
+      services:
+        redirect_policies:
+          - name: L4L7_PBR
+            description: L4-L7 PBR with SG
+            type: L3
+            ip_sla_policy: PingEach20sec
+            l3_destinations:
+              - name: FW_Virtual_Interface
+                description: FW virtual interface
+                ip: 10.0.0.5
+                mac: AA:AA:BB:BB:CC:CC
+                redirect_health_group: L4L7RedirectHealthGroup
+```
+
 Simple example:
 
 ```yaml

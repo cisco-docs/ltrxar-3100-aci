@@ -8,7 +8,7 @@ Location in GUI:
 
 ### Examples
 
-Simple example:
+Example-1: This is a single example of a configuration where only the VRF name is specified. Apart from the VRF name, the rest of the settings use default values.
 
 ```yaml
 apic:
@@ -18,7 +18,22 @@ apic:
         - name: VRF1
 ```
 
-Full example:
+Example-2: This is a single example of a configuration where, in addition to the settings in Example-1, vzAny is configured. The rest of the settings use default values.
+
+```yaml
+apic:
+  tenants:
+    - name: ABC
+      vrfs:
+        - name: VRF1
+          contracts:
+            consumers:
+              - vzAny_Contract
+            providers:
+              - vzAny_Contract
+```
+
+Example-3: This is a single example of a configuration where all parameters are explicitly specified.
 
 ```yaml
 apic:

@@ -8,6 +8,49 @@ Location in GUI:
 
 ### Examples
 
+Example-1: The following data model defines a `FW` L4-L7 Device composed of two physical firewalls (`Customer_Firewall_1` and `Customer_Firewall_2`). Each firewall is connected to the fabric through two distinct physical connections to leaf switches `101` and `102` using ports `10` and `11`. The `FW` L4-L7 Device aggregates these four physical interfaces into a single logical interface named `Cluster_IF` using VLAN `20`. This VLAN ID must be included in on VLAN Pool contained in the physical domain `PHYSICAL_DOMAIN`.
+
+This data model can be applied as is; however, if the referenced Access Policies are not configured, the deployment will not function correctly.
+
+```yaml
+apic:
+  tenants:
+    - name: PBR_ServGraph
+      services:
+        l4l7_devices:
+          - name: FW
+            physical_domain: PHYSICAL_DOMAIN
+            concrete_devices:
+              - name: Customer_Firewall_1
+                interfaces:
+                  - name: FW1_IF_2
+                    node_id: 102
+                    port: 10
+                  - name: FW1_IF_1
+                    node_id: 101
+                    port: 10
+              - name: Customer_Firewall_2
+                interfaces:
+                  - name: FW2_IF_2
+                    node_id: 102
+                    port: 11
+                  - name: FW2_IF_1
+                    node_id: 101
+                    port: 11
+            logical_interfaces:
+              - name: Cluster_IF
+                vlan: 20
+                concrete_interfaces:
+                  - device: Customer_Firewall_1
+                    interface_name: FW1_IF_2
+                  - device: Customer_Firewall_1
+                    interface_name: FW1_IF_1
+                  - device: Customer_Firewall_2
+                    interface_name: FW2_IF_2
+                  - device: Customer_Firewall_2
+                    interface_name: FW2_IF_1
+```
+
 Simple example:
 
 ```yaml

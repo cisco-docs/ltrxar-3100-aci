@@ -356,3 +356,161 @@ apic:
                 imported_consumers:
                   - IMPORT-CON1
 ```
+
+example: This example shows how to configure an L3out with IPv4/IPv6 dual stack and a VIP on the SVI. The configuration includes static routes and external EPGs for the L3out, and is typically used when deploying a high-availability (HA) pair of firewalls with a NAT pool. The L3out is configured as SVI Vlan '100' on Port '10' of Node '1001' and Node '1002'. Each node has its own IPv4, IPv6, and shared VIP addresses, and the shared VIP address is used as the gateway for APP1. Static routing is used as a routing protocol, and an External EPG is configured to permit communication from those routes.
+
+```yaml
+apic:
+  tenants:
+    - name: TENANT1
+      l3outs:
+        - name: 'APP1-L3out'
+          description: Interface for APP1
+          vrf: VRF1
+          domain: DOMAIN1
+          node_profiles:
+            - name: 'APP1-NodeProf'
+              nodes:
+                - node_id: 1001
+                  router_id: 10.1.1.1
+                  router_id_as_loopback: false
+                  static_routes:
+                    - prefix: 2001:db8:1234:1000::/64
+                      next_hops:
+                        - ip: 2001:db8:1234:2000::10
+                    - prefix: 192.168.1.0/24
+                      next_hops:
+                        - ip: 192.168.2.10
+                - node_id: 1002
+                  router_id: 10.1.1.2
+                  router_id_as_loopback: false
+                  static_routes:
+                    - prefix: 192.168.1.0/24
+                      next_hops:
+                        - ip: 192.168.2.10
+                    - prefix: 2001:db8:1234:1000::/64
+                      next_hops:
+                        - ip: 2001:db8:1234:2000::10
+              interface_profiles:
+                - name: 'APP1-IPv6-IntProf'
+                  description: IPv6 Interface Profile for APP1
+                  interfaces:
+                    - node_id: 1001
+                      port: 10
+                      ip: 2001:db8:1234:2000::1/64
+                      svi: true
+                      vlan: 100
+                      ip_shared: 2001:db8:1234:2000::3/64
+                    - node_id: 1002
+                      port: 10
+                      ip: 2001:db8:1234:2000::2/64
+                      svi: true
+                      vlan: 100
+                      ip_shared: 2001:db8:1234:2000::3/64
+                - name: 'APP1-IPv4-IntProf'
+                  description: IPv4 Interface Profile for APP1
+                  interfaces:
+                    - node_id: 1001
+                      port: 10
+                      ip: 192.168.2.1/24
+                      svi: true
+                      vlan: 100
+                      ip_shared: 192.168.2.3/24
+                    - node_id: 1002
+                      port: 10
+                      ip: 192.168.2.2/24
+                      svi: true
+                      vlan: 100
+                      ip_shared: 192.168.2.3/24
+          external_endpoint_groups:
+            - name: 'APP1-ExtEPG'
+              subnets:
+                - prefix: 2001:db8:1234:1000::/64
+                - prefix: 192.168.1.0/24
+```
+
+example: In this example, BGP is used as dynamic routing protocol. The BGP parameters are configured as follows:
+BGP remote-as '65530', IPv6 neighbor address '2001:db8:1234:2000::10', IPv4 neighbor address '192.168.2.10', bfd is enabled with the policy 'BFD-Policy'. ACI advertises default route '::/0' and '0.0.0.0/0' to the BGP neighbor and is assumed to receive '2001:db8:1234:1000::/64' and '192.168.1.0/24' from it.
+
+```yaml
+apic:
+  tenants:
+    - name: TENANT1
+      l3outs:
+        - name: 'APP1-L3out'
+          description: Interface for APP1
+          vrf: VRF1
+          domain: DOMAIN1
+          node_profiles:
+            - name: 'APP1-NodeProf'
+              nodes:
+                - node_id: 1001
+                  router_id: 10.1.1.1
+                  router_id_as_loopback: false
+                - node_id: 1002
+                  router_id: 10.1.1.2
+                  router_id_as_loopback: false
+              interface_profiles:
+                - name: 'APP1-IPv6-IntProf'
+                  description: IPv6 Interface Profile for APP1
+                  bfd_policy: BFD-Policy
+                  interfaces:
+                    - node_id: 1001
+                      port: 10
+                      ip: 2001:db8:1234:2000::1/64
+                      svi: true
+                      vlan: 100
+                      bgp_peers:
+                        - ip: 2001:db8:1234:2000::10
+                          remote_as: 65530
+                          description: BGP Peer for APP1
+                          bfd: true
+                          multicast_address_family: false
+                    - node_id: 1002
+                      port: 10
+                      ip: 2001:db8:1234:2000::2/64
+                      svi: true
+                      vlan: 100
+                      bgp_peers:
+                        - ip: 2001:db8:1234:2000::10
+                          remote_as: 65530
+                          description: BGP Peer for APP1
+                          bfd: true
+                          multicast_address_family: false
+                - name: 'APP1-IPv4-IntProf'
+                  description: IPv4 Interface Profile for APP1
+                  interfaces:
+                    - node_id: 1001
+                      port: 10
+                      ip: 192.168.2.1/24
+                      svi: true
+                      vlan: 100
+                      bgp_peers:
+                        - ip: 192.168.2.10
+                          remote_as: 65530
+                          description: BGP Peer for APP1
+                          bfd: true
+                          multicast_address_family: false
+                    - node_id: 1002
+                      port: 10
+                      ip: 192.168.2.2/24
+                      svi: true
+                      vlan: 100
+                      bgp_peers:
+                        - ip: 192.168.2.10
+                          remote_as: 65530
+                          description: BGP Peer for APP1
+                          bfd: true
+                          multicast_address_family: false
+          external_endpoint_groups:
+            - name: 'APP1-ExtEPG'
+              subnets:
+                - prefix: 2001:db8:1234:1000::/64
+                - prefix: 192.168.1.0/24
+                - prefix: ::/0
+                  export_route_control: true
+                  import_security: false
+                - prefix: 0.0.0.0/0
+                  export_route_control: true
+                  import_security: false
+```

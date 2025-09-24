@@ -8,33 +8,25 @@ Location in GUI:
 
 ### Examples
 
-Simple example:
+Example 1: In this example we configure 2 TACACS+ servers which use CHAP and are reachable over the out-of-band connection, where the timeout is set to 5s and only 1 retry will be made.
 
 ```yaml
 apic:
   fabric_policies:
     aaa:
       tacacs_providers:
-        - hostname_ip: 1.1.1.1
-          key: '123'
-```
-
-Full example:
-
-```yaml
-apic:
-  fabric_policies:
-    aaa:
-      tacacs_providers:
-        - hostname_ip: 1.1.1.1
-          description: descr
-          port: 4949
+        - hostname_ip: 11.11.11.1
+          description: TACACS Server 1
           protocol: chap
-          key: '123'
-          timeout: 2
-          retries: 2
+          timeout: 5
+          retries: 1
+          key: myKey
           mgmt_epg: oob
-          monitoring: true
-          monitoring_username: user1
-          monitoring_password: pass1
+        - hostname_ip: 11.11.11.2
+          description: TACACS Server 2
+          protocol: chap
+          timeout: 5
+          retries: 1
+          key: myKey
+          mgmt_epg: oob
 ```

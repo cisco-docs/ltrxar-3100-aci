@@ -8,32 +8,18 @@ Location in GUI:
 
 ### Examples
 
-```yaml
-apic:
-  tenants:
-    - name: ABC
-      policies:
-        set_rules:
-          - name: SET1
-            description: desc1
-            community_mode: replace
-            community: regular:as2-nn2:12:123
-```
-
-#### Set AS Path
+Example 1: The YAML snippet below demonstrates the `set_as_paths` functionality, designed to append multiple Autonomous Systems (ASs) to the `AS_PATH` of a BGP prefix. This is a key feature for BGP AS Path manipulation. The `set_as_paths` alongside the `asns` are defined as `list`.
 
 ```yaml
 apic:
   tenants:
-    - name: ABC
+    - name: TN_01
       policies:
         set_rules:
-          - name: SET1
-            description: desc1
-            community_mode: replace
-            community: regular:as2-nn2:12:123
+          - name: SET_STG_STG_L_65002:10002
+            community: regular:as2-nn2:65002:10002
             set_as_paths:
-              - criteria: "prepend"
+              - criteria: prepend
                 asns:
                   - number: 65098
                     order: 1
@@ -41,6 +27,6 @@ apic:
                     order: 2
                   - number: 65098
                     order: 3
-              - criteria: "prepend-last-as"
+              - criteria: prepend-last-as
                 count: 8
 ```

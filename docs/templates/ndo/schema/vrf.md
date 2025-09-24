@@ -7,6 +7,21 @@ Location in GUI:
 
 ### Examples
 
+Example 1: The YAML snippet below demonstrates how to enable "Site-aware Policy Enforcement Mode" in NDO for a stretched VRF, which is essential to support PBR vzAny Multi-Site deployments. This is enabled by setting the `site_aware_policy_enforcement_mode: true` flag, ensuring that policies within the stretched VRF are enforced with awareness of the site, allowing for proper PBR and vzAny functionality across multiple locations.
+
+```yaml
+ndo:
+  schemas:
+    - name: SCH_TN_10_NONP
+      templates:
+        - name: TMP_STRETCHED
+          tenant: TN_STAGING
+          vrfs:
+            - name: VRF_STAGING
+              vzany: true
+              site_aware_policy_enforcement: true
+```
+
 On-premise VRF:
 
 ```yaml

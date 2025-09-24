@@ -3,12 +3,13 @@
 Location in GUI:
 `Tenants` » `XXX` » `Application Profiles` » `XXX` » `Application EPGs`
 
+In Cisco ACI, an Endpoint Group (EPG) is a logical group of endpoints (such as servers, virtual machines, and containers) that share common network and security policies.
 
 {{ doc_gen }}
 
 ### Examples
 
-Simple example:
+Example-1: This is a single example of an EPG configuration where a static port is defined using a single interface (non-vPC, non-port-channel). The configuration is placed under application profile `AP1` and associated with bridge-domain `BD1`. The physical domain `PHY1` is specified, and in the static port configuration, interface `Eth1/10` on leaf node `101` with VLAN `135` is defined. In addition, the consumer contract `CON1` is applied. The rest of the settings use default values.
 
 ```yaml
 apic:
@@ -30,7 +31,56 @@ apic:
                   - CON1
 ```
 
-Full example:
+Example-2: This is a single example of an EPG configuration where a static port is defined using a vPC interface. The predefined vPC interface policy group `Lf1010_Lf1011_eth1_1_vPC` from the Access Policy is specified, and the nodes are defined as the vPC peers, leaf `1010` and leaf `1011`. In this example, the mode is explicitly set to regular (trunk) and the deployment immediacy is specified as immediate. Apart from the static port specification, the configuration is the same as Example-1.
+
+```yaml
+apic:
+  tenants:
+    - name: ABC
+      application_profiles:
+        - name: AP1
+          endpoint_groups:
+            - name: EPG1
+              bridge_domain: BD1
+              physical_domains:
+                - PHY1
+              static_ports:
+                - channel: Lf1010_Lf1011_eth1_1_vPC
+                  node_id: 1010
+                  node2_id: 1011
+                  vlan: 135
+                  mode: regular
+                  deployment_immediacy: immediate
+              contracts:
+                consumers:
+                  - CON1
+```
+
+Exmaple-3: This is a single example of an EPG configuration where a static port is defined using a PC interface. The predefined PC interface policy group Internet_PC from the Access Policy is specified, and the nodes are defined as the PC, leaf `1010`. In this example, the mode is explicitly set to `regular` (trunk) and the deployment immediacy is specified as `immediate`. Apart from the static port specification, the configuration is the same as Example-1.
+
+```yaml
+apic:
+  tenants:
+    - name: ABC
+      application_profiles:
+        - name: AP1
+          endpoint_groups:
+            - name: EPG1
+              bridge_domain: BD1
+              physical_domains:
+                - PHY1
+              static_ports:
+                - channel: Internet_PC
+                  node_id: 1010
+                  vlan: 135
+                  mode: regular
+                  deployment_immediacy: immediate
+              contracts:
+                consumers:
+                  - CON1
+```
+
+Example-4: This is a single example of a configuration where all parameters are explicitly specified.
 
 ```yaml
 apic:

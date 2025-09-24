@@ -7,6 +7,27 @@ Location in GUI:
 
 ### Examples
 
+Example 1: In Multi-Site deployments, external TEP pools serve a crucial role in enabling communication and integration with external networks and devices. The configuration below demonstrates the use of multiple external_tep_pools entries (`10.10.10.0/24`, `10.10.11.0/24`, `10.10.12.0/24`) for pod `1`. This approach allows for the allocation of distinct IP address ranges for Inter-site L3Out communication.
+
+```yaml
+ndo:
+  sites:
+    - name: NLD1
+      multisite: true
+      multicast_tep: 239.1.1.1
+      bgp:
+        as: 65009
+      pods:
+        - id: 1
+          unicast_tep: 10.12.12.13
+          external_tep_pools:
+            - ip: 10.10.10.0/24
+            - ip: 10.10.11.0/24
+            - ip: 10.10.12.0/24
+```
+
+full-example:
+
 ```yaml
 ndo:
   sites:

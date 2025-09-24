@@ -40,7 +40,7 @@ apic:
         access_policy_group: ALL_LEAFS
 ```
 
-Explicitly configured profiles:
+Example-1: This configuration creates a leaf switch profile named `LEAF101` that applies the `ALL_LEAFS` policy to node `101` and associates it with the `LEAF101` interface profile for port configuration. This is used to control which switches get which policies and interface settings.
 
 ```yaml
 apic:
@@ -55,4 +55,23 @@ apic:
                 from: 101
         interface_profiles:
           - LEAF101
+```
+
+Example-2: This configuration creates a leaf switch profile that applies the `ALL_LEAFS_POLICY` to both leaf switches `101` and `102`, and associates each with its respective interface profile for port configuration. This allows you to manage policies and interface settings for multiple switches as a group.
+
+```yaml
+apic:
+  access_policies:
+    leaf_switch_profiles:
+      - name: LEAF_PROFILE_101_102
+        selectors:
+          - name: LEAFS_101_102
+            policy: ALL_LEAFS_POLICY
+            node_blocks:
+              - name: BLOCK_101_102
+                from: 101
+                to: 102
+        interface_profiles:
+          - LEAF101_INTF_PROFILE
+          - LEAF102_INTF_PROFILE
 ```

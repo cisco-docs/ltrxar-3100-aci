@@ -3,12 +3,13 @@
 Location in GUI:
 `Tenants` » `XXX` » `Networking` » `Bridge Domains`
 
+In Cisco ACI, a Bridge Domain (BD) is a logical construct that defines a layer-2 forwarding domain. It is the equivalent of a VLAN or a broadcast domain in traditional networking. A BD is created as a component of a tenant and must be associated with one VRF instance.
 
 {{ doc_gen }}
 
 ### Examples
 
-Simple example:
+Example-1: This is a single example of a layer-3 bridge-domain where the bridge-domain `BD1` is configured under tenant `ABC` and associated with vrf `VRF1`. As this is a layer-3 bridge-domain is it configured with IP subnet `1.1.1.1/24`. The rest of the bridge-domain settings uses default values.
 
 ```yaml
 apic:
@@ -21,7 +22,21 @@ apic:
             - ip: 1.1.1.1/24
 ```
 
-Full example:
+Example-2: This is a single example of a layer-2 bridge-domain where the bridge-domain `BD1` is configured under tenant `ABC` and associated with vrf `VRF1`. Unlike a layer-3 bridge-domain, no IP subnet is configured. Instead,, L2 unknown unicast is set to `flooding`, unicast routing is `disabled`, and ARP flooding is `enabled`. The rest of the settings use default values.
+
+```yaml
+apic:
+  tenants:
+    - name: ABC
+      bridge_domains:
+        - name: BD1
+          vrf: VRF1
+          unknown_unicast: flood
+          arp_flooding: true
+          unicast_routing: false
+```
+
+Example-3: This is a single example of a configuration where all parameters are explicitly specified.
 
 ```yaml
 apic:

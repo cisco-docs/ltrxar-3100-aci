@@ -40,7 +40,7 @@ apic:
           - id: 101
 ```
 
-Explicitly configured profiles:
+Example-1: This configuration explicitly creates a FEX interface profile named `LEAF101-FEX101`, with a selector `SEL1` that applies the `10G-SERVER` policy group to a port block `BLOCK1` starting at port `1`.
 
 ```yaml
 apic:
@@ -54,4 +54,25 @@ apic:
               - name: BLOCK1
                 description: Server ABC
                 from_port: 1
+```
+Example-2: This is another example for a FEX Interface Profile, along with a clear description of each value. 
+- fex_interface_profiles: List of FEX interface profiles to define explicitly.
+- selectors: List of selectors for this profile.
+- policy_group: The policy group to associate with this selector (e.g., `20G-APP-SERVERS`).
+- port_blocks: List of port blocks under this selector.
+- from_port and to_port: Starting port number in the block (e.g., `1`) and ending port number in the block (e.g., `8`).
+
+```yaml
+apic:
+  access_policies:
+    fex_interface_profiles:
+      - name: LEAF102-FEX201
+        selectors:
+          - name: FEX201-SEL
+            policy_group: 20G-APP-SERVERS
+            port_blocks:
+              - name: APP-BLOCK
+                description: Application Servers Block
+                from_port: 1
+                to_port: 8
 ```
