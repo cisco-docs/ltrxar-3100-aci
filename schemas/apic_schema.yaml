@@ -96,7 +96,9 @@ fabric_policies:
   sr_mpls_global_configuration: include('fp_sr_mpls_global_configuration', required=False) # @sheet_hidden()
   atomic_counter: include('fp_atomic_counter', required=False) # @sheet_hidden()
   control_plane_mtu: include('fp_control_plane_mtu', required=False) # @name(Control Plane MTU) @sheet_hidden()
-
+  macsec_parameters_policies: list(include('fp_macsec_parameters_policy'), required=False) # @name(Fabric Macsec Parameters) @ref_name(Fabric Macsec Parameters) @sheet_hidden()
+  macsec_keychain_policies: list(include('fp_macsec_keychain_policy'), required=False) # @name(Fabric Macsec Keychains) @ref_name(Fabric Macsec Keychains) @sheet_hidden()
+  macsec_interfaces_policies: list(include('fp_macsec_interfaces_policy'), required=False) # @name(Fabric Macsec Interfaces Policies) @ref_name(Fabric Macsec Interfaces Policies) @sheet_hidden()
 
 fp_atomic_counter:
   mode: enum('path', 'trail', required=False)
@@ -1054,6 +1056,36 @@ fp_link_level_policy:
 fp_sr_mpls_global_configuration:
   sr_global_block_minimum: int(min=16000, max=471804, required=False)
   sr_global_block_maximum: int(min=16000, max=471804, required=False)
+
+fp_macsec_parameters_policy:
+  name: regex('^[a-zA-Z0-9_.:-]{1,64}$')
+  description: regex('^[a-zA-Z0-9\\\\!#$%()*,-./:;@ _{|}~?&+]{1,128}$', required=False)
+  cipher_suite: enum('gcm-aes-128', 'gcm-aes-256', 'gcm-aes-xpn-128', 'gcm-aes-xpn-256', required=False)
+  confidentiality_offset: enum('offset-0', 'offset-30', 'offset-50', required=False)
+  key_server_priority: int(min=0, max=255, required=False)
+  window_size: int(min=0, max=4294967295, required=False)
+  key_expiry_time: any(enum('disabled'), int(0), int(min=60, max=2592000), required=False)
+  security_policy: enum('should-secure', 'must-secure', required=False)
+
+fp_macsec_keychain_policy:
+  name: regex('^[a-zA-Z0-9_.:-]{1,64}$')
+  description: regex('^[a-zA-Z0-9\\\\!#$%()*,-./:;@ _{|}~?&+]{1,128}$', required=False)
+  key_policies: list(include('fp_macsec_keychain_policy_key_policy'), required=False) # @sheet_hidden()
+
+fp_macsec_keychain_policy_key_policy:
+  name: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
+  description: regex('^[a-zA-Z0-9\\\\!#$%()*,-./:;@ _{|}~?&+]{1,128}$', required=False)
+  key_name: regex('^[a-fA-F0-9]{0,64}$')
+  pre_shared_key: regex('^[a-fA-F0-9]{0,64}$') # @sensitive()
+  start_time: any(enum('now'), regex('^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}[+-]\d{2}:\d{2}$'), required=False)
+  end_time: any(enum('infinite'), regex('^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}[+-]\d{2}:\d{2}$'), required=False)
+
+fp_macsec_interfaces_policy:
+  name: regex('^[a-zA-Z0-9_.:-]{1,64}$')
+  description: regex('^[a-zA-Z0-9\\\\!#$%()*,-./:;@ _{|}~?&+]{1,128}$', required=False)
+  admin_state: bool(required=False)
+  macsec_parameters_policy: regex('^[a-zA-Z0-9_.:-]{1,64}$')
+  macsec_keychain_policy: regex('^[a-zA-Z0-9_.:-]{1,64}$')
 
 access_policies:
   leaf_switch_profile_name: str(min=1, max=64, required=False)

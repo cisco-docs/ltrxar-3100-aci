@@ -364,6 +364,34 @@ objects:
       - config
     paths:
       - apic.fabric_policies.system_performance
+  - name: MACsec Fabric Parameters Policy
+    template: macsec_parameters_policy
+    folder: fabric_policies
+    aci_classes:
+      - macsecFabParamPol
+    test_types:
+      - config
+    paths:
+      - apic.fabric_policies.macsec_parameters_policies
+  - name: MACsec Fabric Keychain Policy
+    template: macsec_keychain_policy
+    folder: fabric_policies
+    aci_classes:
+      - macsecKeyChainPol
+    match_dn: 'uni\/fabric\/macsecpcontfab\/keychainp-.*'
+    test_types:
+      - config
+    paths:
+      - apic.fabric_policies.macsec_keychain_policies
+  - name: MACsec Fabric Interfaces Policy
+    template: macsec_interfaces_policy
+    folder: fabric_policies
+    aci_classes:
+      - macsecFabIfPol
+    test_types:
+      - config
+    paths:
+      - apic.fabric_policies.macsec_interfaces_policies
   - name: MCP Global Instance
     template: mcp
     folder: access_policies
@@ -1037,6 +1065,7 @@ objects:
     folder: access_policies
     aci_classes:
       - macsecIfPol
+    match_dn: 'uni\/infra\/macsecpcont\/keychainp-.*'
     test_types:
       - config
     paths:

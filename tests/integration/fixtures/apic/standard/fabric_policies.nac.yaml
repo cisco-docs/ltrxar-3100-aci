@@ -753,3 +753,27 @@ apic:
         - name: link-level-policy1
           description: Fabric Link Level Policy1
           link_debounce_interval: 100
+
+    macsec_parameters_policies:
+      - name: fabric-macsec-params-1
+        description: Fabric MACsec Parameters Policy
+        cipher_suite: gcm-aes-xpn-256
+        window_size: 2048
+        key_expiry_time: 86400
+        security_policy: must-secure
+    macsec_keychain_policies:
+      - name: fabric-macsec-keychain-1
+        description: Fabric MACsec Keychain Policy
+        key_policies:
+          - name: fabric-primary-key-spine
+            description: Primary encryption key
+            key_name: abcdef0123456789
+            pre_shared_key: deadbeefcafebabefeedface12345678deadbeefcafebabefeedface12345678
+            start_time: now
+            end_time: infinite
+    macsec_interfaces_policies:
+      - name: fabric-macsec-interface-1
+        description: Fabric MACsec Interface Policy
+        admin_state: true
+        macsec_parameters_policy: fabric-macsec-params-1
+        macsec_keychain_policy: fabric-macsec-keychain-1
