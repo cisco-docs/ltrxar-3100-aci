@@ -94,6 +94,7 @@ apic:
               flood_in_encap: false
               intra_epg_isolation: false
               preferred_group: false
+              data_plane_policing_policy: DPP1
               physical_domains:
                 - PHY1
               vmware_vmm_domains:

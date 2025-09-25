@@ -549,6 +549,17 @@
                                         }
                                     }
                                     {%- endif %}
+                                    {%- if epg.data_plane_policing_policy is defined %}{{ comma3() }}
+                                    {% set data_plane_policing_policy_name = epg.data_plane_policing_policy ~ defaults.apic.tenants.policies.data_plane_policing_policies.name_suffix %}
+                                    {
+                                        "fvRsDppPol": {
+                                            "attributes": {
+                                                "annotation": "orchestrator:aac",
+                                                "tnQosDppPolName": "{{ data_plane_policing_policy_name }}"
+                                            }
+                                        }
+                                    }
+                                    {%- endif %}
 
                                 ]
                             }

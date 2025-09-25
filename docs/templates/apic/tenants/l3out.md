@@ -183,6 +183,8 @@ apic:
               interface_profiles:
                 - name: NODE_101
                   description: NODE_101 Description
+                  ingress_data_plane_policing_policy: DPP1
+                  egress_data_plane_policing_policy: DPP2
                   dhcp_labels:
                     - dhcp_relay_policy: DHCP-RELAY1
                       dhcp_option_policy: DHCP-OPTION1
@@ -216,6 +218,8 @@ apic:
           import_route_control_enforcement: true
           export_route_control_enforcement: true
           custom_qos_policy: QOS_POLICY
+          ingress_data_plane_policing_policy: DPP1
+          egress_data_plane_policing_policy: DPP2
           vrf: VRF1
           domain: ROUTED1
           bfd_policy: BFD1

@@ -99,6 +99,14 @@ Verify L3out {{ l3out_name }} Profiles
     {% set nd_interface_policy_name = l3out.nd_interface_policy ~ defaults.apic.tenants.policies.nd_interface_policies.name_suffix %}
     Should Be Equal Value Json String   ${r.json()}   $..l3extRsNdIfPol.attributes.tnNdIfPolName   {{ nd_interface_policy_name }}
 {% endif %}
+{% if l3out.ingress_data_plane_policing_policy is defined %}
+    {% set dpp_name = l3out.ingress_data_plane_policing_policy ~ defaults.apic.tenants.policies.data_plane_policing_policies.name_suffix %}
+    Should Be Equal Value Json String   ${r.json()}   $..l3extRsIngressQosDppPol.attributes.tnQosDppPolName   {{ dpp_name }}
+{% endif %}
+{% if l3out.egress_data_plane_policing_policy is defined %}
+    {% set dpp_name = l3out.egress_data_plane_policing_policy ~ defaults.apic.tenants.policies.data_plane_policing_policies.name_suffix %}
+    Should Be Equal Value Json String   ${r.json()}   $..l3extRsEgressQosDppPol.attributes.tnQosDppPolName   {{ dpp_name }}
+{% endif %}
 
 {% for node in l3out.nodes | default([]) %}
 {% set query = "nodes[?id==`" ~ node.node_id ~ "`].pod" %}
@@ -629,6 +637,14 @@ Verify L3out {{ l3out_name }} Node Profile {{ l3out_np_name }} Interface Profile
 {% if ip.nd_interface_policy is defined %}
     {% set nd_interface_policy_name = ip.nd_interface_policy ~ defaults.apic.tenants.policies.nd_interface_policies.name_suffix %}
     Should Be Equal Value Json String   ${r.json()}   ${ip}..l3extRsNdIfPol.attributes.tnNdIfPolName   {{ nd_interface_policy_name }}
+{% endif %}
+{% if ip.ingress_data_plane_policing_policy is defined %}
+    {% set dpp_name = ip.ingress_data_plane_policing_policy ~ defaults.apic.tenants.policies.data_plane_policing_policies.name_suffix %}
+    Should Be Equal Value Json String   ${r.json()}   $..l3extRsIngressQosDppPol.attributes.tnQosDppPolName   {{ dpp_name }}
+{% endif %}
+{% if ip.egress_data_plane_policing_policy is defined %}
+    {% set dpp_name = ip.egress_data_plane_policing_policy ~ defaults.apic.tenants.policies.data_plane_policing_policies.name_suffix %}
+    Should Be Equal Value Json String   ${r.json()}   $..l3extRsEgressQosDppPol.attributes.tnQosDppPolName   {{ dpp_name }}
 {% endif %}
 
 

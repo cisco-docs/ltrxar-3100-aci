@@ -363,6 +363,12 @@ Verify Endpoint Group {{ epg_name }} Trust Control Policy {{ trust_control_polic
     Should Be Equal Value Json String   ${r.json()}   $..fvRsTrustCtrl.attributes.tnFhsTrustCtrlPolName   {{ trust_control_policy_name }}
 {% endif %}
 
+{% if epg.data_plane_policing_policy is defined %}
+{% set dpp_name = epg.data_plane_policing_policy ~ defaults.apic.tenants.policies.data_plane_policing_policies.name_suffix %}
+Verify Endpoint Group {{ epg_name }} Data Plane Policing Policy
+    Should Be Equal Value Json String   ${r.json()}   $..fvRsDppPol.attributes.tnQosDppPolName   {{ dpp_name }}
+{% endif %}
+
 {% endfor %}
 
 {% endfor %}

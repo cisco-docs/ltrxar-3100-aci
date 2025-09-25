@@ -80,6 +80,8 @@ apic:
         storm_control_policy: 10P
         port_channel_policy: LACP-ACTIVE
         port_channel_member_policy: FAST
+        ingress_data_plane_policing_policy: DPP1
+        egress_data_plane_policing_policy: DPP2
         aaep: AAEP1
         netflow_monitor_policies:
           - name: MONITOR1

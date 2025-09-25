@@ -1478,6 +1478,7 @@ ap_spine_interface_profiles_expected_state:
 
 ap_interface_policies:
   cdp_policies: list(include('ap_cdp_policy'), required=False)
+  data_plane_policing_policies: list(include('ap_data_plane_policing_policies'), required=False) # @name(Data Plane Policing Policies) @sheet_hidden()
   lldp_policies: list(include('ap_lldp_policy'), required=False)
   link_level_policies: list(include('ap_link_level_policy'), required=False) # @name(Access Link Level Policies)
   port_channel_policies: list(include('ap_port_channel_policy'), required=False)
@@ -1497,6 +1498,30 @@ ap_interface_policies:
 ap_cdp_policy:
   name: regex('^[a-zA-Z0-9_.:-]{1,64}$')
   admin_state: bool()
+
+ap_data_plane_policing_policies:
+  name: regex('^[a-zA-Z0-9_.:-]{1,64}$')
+  admin_state: bool(required=False)
+  mode: enum('bit','packet', required=False)
+  type: enum('1R2C','2R3C', required=False)
+  sharing_mode: enum('dedicated','shared', required=False)
+  conform_action: enum('transmit', 'mark', 'drop', required=False)
+  conform_mark_cos: any(int(min=0, max=7), enum('unspecified'), required=False)
+  conform_mark_dscp: any(int(min=0, max=63), enum('unspecified'), required=False)
+  exceed_action: enum('transmit', 'mark', 'drop', required=False)
+  exceed_mark_cos: any(int(min=0, max=7), enum('unspecified'), required=False)
+  exceed_mark_dscp: any(int(min=0, max=63), enum('unspecified'), required=False)
+  violate_action: enum('transmit', 'mark', 'drop', required=False)
+  violate_mark_cos: any(int(min=0, max=7), enum('unspecified'), required=False)
+  violate_mark_dscp: any(int(min=0, max=63), enum('unspecified'), required=False)
+  rate: int(min=0, max=4398046510080, required=False)
+  peak_rate: int(min=0, max=4398046510080, required=False)
+  peak_rate_unit: enum('unspecified','kilo','mega','giga', required=False)
+  rate_unit: enum('unspecified','kilo','mega','giga', required=False)
+  burst_excessive: any(int(min=0, max=549755813760), enum('unspecified'), required=False)
+  burst_excessive_unit: enum('unspecified', 'kilo', 'mega', 'giga', 'msec', 'usec', required=False)
+  burst: any(int(min=0, max=549755813760), enum('unspecified'), required=False)
+  burst_unit: enum('unspecified', 'kilo', 'mega', 'giga', 'msec', 'usec', required=False)
 
 ap_lldp_policy:
   name: regex('^[a-zA-Z0-9_.:-]{1,64}$')
@@ -1648,6 +1673,8 @@ ap_leaf_interface_policy_group:
   aaep: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
   netflow_monitor_policies: list(include('ap_interface_netflow_monitor_policies'), required=False) # @sheet_hidden()
   macsec_interface_policy: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
+  ingress_data_plane_policing_policy: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
+  egress_data_plane_policing_policy: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
 
 ap_interface_netflow_monitor_policies:
   name: regex('^[a-zA-Z0-9_.:-]{1,64}$')
@@ -2146,6 +2173,7 @@ ten_ap_endpoint_groups:
   trust_control_policy: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
   l4l7_virtual_ips: list(include('ten_ap_endpoint_groups_l4l7_virtual_ips'), required=False) # @name(EPG L4L7 VIPs) @sheet_hidden()
   l4l7_address_pools: list(include('ten_ap_endpoint_groups_l4l7_address_pools'), required=False) # @name(EPG L4L7 Address Pools) @sheet_hidden()
+  data_plane_policing_policy: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
   expected_state: include('ten_ap_endpoint_groups_expected_state', required=False) # @no_external_doc() @name(EPG Expected State) @sheet_hidden()
 
 ten_ap_endpoint_groups_static_ports:
@@ -2507,6 +2535,8 @@ ten_l3outs:
   qos_class: enum('level1', 'level2', 'level3', 'level4', 'level5', 'level6', 'unspecified', required=False)
   custom_qos_policy: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
   nd_interface_policy: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
+  ingress_data_plane_policing_policy: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
+  egress_data_plane_policing_policy: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
   multipod: bool(required=False)
   remote_leaf: bool(required=False)
   expected_state: include('ten_l3outs_expected_state', required=False) # @no_external_doc() @name(L3out Expected State) @sheet_hidden()
@@ -2746,6 +2776,8 @@ ten_l3outs_node_profiles_interface_profiles:
   qos_class: enum('level1', 'level2', 'level3', 'level4', 'level5', 'level6', 'unspecified', required=False)
   custom_qos_policy: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
   nd_interface_policy: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
+  ingress_data_plane_policing_policy: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
+  egress_data_plane_policing_policy: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
   interfaces: list(include('ten_l3outs_node_profiles_interface_profiles_interfaces'), required=False) # @name(L3out Interface Prof Interfaces) @ref_name(Interface) @key(node_id;port;module;channel;vlan) @sheet_hidden()
   dhcp_labels: list(include('ten_dhcp_labels'), required=False) # @name(L3out Int Prof DHCP Labels) @sheet_hidden()
 
@@ -3161,6 +3193,7 @@ ten_policies:
   endpoint_mac_tags: list(include('ten_endpoint_mac_tags'), required=False) # @sheet_hidden()
   endpoint_ip_tags: list(include('ten_endpoint_ip_tags'), required=False) # @sheet_hidden()
   monitoring: include('ten_monitoring', required=False) # @name(Tenant Monitorings) @ref_name(Tenant Monitoring) @sheet_hidden()
+  data_plane_policing_policies: list(include('ten_data_plane_policing_policies'), required=False) # @name(Tenant Data Plane Policing Pol) @sheet_hidden()
 
 ten_ospf_interface_policies:
   name: regex('^[a-zA-Z0-9_.:-]{1,64}$')
@@ -3970,3 +4003,27 @@ ap_monitoring_fault_severity_policies_faults:
   initial_severity: enum('warning', 'minor', 'major', 'critical', 'inherit', 'squelched', required=False)
   target_severity: enum('warning', 'minor', 'major', 'critical', 'inherit', required=False)
   description: regex('^[a-zA-Z0-9\\\\!#$%()*,-./:;@ _{|}~?&+]{1,128}$', required=False)
+
+ten_data_plane_policing_policies:
+  name: regex('^[a-zA-Z0-9_.:-]{1,64}$')
+  admin_state: bool(required=False)
+  mode: enum('bit','packet', required=False)
+  type: enum('1R2C','2R3C', required=False)
+  sharing_mode: enum('dedicated','shared', required=False)
+  conform_action: enum('transmit', 'mark', 'drop', required=False)
+  conform_mark_cos: any(int(min=0, max=7), enum('unspecified'), required=False)
+  conform_mark_dscp: any(int(min=0, max=63), enum('unspecified'), required=False)
+  exceed_action: enum('transmit', 'mark', 'drop', required=False)
+  exceed_mark_cos: any(int(min=0, max=7), enum('unspecified'), required=False)
+  exceed_mark_dscp: any(int(min=0, max=63), enum('unspecified'), required=False)
+  violate_action: enum('transmit', 'mark', 'drop', required=False)
+  violate_mark_cos: any(int(min=0, max=7), enum('unspecified'), required=False)
+  violate_mark_dscp: any(int(min=0, max=63), enum('unspecified'), required=False)
+  rate: int(min=0, max=4398046510080, required=False)
+  peak_rate: int(min=0, max=4398046510080, required=False)
+  peak_rate_unit: enum('unspecified','kilo','mega','giga', required=False)
+  rate_unit: enum('unspecified','kilo','mega','giga', required=False)
+  burst_excessive: any(int(min=0, max=549755813760), enum('unspecified'), required=False)
+  burst_excessive_unit: enum('unspecified', 'kilo', 'mega', 'giga', 'msec', 'usec', required=False)
+  burst: any(int(min=0, max=549755813760), enum('unspecified'), required=False)
+  burst_unit: enum('unspecified', 'kilo', 'mega', 'giga', 'msec', 'usec', required=False)

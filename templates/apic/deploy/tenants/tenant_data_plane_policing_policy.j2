@@ -1,0 +1,54 @@
+{# iterate_list apic.tenants name item[2] #}
+{% set tenant = ((apic | default()) | community.general.json_query('tenants[?name==`' ~ item[2] ~ '`]'))[0] %}
+{
+    "fvTenant": {
+        "attributes": {
+            "dn": "uni/tn-{{ tenant.name }}",
+            "name": "{{ tenant.name }}"
+        },
+        "children": [
+            {%- set comma1 = joiner(",") %}
+            {%- for dpp_policy in tenant.policies.data_plane_policing_policies | default([]) %}{{ comma1() }}
+            {%- set dpp_policy_name = dpp_policy.name ~ defaults.apic.tenants.policies.data_plane_policing_policies.name_suffix %}
+            {
+                "qosDppPol": {
+                    "attributes": {
+                        "annotation": "orchestrator:aac",
+                        "dn": "uni/tn-{{ tenant.name }}/qosdpppol-{{ dpp_policy_name }}",
+                        "name": "{{ dpp_policy_name }}",
+                        "adminSt": "{{ 'enabled' if dpp_policy.admin_state | default(defaults.apic.tenants.policies.data_plane_policing_policies.admin_state) else 'disabled' }}",
+                        "mode": "{{ dpp_policy.mode | default(defaults.apic.tenants.policies.data_plane_policing_policies.mode) }}",
+                        "type": "{{ dpp_policy.type | default(defaults.apic.tenants.policies.data_plane_policing_policies.type) }}",
+                        "sharingMode": "{{ dpp_policy.sharing_mode | default(defaults.apic.tenants.policies.data_plane_policing_policies.sharing_mode) }}",
+                        "conformAction": "{{ dpp_policy.conform_action | default(defaults.apic.tenants.policies.data_plane_policing_policies.conform_action) }}",
+                        {% if  dpp_policy.conform_action | default(defaults.apic.tenants.policies.data_plane_policing_policies.conform_action) == "mark" %}
+                        "conformMarkCos": "{{ dpp_policy.conform_mark_cos | default(defaults.apic.tenants.policies.data_plane_policing_policies.conform_mark_cos) }}",
+                        "conformMarkDscp": "{{ dpp_policy.conform_mark_dscp | default(defaults.apic.tenants.policies.data_plane_policing_policies.conform_mark_dscp) }}",
+                        {% endif %}
+                        "exceedAction": "{{ dpp_policy.exceed_action | default(defaults.apic.tenants.policies.data_plane_policing_policies.exceed_action) }}",
+                        {% if dpp_policy.exceed_action | default(defaults.apic.tenants.policies.data_plane_policing_policies.exceed_action) == "mark" %}
+                        "exceedMarkCos": "{{ dpp_policy.exceed_mark_cos | default(defaults.apic.tenants.policies.data_plane_policing_policies.exceed_mark_cos) }}",
+                        "exceedMarkDscp": "{{ dpp_policy.exceed_mark_dscp | default(defaults.apic.tenants.policies.data_plane_policing_policies.exceed_mark_dscp) }}",
+                        {% endif %}
+                        "violateAction": "{{ dpp_policy.violate_action | default(defaults.apic.tenants.policies.data_plane_policing_policies.violate_action) }}",
+                        {% if dpp_policy.violate_action | default(defaults.apic.tenants.policies.data_plane_policing_policies.violate_action) == "mark" %}
+                        "violateMarkCos": "{{ dpp_policy.violate_mark_cos | default(defaults.apic.tenants.policies.data_plane_policing_policies.violate_mark_cos) }}",
+                        "violateMarkDscp": "{{ dpp_policy.violate_mark_dscp | default(defaults.apic.tenants.policies.data_plane_policing_policies.violate_mark_dscp) }}",
+                        {% endif %}
+                        {% if dpp_policy.type | default(defaults.apic.tenants.policies.data_plane_policing_policies.type) == "2R3C" %}
+                        "pir": "{{ dpp_policy.peak_rate | default(defaults.apic.tenants.policies.data_plane_policing_policies.peak_rate) }}",
+                        "pirUnit": "{{ dpp_policy.peak_rate_unit | default(defaults.apic.tenants.policies.data_plane_policing_policies.peak_rate_unit) }}",
+                        "be": "{{ dpp_policy.burst_excessive | default(defaults.apic.tenants.policies.data_plane_policing_policies.burst_excessive) }}",
+                        "beUnit": "{{ dpp_policy.burst_excessive_unit | default(defaults.apic.tenants.policies.data_plane_policing_policies.burst_excessive_unit) }}",
+                        {% endif %}
+                        "rate": "{{ dpp_policy.rate | default(defaults.apic.tenants.policies.data_plane_policing_policies.rate) }}",
+                        "rateUnit": "{{ dpp_policy.rate_unit | default(defaults.apic.tenants.policies.data_plane_policing_policies.rate_unit) }}",
+                        "burst": "{{ dpp_policy.burst | default(defaults.apic.tenants.policies.data_plane_policing_policies.burst) }}",
+                        "burstUnit": "{{ dpp_policy.burst_unit | default(defaults.apic.tenants.policies.data_plane_policing_policies.burst_unit) }}"
+                    }
+                }
+            }
+            {%- endfor %}
+        ]
+    }
+}

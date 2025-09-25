@@ -931,6 +931,16 @@ objects:
       - config
     paths:
       - apic.access_policies.interface_policies.lldp_policies
+  - name: Data Plane Policing Policies
+    template: data_plane_policing_policy
+    folder: access_policies
+    match_dn: 'uni\/infra\/qosdpppol-.*'
+    aci_classes:
+      - qosDppPol
+    test_types:
+      - config
+    paths:
+      - apic.access_policies.interface_policies.data_plane_policing_policies
   - name: Link Level Interface Policy
     template: link_level_policy
     folder: access_policies
@@ -1946,6 +1956,19 @@ tenant_objects:
       - config
     paths:
       - apic.tenants.policies.endpoint_ip_tags
+  - name: Tenant Data Plane Policing Policies
+    template: tenant_data_plane_policing_policy
+    folder: tenants
+    match_dn: 'uni\/tn-%%TENANT%%\/qosdpppol-.*'
+    aci_classes:
+      - qosDppPol
+    scope:
+      - user
+      - mgmt
+    test_types:
+      - config
+    paths:
+      - apic.tenants.policies.data_plane_policing_policies
   - name: Tenant Monitoring Policies
     template: tenant_monitoring_policy
     folder: tenants

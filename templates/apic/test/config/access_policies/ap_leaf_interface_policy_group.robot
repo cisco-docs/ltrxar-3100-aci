@@ -87,5 +87,13 @@ Verify Leaf Interface Policy Group {{ policy_group_name }}
 {% set macsec_policy_name = pg.macsec_interface_policy ~ defaults.apic.access_policies.interface_policies.macsec_interfaces_policies.name_suffix %}
     Should Be Equal Value Json String   ${r.json()}    $..infraRsMacsecIfPol.attributes.tDn   uni/infra/macsecifp-{{ macsec_policy_name }}
 {% endif %}
+{% if pg.ingress_data_plane_policing_policy is defined %}
+    {% set dpp_name = pg.ingress_data_plane_policing_policy ~ defaults.apic.access_policies.interface_policies.data_plane_policing_policies.name_suffix %}
+    Should Be Equal Value Json String   ${r.json()}   $..infraRsQosIngressDppIfPol.attributes.tnQosDppPolName   {{ dpp_name }}
+{% endif %}
+{% if pg.egress_data_plane_policing_policy is defined %}
+    {% set dpp_name = pg.egress_data_plane_policing_policy ~ defaults.apic.access_policies.interface_policies.data_plane_policing_policies.name_suffix %}
+    Should Be Equal Value Json String   ${r.json()}   $..infraRsQosEgressDppIfPol.attributes.tnQosDppPolName   {{ dpp_name }}
+{% endif %}
 
 {% endfor %}

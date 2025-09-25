@@ -294,6 +294,30 @@ apic:
           admin_state: true
         - name: CDP-DISABLED
           admin_state: false
+      data_plane_policing_policies:
+        - name: AP_DPP1
+          admin_state: true
+          type: 2R3C
+          mode: packet
+          sharing_mode: shared
+          conform_mark_cos: 1
+          conform_mark_dscp: 10
+          exceed_action: mark
+          exceed_mark_cos: 2
+          exceed_mark_dscp: 20
+          violate_action: mark
+          violate_mark_cos: 3
+          violate_mark_dscp: 30
+          rate: 10
+          rate_unit: mega
+          burst: 20
+          burst_unit: mega
+          peak_rate: 30
+          peak_rate_unit: mega
+          burst_excessive: 40
+          burst_excessive_unit: mega
+          conform_action: mark
+        - name: AP_DPP2
       lldp_policies:
         - name: LLDP-ENABLED
           admin_rx_state: true
@@ -571,6 +595,8 @@ apic:
         storm_control_policy: 10P
         port_channel_policy: LACP-ACTIVE
         port_channel_member_policy: FAST
+        ingress_data_plane_policing_policy: AP_DPP1
+        egress_data_plane_policing_policy: AP_DPP2
         aaep: AAEP1
         netflow_monitor_policies:
           - name: MONITOR1

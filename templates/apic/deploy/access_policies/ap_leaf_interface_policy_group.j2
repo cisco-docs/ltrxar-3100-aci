@@ -46,7 +46,7 @@
                         "childAction": "deleteNonPresent"
                     },
                     "children": [
-            {% endif %}
+            {%- endif %}
                         {% set comma2 = joiner(",") %}
                         {% if pg.link_level_policy is defined %}{{ comma2() }}
                         {% set link_level_policy_name = pg.link_level_policy ~ defaults.apic.access_policies.interface_policies.link_level_policies.name_suffix %}
@@ -190,7 +190,34 @@
                             }
                         }
                         {%- endif %}
-
+                        {%- if pg.type != "breakout" %}{{ comma2() }}
+                        {
+                            "infraRsQosIngressDppIfPol": {
+                                "attributes": {
+                                    {% if pg.ingress_data_plane_policing_policy is defined %}
+                                    "annotation": "orchestrator:aac",
+                                    "tnQosDppPolName": "{{ pg.ingress_data_plane_policing_policy }}"
+                                    {% else %}
+                                    "annotation": "",
+                                    "tnQosDppPolName": ""
+                                    {% endif %}
+                                }
+                            }
+                        },
+                        {
+                            "infraRsQosEgressDppIfPol": {
+                                "attributes": {
+                                    {% if pg.egress_data_plane_policing_policy is defined %}
+                                    "annotation": "orchestrator:aac",
+                                    "tnQosDppPolName": "{{ pg.egress_data_plane_policing_policy }}"
+                                    {% else %}
+                                    "annotation": "",
+                                    "tnQosDppPolName": ""
+                                    {% endif %}
+                                }
+                            }
+                        }
+                        {%- endif %}
                     ]
                 }
             }
