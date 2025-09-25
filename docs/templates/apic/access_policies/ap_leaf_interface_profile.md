@@ -42,6 +42,7 @@ apic:
   access_policies:
     leaf_interface_profiles:
       - name: LEAF101
+        description: Leaf 101 Interface Profile
         selectors:
           - name: SEL1
             description: Leaf Interface Profile Description

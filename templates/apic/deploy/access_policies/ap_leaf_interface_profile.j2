@@ -28,6 +28,7 @@
                 "infraAccPortP": {
                     "attributes": {
                         "annotation": "orchestrator:aac",
+                        "descr": "{{ prof.description | default() }}",
                         "name": "{{ leaf_interface_profile_name }}",
                         "dn": "uni/infra/accportprof-{{ leaf_interface_profile_name }}",
                         "childAction": "deleteNonPresent"

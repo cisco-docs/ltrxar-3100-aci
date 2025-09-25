@@ -1388,6 +1388,7 @@ ap_vspan_destination_groups_expected_state:
 
 ap_leaf_interface_profiles:
   name: regex('^[a-zA-Z0-9_.:-]{1,64}$')
+  description: regex('^[a-zA-Z0-9\\\\!#$%()*,-./:;@ _{|}~?&+]{1,128}$', required=False)
   selectors: list(include('ap_leaf_interface_profiles_selectors'), required=False) # @name(Access Leaf Int Prof Selectors) @ref_name(Selector) @sheet_hidden()
   expected_state: include('ap_leaf_interface_profiles_expected_state', required=False) # @no_external_doc() @name(A Leaf Int Pro Expected State) @sheet_hidden()
 

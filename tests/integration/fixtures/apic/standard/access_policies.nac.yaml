@@ -653,6 +653,7 @@ apic:
             fex_id: 101
             fex_profile: FEX-INT-PROF1
       - name: LEAF-INT-PROF2
+        description: My Leaf Interface Profile
         selectors:
           - name: SEL1
             policy_group: ACC1

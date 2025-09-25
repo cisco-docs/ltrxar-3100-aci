@@ -27,6 +27,7 @@ Verify Access Leaf Interface Profile {{ leaf_interface_profile_name }}
     ${r}=   GET On Session   apic   /api/mo/uni/infra/accportprof-{{ leaf_interface_profile_name }}.json   params=rsp-subtree=full
     Set Suite Variable   ${r}
     Should Be Equal Value Json String   ${r.json()}    $..infraAccPortP.attributes.name   {{ leaf_interface_profile_name }}
+    Should Be Equal Value Json String   ${r.json()}    $..infraAccPortP.attributes.descr   {{ prof.description | default() }}
 
 {% for sel in prof.selectors | default([]) %}
 {% set leaf_interface_selector_name = sel.name ~ defaults.apic.access_policies.leaf_interface_profiles.selectors.name_suffix %}
