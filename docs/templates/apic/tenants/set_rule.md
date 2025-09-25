@@ -30,3 +30,18 @@ apic:
               - criteria: prepend-last-as
                 count: 8
 ```
+
+Example 2: The YAML snippet below demonstrates the `set_as_path` functionality designed to address dynamic EPG classification. The `external_endpoint_group` is used to specify the external EPG to which the traffic would be classified.
+
+```yaml
+apic:
+  tenants:
+    - name: TN_01
+      policies:
+        set_rules:
+          - name: set-extEPG
+            external_endpoint_group:
+              name: default_extepg
+              l3out: default
+              tenant: common
+```
