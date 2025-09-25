@@ -35,6 +35,7 @@ Verify Fabric Connectivity Site {{ site.name }}
     ${site}=   Set Variable   $.sites[?(@.id=='${site_id}')]
     Should Be Equal Value Json String   ${r.json()}   ${site}.id   ${site_id}
     Should Be Equal Value Json Integer   ${r.json()}   ${site}.apicSiteId   {{ site.id }}
+    Should Be Equal Value Json Integer   ${r.json()}   ${site}.fabricId   {{ site.fabric_id | default(defaults.ndo.sites.fabric_id) }}
     Should Be Equal Value Json Boolean   ${r.json()}   ${site}.msiteEnabled   {{ 'true' if site.multisite | default(defaults.ndo.sites.multisite) else 'false' }} 
     Should Be Equal Value Json String   ${r.json()}   ${site}.msiteDataPlaneMulticastTep   {{ site.multicast_tep | default() }}
     Should Be Equal Value Json Integer   ${r.json()}   ${site}.bgpAsn   {{ site.bgp.as | default() }}

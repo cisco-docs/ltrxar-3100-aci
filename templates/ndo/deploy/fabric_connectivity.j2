@@ -24,7 +24,7 @@
             "id": "%%sites%{{ site.name }}%%",
             "apicSiteId": {{ site.id }},
             "platform": "on-premise",
-            "fabricId": 1,
+            "fabricId": {{ site.fabric_id | default(defaults.ndo.sites.fabric_id) }},
             "msiteEnabled": {{ 'true' if site.multisite | default(defaults.ndo.sites.multisite) else 'false' }},
             "msiteDataPlaneMulticastTep": "{{ site.multicast_tep | default() }}",
             "bgpAsn": {{ site.bgp.as | default() }},

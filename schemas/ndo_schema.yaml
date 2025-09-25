@@ -41,6 +41,7 @@ sites:
   username: str(required=False) # @sensitive()
   password: any(str(), null(), required=False) # @sensitive()
   id: int(min=1, required=False)
+  fabric_id: int(min=1, required=False)
   location: include('sites_location', required=False) # @flatten()
   multisite: bool(required=False)
   multicast_tep: ip(required=False)

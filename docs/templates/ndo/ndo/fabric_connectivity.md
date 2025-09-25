@@ -34,6 +34,7 @@ ndo:
     - name: APIC1
       multisite: true
       multicast_tep: 5.6.7.8
+      fabric_id: 2
       bgp:
         as: 65009
         password: cisco
