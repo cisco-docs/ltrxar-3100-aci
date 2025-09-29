@@ -2320,6 +2320,7 @@ ten_ap_useg_endpoint_groups_useg_attributes:
   match_type: enum('any', 'all', required=False)
   ip_statements: list(include('ten_ap_useg_endpointgroups_useg_attributes_ip'), required=False) # @name(uSeg EPG Attribute IP type) @sheet_hidden()
   mac_statements: list(include('ten_ap_useg_endpointgroups_useg_attributes_mac'), required=False) # @name(uSeg EPG Attribute MAC type) @sheet_hidden()
+  vm_statements: list(include('ten_ap_useg_endpointgroups_useg_attributes_vm'), required=False) # @name(uSeg EPG Attribute VM type) @sheet_hidden()
 
 ten_ap_useg_endpointgroups_useg_attributes_ip:
   name: regex('^[a-zA-Z0-9_.:-]{1,64}$')
@@ -2329,6 +2330,14 @@ ten_ap_useg_endpointgroups_useg_attributes_ip:
 ten_ap_useg_endpointgroups_useg_attributes_mac:
   name: regex('^[a-zA-Z0-9_.:-]{1,64}$')
   mac: mac()
+
+ten_ap_useg_endpointgroups_useg_attributes_vm:
+  name: regex('^[a-zA-Z0-9_.:-]{1,64}$')
+  type: any(enum('vm-name', 'guest-os', 'hv', 'vm', 'vnic', 'domain', 'rootContName', 'custom-label', 'tag', 'vm-folder', 'vmfolder-path'), int(min=0, max=10), required=False)
+  operator: enum('equals', 'contains', 'startsWith', 'endsWith', 'notEquals', required=False)
+  value: regex('^[a-zA-Z0-9\\\\!#$%()*,-./:;@ _{|}~?&+]{1,512}$')
+  category: regex('^[a-zA-Z0-9\\\\!#$%()*,-./:;@ _{|}~?&+]{1,512}$', required=False)
+  label: regex('^[a-zA-Z0-9\\\\!#$%()*,-./:;@ _{|}~?&+]{1,512}$', required=False)
 
 ten_ap_useg_endpoint_groups_subnets:
   description: regex('^[a-zA-Z0-9\\\\!#$%()*,-./:;@ _{|}~?&+]{1,128}$', required=False)

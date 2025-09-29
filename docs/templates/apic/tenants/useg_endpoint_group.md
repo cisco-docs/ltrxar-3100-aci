@@ -89,6 +89,44 @@ apic:
                     mac: 02:42:68:22:58:D1
                   - name: mac_2
                     mac: 02:42:68:22:58:D2
+                vm_statements:
+                  - name: vm_name
+                    value: BackEnd
+                    operator: startsWith
+                  - name: operating_system
+                    value: Win11
+                    type: guest-os
+                    operator: contains
+                  - name: hypervisor_identifier
+                    value: ESXi
+                    type: hv
+                    operator: endsWith
+                  - name: vm_identifier
+                    value: Cluster1
+                    type: vm
+                  - name: vnic_dn
+                    type: vnic
+                    value: vnic1
+                  - name: vmm_domain
+                    type: domain
+                    value: VMM_DOMAIN
+                  - name: datacenter
+                    type: rootContName
+                    value: DC1
+                  - name: custom_attribute
+                    type: custom-label
+                    label: attr_label
+                    value: attr_value0
+                  - name: tag
+                    type: tag
+                    category: attr_tag
+                    value: attr_value1
+                  - name: vm_folder
+                    type: vm-folder
+                    value: data
+                  - name: vm_folder_path
+                    type: vmfolder-path
+                    value: /folder/data
               subnets:
                 - ip: 5.50.6.1/30
                   description: My Desc

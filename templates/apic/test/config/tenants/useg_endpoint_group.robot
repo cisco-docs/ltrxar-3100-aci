@@ -131,6 +131,18 @@ Verify uSeg Endpoint Group {{ epg_name }} uSeg Attributes MAC Statement {{ mac_s
 
 {% endfor %}
 
+{% for vm_statement in epg.useg_attributes.vm_statements | default([]) %}
+Verify uSeg Endpoint Group {{ epg_name }} uSeg Attributes VM Statement {{ vm_statement.name }}
+    ${statement}=   Set Variable   $..fvAEPg.children..fvCrtrn.children[?(@.fvVmAttr.attributes.name=='{{ vm_statement.name }}')].fvVmAttr
+    Should Be Equal Value Json String   ${r.json()}   ${statement}.attributes.name   {{ vm_statement.name }}
+    Should Be Equal Value Json String   ${r.json()}   ${statement}.attributes.type   {{ vm_statement.type | default(defaults.apic.tenants.application_profiles.useg_endpoint_groups.useg_attributes.vm_statements.type) }}
+    Should Be Equal Value Json String   ${r.json()}   ${statement}.attributes.operator   {{ vm_statement.operator | default(defaults.apic.tenants.application_profiles.useg_endpoint_groups.useg_attributes.vm_statements.operator) }}
+    Should Be Equal Value Json String   ${r.json()}   ${statement}.attributes.value   {{ vm_statement.value }}
+    Should Be Equal Value Json String   ${r.json()}   ${statement}.attributes.category   {{ vm_statement.category | default() }}
+    Should Be Equal Value Json String   ${r.json()}   ${statement}.attributes.labelName   {{ vm_statement.label | default() }}
+
+{% endfor %}
+
 {% for subnet in epg.subnets | default([]) %}
 {% set scope = [] %}
 {% if subnet.public | default(defaults.apic.tenants.application_profiles.useg_endpoint_groups.subnets.public) %}{% set scope = scope + [("public")] %}{% else %}{% set scope = scope + [("private")] %}{% endif %}

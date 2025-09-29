@@ -296,6 +296,22 @@
                                                     }
                                                 }
                                                 {%- endfor %}
+                                                {%- for statement in epg.useg_attributes.vm_statements | default([]) %}{{ comma4() }}
+                                                {
+                                                    "fvVmAttr": {
+                                                        "attributes": {
+                                                        "annotation": "orchestrator:aac",
+                                                        "name": "{{ statement.name }}",
+                                                        "type": "{{ statement.type | default(defaults.apic.tenants.application_profiles.useg_endpoint_groups.useg_attributes.vm_statements.type) }}",
+                                                        "operator": "{{ statement.operator | default(defaults.apic.tenants.application_profiles.useg_endpoint_groups.useg_attributes.vm_statements.operator) }}",
+                                                        "value": "{{ statement.value }}",
+                                                        "category": "{{ statement.category | default() }}",
+                                                        "labelName": "{{ statement.label | default() }}"
+                                                        }
+                                                    }
+                                                }
+                                                {%- endfor %}
+
                                             ]
                                         }
                                     }
