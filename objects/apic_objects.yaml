@@ -1222,6 +1222,18 @@ objects:
       - config
     paths:
       - apic.access_policies.dhcp_relay_policies
+  - name: Access Monitoring Policy
+    template: ap_monitoring_policy
+    folder: access_policies
+    match_dn: 'uni/infra/moninfra-.*'
+    aci_classes:
+      - monInfraPol
+    scope:
+     - user
+    test_types:
+      - config
+    paths:
+     - apic.access_policies.monitoring.policies
   - name: Tenant
     template: tenant
     folder: tenants
@@ -2228,18 +2240,6 @@ tenant_objects:
       - config
     paths:
       - apic.tenants.policies.track_members
-  - name: Access Monitoring Policy
-    template: ap_monitoring_policy
-    folder: access_policies
-    match_dn: 'uni/infra/moninfra-.*'
-    aci_classes:
-      - monInfraPol
-    scope:
-     - user
-    test_types:
-      - config
-    paths:
-     - apic.access_policies.monitoring.policies
 test_objects:
   - name: System
     template: system
