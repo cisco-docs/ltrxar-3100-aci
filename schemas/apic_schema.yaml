@@ -47,7 +47,7 @@ fabric_policies:
   spine_interface_selector_sub_port_name: str(min=1, max=64, required=False)
   pod_profile_name: str(min=1, max=64, required=False)
   pod_profile_pod_selector_name: str(min=1, max=64, required=False)
-  config_passphrase: str(min=0, max=32, required=False) # @sensitive()
+  config_passphrase: str(min=16, max=32, required=False) # @sensitive()
   apic_conn_pref: enum('inband', 'ooband', required=False)
   banners: include('fp_banners', required=False)
   ep_loop_protection: include('fp_ep_loop_protection', required=False)
@@ -2333,7 +2333,7 @@ ten_ap_useg_endpointgroups_useg_attributes_mac:
 
 ten_ap_useg_endpointgroups_useg_attributes_vm:
   name: regex('^[a-zA-Z0-9_.:-]{1,64}$')
-  type: any(enum('vm-name', 'guest-os', 'hv', 'vm', 'vnic', 'domain', 'rootContName', 'custom-label', 'tag', 'vm-folder', 'vmfolder-path'), int(min=0, max=10), required=False)
+  type: enum('vm-name', 'guest-os', 'hv', 'vm', 'vnic', 'domain', 'rootContName', 'custom-label', 'tag', 'vm-folder', 'vmfolder-path', required=False)
   operator: enum('equals', 'contains', 'startsWith', 'endsWith', 'notEquals', required=False)
   value: regex('^[a-zA-Z0-9\\\\!#$%()*,-./:;@ _{|}~?&+]{1,512}$')
   category: regex('^[a-zA-Z0-9\\\\!#$%()*,-./:;@ _{|}~?&+]{1,512}$', required=False)
