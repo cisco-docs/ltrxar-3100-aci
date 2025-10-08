@@ -21,7 +21,7 @@ Verify QoS Class Level {{ level }}
     ${level}=  Set Variable   $..qosInstPol.children[?(@.qosClass.attributes.prio=='level{{ level }}')]
     Should Be Equal Value Json String   ${r.json()}    ${level}..qosClass.attributes.admin   {{ 'enabled' if qos_class.admin_state | default(default_qos_class.admin_state) else 'disabled' }}
     Should Be Equal Value Json String   ${r.json()}    ${level}..qosClass.attributes.mtu   {{ qos_class.mtu | default(default_qos_class.mtu) }}
-    Should Be Equal Value Json String   ${r.json()}    ${level}..qosSched.attributes.meth   {% if qos_class.scheduling | default(default_qos_class.scheduling) == "wrr" %}wrr{% elif qos_class.scheduling | default(default_qos_class.scheduling) == "strict-priority" %}sp{% endif %}
+    Should Be Equal Value Json String   ${r.json()}    ${level}..qosSched.attributes.meth   {{ 'wrr' if qos_class.scheduling | default(default_qos_class.scheduling) == "wrr" else ('sp' if qos_class.scheduling | default(default_qos_class.scheduling) == "strict-priority" else '') }}
     Should Be Equal Value Json String   ${r.json()}    ${level}..qosSched.attributes.bw   {{ qos_class.bandwidth_percent | default(default_qos_class.bandwidth_percent) }}
     Should Be Equal Value Json String   ${r.json()}    ${level}..qosBuffer.attributes.min   {{ qos_class.minimum_buffer | default(default_qos_class.minimum_buffer) }}
     Should Be Equal Value Json String   ${r.json()}    ${level}..qosPfcPol.attributes.adminSt   {{ 'yes' if qos_class.pfc_state | default(default_qos_class.pfc_state) else 'no' }}

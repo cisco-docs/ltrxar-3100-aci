@@ -26,7 +26,7 @@ Verify Endpoint Group {{ epg_name }}
     Should Be Equal Value Json String   ${r.json()}   $..fvAEPg.attributes.nameAlias   {{ epg.alias | default() }}
     Should Be Equal Value Json String   ${r.json()}   $..fvAEPg.attributes.floodOnEncap   {{ 'enabled' if epg.flood_in_encap | default(defaults.apic.tenants.application_profiles.endpoint_groups.flood_in_encap) else 'disabled' }}
     Should Be Equal Value Json String   ${r.json()}   $..fvAEPg.attributes.pcEnfPref   {{ 'enforced' if epg.intra_epg_isolation | default(defaults.apic.tenants.application_profiles.endpoint_groups.intra_epg_isolation) else 'unenforced' }}
-    Should Be Equal Value Json String   ${r.json()}   $..fvAEPg.attributes.fwdCtrl  {% if epg.proxy_arp | default(defaults.apic.tenants.application_profiles.endpoint_groups.proxy_arp) %}proxy-arp{% endif %}
+    Should Be Equal Value Json String   ${r.json()}   $..fvAEPg.attributes.fwdCtrl  {{ 'proxy-arp' if epg.proxy_arp | default(defaults.apic.tenants.application_profiles.endpoint_groups.proxy_arp) else '' }}
     Should Be Equal Value Json String   ${r.json()}   $..fvAEPg.attributes.prefGrMemb   {{ 'include' if epg.preferred_group | default(defaults.apic.tenants.application_profiles.endpoint_groups.preferred_group) else 'exclude' }}
     Should Be Equal Value Json String   ${r.json()}   $..fvRsBd.attributes.tnFvBDName   {{ bd_name }}
     Should Be Equal Value Json String   ${r.json()}   $..fvAEPg.attributes.prio   {{ epg.qos_class | default(defaults.apic.tenants.application_profiles.endpoint_groups.qos_class) }}
@@ -179,7 +179,9 @@ Verify Endpoint Group {{ epg_name }} Static Endpoint {{ st_ep.mac }}
     {% endif %}
     Should Be Equal Value Json String   ${r.json()}   ${con}.attributes.ip   {{ st_ep.ip | default(defaults.apic.tenants.application_profiles.endpoint_groups.static_endpoints.ip)}}
     Should Be Equal Value Json String   ${r.json()}   ${con}.attributes.mac   {{ st_ep.mac }}
-    Should Be Equal Value Json String   ${r.json()}   ${con}.attributes.name   {% if st_ep.name is defined %}{{ st_ep.name ~ defaults.apic.tenants.application_profiles.endpoint_groups.static_endpoints.name_suffix }}{% endif %}
+    {% if st_ep.name is defined %}
+    Should Be Equal Value Json String   ${r.json()}   ${con}.attributes.name   {{ st_ep.name ~ defaults.apic.tenants.application_profiles.endpoint_groups.static_endpoints.name_suffix }}
+    {% endif %}
     Should Be Equal Value Json String   ${r.json()}   ${con}.attributes.nameAlias   {{ st_ep.alias | default() }}
     Should Be Equal Value Json String   ${r.json()}   ${con}.attributes.type   {{ st_ep.type }}
     {% if st_ep.type != "vep" %}

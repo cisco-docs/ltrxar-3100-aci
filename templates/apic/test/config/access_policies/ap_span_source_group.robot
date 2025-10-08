@@ -138,7 +138,7 @@ Verify SPAN Source Group {{ span_name }} Source {{ source_name }}
 {% set filter_group_name = span.filter_group ~ defaults.apic.access_policies.span.filter_groups.name_suffix %}
 Verify SPAN Source Group {{ span_name }} Filter Group
     Should Be Equal Value Json String   ${r.json()}    $..spanSrcGrp.children..spanRsSrcGrpToFilterGrp.attributes.tDn   uni/infra/filtergrp-{{ filter_group_name }}
-{% endif  %}
+{% endif %}
 
 {% set destination_name = span.destination.name ~ defaults.apic.access_policies.span.destination_groups.name_suffix %}
 Verify SPAN Source Group {{ span_name }} Destination Group

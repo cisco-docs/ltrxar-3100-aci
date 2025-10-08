@@ -33,7 +33,7 @@ Verify User {{ user.username }} Domain {{ domain.name }} Role {{ role.name }}
     ${domain}=   Set Variable   $..aaaUser.children[?(@.aaaUserDomain.attributes.name=='{{ domain.name }}')]
     ${role}=   Set Variable   $..aaaUserDomain.children[?(@.aaaUserRole.attributes.name=='{{ role.name }}')]
     Should Be Equal Value Json String   ${r.json()}    ${role}..aaaUserRole.attributes.name   {{ role.name }}
-    Should Be Equal Value Json String   ${r.json()}    ${role}..aaaUserRole.attributes.privType   {% if role.privilege_type | default(defaults.apic.fabric_policies.aaa.users.domains.roles.privilege_type) == "write" %}writePriv{% else %}readPriv{% endif %}
+    Should Be Equal Value Json String   ${r.json()}    ${role}..aaaUserRole.attributes.privType   {{ 'writePriv' if role.privilege_type | default(defaults.apic.fabric_policies.aaa.users.domains.roles.privilege_type) == "write" else 'readPriv' }}
 
 {% endfor %}
 

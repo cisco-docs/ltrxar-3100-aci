@@ -15,7 +15,7 @@ Verify Port Interface Type
 {% if interface.type is defined %}
     ${port}=   Set Variable   $..infraPortDirecPol.children[?(@.infraRsPortDirection.attributes.tDn=='topology/pod-{{ full_node.pod | default(defaults.apic.node_policies.nodes.pod) }}/paths-{{ node.id }}/pathep-[eth{{ interface.module | default(defaults.apic.interface_policies.nodes.interfaces.module) }}/{{ interface.port }}]')].infraRsPortDirection
     Should Be Equal Value Json String   ${r.json()}    ${port}.attributes.tDn   topology/pod-{{ full_node.pod | default(defaults.apic.node_policies.nodes.pod) }}/paths-{{ node.id }}/pathep-[eth{{ interface.module | default(defaults.apic.interface_policies.nodes.interfaces.module) }}/{{ interface.port }}]
-    Should Be Equal Value Json String   ${r.json()}    ${port}.attributes.direc   {% if interface.type == "uplink" %}UpLink{% else %}DownLink{% endif %}
+    Should Be Equal Value Json String   ${r.json()}    ${port}.attributes.direc   {{ 'UpLink' if interface.type == "uplink" else 'DownLink' }}
 
 
 {% endif %}

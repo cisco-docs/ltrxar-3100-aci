@@ -49,7 +49,7 @@ Verify LDAP Group {{ rule.name }} Domain {{ dom.name }} Role {{ role.name }}
     ${r}=   GET On Session   apic   /api/mo/uni/userext/ldapext/ldapgroupmaprule-{{ rule.name }}.json   params=rsp-subtree=full
     ${role}=   Set Variable   $..aaaUserDomain.children[?(@.aaaUserRole.attributes.name=='{{ role.name }}')]
     Should Be Equal Value Json String   ${r.json()}    ${role}..aaaUserRole.attributes.name   {{ role.name }}
-    Should Be Equal Value Json String   ${r.json()}    ${role}..aaaUserRole.attributes.privType   {% if role.privilege_type | default(defaults.apic.fabric_policies.aaa.ldap.group_map_rules.security_domains.roles.privilege_type) == "write" %}writePriv{% else %}readPriv{% endif %}
+    Should Be Equal Value Json String   ${r.json()}    ${role}..aaaUserRole.attributes.privType   {{ 'writePriv' if role.privilege_type | default(defaults.apic.fabric_policies.aaa.ldap.group_map_rules.security_domains.roles.privilege_type) == "write" else 'readPriv' }}
 
 {% endfor %}
 

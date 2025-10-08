@@ -11,7 +11,7 @@ Resource        ../../apic_common.resource
 Verify Remote Location {{ rl_name }}
     ${r}=   GET On Session   apic   /api/mo/uni/fabric/path-{{ rl_name }}.json   params=rsp-subtree=full
     Should Be Equal Value Json String   ${r.json()}    $..fileRemotePath.attributes.name   {{ rl_name }}
-    Should Be Equal Value Json String   ${r.json()}    $..fileRemotePath.attributes.authType   {% if rl.auth_type | default(defaults.apic.fabric_policies.remote_locations.auth_type) == "ssh_keys" %}useSshKeyContents{% else %}usePassword{% endif %}
+    Should Be Equal Value Json String   ${r.json()}    $..fileRemotePath.attributes.authType   {{ 'useSshKeyContents' if rl.auth_type | default(defaults.apic.fabric_policies.remote_locations.auth_type) == "ssh_keys" else 'usePassword' }}
     Should Be Equal Value Json String   ${r.json()}    $..fileRemotePath.attributes.descr   {{ rl.description | default() }}
     Should Be Equal Value Json String   ${r.json()}    $..fileRemotePath.attributes.host   {{ rl.hostname_ip }}
     Should Be Equal Value Json String   ${r.json()}    $..fileRemotePath.attributes.protocol   {{ rl.protocol }}
