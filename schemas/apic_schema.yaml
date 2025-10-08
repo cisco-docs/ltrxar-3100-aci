@@ -2554,6 +2554,8 @@ ten_l3outs:
   export_route_control_enforcement: bool(required=False)
   dhcp_labels: list(include('ten_dhcp_labels'), required=False) # @name(L3out DHCP Labels) @sheet_hidden()
   route_maps: list(include('ten_l3outs_route_maps'), required=False) # @name(L3out Route Maps) (To support multiple L3out Route Maps)
+  bfd_multihop_node_policy: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
+  bfd_multihop_auth: include('ten_l3outs_bfd_multihop_auth', required=False) # @name(L3out Node BFD Multihop Auth) @sheet_hidden()
 
 ten_l3outs_bgp:
   name: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
@@ -2630,7 +2632,6 @@ ten_l3outs_nodes_static_routes_next_hops:
   type: enum('prefix', 'none', required=False)
   ip_sla_policy: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
   track_list: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
-
 
 ten_l3outs_nodes_interfaces:
   description: regex('^[a-zA-Z0-9\\\\!#$%()*,-./:;@ _{|}~?&+]{1,128}$', required=False)
@@ -2710,12 +2711,19 @@ ten_l3outs_nodes_interfaces_micro_bfd:
   destination_ip: ip()
   start_timer: any(int(min=60, max=3600), int(min=0, max=0), required=False)
 
+ten_l3outs_bfd_multihop_auth:
+  type: enum('none', 'sha1', required=False)
+  key_id: int(min=1, max=255, required=False)
+  key: str(required=False) # @sensitive()
+
 ten_l3outs_node_profiles:
   name: regex('^[a-zA-Z0-9_.:-]{1,64}$')
   bgp: include('ten_l3outs_node_profiles_bgp', required=False) # @name(L3out Node Profile BGP)
   bgp_peers: list(include('ten_l3outs_node_profiles_bgp_peers'), required=False) # @name(L3out Node Profile BGP Peers) @sheet_hidden()
   nodes: list(include('ten_l3outs_node_profiles_nodes'), required=False) # @name(L3out Node Profile Nodes) @ref_name(Node) @key(node_id) @sheet_hidden()
   interface_profiles: list(include('ten_l3outs_node_profiles_interface_profiles'), required=False) # @name(L3out Interface Profiles) @ref_name(Interface Profile) @sheet_hidden()
+  bfd_multihop_node_policy: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
+  bfd_multihop_auth: include('ten_l3outs_bfd_multihop_auth', required=False) # @name(L3out Node Profile BFD Multihop Auth) @sheet_hidden()
 
 ten_l3outs_node_profiles_bgp_peers:
   ip: ip()

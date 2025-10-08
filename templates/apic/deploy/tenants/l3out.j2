@@ -16,7 +16,7 @@
             {% set route_control_enforcement = [] %}
             {% if l3out.import_route_control_enforcement | default(defaults.apic.tenants.l3outs.import_route_control_enforcement) %}{% set route_control_enforcement = route_control_enforcement + [("import")] %}{% endif %}
             {% if l3out.export_route_control_enforcement | default(defaults.apic.tenants.l3outs.export_route_control_enforcement) %}{% set route_control_enforcement = route_control_enforcement + [("export")] %}{% endif %}
-                        
+
             {
                 "l3extOut": {
                     "attributes": {
@@ -65,7 +65,7 @@
                                                         }
                                                     }
                                                 }
-                                                {%- endif %}                                                
+                                                {%- endif %}
                                                 {%- endfor %}
                                                 {%- for sr in node.static_routes | default([]) %}{{ comma4() }}
                                                 {
@@ -150,10 +150,34 @@
                                                     }
                                                 }
                                                 {%- endif %}
- 
+
                                             ]
                                         }
                                     }
+                                    {%- if l3out.bfd_multihop_node_policy is defined %}{{ comma3() }}
+                                    {% set bfd_multihop_node_policy_name = l3out.bfd_multihop_node_policy ~ defaults.apic.tenants.policies.bfd_multihop_node_policies.name_suffix %}
+                                    {
+                                        "bfdMhNodeP": {
+                                            "attributes": {
+                                                "annotation": "orchestrator:aac",
+                                                "dn": "uni/tn-{{ tenant.name }}/out-{{ l3out_name }}/lnodep-{{ l3out_np_name }}/bfdMhNodeP",
+                                                "keyId": "{{ l3out.bfd_multihop_auth.key_id | default(defaults.apic.tenants.l3outs.bfd_multihop_auth.key_id) }}",
+                                                "key": "{{ l3out.bfd_multihop_auth.key | default() }}",
+                                                "type": "{{ l3out.bfd_multihop_auth.type | default(defaults.apic.tenants.l3outs.bfd_multihop_auth.type) }}"
+                                        },
+                                        "children": [
+                                            {
+                                                "bfdRsMhNodePol": {
+                                                    "attributes": {
+                                                        "annotation": "orchestrator:aac",
+                                                        "tnBfdMhNodePolName": "{{ bfd_multihop_node_policy_name }}"
+                                                    }
+                                                }
+                                            }
+                                        ]
+                                    }
+                                    }
+                                    {%- endif %}
                                     {%- endfor %}
                                     {%- for peer in l3out.bgp_peers | default([]) %}{{ comma3() }}
                                     {%- set ctrl = [] %}
@@ -247,7 +271,7 @@
                                                     }
                                                 }
                                                 {%- endif %}
-                                                
+
                                             ]
                                         }
                                     }
@@ -389,7 +413,7 @@
                                                             }
                                                         ]
                                                     }
-                                                } 
+                                                }
                                                 {%- endif %}
                                                 {%- if l3out.custom_qos_policy is defined %}{{ comma4() }}
                                                 {% set custom_qos_policy_name = l3out.custom_qos_policy ~ defaults.apic.tenants.policies.custom_qos.name_suffix %}
@@ -729,7 +753,7 @@
                                                                             }
                                                                         }
                                                                         {%- endif %}
-                                                                        
+
                                                                     ]
                                                                 }
                                                             }
@@ -841,12 +865,10 @@
                                                     }
                                                 }
                                                 {%- endif%}
-
                                             ]
                                         }
                                     }
                                     {%- endif %}
-
                                 ]
                             }
                         }
@@ -972,7 +994,7 @@
                                                     }
                                                 }
                                                 {%- endif %}
- 
+
                                             ]
                                         }
                                     }
@@ -1069,11 +1091,12 @@
                                                     }
                                                 }
                                                 {%- endif %}
-                                                
+
                                             ]
                                         }
                                     }
                                     {%- endfor %}
+
                                     {%- for ip in np.interface_profiles | default([]) %}
                                     {%- set l3out_ip_name = ip.name ~ defaults.apic.tenants.l3outs.node_profiles.interface_profiles.name_suffix %}{{ comma3() }}
                                     {
@@ -1619,12 +1642,12 @@
                                         }
                                     }
                                     {%- endfor %}
-                                    {%- if np.bgp is defined %}{{ comma3() }}                                                                      
+                                    {%- if np.bgp is defined %}{{ comma3() }}
                                     {
                                         "bgpProtP": {
                                             "attributes": {
-                                                "annotation": "orchestrator:aac",                                            
-                                                "name": "{{ np.bgp.name | default() }}",                                       
+                                                "annotation": "orchestrator:aac",
+                                                "name": "{{ np.bgp.name | default() }}",
                                                 "childAction": "deleteNonPresent"
                                             },
                                             "children": [
@@ -1655,7 +1678,30 @@
                                             ]
                                         }
                                     }
-                                    
+                                    {%- endif %}
+                                    {%- if np.bfd_multihop_node_policy is defined %}{{ comma3() }}
+                                    {% set bfd_multihop_node_policy_name = np.bfd_multihop_node_policy ~ defaults.apic.tenants.policies.bfd_multihop_node_policies.name_suffix %}
+                                    {
+                                        "bfdMhNodeP": {
+                                            "attributes": {
+                                                "annotation": "orchestrator:aac",
+                                                "dn": "uni/tn-{{ tenant.name }}/out-{{ l3out_name }}/lnodep-{{ l3out_np_name }}/bfdMhNodeP",
+                                                "keyId": "{{ np.bfd_multihop_auth.key_id | default(defaults.apic.tenants.l3outs.node_profiles.bfd_multihop_auth.key_id) }}",
+                                                "key": "{{ np.bfd_multihop_auth.key | default() }}",
+                                                "type": "{{ np.bfd_multihop_auth.type | default(defaults.apic.tenants.l3outs.node_profiles.bfd_multihop_auth.type) }}"
+                                        },
+                                        "children": [
+                                            {
+                                                "bfdRsMhNodePol": {
+                                                    "attributes": {
+                                                        "annotation": "orchestrator:aac",
+                                                        "tnBfdMhNodePolName": "{{ bfd_multihop_node_policy_name }}"
+                                                    }
+                                                }
+                                            }
+                                        ]
+                                    }
+                                    }
                                     {%- endif %}
 
                                 ]
@@ -1776,7 +1822,7 @@
                                                 }
                                                 {%- endif %}
                                                 {%- for rule in context.match_rules | default([]) %}{{ comma4() }}
-                                                {% set match_rule_name = rule ~ defaults.apic.tenants.policies.match_rules.name_suffix %} 
+                                                {% set match_rule_name = rule ~ defaults.apic.tenants.policies.match_rules.name_suffix %}
                                                 {
                                                     "rtctrlRsCtxPToSubjP": {
                                                         "attributes": {
@@ -1796,7 +1842,7 @@
                             }
                         }
                         {%- endif %}
-                        {%- if l3out.route_maps is defined %}           
+                        {%- if l3out.route_maps is defined %}
                         {%- for route_map in l3out.route_maps | default([]) %}{{ comma2() }}
                         {% set route_map_name = route_map.name ~ defaults.apic.tenants.l3outs.route_maps.name_suffix %}
                         {
@@ -1848,7 +1894,7 @@
                                                 }
                                                 {%- endif %}
                                                 {%- for rule in context.match_rules | default([]) %}{{ comma4() }}
-                                                {% set match_rule_name = rule ~ defaults.apic.tenants.policies.match_rules.name_suffix %} 
+                                                {% set match_rule_name = rule ~ defaults.apic.tenants.policies.match_rules.name_suffix %}
                                                 {
                                                     "rtctrlRsCtxPToSubjP": {
                                                         "attributes": {
@@ -1963,7 +2009,7 @@
                                 "attributes": {
                                     "annotation": "orchestrator:aac",
                                     "dn": "uni/tn-{{ tenant.name }}/out-{{ l3out_name }}/rsinterleakPol",
-                                    "tnRtctrlProfileName": "{{ interleak_route_map_name }}"                                    
+                                    "tnRtctrlProfileName": "{{ interleak_route_map_name }}"
                                 }
                             }
                         }
@@ -1996,7 +2042,7 @@
                                 }
                             }
                         }
-                        {%- endif %}                        
+                        {%- endif %}
                         {%- if l3out.dampening_ipv6_route_map is defined %}{{ comma2() }}
                         {% set dampening_ipv6_route_map_name_name = l3out.dampening_ipv6_route_map ~ defaults.apic.tenants.policies.route_control_route_maps.name_suffix %}
                         {
@@ -2022,7 +2068,7 @@
                                 }
                             }
                         }
-                        {%- endfor %}   
+                        {%- endfor %}
                         {%- for epg in l3out.external_endpoint_groups | default([]) %}{{ comma2() }}
                         {% set eepg_name = epg.name ~ defaults.apic.tenants.l3outs.external_endpoint_groups.name_suffix %}
                         {
@@ -2041,7 +2087,7 @@
                                 "children": [
                                     {%- set comma3 = joiner(",") %}
                                     {%- for route_control_profile in epg.route_control_profiles | default([]) %}{{ comma3() }}
-                                    {% set route_control_profile_name = route_control_profile.name ~ defaults.apic.tenants.l3outs.external_endpoint_groups.route_control_profiles.name_suffix %}                                   
+                                    {% set route_control_profile_name = route_control_profile.name ~ defaults.apic.tenants.l3outs.external_endpoint_groups.route_control_profiles.name_suffix %}
                                     {
                                         "l3extRsInstPToProfile": {
                                             "attributes": {
@@ -2051,7 +2097,7 @@
                                             }
                                         }
                                     }
-                                    {%- endfor %}                       
+                                    {%- endfor %}
                                     {%- for subnet in epg.subnets | default([]) %}{{ comma3() }}
                                     {% set scope = [] %}
                                     {% if subnet.export_route_control | default(defaults.apic.tenants.l3outs.external_endpoint_groups.subnets.export_route_control) %}{% set scope = scope + [("export-rtctrl")] %}{% endif %}
@@ -2109,7 +2155,7 @@
                                                 {
                                                     "l3extRsSubnetToProfile": {
                                                         "attributes": {
-                                                            "annotation": "orchestrator:aac",                                                            
+                                                            "annotation": "orchestrator:aac",
                                                             "tnRtctrlProfileName": "{{ route_control_profile_name }}",
                                                             "direction": "{{ route_control_profile.direction | default(defaults.apic.tenants.l3outs.external_endpoint_groups.subnets.route_control_profiles.direction) }}"
                                                         }
@@ -2158,7 +2204,7 @@
                                 ]
                             }
                         }
-                        {%- endfor %} 
+                        {%- endfor %}
 
                     ]
                 }

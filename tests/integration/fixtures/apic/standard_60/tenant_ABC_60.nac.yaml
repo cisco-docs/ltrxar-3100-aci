@@ -64,6 +64,25 @@ apic:
                     - floating_ip: 9.9.9.1/24
                       physical_domain: PHY1
                       vlan: 305
+        - name: L3OUT_BFD_MULTIHOP2
+          vrf: VRF1
+          domain: ROUTED1
+          bfd_multihop_node_policy: BFD-NODE1
+          bfd_multihop_auth:
+            type: sha1
+            key_id: 1
+            key: C1sco123
+          nodes:
+            - node_id: 101
+              router_id: 5.5.5.5
+              interfaces:
+                - node_id: 101
+                  port: 14
+                  vlan: 303
+                  ip: 34.34.34.35/24
+                  bgp_peers:
+                    - ip: 34.34.34.36
+                      remote_as: 65010
       policies:
         set_rules:
           - name: SET3
@@ -71,6 +90,12 @@ apic:
               name: L3OUT1-EPG1
               l3out: L3OUT1
               tenant: ABC
+        bfd_multihop_node_policies:
+          - name: BFD-NODE1
+            description: My BFD Node Policy
+            detection_multiplier: 5
+            min_rx_interval: 300
+            min_tx_interval: 300
         bgp_route_summarization_policies:
           - name: BGP_ROUTE_SUMMARIZATION1
             description: BGP_Route_Summarization_Policy

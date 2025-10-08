@@ -133,6 +133,29 @@ apic:
                       ip_shared: 172.16.100.1/24
                       ip_shared_dhcp_relay: true
 
+        - name: L3OUT_BFD_MULTIHOP1
+          vrf: VRF1
+          domain: ROUTED1
+          node_profiles:
+            - name: NP_102
+              nodes:
+              - node_id: 104
+                router_id: 12.12.12.12
+              bfd_multihop_node_policy: BFD_MHOP_POL
+              bfd_multihop_auth:
+                type: sha1
+                key_id: 1
+                key: C1sco123
+              interface_profiles:
+              - name: IPF101
+                interfaces:
+                  - node_id: 104
+                    port: 5
+                    ip: 10.15.1.2/28
+                    bgp_peers:
+                    - ip: 10.15.1.1
+                      remote_as: 65010
+
       sr_mpls_l3outs:
         - name: ABC_SR_MPLS_L3OUT
           vrf: VRF1
@@ -199,6 +222,13 @@ apic:
                 value: Linux
           - ip: 10.1.1.2
             vrf: VRF1
+        bfd_multihop_node_policies:
+          - name: BFD_MHOP_POL
+            description: My BFD Node Policy
+            detection_multiplier: 5
+            min_rx_interval: 300
+            min_tx_interval: 300
+
       services:
         l4l7_devices:
           - name: DEV3

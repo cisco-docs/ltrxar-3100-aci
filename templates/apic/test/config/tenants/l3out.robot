@@ -135,7 +135,7 @@ Verify L3out {{ l3out_name }} Node {{ node.node_id }} Static Route {{ sr.prefix 
     Should Be Equal Value Json String   ${r.json()}   ${route}..ipRouteP.attributes.ip   {{ sr.prefix }}
     Should Be Equal Value Json String   ${r.json()}   ${route}..ipRouteP.attributes.descr   {{ sr.description | default() }}
     Should Be Equal Value Json String   ${r.json()}   ${route}..ipRouteP.attributes.pref   {{ sr.preference | default(defaults.apic.tenants.l3outs.nodes.static_routes.preference) }}
-    Should Be Equal Value Json String   ${r.json()}   ${route}..ipRouteP.attributes.rtCtrl   {{ 'bfd' if sr.bfd | default(defaults.apic.tenants.l3outs.nodes.static_routes.bfd) }} 
+    Should Be Equal Value Json String   ${r.json()}   ${route}..ipRouteP.attributes.rtCtrl   {{ 'bfd' if sr.bfd | default(defaults.apic.tenants.l3outs.nodes.static_routes.bfd) }}
 {% if sr.track_list is defined %}
 {% set list_name = sr.track_list ~ defaults.apic.tenants.policies.track_lists.name_suffix %}
     Should Be Equal Value Json String   ${r.json()}   ${route}..ipRsRouteTrack.attributes.tDn  uni/tn-{{ tenant.name }}/tracklist-{{ list_name }}
@@ -254,9 +254,9 @@ Verify L3out {{ l3out_name }} Node {{ node.node_id }} Interface {{ loop.index }}
 {% if not int.floating_svi | default(defaults.apic.tenants.l3outs.nodes.interfaces.floating_svi) %}
     {% if type == 'ap' %}
     {% if int.sub_port is defined %}
-        {% set tDn = "topology/pod-" ~ pod | default(defaults.apic.tenants.l3outs.nodes.interfaces.pod) ~ "/paths-" ~ node.node_id ~ "/pathep-[eth" ~ int.module | default(defaults.apic.tenants.l3outs.nodes.interfaces.module) ~ "/" ~ int.port ~ "/" ~ int.sub_port ~ "]" %}  
-    {% else %}      
-        {% set tDn = "topology/pod-" ~ pod | default(defaults.apic.tenants.l3outs.nodes.interfaces.pod) ~ "/paths-" ~ node.node_id ~ "/pathep-[eth" ~ int.module | default(defaults.apic.tenants.l3outs.nodes.interfaces.module) ~ "/" ~ int.port ~ "]" %} 
+        {% set tDn = "topology/pod-" ~ pod | default(defaults.apic.tenants.l3outs.nodes.interfaces.pod) ~ "/paths-" ~ node.node_id ~ "/pathep-[eth" ~ int.module | default(defaults.apic.tenants.l3outs.nodes.interfaces.module) ~ "/" ~ int.port ~ "/" ~ int.sub_port ~ "]" %}
+    {% else %}
+        {% set tDn = "topology/pod-" ~ pod | default(defaults.apic.tenants.l3outs.nodes.interfaces.pod) ~ "/paths-" ~ node.node_id ~ "/pathep-[eth" ~ int.module | default(defaults.apic.tenants.l3outs.nodes.interfaces.module) ~ "/" ~ int.port ~ "]" %}
     {% endif %}
     {% elif type == 'pc' %}
         {% set tDn = "topology/pod-" ~ pod | default(defaults.apic.tenants.l3outs.nodes.interfaces.pod) ~ "/paths-" ~ node_ ~ "/pathep-[" ~ policy_group_name ~ "]" %}
@@ -266,7 +266,7 @@ Verify L3out {{ l3out_name }} Node {{ node.node_id }} Interface {{ loop.index }}
     ${int}=   Set Variable   $..l3extLIfP.children[?(@.l3extRsPathL3OutAtt.attributes.tDn=='{{ tDn }}')]
     Should Be Equal Value Json String   ${r.json()}   ${int}..l3extRsPathL3OutAtt.attributes.addr   {{ defaults.apic.tenants.l3outs.nodes.interfaces.ip if type == 'vpc' else int.ip }}
     Should Be Equal Value Json String   ${r.json()}   ${int}..l3extRsPathL3OutAtt.attributes.descr   {{ int.description | default() }}
-    
+
     {% if int.vlan is defined %}
     Should Be Equal Value Json String   ${r.json()}   ${int}..l3extRsPathL3OutAtt.attributes.ifInstT   {{ 'ext-svi' if int.svi | default(defaults.apic.tenants.l3outs.nodes.interfaces.svi) else 'sub-interface'}}
     Should Be Equal Value Json String   ${r.json()}   ${int}..l3extRsPathL3OutAtt.attributes.autostate   {{ 'enabled' if int.autostate | default(defaults.apic.tenants.l3outs.nodes.interfaces.autostate) else 'disabled' }}
@@ -334,7 +334,7 @@ Verify L3out {{ l3out_name }} Node {{ node.node_id }} Interface {{ loop.index }}
     Should Be Equal Value Json String   ${r.json()}   ${path}..l3extRsDynPathAtt.attributes.tDn   uni/phys-{{ path.physical_domain }}
     {% elif path.vmware_vmm_domain is defined %}
     Should Be Equal Value Json String   ${r.json()}   ${path}..l3extRsDynPathAtt.attributes.tDn   uni/vmmp-VMware/dom-{{ path.vmware_vmm_domain }}
-    {% if path.elag is defined and path.vmware_vmm_domain is defined %} 
+    {% if path.elag is defined and path.vmware_vmm_domain is defined %}
     Should Be Equal Value Json String   ${r.json()}   ${path}..l3extRsDynPathAtt.children..l3extVirtualLIfPLagPolAtt.children..l3extRsVSwitchEnhancedLagPol.attributes.tDn   uni/vmmp-VMware/dom-{{ path.vmware_vmm_domain }}/vswitchpolcont/enlacplagp-{{ path.elag }}
     {% endif %}
     {% endif %}
@@ -372,9 +372,9 @@ Verify L3out {{ l3out_name }} Node {{ node.node_id }} Interface {{ loop.index }}
 {% if not int.floating_svi | default(defaults.apic.tenants.l3outs.nodes.interfaces.floating_svi) %}
     {% if type == 'ap' %}
     {% if int.sub_port is defined %}
-        {% set tDn = "topology/pod-" ~ pod | default(defaults.apic.tenants.l3outs.nodes.interfaces.pod) ~ "/paths-" ~ node.node_id ~ "/pathep-[eth" ~ int.module | default(defaults.apic.tenants.l3outs.nodes.interfaces.module) ~ "/" ~ int.port ~ "/" ~ int.sub_port ~ "]" %}  
-    {% else %}      
-        {% set tDn = "topology/pod-" ~ pod | default(defaults.apic.tenants.l3outs.nodes.interfaces.pod) ~ "/paths-" ~ node.node_id ~ "/pathep-[eth" ~ int.module | default(defaults.apic.tenants.l3outs.nodes.interfaces.module) ~ "/" ~ int.port ~ "]" %} 
+        {% set tDn = "topology/pod-" ~ pod | default(defaults.apic.tenants.l3outs.nodes.interfaces.pod) ~ "/paths-" ~ node.node_id ~ "/pathep-[eth" ~ int.module | default(defaults.apic.tenants.l3outs.nodes.interfaces.module) ~ "/" ~ int.port ~ "/" ~ int.sub_port ~ "]" %}
+    {% else %}
+        {% set tDn = "topology/pod-" ~ pod | default(defaults.apic.tenants.l3outs.nodes.interfaces.pod) ~ "/paths-" ~ node.node_id ~ "/pathep-[eth" ~ int.module | default(defaults.apic.tenants.l3outs.nodes.interfaces.module) ~ "/" ~ int.port ~ "]" %}
     {% endif %}
     {% elif type == 'pc' %}
         {% set tDn = "topology/pod-" ~ pod | default(defaults.apic.tenants.l3outs.nodes.interfaces.pod) ~ "/paths-" ~ node_ ~ "/pathep-[" ~ policy_group_name ~ "]" %}
@@ -448,21 +448,29 @@ Verify L3out {{ l3out_name }} Node Profile {{ l3out_np_name }} Interface Profile
 
 {% endfor %}
 
+{% if l3out.bfd_multihop_node_policy is defined %}
+{% set bfd_multihop_node_policy_name = l3out.bfd_multihop_node_policy ~ defaults.apic.tenants.policies.bfd_multihop_node_policies.name_suffix %}
+
+Verify L3out {{ l3out_name }} BFD Multihop Policy {{ bfd_multihop_node_policy_name }}
+    Should Be Equal Value Json String   ${r.json()}   $..bfdRsMhNodePol.attributes.tnBfdMhNodePolName   {{ bfd_multihop_node_policy_name }}
+{% endif %}
+
+
 {% if l3out.bgp is defined %}
 
 Verify L3out {{ l3out_name }} BGP Protocol Profile
 
-{% if l3out.bgp.name is defined | default() %}                   
+{% if l3out.bgp.name is defined | default() %}
     Should Be Equal Value Json String   ${r.json()}   $..bgpProtP.attributes.name  {{ l3out.bgp.name }}
 {% endif %}
 
 {% if l3out.bgp.timer_policy is defined %}
-{% set bgp_timer_policy_name = l3out.bgp.timer_policy ~ defaults.apic.tenants.policies.bgp_timer_policies.name_suffix %}                             
+{% set bgp_timer_policy_name = l3out.bgp.timer_policy ~ defaults.apic.tenants.policies.bgp_timer_policies.name_suffix %}
     Should Be Equal Value Json String   ${r.json()}   $..bgpRsBgpNodeCtxPol.attributes.tnBgpCtxPolName   {{ bgp_timer_policy_name }}
 {% endif %}
 
 {% if l3out.bgp.as_path_policy is defined %}
-{% set bgp_as_path_policy_name = l3out.bgp.as_path_policy ~ defaults.apic.tenants.policies.bgp_best_path_policies.name_suffix %}                            
+{% set bgp_as_path_policy_name = l3out.bgp.as_path_policy ~ defaults.apic.tenants.policies.bgp_best_path_policies.name_suffix %}
     Should Be Equal Value Json String   ${r.json()}   $..bgpRsBestPathCtrlPol.attributes.tnBgpBestPathCtrlPolName   {{ bgp_as_path_policy_name }}
 {% endif %}
 
@@ -476,6 +484,11 @@ Verify L3out {{ l3out_name }} BGP Protocol Profile
 Verify L3out {{ l3out_name }} Node Profile {{ l3out_np_name }}
     ${np}=   Set Variable   $..l3extOut.children[?(@.l3extLNodeP.attributes.name=='{{ l3out_np_name }}')]
     Should Be Equal Value Json String   ${r.json()}   ${np}..l3extLNodeP.attributes.name   {{ l3out_np_name }}
+
+{% if np.bfd_multihop_node_policy is defined %}
+{% set bfd_multihop_node_policy_name = np.bfd_multihop_node_policy ~ defaults.apic.tenants.policies.bfd_multihop_node_policies.name_suffix %}
+    Should Be Equal Value Json String   ${r.json()}   ${np}..bfdRsMhNodePol.attributes.tnBfdMhNodePolName   {{ bfd_multihop_node_policy_name }}
+{% endif %}
 
 {% for node in np.nodes | default([]) %}
 {% set query = "nodes[?id==`" ~ node.node_id ~ "`].pod" %}
@@ -506,7 +519,7 @@ Verify L3out {{ l3out_name }} Node Profile {{ l3out_np_name }} Node {{ node.node
     Should Be Equal Value Json String   ${r.json()}   ${route}..ipRouteP.attributes.ip   {{ sr.prefix }}
     Should Be Equal Value Json String   ${r.json()}   ${route}..ipRouteP.attributes.descr   {{ sr.description | default() }}
     Should Be Equal Value Json String   ${r.json()}   ${route}..ipRouteP.attributes.pref   {{ sr.preference | default(defaults.apic.tenants.l3outs.node_profiles.nodes.static_routes.preference) }}
-    Should Be Equal Value Json String   ${r.json()}   ${route}..ipRouteP.attributes.rtCtrl   {{ 'bfd' if sr.bfd | default(defaults.apic.tenants.l3outs.node_profiles.nodes.static_routes.bfd) }} 
+    Should Be Equal Value Json String   ${r.json()}   ${route}..ipRouteP.attributes.rtCtrl   {{ 'bfd' if sr.bfd | default(defaults.apic.tenants.l3outs.node_profiles.nodes.static_routes.bfd) }}
 {% if sr.track_list is defined %}
 {% set list_name = sr.track_list ~ defaults.apic.tenants.policies.track_lists.name_suffix %}
     Should Be Equal Value Json String   ${r.json()}   ${route}..ipRsRouteTrack.attributes.tDn  uni/tn-{{ tenant.name }}/tracklist-{{ list_name }}
@@ -536,7 +549,7 @@ Verify L3out {{ l3out_name }} Node Profile {{ l3out_np_name }} Node {{ node.node
 {% endfor %}
 
 {% endfor %}
- 
+
 {% for peer in np.bgp_peers | default([]) %}
 {% set ctrl = [] %}
 {% if peer.allow_self_as | default(defaults.apic.tenants.l3outs.node_profiles.bgp_peers.allow_self_as) %}{% set ctrl = ctrl + [("allow-self-as")] %}{% endif %}
@@ -681,7 +694,7 @@ Verify L3out {{ l3out_name }} Node Profile {{ l3out_np_name }} Interface Profile
     {% if type == 'ap' %}
     {% if int.sub_port is defined %}
         {% set tDn = "topology/pod-" ~ pod | default(defaults.apic.tenants.l3outs.node_profiles.interface_profiles.interfaces.pod) ~ "/paths-" ~ int.node_id ~ "/pathep-[eth" ~ int.module | default(defaults.apic.tenants.l3outs.node_profiles.interface_profiles.interfaces.module) ~ "/" ~ int.port ~ "/" ~ int.sub_port ~ "]" %}
-    {% else %}      
+    {% else %}
         {% set tDn = "topology/pod-" ~ pod | default(defaults.apic.tenants.l3outs.node_profiles.interface_profiles.interfaces.pod) ~ "/paths-" ~ int.node_id ~ "/pathep-[eth" ~ int.module | default(defaults.apic.tenants.l3outs.node_profiles.interface_profiles.interfaces.module) ~ "/" ~ int.port ~ "]" %}
     {% endif %}
     {% elif type == 'pc' %}
@@ -802,7 +815,7 @@ Verify L3out {{ l3out_name }} Node Profile {{ l3out_np_name }} Interface Profile
     {% if type == 'ap' %}
     {% if int.sub_port is defined %}
         {% set tDn = "topology/pod-" ~ pod | default(defaults.apic.tenants.l3outs.node_profiles.interface_profiles.interfaces.pod) ~ "/paths-" ~ int.node_id ~ "/pathep-[eth" ~ int.module | default(defaults.apic.tenants.l3outs.node_profiles.interface_profiles.interfaces.module) ~ "/" ~ int.port ~ "/" ~ int.sub_port ~ "]" %}
-    {% else %}      
+    {% else %}
         {% set tDn = "topology/pod-" ~ pod | default(defaults.apic.tenants.l3outs.node_profiles.interface_profiles.interfaces.pod) ~ "/paths-" ~ int.node_id ~ "/pathep-[eth" ~ int.module | default(defaults.apic.tenants.l3outs.node_profiles.interface_profiles.interfaces.module) ~ "/" ~ int.port ~ "]" %}
     {% endif %}
     {% elif type == 'pc' %}
@@ -882,17 +895,17 @@ Verify L3out {{ l3out_name }} Node Profile {{ l3out_np_name }} Interface Profile
 
 Verify L3out {{ l3out_name }} BGP Protocol Profile
 
-{% if np.bgp.name is defined | default() %}               
+{% if np.bgp.name is defined | default() %}
     Should Be Equal Value Json String   ${r.json()}   $..bgpProtP.attributes.name  {{ np.bgp.name }}
 {% endif %}
 
 {% if np.bgp.timer_policy is defined %}
-{% set bgp_timer_policy_name = np.bgp.timer_policy ~ defaults.apic.tenants.policies.bgp_timer_policies.name_suffix %}                       
+{% set bgp_timer_policy_name = np.bgp.timer_policy ~ defaults.apic.tenants.policies.bgp_timer_policies.name_suffix %}
     Should Be Equal Value Json String   ${r.json()}   $..bgpRsBgpNodeCtxPol.attributes.tnBgpCtxPolName   {{ bgp_timer_policy_name }}
 {% endif %}
 
 {% if np.bgp.as_path_policy is defined %}
-{% set bgp_as_path_policy_name = np.bgp.as_path_policy ~ defaults.apic.tenants.policies.bgp_best_path_policies.name_suffix %}                            
+{% set bgp_as_path_policy_name = np.bgp.as_path_policy ~ defaults.apic.tenants.policies.bgp_best_path_policies.name_suffix %}
     Should Be Equal Value Json String   ${r.json()}   $..bgpRsBestPathCtrlPol.attributes.tnBgpBestPathCtrlPolName   {{ bgp_as_path_policy_name }}
 {% endif %}
 
@@ -957,7 +970,7 @@ Verify L3out {{ l3out_name }} Route Maps {{route_map_name}}
 {% set context_name = context.name ~ defaults.apic.tenants.l3outs.route_maps.contexts.name_suffix %}
 
 Verify L3out {{ l3out_name }} Route Maps Context {{ context_name }}
-    ${route_map}=   Set Variable   $..l3extOut.children[?(@.rtctrlProfile.attributes.name=='{{ route_map_name }}')]   
+    ${route_map}=   Set Variable   $..l3extOut.children[?(@.rtctrlProfile.attributes.name=='{{ route_map_name }}')]
     ${context}=   Set Variable   ${route_map}..rtctrlProfile.children[?(@.rtctrlCtxP.attributes.name=='{{ context_name }}')]
     Should Be Equal Value Json String   ${r.json()}   ${context}..rtctrlCtxP.attributes.name   {{ context_name }}
     Should Be Equal Value Json String   ${r.json()}   ${context}..rtctrlCtxP.attributes.descr   {{ context.description | default() }}

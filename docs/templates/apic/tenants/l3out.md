@@ -249,6 +249,11 @@ apic:
               route_map: ROUTE_MAP2
           dampening_ipv4_route_map: ROUTE_MAP3
           dampening_ipv6_route_map: ROUTE_MAP4
+          bfd_multihop_node_policy: BFD-NODE1
+          bfd_multihop_auth:
+            type: sha1
+            key_id: 1
+            key: Secure123
           nodes:
             - node_id: 101
               router_id: 5.5.5.5
@@ -349,7 +354,7 @@ apic:
                   shared_route_control: false
                   import_security: true
                   shared_security: false
-                  route_control_profiles:          
+                  route_control_profiles:
                     - name: EXPORT-RCP1
                       direction: export
               contracts:
