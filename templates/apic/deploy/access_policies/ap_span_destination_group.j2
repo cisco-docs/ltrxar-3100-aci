@@ -40,7 +40,7 @@
                                                 "tDn": "topology/pod-{{ pod }}/paths-{{ span.node_id }}/pathep-[eth{{ span.module | default(defaults.apic.access_policies.span.destination_groups.module) }}/{{ span.port }}/{{ span.sub_port }}]"
                                                     {%else%}
                                                 "tDn": "topology/pod-{{ pod }}/paths-{{ span.node_id }}/pathep-[eth{{ span.module | default(defaults.apic.access_policies.span.destination_groups.module) }}/{{ span.port }}]"
-                                                    {% endif %}                                                    
+                                                    {% endif %}
                                                 {% else %}
                                                     {% set policy_group_name = span.channel ~ defaults.apic.access_policies.leaf_interface_policy_groups.name_suffix %}
                                                     {% set query_sub_ports = "nodes[?interfaces[?sub_ports[?policy_group==`" ~ span.channel ~ "`]]].id" %}
@@ -56,7 +56,7 @@
                                                         {% endif %}
                                                         {% set query = "nodes[?id==`" ~ node ~ "`].pod" %}
                                                         {% set pod = span.pod_id | default(((apic.node_policies | default()) | community.general.json_query(query))[0] | default('1')) %}
-                                                "tDn": "topology/pod-{{ pod }}/paths-{{ node }}/pathep-[{{ policy_group_name }}]"                                                 
+                                                "tDn": "topology/pod-{{ pod }}/paths-{{ node }}/pathep-[{{ policy_group_name }}]"
                                                     {% elif id_ports | length > 0 %}
                                                         {% if span.node_id is defined %}
                                                             {% set node = span.node_id %}
@@ -72,7 +72,7 @@
                                             }
                                         }
                                     }
-                                    {%- endif %} 
+                                    {%- endif %}
 
                                     {%- if span.tenant is defined and span.application_profile is defined and span.endpoint_group is defined %}{{ comma2() }}
                                     {% set application_profile_name = span.application_profile ~ defaults.apic.tenants.application_profiles.name_suffix %}
@@ -100,9 +100,9 @@
                         }
                     ]
                 }
-            }            
+            }
             {%- endfor %}
-            
+
         ]
     }
 }

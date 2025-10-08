@@ -15,7 +15,7 @@ Verify Leaf Interface Profile {{ leaf_interface_profile_name }} Faults
     ${major}=   Get Value From Json   ${r.json()}   $..faultCounts.attributes.maj
     ${minor}=   Get Value From Json   ${r.json()}   $..faultCounts.attributes.minor
 {% if prof.expected_state.maximum_critical_faults is defined %}
-    Run Keyword If   ${critical}[0] > {{ prof.expected_state.maximum_critical_faults }}   Run Keyword And Continue On Failure 
+    Run Keyword If   ${critical}[0] > {{ prof.expected_state.maximum_critical_faults }}   Run Keyword And Continue On Failure
     ...   Fail  "{{ leaf_interface_profile_name }} has ${critical}[0] critical faults"
 {% endif %}
 {% if prof.expected_state.maximum_major_faults is defined %}

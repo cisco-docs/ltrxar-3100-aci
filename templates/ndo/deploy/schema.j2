@@ -378,7 +378,7 @@
                         {%- endfor %}
 
                     ]
-                } 
+                }
                 {%- endfor %}
 
             ],
@@ -586,7 +586,7 @@
                                         "vlanType": "vlan",
                                         "vlan": {{ vmm.vlan }}
                                     },
-                                    {% if vmm.u_segmentation | default(defaults.ndo.schemas.templates.application_profiles.endpoint_groups.sites.vmware_vmm_domains.u_segmentation) and vmm.vlan_mode | default(defaults.ndo.schemas.templates.application_profiles.endpoint_groups.sites.vmware_vmm_domains.vlan_mode) == "static" %} 
+                                    {% if vmm.u_segmentation | default(defaults.ndo.schemas.templates.application_profiles.endpoint_groups.sites.vmware_vmm_domains.u_segmentation) and vmm.vlan_mode | default(defaults.ndo.schemas.templates.application_profiles.endpoint_groups.sites.vmware_vmm_domains.vlan_mode) == "static" %}
                                     "microSegVlan": {
                                         "vlanType": "vlan",
                                         "vlan": {{ vmm.useg_vlan }}
@@ -911,8 +911,8 @@
             ],
             "serviceGraphs": [
                 {%- set comma2 = joiner(",") %}
-                {%- for sg in template.service_graphs | default([]) %}{{ comma2() }}  
-                {% set sg_name = sg.name ~ defaults.ndo.schemas.templates.service_graphs.name_suffix %} 
+                {%- for sg in template.service_graphs | default([]) %}{{ comma2() }}
+                {% set sg_name = sg.name ~ defaults.ndo.schemas.templates.service_graphs.name_suffix %}
                 {
                     "serviceGraphRef": "/templates/{{ template.name }}/serviceGraphs/{{ sg_name }}",
                     "serviceNodes": [

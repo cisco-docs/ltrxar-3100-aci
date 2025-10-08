@@ -46,7 +46,7 @@ Verify VRF {{ vrf_name }}
 Verify VRF {{ vrf_name }} Leaked Internal Prefix {{ prefix.prefix }}
     ${prefix}=   Set Variable   $..leakRoutes.children[?(@.leakInternalSubnet.attributes.ip=='{{ prefix.prefix }}')].leakInternalSubnet
     Should Be Equal Value Json String   ${r.json()}   ${prefix}.attributes.ip   {{ prefix.prefix }}
-    Should Be Equal Value Json String   ${r.json()}   ${prefix}.attributes.scope   {% if prefix.public | default(defaults.apic.tenants.vrfs.leaked_internal_prefixes.public) %}public{% else %}private{% endif %} 
+    Should Be Equal Value Json String   ${r.json()}   ${prefix}.attributes.scope   {% if prefix.public | default(defaults.apic.tenants.vrfs.leaked_internal_prefixes.public) %}public{% else %}private{% endif %}
 
 {% for destination in prefix.destinations | default([]) %}
 {% set vrf_name = destination.vrf ~ ('' if vrf.name in ('inb', 'obb', 'overlay-1') else defaults.apic.tenants.vrfs.name_suffix) %}
@@ -57,7 +57,7 @@ Verify VRF {{ vrf_name }} Leaked Internal Prefix {{ prefix.prefix }} Destination
     Should Be Equal Value Json String   ${r.json()}   ${dest}.attributes.descr   {{ destination.description | default("") }}
     Should Be Equal Value Json String   ${r.json()}   ${dest}.attributes.ctxName   {{ vrf_name }}
     Should Be Equal Value Json String   ${r.json()}   ${dest}.attributes.tenantName   {{ destination.tenant }}
-    Should Be Equal Value Json String   ${r.json()}   ${dest}.attributes.scope   {% if destination.public is defined %}{% if destination.public %}public{% else %}private{% endif %}{% else %}inherit{% endif %} 
+    Should Be Equal Value Json String   ${r.json()}   ${dest}.attributes.scope   {% if destination.public is defined %}{% if destination.public %}public{% else %}private{% endif %}{% else %}inherit{% endif %}
 
 {% endfor %}
 {% endfor %}
@@ -98,7 +98,7 @@ Verify BGP Timer Policy {{ vrf.bgp.timer_policy }}
     ${bgp_entry}=   Set Variable   $..fvCtx.children[?(@.fvRsBgpCtxPol.attributes.tnBgpCtxPolName=='{{ bgp_timer_name }}')].fvRsBgpCtxPol
     Should Be Equal Value Json String   ${r.json()}   ${bgp_entry}.attributes.tnBgpCtxPolName   {{ bgp_timer_name }}
 {% endif %}
- 
+
 {% if vrf.bgp.ipv4_address_family_context_policy is defined %}
 
 Verify IPv4 BGP Address Family Context Policy {{ vrf.bgp.ipv4_address_family_context_policy }}

@@ -31,7 +31,7 @@
                     "children": [
                         {%- set comma3 = joiner(",") %}
                         {%- for sd in vmm.security_domains | default([]) %}{{ comma3() }}
-                        { 
+                        {
                             "aaaDomainRef": {
                                 "attributes": {
                                     "annotation": "orchestrator:aac",
@@ -39,7 +39,7 @@
                                 }
                             }
                         }
-                        {%- endfor %}{{ comma3() }} 
+                        {%- endfor %}{{ comma3() }}
                         {
                             "vmmVSwitchPolicyCont": {
                                 "attributes": {

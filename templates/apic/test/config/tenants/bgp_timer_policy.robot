@@ -14,10 +14,10 @@ Verify BGP Timer Policy {{ bgp_timer_name }}
     ${r}=   GET On Session   apic   /api/mo/uni/tn-{{ tenant.name }}/bgpCtxP-{{ bgp_timer_name }}.json
     Should Be Equal Value Json String   ${r.json()}   $..bgpCtxPol.attributes.name   {{ bgp_timer_name }}
     Should Be Equal Value Json String   ${r.json()}   $..bgpCtxPol.attributes.descr   {{ bt.description | default() }}
-    Should Be Equal Value Json String   ${r.json()}   $..bgpCtxPol.attributes.grCtrl   {{ 'helper' if bt.graceful_restart_helper | default(defaults.apic.tenants.policies.bgp_timer_policies.graceful_restart_helper) }} 
+    Should Be Equal Value Json String   ${r.json()}   $..bgpCtxPol.attributes.grCtrl   {{ 'helper' if bt.graceful_restart_helper | default(defaults.apic.tenants.policies.bgp_timer_policies.graceful_restart_helper) }}
     Should Be Equal Value Json String   ${r.json()}   $..bgpCtxPol.attributes.holdIntvl   {{ bt.hold_interval | default(defaults.apic.tenants.policies.bgp_timer_policies.hold_interval) }}
     Should Be Equal Value Json String   ${r.json()}   $..bgpCtxPol.attributes.kaIntvl   {{ bt.keepalive_interval | default(defaults.apic.tenants.policies.bgp_timer_policies.keepalive_interval) }}
     Should Be Equal Value Json String   ${r.json()}   $..bgpCtxPol.attributes.maxAsLimit   {{ bt.maximum_as_limit | default(defaults.apic.tenants.policies.bgp_timer_policies.maximum_as_limit) }}
-    Should Be Equal Value Json String   ${r.json()}   $..bgpCtxPol.attributes.staleIntvl  {% if bt.stale_interval | default(defaults.apic.tenants.policies.bgp_timer_policies.stale_interval) == 300 %}default{% else %}{{ bt.stale_interval | default(defaults.apic.tenants.policies.bgp_timer_policies.stale_interval) }}{% endif %} 
+    Should Be Equal Value Json String   ${r.json()}   $..bgpCtxPol.attributes.staleIntvl  {% if bt.stale_interval | default(defaults.apic.tenants.policies.bgp_timer_policies.stale_interval) == 300 %}default{% else %}{{ bt.stale_interval | default(defaults.apic.tenants.policies.bgp_timer_policies.stale_interval) }}{% endif %}
 
 {% endfor %}

@@ -14,7 +14,7 @@
                         "name": "{{ filter_name }}",
                         "descr": "{{filter_.description | default() }}",
                         "dn": "uni/infra/filtergrp-{{ filter_name }}",
-                        "childAction": "deleteNonPresent"   
+                        "childAction": "deleteNonPresent"
                     },
                     "children": [
                         {%- set comma2 = joiner(",") %}
@@ -42,7 +42,7 @@
                 }
             }
             {%- endfor %}
-            
+
         ]
     }
 }

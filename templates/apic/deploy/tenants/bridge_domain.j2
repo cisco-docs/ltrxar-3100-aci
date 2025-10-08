@@ -46,7 +46,7 @@
                         {%- set comma2 = joiner(",") %}
                         {%- for dhcp_label in bd.dhcp_labels | default([]) %}{{ comma2() }}
                         {% set dhcp_relay_policy_name = dhcp_label.dhcp_relay_policy ~ defaults.apic.tenants.policies.dhcp_relay_policies.name_suffix %}
-                        {             
+                        {
                             "dhcpLbl": {
                                 "attributes": {
                                     "annotation": "orchestrator:aac",
@@ -91,7 +91,7 @@
                                     {%- if subnet.ip_dataplane_learning is defined %}
                                     "ipDPLearning": "{{ 'enabled' if subnet.ip_dataplane_learning else 'disabled' }}",
                                     {%- endif %}
-                                    "virtual": "{{ 'yes' if subnet.virtual | default(defaults.apic.tenants.bridge_domains.subnets.virtual) else 'no' }}"                                    
+                                    "virtual": "{{ 'yes' if subnet.virtual | default(defaults.apic.tenants.bridge_domains.subnets.virtual) else 'no' }}"
                                 }
                                 {%- if subnet.nd_ra_prefix_policy is defined %},
                                 {%- set nd_ra_prefix_policy_name = subnet.nd_ra_prefix_policy ~ defaults.apic.tenants.policies.nd_ra_prefix_policies.name_suffix %}

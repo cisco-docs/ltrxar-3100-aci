@@ -161,7 +161,7 @@
                                                 "tDn": "topology/pod-{{ pod }}/paths-{{ sp.node_id }}/extpaths-{{ sp.fex_id }}/pathep-[eth{{ sp.module | default(defaults.apic.tenants.application_profiles.endpoint_groups.static_ports.module) }}/{{ sp.port }}]"
                                                     {%else%}
                                                 "tDn": "topology/pod-{{ pod }}/paths-{{ sp.node_id }}/pathep-[eth{{ sp.module | default(defaults.apic.tenants.application_profiles.endpoint_groups.static_ports.module) }}/{{ sp.port }}]"
-                                                    {% endif %}                                                    
+                                                    {% endif %}
                                                 {% else %}
                                                     {% set policy_group_name = sp.channel ~ defaults.apic.access_policies.leaf_interface_policy_groups.name_suffix %}
                                                     {% set query = "leaf_interface_policy_groups[?name==`" ~ sp.channel ~ "`].type" %}
@@ -190,7 +190,7 @@
                                                 "tDn": "topology/pod-{{ pod }}/protpaths-{{ node }}-{{ node2 }}/pathep-[{{ policy_group_name }}]"
                                                         {% else %}
                                                 "tDn": "topology/pod-{{ pod }}/paths-{{ node }}/pathep-[{{ policy_group_name }}]"
-                                                        {% endif %}                                                    
+                                                        {% endif %}
                                                     {% else %}
                                                         {% if sp.node_id is defined %}
                                                             {% set node = sp.node_id %}
@@ -209,7 +209,7 @@
                                                                 {% if node2 < node %}{% set node_tmp = node %}{% set node = node2 %}{% set node2 = node_tmp %}{% endif %}
                                                             {% endif %}
                                                             {% if sp.fex_id is defined and sp.fex2_id is defined %}
-                                                "tDn": "topology/pod-{{ pod }}/protpaths-{{ node }}-{{ node2 }}/extprotpaths-{{ sp.fex_id }}-{{ sp.fex2_id }}/pathep-[{{ policy_group_name }}]"      
+                                                "tDn": "topology/pod-{{ pod }}/protpaths-{{ node }}-{{ node2 }}/extprotpaths-{{ sp.fex_id }}-{{ sp.fex2_id }}/pathep-[{{ policy_group_name }}]"
                                                             {% else %}
                                                 "tDn": "topology/pod-{{ pod }}/protpaths-{{ node }}-{{ node2 }}/pathep-[{{ policy_group_name }}]"
                                                             {% endif %}
@@ -288,7 +288,7 @@
                                                 }
                                                 {%- endfor %}
                                                 {% endif %}
-                                                {%- if st_ep.type != "vep" %}{{ comma4() }} 
+                                                {%- if st_ep.type != "vep" %}{{ comma4() }}
                                                 {
                                                 "fvRsStCEpToPathEp": {
                                                     "attributes": {
@@ -325,9 +325,9 @@
                                                     }
                                                 }
                                                 }
-                                               
+
                                             ]
-                                            {% endif %}  
+                                            {% endif %}
                                         }
                                     }
                                     {%- endfor %}
@@ -394,7 +394,7 @@
                                                 "virtual": "{{ 'yes' if subnet.virtual | default(defaults.apic.tenants.application_profiles.endpoint_groups.subnets.virtual) else 'no' }}",
                                                 {%- if subnet.ip_dataplane_learning is defined %}
                                                 "ipDPLearning": "{{ 'enabled' if subnet.ip_dataplane_learning else 'disabled' }}",
-                                                {%- endif %}                                                
+                                                {%- endif %}
                                                 "childAction": "deleteNonPresent"
                                             },
                                             "children": [
@@ -501,7 +501,7 @@
                                                 "descr": "{{ vip.description | default() }}"
                                             }
                                         }
-                                    }                      
+                                    }
                                     {%- endfor %}
                                     {%- for pool in epg.l4l7_address_pools | default([]) %}{{ comma3() }}
                                     {
@@ -510,7 +510,7 @@
                                                 "annotation": "orchestrator:aac",
                                                 "name": "{{ pool.name }}",
                                                 "addr": "{{ pool.gateway_address }}",
-                                                "childAction": "deleteNonPresent"                                                
+                                                "childAction": "deleteNonPresent"
                                             },
                                             "children": [
                                                 {% if pool.from is defined and pool.to is defined %}

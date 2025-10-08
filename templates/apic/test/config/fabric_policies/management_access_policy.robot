@@ -64,13 +64,13 @@ Verify Management Access Policy {{ policy.name }} HTTPS
     Should Be Equal Value Json String   ${r.json()}    $..commPol.children..commHttps.attributes.clientCertAuthState   {{ 'enabled' if policy.https.client_cert_auth_state | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.https.client_cert_auth_state) else 'disabled' }}
     Should Be Equal Value Json String   ${r.json()}    $..commPol.children..commHttps.attributes.dhParam   {{ policy.https.dh | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.https.dh) }}
     Should Be Equal Value Json String   ${r.json()}    $..commPol.children..commHttps.attributes.port   {{ policy.https.port | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.https.port) }}
-    Should Be Equal Value Json String   ${r.json()}    $..commPol.children..commHttps.attributes.sslProtocols   {{ ssl_protocols | join(',') }}             
+    Should Be Equal Value Json String   ${r.json()}    $..commPol.children..commHttps.attributes.sslProtocols   {{ ssl_protocols | join(',') }}
     Should Be Equal Value Json String   ${r.json()}    $..commPol.children..commHttps.children..commRsKeyRing.attributes.tnPkiKeyRingName   {{ policy.https.key_ring | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.https.key_ring) }}
-    Should Be Equal Value Json String   ${r.json()}    $..commPol.children..commHttps.attributes.accessControlAllowOrigins   {{ policy.allow_origins | default() }}    
+    Should Be Equal Value Json String   ${r.json()}    $..commPol.children..commHttps.attributes.accessControlAllowOrigins   {{ policy.allow_origins | default() }}
 
 Verify Management Access Policy {{ policy.name }} HTTP
     Should Be Equal Value Json String   ${r.json()}    $..commPol.children..commHttp.attributes.adminSt   {{ 'enabled' if policy.http.admin_state | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.http.admin_state) else 'disabled' }}
     Should Be Equal Value Json String   ${r.json()}    $..commPol.children..commHttp.attributes.port   {{ policy.http.port | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.http.port) }}
     Should Be Equal Value Json String   ${r.json()}    $..commPol.children..commHttps.attributes.accessControlAllowOrigins   {{ policy.allow_origins | default() }}
-    
+
 {% endfor %}

@@ -26,7 +26,7 @@ Verify Tenant {{ tenant.name }} Site {{ site.name }}
 {% if site.azure_subscription_id is defined %}
     Should Be Equal Value Json String   ${r.json()}   ${site}.cloudAccount   uni/tn-{{ site.azure_shared_tenant | default(tenant.name) }}/act-[{{ site.azure_subscription_id }}]-vendor-azure
 {% if site.azure_shared_tenant is not defined %}
-    Should Be Equal Value Json String   ${r.json()}   ${site}..cloudSubscriptionId   {{ site.azure_subscription_id }}   
+    Should Be Equal Value Json String   ${r.json()}   ${site}..cloudSubscriptionId   {{ site.azure_subscription_id }}
 {% endif %}
 {% endif %}
 

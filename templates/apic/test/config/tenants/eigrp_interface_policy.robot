@@ -27,4 +27,3 @@ Verify EIGRP Interface Policy {{ policy_name }}
     Should Be Equal Value Json String   ${r.json()}   $..eigrpIfPol.attributes.delay   {{ eip.delay | default(defaults.apic.tenants.policies.eigrp_interface_policies.delay) }}
     Should Be Equal Value Json String   ${r.json()}   $..eigrpIfPol.attributes.delayUnit   {{ eip.delay_unit | default(defaults.apic.tenants.policies.eigrp_interface_policies.delay_unit) }}
 {% endfor %}
-

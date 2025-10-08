@@ -13,7 +13,7 @@ Resource       ../../../apic_common.resource
 Verify L4L7 Device {{ dev_name }}
     ${r}=   GET On Session   apic   /api/mo/uni/tn-{{ tenant.name }}/lDevVip-{{ dev_name }}.json   params=rsp-subtree=full
     Set Suite Variable   ${r}
-    Should Be Equal Value Json String   ${r.json()}   $..vnsLDevVip.attributes.contextAware   {{ dev.context_aware | default(defaults.apic.tenants.services.l4l7_devices.context_aware) }} 
+    Should Be Equal Value Json String   ${r.json()}   $..vnsLDevVip.attributes.contextAware   {{ dev.context_aware | default(defaults.apic.tenants.services.l4l7_devices.context_aware) }}
     Should Be Equal Value Json String   ${r.json()}   $..vnsLDevVip.attributes.devtype   {{ dev.type | default(defaults.apic.tenants.services.l4l7_devices.type) }}
     Should Be Equal Value Json String   ${r.json()}   $..vnsLDevVip.attributes.funcType   {{ dev.function | default(defaults.apic.tenants.services.l4l7_devices.function) }}
     Should Be Equal Value Json String   ${r.json()}   $..vnsLDevVip.attributes.isCopy   {{ 'yes' if dev.copy_device | default(defaults.apic.tenants.services.l4l7_devices.copy_device) else 'no' }}
@@ -101,7 +101,7 @@ Verify L4L7 Device {{ dev_name }} Logical Interface {{ int_name }}
     ${con}=   Set Variable   $..vnsLDevVip.children[?(@.vnsLIf.attributes.name=='{{ int_name }}')].vnsLIf
     Should Be Equal Value Json String   ${r.json()}   ${con}.attributes.name   {{ int_name }}
     Should Be Equal Value Json String   ${r.json()}   ${con}.attributes.nameAlias   {{ int.alias | default() }}
-    Should Be Equal Value Json String   ${r.json()}   ${con}.attributes.encap   {% if int.vlan is defined %}vlan-{{ int.vlan }}{% else %}unknown{% endif %} 
+    Should Be Equal Value Json String   ${r.json()}   ${con}.attributes.encap   {% if int.vlan is defined %}vlan-{{ int.vlan }}{% else %}unknown{% endif %}
 
 {% for ci in int.concrete_interfaces | default([]) %}
 {% set ci_name = ci.interface_name ~ defaults.apic.tenants.services.l4l7_devices.logical_interfaces.concrete_interfaces.name_suffix  %}

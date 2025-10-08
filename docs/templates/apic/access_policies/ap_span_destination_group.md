@@ -7,7 +7,7 @@ Location in GUI:
 
 ### Examples
 
-Example-1: This example demonstrates how to configure a SPAN destination group under access policies for ERSPAN. 
+Example-1: This example demonstrates how to configure a SPAN destination group under access policies for ERSPAN.
 The destination group `Lf1011-EPC-CP-DstGrp` defines the ERSPAN collector with IP `192.168.101.151`. The source_prefix `10.1.1.1` specifies the ERSPAN source IP. The MTU is set to `9216` to support jumbo frames. By default, the ERSPAN version is 2; in this example, it is explicitly set to `1`. The tenant `mgmt`, application_profile `Mgmt-AP`, and endpoint_group `VLAN-1001-EPG` identify the EPG used to reach the collector. The collector IP must be reachable and learned in this EPG.
 
 ```yaml
@@ -40,4 +40,3 @@ apic:
           node_id: 1011
           port: 10
 ```
-

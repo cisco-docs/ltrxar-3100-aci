@@ -20,7 +20,7 @@ apic:
           delay_restore_timer: 210
 ```
 
-Example 2: In this example we modify the default timers which are automatically applied to all nodes unless a specific policy is applied to a vPC Group. 
+Example 2: In this example we modify the default timers which are automatically applied to all nodes unless a specific policy is applied to a vPC Group.
 
 ```yaml
 apic:

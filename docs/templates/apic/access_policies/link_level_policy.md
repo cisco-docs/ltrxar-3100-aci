@@ -33,5 +33,5 @@ apic:
           speed: 10G
           auto: true
           fec_mode: inherit
-          physical_media_type: sfp-10g-tx 
+          physical_media_type: sfp-10g-tx
 ```

@@ -18,14 +18,14 @@
                         "syncIntvl": "{{ prof.sync_interval | default(defaults.apic.access_policies.ptp_profiles.sync_interval) }}",
                         "profileTemplate": "{% if prof.template | default(defaults.apic.access_policies.ptp_profiles.template) == 'telecom' %}telecom_full_path{% elif prof.template | default(defaults.apic.access_policies.ptp_profiles.template) == 'smpte' %}smpte{% else %}aes67{% endif %}"
                         {%- if prof.template | default(defaults.apic.access_policies.ptp_profiles.template) == "telecom" %}{{ comma1() }}
-                        "ptpoeDstMacType": "{{ 'forwardable' if prof.forwardable | default(defaults.apic.access_policies.ptp_profiles.forwardable) else 'non-forwardable' }}", 
+                        "ptpoeDstMacType": "{{ 'forwardable' if prof.forwardable | default(defaults.apic.access_policies.ptp_profiles.forwardable) else 'non-forwardable' }}",
                         "localPriority": "{{ prof.priority | default(defaults.apic.access_policies.ptp_profiles.priority) }}",
                         "ptpoeDstMacRxNoMatch": "{% if prof.mismatch_handling | default(defaults.apic.access_policies.ptp_profiles.mismatch_handling) == 'configured' %}replyWithCfgMac{% elif prof.mismatch_handling | default(defaults.apic.access_policies.ptp_profiles.mismatch_handling) == 'received' %}replyWithRxMac{% else %}drop{% endif %}"
                         {% endif %}
                     }
                 }
             }{%- endfor %}
-            
-        ] 
+
+        ]
     }
 }

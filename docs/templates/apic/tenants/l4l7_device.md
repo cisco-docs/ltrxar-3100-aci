@@ -160,7 +160,7 @@ apic:
                     interface_name: INT2
 ```
 
-Example for GoTo with firewall behind vPC as a concrete device, using vlan-812 as encap with explicit interface configuration (port-channel not created in access_policies.yaml requires providing both node ids): 
+Example for GoTo with firewall behind vPC as a concrete device, using vlan-812 as encap with explicit interface configuration (port-channel not created in access_policies.yaml requires providing both node ids):
 
 ```yaml
 apic:

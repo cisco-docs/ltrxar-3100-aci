@@ -22,7 +22,7 @@
                         "descr": "{{ igmp_snoop_pol.description | default() }}",
                         "adminSt": "{{ 'enabled' if igmp_snoop_pol.admin_state | default(defaults.apic.tenants.policies.igmp_snooping_policies.admin_state) else 'disabled' }}",
                         "ctrl": "{{ ctrl | join(',') }}",
-                        "lastMbrIntvl": "{{ igmp_snoop_pol.last_member_query_interval | default(defaults.apic.tenants.policies.igmp_snooping_policies.last_member_query_interval) }}",                        
+                        "lastMbrIntvl": "{{ igmp_snoop_pol.last_member_query_interval | default(defaults.apic.tenants.policies.igmp_snooping_policies.last_member_query_interval) }}",
                         "queryIntvl": "{{ igmp_snoop_pol.query_interval | default(defaults.apic.tenants.policies.igmp_snooping_policies.query_interval) }}",
                         "rspIntvl": "{{ igmp_snoop_pol.query_response_interval | default(defaults.apic.tenants.policies.igmp_snooping_policies.query_response_interval) }}",
                         "startQueryCnt": "{{ igmp_snoop_pol.start_query_count | default(defaults.apic.tenants.policies.igmp_snooping_policies.start_query_count) }}",

@@ -45,7 +45,7 @@ ndo:
               sites:
                 - name: APIC1
                   tenant: MSO1
-                  l3out: 
+                  l3out:
                     name: ANS-L3OUT
 ```
 

@@ -28,7 +28,7 @@ Verify External Connectivity Policy Routing Profile {{ routing_profile_name }}
     Should Be Equal Value Json String   ${r.json()}    ${profile}.attributes.name   {{ routing_profile_name }}
 {%- for subnet in routing_profile.subnets | default([]) %}
 
-Verify External Connectivity Policy Routing Profile {{ routing_profile_name }} Subnet {{ subnet }} 
+Verify External Connectivity Policy Routing Profile {{ routing_profile_name }} Subnet {{ subnet }}
     ${profile}=   Set Variable   $..fvFabricExtConnP.children[?(@.l3extFabricExtRoutingP.attributes.name=='{{ routing_profile_name }}')].l3extFabricExtRoutingP
     ${subnet}=   Set Variable    ${profile}.children[?(@.l3extSubnet.attributes.ip=='{{ subnet }}')].l3extSubnet
     Should Be Equal Value Json String   ${r.json()}    ${subnet}.attributes.ip   {{ subnet }}

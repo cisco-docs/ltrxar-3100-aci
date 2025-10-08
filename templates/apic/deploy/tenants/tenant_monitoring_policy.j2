@@ -99,7 +99,7 @@
                                             "code": "{{ fault.fault_id }}",
                                             "initial": "{{ fault.initial_severity | default(defaults.apic.tenants.policies.monitoring.policies.fault_severity_policies.initial_severity) }}",
                                             "target": "{{ fault.target_severity | default(defaults.apic.tenants.policies.monitoring.policies.fault_severity_policies.target_severity) }}",
-                                            "descr": "{{ fault.description | default() }}"    
+                                            "descr": "{{ fault.description | default() }}"
                                         }
                                     }
                                 }

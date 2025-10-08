@@ -15,7 +15,7 @@ Verify FEX Interface Profile {{ fex_profile_name }} Faults
     ${major}=   Get Value From Json   ${r.json()}   $..faultCounts.attributes.maj
     ${minor}=   Get Value From Json   ${r.json()}   $..faultCounts.attributes.minor
 {% if fex.expected_state.maximum_critical_faults is defined %}
-    Run Keyword If   ${critical}[0] > {{ fex.expected_state.maximum_critical_faults }}   Run Keyword And Continue On Failure 
+    Run Keyword If   ${critical}[0] > {{ fex.expected_state.maximum_critical_faults }}   Run Keyword And Continue On Failure
     ...   Fail  "{{ fex_profile_name }} has ${critical}[0] critical faults"
 {% endif %}
 {% if fex.expected_state.maximum_major_faults is defined %}

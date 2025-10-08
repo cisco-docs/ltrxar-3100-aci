@@ -8,7 +8,7 @@ Resource        ../../../apic_common.resource
 *** Test Cases ***
 {% set tenant = ((apic | default()) | community.general.json_query('tenants[?name==`' ~ item[2] ~ '`]'))[0] %}
 {% for ip_sla in tenant.policies.ip_sla_policies | default([]) %}
-{% set ip_sla_name = ip_sla.name ~ defaults.apic.tenants.policies.ip_sla_policies.name_suffix %} 
+{% set ip_sla_name = ip_sla.name ~ defaults.apic.tenants.policies.ip_sla_policies.name_suffix %}
 
 {% if ip_sla.expected_state.maximum_critical_faults is defined or ip_sla.expected_state.maximum_major_faults is defined or ip_sla.expected_state.maximum_minor_faults is defined %}
 Verify IP SLA {{ ip_sla_name }} Faults

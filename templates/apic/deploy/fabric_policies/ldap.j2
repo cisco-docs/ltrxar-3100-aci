@@ -69,7 +69,7 @@
                                     "name": "{{ dom.name }}",
                                     "childAction": "deleteNonPresent"
                                 },
-                                "children": [ 
+                                "children": [
                                     {%- set comma3 = joiner(",") %}
                                     {%- for role in dom.roles | default([]) %}{{ comma3() }}
                                     {
@@ -87,7 +87,7 @@
                             }
                         }
                         {%- endfor %}
-                        
+
                     ]
                 }
             }
@@ -114,7 +114,7 @@
                             }
                         }
                         {%- endfor %}
-                        
+
                     ]
                 }
             }

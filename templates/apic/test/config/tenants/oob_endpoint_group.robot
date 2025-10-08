@@ -15,8 +15,8 @@ Resource        ../../../apic_common.resource
 {% endif %}
 
 Verify OOB Endpoint Group {{ epg_name }}
-    ${r}=   GET On Session   apic   /api/mo/uni/tn-mgmt/mgmtp-default/oob-{{ epg_name }}.json   params=rsp-subtree=full  
-    Set Suite Variable   ${r}  
+    ${r}=   GET On Session   apic   /api/mo/uni/tn-mgmt/mgmtp-default/oob-{{ epg_name }}.json   params=rsp-subtree=full
+    Set Suite Variable   ${r}
     Should Be Equal Value Json String   ${r.json()}   $..mgmtOoB.attributes.name   {{ epg_name }}
 
 {% for oob_contract in epg.oob_contracts.providers | default([]) %}
@@ -32,6 +32,6 @@ Verify OOB Endpoint Group {{ epg_name }} Contract Provider {{ oob_contract_name 
 Verify Out-of-Band Endpoint Group {{ epg_name }} Static Route {{ prefix }}
     ${con}=   Set Variable   $..mgmtInB.children[?(@.mgmtStaticRoute.attributes.prefix=='{{ prefix }}')]
     Should Be Equal Value Json String   ${r.json()}   ${con}..mgmtStaticRoute.attributes.prefix   {{ prefix }}
-{% endfor %} 
+{% endfor %}
 
 {% endfor %}

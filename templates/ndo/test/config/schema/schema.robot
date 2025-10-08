@@ -38,7 +38,7 @@ Verify Schema {{ schema.name }} Template {{ template.name }} Application Profile
     Should Be Equal Value Json String   ${r.json()}   ${epg}.displayName   {{ epg_name }}
     Should Be Equal Value Json String   ${r.json()}   ${epg}.description   {{ epg.description | default() }}
     Should Be Equal Value Json Boolean   ${r.json()}   ${epg}.uSegEpg   {{ epg.useg | default(defaults.ndo.schemas.templates.application_profiles.endpoint_groups.useg) }}
-    Should Be Equal Value Json String   ${r.json()}   ${epg}.intraEpg   {{ 'enforced' if epg.intra_epg_isolation | default(defaults.ndo.schemas.templates.application_profiles.endpoint_groups.intra_epg_isolation) else 'unenforced' }} 
+    Should Be Equal Value Json String   ${r.json()}   ${epg}.intraEpg   {{ 'enforced' if epg.intra_epg_isolation | default(defaults.ndo.schemas.templates.application_profiles.endpoint_groups.intra_epg_isolation) else 'unenforced' }}
     Should Be Equal Value Json Boolean   ${r.json()}   ${epg}.proxyArp   {{  epg.proxy_arp | default(defaults.ndo.schemas.templates.application_profiles.endpoint_groups.proxy_arp) }}
     Should Be Equal Value Json Boolean   ${r.json()}   ${epg}.preferredGroup   {{ epg.preferred_group | default(defaults.ndo.schemas.templates.application_profiles.endpoint_groups.preferred_group) }}
 {% if epg.bridge_domain.name is defined %}
@@ -149,7 +149,7 @@ Verify Schema {{ schema.name }} Template {{ template.name }} Application Profile
 {% set policy_group_name = sp.channel ~ defaults.ndo.schemas.templates.application_profiles.endpoint_groups.sites.static_ports.leaf_interface_policy_group_suffix %}
 {% if sp.fex is defined and sp.fex_2 is defined %}
 {% set path = 'topology/pod-' + sp.pod | default(1) | string + '/protpaths-' + sp.node_1 | string + '-' + sp.node_2 | string + '/extprotpaths-' + sp.fex | string + '-' + sp.fex_2 | string + '/pathep-[' + policy_group_name + ']' %}
-{% else %}                                   
+{% else %}
 {% set path = 'topology/pod-' + sp.pod | default(1) | string + '/protpaths-' + sp.node_1 | string + '-' + sp.node_2 | string + '/pathep-[' + policy_group_name + ']' %}
 {% endif %}
 {% endif %}
@@ -288,7 +288,7 @@ Verify Schema {{ schema.name }} Template {{ template.name }} Bridge Domain {{ bd
 
 {% for pol in  bd.dhcp_policies | default([]) %}
 {% set dhcp_relay_policy_name = pol.dhcp_relay_policy ~ defaults.ndo.policies.dhcp_relays.name_suffix %}
-    ${dhcp}=   Set Variable   $.templates[?(@.name=='{{ template.name }}')].bds[?(@.name=='{{ bd_name }}')].dhcpLabels[?(@.name=='{{ dhcp_relay_policy_name }}')]                     
+    ${dhcp}=   Set Variable   $.templates[?(@.name=='{{ template.name }}')].bds[?(@.name=='{{ bd_name }}')].dhcpLabels[?(@.name=='{{ dhcp_relay_policy_name }}')]
     Should Be Equal Value Json String   ${r.json()}   ${dhcp}.name   {{ dhcp_relay_policy_name }}
 {% if pol.dhcp_option_policy is defined %}
 {% set dhcp_option_name = pol.dhcp_option_policy ~ defaults.ndo.policies.dhcp_options.name_suffix %}

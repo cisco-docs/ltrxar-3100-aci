@@ -23,12 +23,12 @@ Verify SPAN Source Group {{ span_name }} Source {{ source_name }}
     Should Be Equal Value Json String   ${r.json()}    ${source}.attributes.dir   {{ source.direction | default(defaults.apic.fabric_policies.span.source_groups.sources.direction) }}
     Should Be Equal Value Json String   ${r.json()}    ${source}.attributes.spanOnDrop   {{ 'yes' if source.span_drop | default(defaults.apic.fabric_policies.span.source_groups.sources.span_drop) else 'no' }}
 {% if source.tenant is defined and source.vrf is defined %}
-{% set vrf_name = source.vrf ~ defaults.apic.tenants.vrfs.name_suffix %} 
-    Should Be Equal Value Json String   ${r.json()}    ${source}..spanRsSrcToCtx.attributes.tDn   uni/tn-{{ source.tenant }}/ctx-{{ vrf_name }}                     
+{% set vrf_name = source.vrf ~ defaults.apic.tenants.vrfs.name_suffix %}
+    Should Be Equal Value Json String   ${r.json()}    ${source}..spanRsSrcToCtx.attributes.tDn   uni/tn-{{ source.tenant }}/ctx-{{ vrf_name }}
 {% endif %}
 {% if source.tenant is defined and source.bridge_domain is defined %}
 {% set bd_name = source.bridge_domain ~ defaults.apic.tenants.bridge_domains.name_suffix %}
-    Should Be Equal Value Json String   ${r.json()}    ${source}..spanRsSrcToBD.attributes.tDn   uni/tn-{{ source.tenant }}/BD-{{ bd_name }}                           
+    Should Be Equal Value Json String   ${r.json()}    ${source}..spanRsSrcToBD.attributes.tDn   uni/tn-{{ source.tenant }}/BD-{{ bd_name }}
 {% endif %}
 
 {% for path in source.fabric_paths| default([]) %}

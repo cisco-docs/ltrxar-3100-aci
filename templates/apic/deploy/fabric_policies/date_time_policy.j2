@@ -7,7 +7,7 @@
             {%- set comma1 = joiner(",") %}
             {%- for policy in apic.fabric_policies.pod_policies.date_time_policies | default([]) %}{{ comma1() }}
             {% set date_time_policy_name = policy.name ~ defaults.apic.fabric_policies.pod_policies.date_time_policies.name_suffix %}
-            {     
+            {
                 "datetimePol": {
                     "attributes": {
                         "annotation": "orchestrator:aac",

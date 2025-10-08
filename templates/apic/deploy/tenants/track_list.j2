@@ -46,7 +46,7 @@
             {%- for l3out in tenant.l3outs | default([]) %}
             {%- set l3out_name = l3out.name ~ defaults.apic.tenants.l3outs.name_suffix %}
             {%- set vrf_name = l3out.vrf ~ ('' if l3out.vrf in ('inb', 'obb', 'overlay-1') else defaults.apic.tenants.vrfs.name_suffix) %}
-            
+
             {# manual node profiles #}
             {%- if ((l3out.node_profiles | default([])) | length) > 0 %}
             {%- for np in l3out.node_profiles | default([]) %}
@@ -83,7 +83,7 @@
                     ]
                 }
             }
-            {%- endif %}   
+            {%- endif %}
             {%- endif %}
 
             {%- endfor %}
@@ -127,7 +127,7 @@
                     ]
                 }
             }
-            {%- endif %}   
+            {%- endif %}
             {%- endif %}
 
             {%- endfor %}

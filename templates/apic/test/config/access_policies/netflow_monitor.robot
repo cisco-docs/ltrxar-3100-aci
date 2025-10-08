@@ -18,7 +18,7 @@ Verify Netflow Monitor {{ monitor_name }}
 {% set record_name = monitor.flow_record ~ defaults.apic.access_policies.interface_policies.netflow_records.name_suffix %}
 Verify Netflow Monitor {{ monitor_name }} Record {{ record_name }}
     Should Be Equal Value Json String   ${r.json()}    $..netflowMonitorPol.children..tnNetflowRecordPolName   {{ record_name }}
-{% endif %}                 
+{% endif %}
 
 {% for exporter in monitor.flow_exporters | default([]) %}
 {% set exporter_name = exporter ~ defaults.apic.access_policies.interface_policies.netflow_exporters.name_suffix %}

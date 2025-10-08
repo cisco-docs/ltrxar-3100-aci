@@ -13,7 +13,7 @@ Verify SPAN Destination Group {{ span_name }}
     Set Suite Variable   ${r}
     Should Be Equal Value Json String   ${r.json()}    $..spanDestGrp.attributes.name   {{ span_name }}
     Should Be Equal Value Json String   ${r.json()}    $..spanDestGrp.attributes.descr   {{ span.description | default() }}
-    Should Be Equal Value Json String   ${r.json()}    $..spanDestGrp.children..spanDest.attributes.name   {{ span_name }} 
+    Should Be Equal Value Json String   ${r.json()}    $..spanDestGrp.children..spanDest.attributes.name   {{ span_name }}
 {% if span.node_id is defined or span.channel is defined %}
     Should Be Equal Value Json String   ${r.json()}    $..spanDestGrp.children..spanDest.children..spanRsDestPathEp.attributes.mtu   {{ span.mtu | default(defaults.apic.access_policies.span.destination_groups.mtu) }}
 {% if span.node_id is defined and span.channel is not defined %}
@@ -23,7 +23,7 @@ Verify SPAN Destination Group {{ span_name }}
     Should Be Equal Value Json String   ${r.json()}    $..spanDestGrp.children..spanDest.children..spanRsDestPathEp.attributes.tDn   topology/pod-{{ pod }}/paths-{{ span.node_id }}/pathep-[eth{{ span.module | default(defaults.apic.access_policies.span.destination_groups.module) }}/{{ span.port }}/{{ span.sub_port }}]
     {%else%}
     Should Be Equal Value Json String   ${r.json()}    $..spanDestGrp.children..spanDest.children..spanRsDestPathEp.attributes.tDn   topology/pod-{{ pod }}/paths-{{ span.node_id }}/pathep-[eth{{ span.module | default(defaults.apic.access_policies.span.destination_groups.module) }}/{{ span.port }}]
-    {% endif %}                                                    
+    {% endif %}
 {% else %}
     {% set policy_group_name = span.channel ~ defaults.apic.access_policies.leaf_interface_policy_groups.name_suffix %}
     {% set query_sub_ports = "nodes[?interfaces[?sub_ports[?policy_group==`" ~ span.channel ~ "`]]].id" %}
@@ -39,7 +39,7 @@ Verify SPAN Destination Group {{ span_name }}
         {% endif %}
         {% set query = "nodes[?id==`" ~ node ~ "`].pod" %}
         {% set pod = span.pod_id | default(((apic.node_policies | default()) | community.general.json_query(query))[0] | default('1')) %}
-    Should Be Equal Value Json String   ${r.json()}    $..spanDestGrp.children..spanDest.children..spanRsDestPathEp.attributes.tDn   topology/pod-{{ pod }}/paths-{{ node }}/pathep-[{{ policy_group_name }}]                                                
+    Should Be Equal Value Json String   ${r.json()}    $..spanDestGrp.children..spanDest.children..spanRsDestPathEp.attributes.tDn   topology/pod-{{ pod }}/paths-{{ node }}/pathep-[{{ policy_group_name }}]
     {% elif id_ports | length > 0 %}
         {% if span.node_id is defined %}
             {% set node = span.node_id %}
@@ -65,6 +65,6 @@ Verify SPAN Destination Group {{ span_name }}
     Should Be Equal Value Json String   ${r.json()}    $..spanDestGrp.children..spanDest.children..spanRsDestEpg.attributes.ver   ver{{ span.version | default(defaults.apic.access_policies.span.destination_groups.version) }}
     Should Be Equal Value Json String   ${r.json()}    $..spanDestGrp.children..spanDest.children..spanRsDestEpg.attributes.verEnforced   {{ 'yes' if span.enforce_version | default(defaults.apic.access_policies.span.destination_groups.enforce_version) else 'no' }}
     Should Be Equal Value Json String   ${r.json()}    $..spanDestGrp.children..spanDest.children..spanRsDestEpg.attributes.tDn   uni/tn-{{ span.tenant | default(tenant.name) }}/ap-{{ application_profile_name }}/epg-{{ endpoint_group_name }}
-{% endif %}                                  
+{% endif %}
 
 {% endfor %}

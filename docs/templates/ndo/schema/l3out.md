@@ -65,7 +65,7 @@ ndo:
 
 Example-4: Site Local L3out with Strectched VRF Association from differnet Schema
 
-While all of the previous examples are all using the same schema this example using a different schema where the VRF is defined. This configuration defines an L3out named `site1_l3out` within the `site1_app_template`, which belongs to the `example_schema`. A key aspect of this configuration is that the L3out references a VRF named `stretched1_vrf` that is explicitly defined within a completely different schema, `example1_schema`, and its `stretched1_app_template`. 
+While all of the previous examples are all using the same schema this example using a different schema where the VRF is defined. This configuration defines an L3out named `site1_l3out` within the `site1_app_template`, which belongs to the `example_schema`. A key aspect of this configuration is that the L3out references a VRF named `stretched1_vrf` that is explicitly defined within a completely different schema, `example1_schema`, and its `stretched1_app_template`.
 
 ```yaml
 ndo:

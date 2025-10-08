@@ -23,7 +23,7 @@ Verify MPLS Custom QoS Policy Ingress Rules {{ ir.exp_from }} - {{ ir.exp_to }}
     Should Be Equal Value Json String   ${r.json()}   $..qosMplsIngressRule.attributes.to   {{ ir.exp_to }}
     Should Be Equal Value Json String   ${r.json()}   $..qosMplsIngressRule.attributes.prio   {{ ir.priority | default(defaults.apic.tenants.policies.mpls_custom_qos_policy.ingress_rules.priority) }}
     Should Be Equal Value Json String   ${r.json()}   $..qosMplsIngressRule.attributes.target   {{ ir.dscp_target | default(defaults.apic.tenants.policies.mpls_custom_qos_policy.ingress_rules.dscp_target) }}
-    Should Be Equal Value Json String   ${r.json()}   $..qosMplsIngressRule.attributes.targetCos   {{ ir.cos_target | default(defaults.apic.tenants.policies.mpls_custom_qos_policy.ingress_rules.cos_target) }}                    
+    Should Be Equal Value Json String   ${r.json()}   $..qosMplsIngressRule.attributes.targetCos   {{ ir.cos_target | default(defaults.apic.tenants.policies.mpls_custom_qos_policy.ingress_rules.cos_target) }}
 {% endfor %}
 
 {% for er in qos_policy.egress_rules | default([]) %}
@@ -32,7 +32,7 @@ Verify MPLS Custom QoS Egress Rules {{ er.dscp_from }} - {{ er.dscp_to }}
     Should Be Equal Value Json String   ${r.json()}   $..qosMplsEgressRule.attributes.from   {{ er.dscp_from }}
     Should Be Equal Value Json String   ${r.json()}   $..qosMplsEgressRule.attributes.to   {{ er.dscp_to }}
     Should Be Equal Value Json String   ${r.json()}   $..qosMplsEgressRule.attributes.targetExp   {{ er.exp_target | default(defaults.apic.tenants.policies.mpls_custom_qos_policy.egress_rules.exp_target) }}
-    Should Be Equal Value Json String   ${r.json()}   $..qosMplsEgressRule.attributes.targetCos   {{ er.cos_target | default(defaults.apic.tenants.policies.mpls_custom_qos_policy.egress_rules.cos_target) }}                    
+    Should Be Equal Value Json String   ${r.json()}   $..qosMplsEgressRule.attributes.targetCos   {{ er.cos_target | default(defaults.apic.tenants.policies.mpls_custom_qos_policy.egress_rules.cos_target) }}
 {% endfor %}
 
 {% endfor %}

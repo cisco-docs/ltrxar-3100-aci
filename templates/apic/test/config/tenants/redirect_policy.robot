@@ -24,15 +24,15 @@ Verify Redirect Policy {{ pol_name }}
     Should Be Equal Value Json String   ${r.json()}   $..vnsSvcRedirectPol.attributes.srcMacRewriteEnabled   {{ 'yes' if pol.rewrite_source_mac else 'no' }}
 {% endif %}
     Should Be Equal Value Json String   ${r.json()}   $..vnsSvcRedirectPol.attributes.thresholdDownAction   {{ pol.threshold_down_action | default(defaults.apic.tenants.services.redirect_policies.threshold_down_action) }}
-    Should Be Equal Value Json String   ${r.json()}   $..vnsSvcRedirectPol.attributes.programLocalPodOnly   {{ 'yes' if pol.pod_aware | default(defaults.apic.tenants.services.redirect_policies.pod_aware) else 'no' }} 
+    Should Be Equal Value Json String   ${r.json()}   $..vnsSvcRedirectPol.attributes.programLocalPodOnly   {{ 'yes' if pol.pod_aware | default(defaults.apic.tenants.services.redirect_policies.pod_aware) else 'no' }}
     Should Be Equal Value Json String   ${r.json()}   $..vnsSvcRedirectPol.attributes.resilientHashEnabled   {{ 'yes' if pol.resilient_hashing | default(defaults.apic.tenants.services.redirect_policies.resilient_hashing) else 'no' }}
     Should Be Equal Value Json String   ${r.json()}   $..vnsSvcRedirectPol.attributes.AnycastEnabled   {{ 'yes' if pol.anycast | default(defaults.apic.tenants.services.redirect_policies.anycast) else 'no' }}
     Should Be Equal Value Json String   ${r.json()}   $..vnsSvcRedirectPol.attributes.thresholdEnable   {{ 'yes' if pol.threshold | default(defaults.apic.tenants.services.redirect_policies.threshold) else 'no' }}
 
 {% if pol.sla_policy is defined %}
-{% set ip_sla_name = pol.sla_policy ~ defaults.apic.tenants.policies.ip_sla_policies.name_suffix %} 
+{% set ip_sla_name = pol.sla_policy ~ defaults.apic.tenants.policies.ip_sla_policies.name_suffix %}
 
-Verify Redirect Policy {{ pol_name }} IP SLA Policy 
+Verify Redirect Policy {{ pol_name }} IP SLA Policy
     Should Be Equal Value Json String   ${r.json()}   $..vnsSvcRedirectPol.children..vnsRsIPSLAMonitoringPol.attributes.tDn   uni/tn-{{ tenant.name }}/ipslaMonitoringPol-{{ ip_sla_name }}
 
 {% endif %}
@@ -58,7 +58,7 @@ Verify Redirect Policy {{ pol_name }} L3 Destination {{ dest.ip }}
 {% if dest.redirect_health_group is defined %}
 {% set health_group_name = dest.redirect_health_group ~ defaults.apic.tenants.services.redirect_health_groups.name_suffix %}
     Should Be Equal Value Json String   ${r.json()}   ${dest}.children..vnsRsRedirectHealthGroup.attributes.tDn   uni/tn-{{ tenant.name }}/svcCont/redirectHealthGroup-{{ health_group_name }}
-{% endif %}                                                 
+{% endif %}
 {% endfor %}
 
 {% for dest in pol.l1l2_destinations | default([]) %}

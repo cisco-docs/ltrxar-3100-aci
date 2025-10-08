@@ -7,11 +7,11 @@ Location in GUI:
 
 ### Examples
 
-Example-1: This illustrates a configuration example for a Layer 2 bridge domain named `Layer2_BD` under `Azure` Schema/Tenant and `Site_A` fabric . The unicast_routing flag is set to `false`, indicating that subnets within this bridge domain are not propagated to the leaf switches, and no routing occurs within the fabric. The l2_unknown_unicast flag is configured to `flood`, ensuring that unknown unicast traffic is flooded within the bridge domain. The bridge domain is not stretched, as shown by the l2_stretch flag being set to `false`. 
+Example-1: This illustrates a configuration example for a Layer 2 bridge domain named `Layer2_BD` under `Azure` Schema/Tenant and `Site_A` fabric . The unicast_routing flag is set to `false`, indicating that subnets within this bridge domain are not propagated to the leaf switches, and no routing occurs within the fabric. The l2_unknown_unicast flag is configured to `flood`, ensuring that unknown unicast traffic is flooded within the bridge domain. The bridge domain is not stretched, as shown by the l2_stretch flag being set to `false`.
 
-The subnet configuration allows the fabric to manage IP addresses and ARP within the Layer 2 domain without providing routing or default gateway services. 
+The subnet configuration allows the fabric to manage IP addresses and ARP within the Layer 2 domain without providing routing or default gateway services.
 
-The VRF `Prod` in this example is defined in a stretched template `Site_AB` which is further detailed under the vrf section. 
+The VRF `Prod` in this example is defined in a stretched template `Site_AB` which is further detailed under the vrf section.
 
 ```yaml
 ndo:

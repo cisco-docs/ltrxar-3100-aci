@@ -9,7 +9,7 @@ Resource        ../../../apic_common.resource
 {% set tenant = ((apic | default()) | community.general.json_query('tenants[?name==`' ~ item[2] ~ '`]'))[0] %}
 {% for pim_pol in tenant.policies.pim_policies | default([]) %}
 {% set pim_policy_name = pim_pol.name ~ defaults.apic.tenants.policies.pim_policies.name_suffix %}
-{% set ctrl = [] %}     
+{% set ctrl = [] %}
 {% if pim_pol.mcast_dom_boundary | default(defaults.apic.tenants.policies.pim_policies.mcast_dom_boundary) %}{% set ctrl = ctrl + [("border")] %}{% endif %}
 {% if pim_pol.passive | default(defaults.apic.tenants.policies.pim_policies.passive) %}{% set ctrl = ctrl + [("passive")] %}{% endif %}
 {% if pim_pol.strict_rfc | default(defaults.apic.tenants.policies.pim_policies.strict_rfc) %}{% set ctrl = ctrl + [("strict-rfc-compliant")] %}{% endif %}
@@ -26,28 +26,28 @@ Verify PIM Policy {{ pim_policy_name }}
 
 {% if pim_pol.neighbor_filter_policy is defined %}
 {% set neighbor_filter_policy_name = pim_pol.neighbor_filter_policy ~ defaults.apic.tenants.policies.multicast_route_maps.name_suffix %}
-                        
+
 Verify PIM Policy {{ pim_policy_name }} Interface-Level Neighbor Filter Policy
     ${r}=   GET On Session   apic   /api/mo/uni/tn-{{ tenant.name }}/pimifpol-{{ pim_policy_name }}/nbrfilter/rsfilterToRtMapPol.json
     Should Be Equal Value Json String   ${r.json()}   $..rtdmcRsFilterToRtMapPol.attributes.tDn   uni/tn-{{ tenant.name }}/rtmap-{{ neighbor_filter_policy_name }}
-    
+
 {% endif %}
 {% if pim_pol.join_prune_filter_policy_out is defined %}
 {% set join_prune_filter_policy_out_name = pim_pol.join_prune_filter_policy_out ~ defaults.apic.tenants.policies.multicast_route_maps.name_suffix %}
-                                                
+
 Verify PIM Policy {{ pim_policy_name }} Interface-Level Outbound Join-Prune Filter Policy
     ${r}=   GET On Session   apic   /api/mo/uni/tn-{{ tenant.name }}/pimifpol-{{ pim_policy_name }}/jpoutbfilter/rsfilterToRtMapPol.json
     Should Be Equal Value Json String   ${r.json()}   $..rtdmcRsFilterToRtMapPol.attributes.tDn   uni/tn-{{ tenant.name }}/rtmap-{{ join_prune_filter_policy_out_name }}
-    
+
 {% endif %}
 
 {% if pim_pol.join_prune_filter_policy_in is defined %}
 {% set join_prune_filter_policy_in_name = pim_pol.join_prune_filter_policy_in ~ defaults.apic.tenants.policies.multicast_route_maps.name_suffix %}
-                                                                        
+
 Verify PIM Policy {{ pim_policy_name }} Interface-Level Inbound Join-Prune Filter Policy
     ${r}=   GET On Session   apic   /api/mo/uni/tn-{{ tenant.name }}/pimifpol-{{ pim_policy_name }}/jpinbfilter/rsfilterToRtMapPol.json
     Should Be Equal Value Json String   ${r.json()}   $..rtdmcRsFilterToRtMapPol.attributes.tDn   uni/tn-{{ tenant.name }}/rtmap-{{ join_prune_filter_policy_in_name }}
-    
+
 {% endif %}
 
 {% endfor %}

@@ -19,7 +19,7 @@ Verify ND RA Prefix Policy {{ policy_name }}
     Should Be Equal Value Json String   ${r.json()}   $..ndPfxPol.attributes.name   {{ policy_name }}
     Should Be Equal Value Json String   ${r.json()}   $..ndPfxPol.attributes.descr   {{ nd_ra_prefix_pol.description | default() }}
     Should Be Equal Value Json String   ${r.json()}   $..ndPfxPol.attributes.ctrl   {{ ctrl | join(',') }}
-    Should Be Equal Value Json String   ${r.json()}   $..ndPfxPol.attributes.lifetime   {{ nd_ra_prefix_pol.valid_lifetime | default(defaults.apic.tenants.policies.nd_ra_prefix_policies.valid_lifetime) }}                   
+    Should Be Equal Value Json String   ${r.json()}   $..ndPfxPol.attributes.lifetime   {{ nd_ra_prefix_pol.valid_lifetime | default(defaults.apic.tenants.policies.nd_ra_prefix_policies.valid_lifetime) }}
     Should Be Equal Value Json String   ${r.json()}   $..ndPfxPol.attributes.prefLifetime   {{ nd_ra_prefix_pol.preferred_lifetime | default(defaults.apic.tenants.policies.nd_ra_prefix_policies.preferred_lifetime) }}
 
 {% endfor %}

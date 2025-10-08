@@ -14,7 +14,7 @@ apic:
       policies:
         nd_interface_policies:
           - name: ND-INTF-POL1
-            controller_state: 
+            controller_state:
               - managed-cfg
             hop_limit: 8
             ns_tx_interval: 1000

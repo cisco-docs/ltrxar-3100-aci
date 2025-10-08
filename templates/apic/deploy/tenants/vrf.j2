@@ -348,10 +348,10 @@
                                                         }
                                                     }
                                                 }
-                                                {% endif %}                                                        
+                                                {% endif %}
                                             ]
                                         }
-                                    },                                    
+                                    },
                                     {
                                         "pimStaticRPPol": {
                                             "attributes": {
@@ -379,13 +379,13 @@
                                                                         "childAction": "deleteNonPresent"
                                                                     },
                                                                     "children": [
-                                                                        {                                                                        
+                                                                        {
                                                                             "rtdmcRsFilterToRtMapPol": {
                                                                                 "attributes": {
                                                                                     "annotation": "orchestrator:aac",
                                                                                     "tDn": "uni/tn-{{ tenant.name }}/rtmap-{{ static_rp_route_map_name }}"
                                                                                 }
-                                                                            }                                                                       
+                                                                            }
                                                                         }
                                                                     ]
                                                                 }
@@ -397,7 +397,7 @@
                                                 {%- endfor %}
                                                 {%- endif %}
 
-                                            ]  
+                                            ]
                                         }
                                     },
                                     {
@@ -472,7 +472,7 @@
                                                                 "rtdmcRsFilterToRtMapPol": {
                                                                     "attributes": {
                                                                         "annotation": "orchestrator:aac",
-                                                                        "tDn": "uni/tn-{{ tenant.name }}/rtmap-{{ bsr_filter_name }}"                                                                            
+                                                                        "tDn": "uni/tn-{{ tenant.name }}/rtmap-{{ bsr_filter_name }}"
                                                                     }
                                                                 }
                                                             }
@@ -516,7 +516,7 @@
                                                 }
                                                 {% endif %}
                                             ]
-                                        }     
+                                        }
                                     },
                                     {
                                         "pimASMPatPol": {
@@ -535,7 +535,7 @@
                                                             "childAction": "deleteNonPresent"
                                                         },
                                                         "children": [
-                                                            {                                                              
+                                                            {
                                                                 "rtdmcRsFilterToRtMapPol": {
                                                                     "attributes": {
                                                                         "annotation": "orchestrator:aac",
@@ -546,7 +546,7 @@
                                                         ]
                                                     }
                                                 },
-                                                {% endif %}                                                
+                                                {% endif %}
                                                 {
                                                     "pimSGRangeExpPol": {
                                                         "attributes": {
@@ -567,7 +567,7 @@
                                                             {% endif %}
                                                         ]
                                                     }
-                                                },                                                
+                                                },
                                                 {
                                                     "pimRegTrPol": {
                                                         "attributes": {
@@ -608,7 +608,7 @@
                                                     }
                                                 }
                                                 {% endif %}
-                                            ]                                        
+                                            ]
                                         }
                                     },
                                     {
@@ -647,7 +647,7 @@
 
                                             ]
                                         }
-                                    }                              
+                                    }
                                 ]
                             }
                         }

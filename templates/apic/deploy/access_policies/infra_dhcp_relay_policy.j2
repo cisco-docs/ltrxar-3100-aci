@@ -3,7 +3,7 @@
         "attributes": {
             "dn": "uni/infra"
         },
-        "children": [  
+        "children": [
             {%- set comma1 = joiner(",") %}
             {%- for policy in apic.access_policies.dhcp_relay_policies | default([]) %}{{ comma1() }}
             {% set policy_name = policy.name ~ defaults.apic.access_policies.dhcp_relay_policies.name_suffix %}

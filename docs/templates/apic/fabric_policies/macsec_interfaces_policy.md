@@ -13,7 +13,7 @@ apic:
   fabric_policies:
     macsec_interfaces_policies:
       - name: fabric-macsec-interface-1
-        description: Fabric MACsec Interface Policy 
+        description: Fabric MACsec Interface Policy
         type: fabric
         admin_state: true
         macsec_parameters_policy: fabric-macsec-params-1

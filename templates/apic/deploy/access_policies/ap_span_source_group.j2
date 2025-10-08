@@ -34,7 +34,7 @@
                                 "children": [
                                 {%- set comma3 = joiner(",") %}
                                 {%- if source.tenant is defined and source.application_profile is defined and source.endpoint_group is defined %}{{ comma3() }}
-                                {%- set application_profile_name = source.application_profile ~ defaults.apic.tenants.application_profiles.name_suffix %}      
+                                {%- set application_profile_name = source.application_profile ~ defaults.apic.tenants.application_profiles.name_suffix %}
                                 {% set endpoint_group_name = source.endpoint_group ~ defaults.apic.tenants.application_profiles.endpoint_groups.name_suffix %}
                                     {
                                         "spanRsSrcToEpg":  {
@@ -43,10 +43,10 @@
                                                 "tDn": "uni/tn-{{ source.tenant }}/ap-{{ application_profile_name }}/epg-{{ endpoint_group_name }}"
                                             }
                                         }
-                                    }                                
+                                    }
                                 {%- endif %}
                                 {%- if source.tenant is defined and source.l3out is defined %}{{ comma3() }}
-                                {%- set l3out_name = source.l3out ~ defaults.apic.tenants.l3outs.name_suffix %}      
+                                {%- set l3out_name = source.l3out ~ defaults.apic.tenants.l3outs.name_suffix %}
                                     {
                                         "spanRsSrcToL3extOut": {
                                             "attributes": {
@@ -72,7 +72,7 @@
                                                 "tDn": "topology/pod-{{ pod }}/paths-{{ path.node_id }}/extpaths-{{ path.fex_id }}/pathep-[eth{{ path.module | default(defaults.apic.access_policies.span.source_groups.sources.access_paths.module) }}/{{ path.port }}]"
                                                     {%else%}
                                                 "tDn": "topology/pod-{{ pod }}/paths-{{ path.node_id }}/pathep-[eth{{ path.module | default(defaults.apic.access_policies.span.source_groups.sources.access_paths.module) }}/{{ path.port }}]"
-                                                    {% endif %}                                                    
+                                                    {% endif %}
                                                 {% else %}
                                                     {% set policy_group_name = path.channel ~ defaults.apic.access_policies.leaf_interface_policy_groups.name_suffix %}
                                                     {% set query = "leaf_interface_policy_groups[?name==`" ~ path.channel ~ "`].type" %}
@@ -105,7 +105,7 @@
                                                 "tDn": "topology/pod-{{ pod }}/protpaths-{{ node }}-{{ node2 }}/pathep-[{{ policy_group_name }}]"
                                                         {% else %}
                                                 "tDn": "topology/pod-{{ pod }}/paths-{{ node }}/pathep-[{{ policy_group_name }}]"
-                                                        {% endif %}                                                    
+                                                        {% endif %}
                                                     {% elif id_ports | length > 0 %}
                                                         {% if path.node_id is defined %}
                                                             {% set node = path.node_id %}
@@ -133,7 +133,7 @@
                                         }
                                     }
                                 {%- endfor %}
-                                
+
                                 ]
                             }
                         }
@@ -164,7 +164,7 @@
                 }
             }
             {%- endfor %}
-            
+
         ]
     }
 }

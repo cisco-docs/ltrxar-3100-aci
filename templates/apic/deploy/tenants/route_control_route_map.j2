@@ -58,7 +58,7 @@
                                     }
                                     {% endif %}
                                     {%- for rule in context.match_rules | default([]) %}{{ comma3() }}
-                                    {% set match_rule_name = rule ~ defaults.apic.tenants.policies.match_rules.name_suffix %}                                    
+                                    {% set match_rule_name = rule ~ defaults.apic.tenants.policies.match_rules.name_suffix %}
                                     {
                                         "rtctrlRsCtxPToSubjP": {
                                             "attributes": {

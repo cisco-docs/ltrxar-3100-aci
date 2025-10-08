@@ -1,6 +1,6 @@
 # Atomic Counter
 
-**Location in GUI:**  
+**Location in GUI:**
 `Operations` » `Visualization` » `Atomic Counter`
 
 {{ doc_gen }}

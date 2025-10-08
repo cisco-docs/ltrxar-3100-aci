@@ -45,9 +45,3 @@ Verify NTP Key {{ key.id }}
 {% endfor %}
 
 {% endfor %}
-
-
-
-
-
-

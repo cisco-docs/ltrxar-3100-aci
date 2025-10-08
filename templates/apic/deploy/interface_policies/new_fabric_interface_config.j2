@@ -45,7 +45,7 @@
                         "card": "{{ module }}",
                         "description": "{{ sub.description | default() }}",
                         "node": "{{ _node.id }}",
-                        "port": "{{ int.port }}", 
+                        "port": "{{ int.port }}",
                         "subPort": "{{ sub.port }}",
                         "role": "{{ _node.role }}",
                         "shutdown": "{{ 'yes' if sub.shutdown | default(defaults.apic.interface_policies.nodes.interfaces.sub_ports.shutdown) else 'no' }}"

@@ -13,7 +13,7 @@ Location in GUI:
 
 ### Examples
 
-Example 1: In the example below we create vPC pairs by manually defining them, including the name of the group. The `switch_1` and `switch_2` refer to the nodes ids which were assigned during discovery, where the `id` is a new id which refers to the new vPC group containing both leaf switches. 
+Example 1: In the example below we create vPC pairs by manually defining them, including the name of the group. The `switch_1` and `switch_2` refer to the nodes ids which were assigned during discovery, where the `id` is a new id which refers to the new vPC group containing both leaf switches.
 
 ```yaml
 apic:

@@ -23,7 +23,7 @@
                         "dn": "uni/tn-{{ tenant.name }}/out-{{ l3out_name }}",
                         "mplsEnabled": "yes",
                         "name": "{{ l3out_name }}",
-                        "nameAlias": "{{ l3out.alias | default() }}"                        
+                        "nameAlias": "{{ l3out.alias | default() }}"
                     },
                     "children": [
                         {%- set comma2 = joiner(",") %}
@@ -158,7 +158,7 @@
                                                         }
                                                     }
                                                 }
-                                                {%- endif %}                                                
+                                                {%- endif %}
                                             ]
                                         }
                                     }
@@ -343,7 +343,7 @@
                                                                 }
                                                             }
                                                         ]
-                                                    }  
+                                                    }
                                                 }
                                             ]
                                         }
@@ -454,7 +454,7 @@
                         {%- if tenant.name == 'infra' %}{{ comma2() }}
                         {
                             "l3extInstP": {
-                                "attributes": { 
+                                "attributes": {
                                     "annotation": "orchestrator:aac",
                                     "dn": "uni/tn-infra/out-{{ l3out_name }}/instP-{{ l3out_name }}_mplsInstP",
                                     "name": "{{ l3out_name }}_mplsInstP",
@@ -467,7 +467,7 @@
                         {% set eepg_name = epg.name ~ defaults.apic.tenants.sr_mpls_l3outs.external_endpoint_groups.name_suffix %}
                         {
                             "l3extInstP": {
-                                "attributes": { 
+                                "attributes": {
                                     "annotation": "orchestrator:aac",
                                     "dn": "uni/tn-{{ tenant.name }}/out-{{ l3out_name }}/instP-{{ eepg_name }}",
                                     "descr": "{{ epg.description | default() }}",

@@ -23,7 +23,7 @@ Verify QoS Policy DSCP Priority Map {{ pm.dscp_from }} - {{ pm.dscp_to }}
     Should Be Equal Value Json String   ${r.json()}   $..qosDscpClass.attributes.to   {{ pm.dscp_to }}
     Should Be Equal Value Json String   ${r.json()}   $..qosDscpClass.attributes.prio   {{ pm.priority | default(defaults.apic.tenants.policies.qos.dscp_priority_maps.priority) }}
     Should Be Equal Value Json String   ${r.json()}   $..qosDscpClass.attributes.target   {{ pm.dscp_target | default(defaults.apic.tenants.policies.qos.dscp_priority_maps.dscp_target) }}
-    Should Be Equal Value Json String   ${r.json()}   $..qosDscpClass.attributes.targetCos   {{ pm.cos_target | default(defaults.apic.tenants.policies.qos.dscp_priority_maps.cos_target) }}                    
+    Should Be Equal Value Json String   ${r.json()}   $..qosDscpClass.attributes.targetCos   {{ pm.cos_target | default(defaults.apic.tenants.policies.qos.dscp_priority_maps.cos_target) }}
 {% endfor %}
 
 {% for d1p in qos_policy.dot1p_classifiers | default([]) %}
@@ -33,7 +33,7 @@ Verify QoS Dot1P Classifier {{ d1p.dot1p_from }} - {{ d1p.dot1p_to }}
     Should Be Equal Value Json String   ${r.json()}   $..qosDot1PClass.attributes.to   {{ d1p.dot1p_to }}
     Should Be Equal Value Json String   ${r.json()}   $..qosDot1PClass.attributes.prio   {{ d1p.priority | default(defaults.apic.tenants.policies.qos.dot1p_classifiers.priority) }}
     Should Be Equal Value Json String   ${r.json()}   $..qosDot1PClass.attributes.target   {{ d1p.dscp_target | default(defaults.apic.tenants.policies.qos.dot1p_classifiers.dscp_target) }}
-    Should Be Equal Value Json String   ${r.json()}   $..qosDot1PClass.attributes.targetCos   {{ d1p.cos_target | default(defaults.apic.tenants.policies.qos.dot1p_classifiers.cos_target) }}                    
+    Should Be Equal Value Json String   ${r.json()}   $..qosDot1PClass.attributes.targetCos   {{ d1p.cos_target | default(defaults.apic.tenants.policies.qos.dot1p_classifiers.cos_target) }}
 {% endfor %}
 
 {% endfor %}

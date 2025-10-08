@@ -14,7 +14,7 @@ module "ndo" {
   #source = "github.com/netascode/terraform-mso-nac-ndo.git?ref=main"
   source  = "netascode/nac-ndo/mso"
   version = "1.0.1"
-  
+
   yaml_directories = ["../standard", "../standard_44"]
 
   manage_system            = true

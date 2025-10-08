@@ -27,6 +27,6 @@ Verify BGP Route Reflector {{ rr }} Peerings
     Run Keyword If   "${bgp_state}[0]" != "established"   Run Keyword And Continue On Failure
     ...   Fail  "Node {{ node.id }}: BGP is not established"
 {% endif %}
-{% endfor %}    
+{% endfor %}
 
 {% endfor %}

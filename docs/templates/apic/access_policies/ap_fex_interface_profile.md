@@ -55,7 +55,7 @@ apic:
                 description: Server ABC
                 from_port: 1
 ```
-Example-2: This is another example for a FEX Interface Profile, along with a clear description of each value. 
+Example-2: This is another example for a FEX Interface Profile, along with a clear description of each value.
 - fex_interface_profiles: List of FEX interface profiles to define explicitly.
 - selectors: List of selectors for this profile.
 - policy_group: The policy group to associate with this selector (e.g., `20G-APP-SERVERS`).

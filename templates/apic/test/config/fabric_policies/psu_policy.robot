@@ -18,4 +18,3 @@ Verify PSU Policy {{ policy_name }}
     Should Be Equal Value Json String   ${r.json()}    $..psuInstPol.attributes.adminRdnM   {{ admin_state }}
 
 {% endfor %}
-

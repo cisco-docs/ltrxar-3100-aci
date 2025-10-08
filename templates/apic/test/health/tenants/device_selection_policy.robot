@@ -10,7 +10,7 @@ Resource        ../../../apic_common.resource
 {% for dsp in tenant.services.device_selection_policies | default([]) %}
 {% set query = "service_graph_templates[?name==`" ~ dsp.service_graph_template ~ "`]" %}
 {% set sgt = (tenant.services | community.general.json_query(query))[0] %}
-{% set contract_name = dsp.contract ~ defaults.apic.tenants.contracts.name_suffix %} 
+{% set contract_name = dsp.contract ~ defaults.apic.tenants.contracts.name_suffix %}
 {% set sgt_name = dsp.service_graph_template ~ defaults.apic.tenants.services.service_graph_templates.name_suffix %}
 
 {% if dsp.expected_state.maximum_critical_faults is defined or dsp.expected_state.maximum_major_faults is defined or dsp.expected_state.maximum_minor_faults is defined %}

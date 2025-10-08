@@ -9,7 +9,7 @@
         "children": [
             {%- set comma1 = joiner(",") %}
             {%- for ip_sla in tenant.policies.ip_sla_policies | default([]) %}{{ comma1() }}
-            {% set ip_sla_name = ip_sla.name ~ defaults.apic.tenants.policies.ip_sla_policies.name_suffix %}  
+            {% set ip_sla_name = ip_sla.name ~ defaults.apic.tenants.policies.ip_sla_policies.name_suffix %}
             {
                 "fvIPSLAMonitoringPol": {
                     "attributes": {

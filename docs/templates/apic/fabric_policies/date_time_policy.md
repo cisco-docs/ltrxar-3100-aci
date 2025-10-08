@@ -8,7 +8,7 @@ Location in GUI:
 
 ### Examples
 
-Example-1: This data model creates a Data and Time policy named `ntp_policy_simple`. This creates a simple policy with two NTP servers defined.  This configuration sets one of the NTP servers as the preferred time server (`preferred: true`).  
+Example-1: This data model creates a Data and Time policy named `ntp_policy_simple`. This creates a simple policy with two NTP servers defined.  This configuration sets one of the NTP servers as the preferred time server (`preferred: true`).
 
 ```yaml
 apic:
@@ -24,7 +24,7 @@ apic:
 ```
 
 
-Example-2: This data model creates a Data and Time policy named `ntp_policy_with_auth`. This creates a policy with two NTP servers defined where NTP Authentication is used.  This configuration sets one of the NTP servers as the preferred time server (`preferred: true`) and uses the out-of-band management network for the NTP traffic (`mgmt_epg: oob`). The NTP servers use the value for the `auth_key_id` key to associate it the NTP server with the `id` of the NTP key listed in the `ntp_keys` section. If the key includes special characters it is recommended to enclose the key in single quotes `''`.  
+Example-2: This data model creates a Data and Time policy named `ntp_policy_with_auth`. This creates a policy with two NTP servers defined where NTP Authentication is used.  This configuration sets one of the NTP servers as the preferred time server (`preferred: true`) and uses the out-of-band management network for the NTP traffic (`mgmt_epg: oob`). The NTP servers use the value for the `auth_key_id` key to associate it the NTP server with the `id` of the NTP key listed in the `ntp_keys` section. If the key includes special characters it is recommended to enclose the key in single quotes `''`.
 
 ```yaml
 apic:

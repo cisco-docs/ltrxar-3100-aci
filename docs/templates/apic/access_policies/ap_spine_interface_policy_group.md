@@ -21,7 +21,7 @@ apic:
 ```
 
 
-Example-2: This configuration defines two Access Spine Interface Policy Groups. This group allows you to associate interface-level policies such as link level, CDP, LLDP, and attachable access entity profiles AAEP to spine interfaces. 
+Example-2: This configuration defines two Access Spine Interface Policy Groups. This group allows you to associate interface-level policies such as link level, CDP, LLDP, and attachable access entity profiles AAEP to spine interfaces.
 
 The first group, named `IPN1`, assigns the following policies to spine interfaces:
 

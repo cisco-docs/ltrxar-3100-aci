@@ -15,7 +15,7 @@ Verify Routed Domain {{ domain_name }} Faults
     ${major}=   Get Value From Json   ${r.json()}   $..faultCounts.attributes.maj
     ${minor}=   Get Value From Json   ${r.json()}   $..faultCounts.attributes.minor
 {% if domain.expected_state.maximum_critical_faults is defined %}
-    Run Keyword If   ${critical}[0] > {{ domain.expected_state.maximum_critical_faults }}   Run Keyword And Continue 
+    Run Keyword If   ${critical}[0] > {{ domain.expected_state.maximum_critical_faults }}   Run Keyword And Continue
     ...   Fail  "{{ domain_name }} has ${critical}[0] critical faults"
 {% endif %}
 {% if domain.expected_state.maximum_major_faults is defined %}

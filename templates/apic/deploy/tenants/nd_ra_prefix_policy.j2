@@ -22,7 +22,7 @@
                         "dn": "uni/tn-{{ tenant.name }}/ndpfxpol-{{ policy_name }}",
                         "descr": "{{ nd_ra_prefix_pol.description | default() }}",
                         "ctrl": "{{ ctrl | join(',') }}",
-                        "lifetime": "{{ nd_ra_prefix_pol.valid_lifetime | default(defaults.apic.tenants.policies.nd_ra_prefix_policies.valid_lifetime) }}",                        
+                        "lifetime": "{{ nd_ra_prefix_pol.valid_lifetime | default(defaults.apic.tenants.policies.nd_ra_prefix_policies.valid_lifetime) }}",
                         "prefLifetime": "{{ nd_ra_prefix_pol.preferred_lifetime | default(defaults.apic.tenants.policies.nd_ra_prefix_policies.preferred_lifetime) }}"
                     }
                 }

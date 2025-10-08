@@ -40,7 +40,7 @@ Verify VMware VMM Domain {{ vmm_name }}
 
 {% for elag in vmm.vswitch.enhanced_lags | default([]) %}
 {% set elag_name = elag.name ~ defaults.apic.fabric_policies.vmware_vmm_domains.vswitch.enhanced_lags.name_suffix %}
-Verify VMware VMM Domain {{ vmm_name }} vSwitch Enhanced Lag Policy {{ elag_name }}                                       
+Verify VMware VMM Domain {{ vmm_name }} vSwitch Enhanced Lag Policy {{ elag_name }}
    ${cp}=   Set Variable   $..vmmVSwitchPolicyCont.children[?(@.lacpEnhancedLagPol.attributes.name=='{{ elag_name }}')]
     Should Be Equal Value Json String   ${r.json()}    ${cp}..lacpEnhancedLagPol.attributes.name   {{ elag_name }}
     Should Be Equal Value Json String   ${r.json()}    ${cp}..lacpEnhancedLagPol.attributes.lbmode   {{ elag.lb_mode | default(defaults.apic.fabric_policies.vmware_vmm_domains.vswitch.enhanced_lags.lb_mode) }}
@@ -95,4 +95,3 @@ Verify VMware VMM Domain {{ vmm_name }} Uplink {{ ul.name }}
 {% endif %}
 
 {% endfor %}
-

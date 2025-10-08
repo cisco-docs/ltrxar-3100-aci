@@ -17,10 +17,10 @@ Verify Config Export {{ policy_name }}
 {% if policy.remote_location is defined %}
 {% set rl_name = policy.remote_location ~ defaults.apic.fabric_policies.remote_locations.name_suffix %}
     Should Be Equal Value Json String   ${r.json()}    $..configRsRemotePath.attributes.tnFileRemotePathName   {{ rl_name }}
-{% endif %}  
+{% endif %}
 {% if policy.scheduler is defined %}
 {% set scheduler_name = policy.scheduler ~ defaults.apic.fabric_policies.schedulers.name_suffix %}
     Should Be Equal Value Json String   ${r.json()}    $..configRsExportScheduler.attributes.tnTrigSchedPName   {{ scheduler_name }}
-{% endif %}  
+{% endif %}
 
 {% endfor %}

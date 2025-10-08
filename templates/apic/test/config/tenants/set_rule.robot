@@ -73,7 +73,7 @@ Verify Set Rule {{ rule_name }}
 Verify Set Rule {{ rule_name }} Additional Community {{ add_comm.community  }}
     ${comm}=   Set Variable   $..children[?(@.rtctrlSetAddComm.attributes.community=='{{ add_comm.community }}')]
     Should Be Equal Value Json String   ${r.json()}   ${comm}..attributes.community   {{ add_comm.community }}
-    Should Be Equal Value Json String   ${r.json()}   ${comm}..attributes.descr   {{ add_comm.description | default() }}                       
+    Should Be Equal Value Json String   ${r.json()}   ${comm}..attributes.descr   {{ add_comm.description | default() }}
 {% endfor %}
 
 {% endfor %}

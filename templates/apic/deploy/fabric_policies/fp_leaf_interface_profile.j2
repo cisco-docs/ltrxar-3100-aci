@@ -89,7 +89,7 @@
                                                 "toCard": "{{ sub_blk.to_module | default(sub_blk.from_module | default(defaults.apic.fabric_policies.leaf_interface_profiles.selectors.sub_port_blocks.from_module)) }}",
                                                 "toPort": "{{ sub_blk.to_port | default(sub_blk.from_port) }}",
                                                 "fromSubPort": "{{ sub_blk.from_sub_port }}",
-                                                "toSubPort": "{{ sub_blk.to_sub_port | default(sub_blk.from_sub_port) }}"                                              
+                                                "toSubPort": "{{ sub_blk.to_sub_port | default(sub_blk.from_sub_port) }}"
                                             }
                                         }
                                     }

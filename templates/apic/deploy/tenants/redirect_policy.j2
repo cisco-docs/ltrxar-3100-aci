@@ -39,9 +39,9 @@
                                     "childAction": "deleteNonPresent"
                                 },
                                 "children": [
-                                    {%- set comma2 = joiner(",") %}   
+                                    {%- set comma2 = joiner(",") %}
                                     {%- if pol.ip_sla_policy is defined %}{{ comma2() }}
-                                    {%- set ip_sla_name = pol.ip_sla_policy ~ defaults.apic.tenants.policies.ip_sla_policies.name_suffix %} 
+                                    {%- set ip_sla_name = pol.ip_sla_policy ~ defaults.apic.tenants.policies.ip_sla_policies.name_suffix %}
                                     {
                                         "vnsRsIPSLAMonitoringPol": {
                                             "attributes": {
@@ -61,7 +61,7 @@
                                             }
                                         }
                                     }
-                                    {%- endif %}          
+                                    {%- endif %}
                                     {%- for dest in pol.l3_destinations | default([]) %}{{ comma2() }}
                                     {
                                         "vnsRedirectDest": {

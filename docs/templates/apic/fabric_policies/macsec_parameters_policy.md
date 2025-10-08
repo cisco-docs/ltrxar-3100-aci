@@ -13,7 +13,7 @@ apic:
   fabric_policies:
     macsec_parameters_policies:
       - name: fabric-macsec-params-1
-        description: Fabric MACsec Parameters Policy 
+        description: Fabric MACsec Parameters Policy
         type: fabric
         cipher_suite: gcm-aes-xpn-256
         window_size: 2048

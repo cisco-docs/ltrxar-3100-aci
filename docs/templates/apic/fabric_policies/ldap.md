@@ -1,4 +1,4 @@
-# LDAP 
+# LDAP
 
 Location in GUI:
 `Admin` » `AAA` » `Authentication` » `LDAP`
@@ -50,12 +50,12 @@ apic:
             password: test@1234
             timeout: 10
             retries: 4
-            enable_ssl: true 
+            enable_ssl: true
             filter: cn=$userid
             attribute: memberOf
             ssl_validation_level: permissive
             mgmt_epg: oob
-            server_monitoring: true 
+            server_monitoring: true
             monitoring_username: user1
             monitoring_password: pass1
           - hostname_ip: 2.2.2.3

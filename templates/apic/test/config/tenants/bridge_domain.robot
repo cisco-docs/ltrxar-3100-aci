@@ -57,7 +57,7 @@ Verify Bridge Domain {{ bd_name }}
 Verify Bridge Domain {{ bd_name }} DHCP Relay Policy {{ dhcp_relay_policy_name }}
     ${dhcp_label}=   Set Variable   $..fvBD.children[?(@.dhcpLbl.attributes.name=='{{ dhcp_relay_policy_name }}')]
     Should Be Equal Value Json String   ${r.json()}   ${dhcp_label}..dhcpLbl.attributes.name   {{ dhcp_relay_policy_name }}
-    Should Be Equal Value Json String   ${r.json()}   ${dhcp_label}..dhcpLbl.attributes.descr   {{ dhcp_label.description | default() }} 
+    Should Be Equal Value Json String   ${r.json()}   ${dhcp_label}..dhcpLbl.attributes.descr   {{ dhcp_label.description | default() }}
     Should Be Equal Value Json String   ${r.json()}   ${dhcp_label}..dhcpLbl.attributes.owner   {{ dhcp_label.scope | default(defaults.apic.tenants.bridge_domains.dhcp_labels.scope) }}
 {% if dhcp_label.dhcp_option_policy is defined %}
 {% set dhcp_option_policy_name = dhcp_label.dhcp_option_policy ~ defaults.apic.tenants.policies.dhcp_option_policies.name_suffix %}
@@ -81,10 +81,10 @@ Verify Bridge Domain {{ bd_name }} Subnet {{ subnet.ip }}
     Should Be Equal Value Json String   ${r.json()}   ${subnet}..fvSubnet.attributes.ctrl   {{ ctrl | join(',') }}
     Should Be Equal Value Json String   ${r.json()}   ${subnet}..fvSubnet.attributes.descr   {{ subnet.description | default() }}
     Should Be Equal Value Json String   ${r.json()}   ${subnet}..fvSubnet.attributes.preferred   {{ 'yes' if subnet.primary_ip | default(defaults.apic.tenants.bridge_domains.subnets.primary_ip) else 'no' }}
-    Should Be Equal Value Json String   ${r.json()}   ${subnet}..fvSubnet.attributes.scope   {{ scope | join(',') }}   
+    Should Be Equal Value Json String   ${r.json()}   ${subnet}..fvSubnet.attributes.scope   {{ scope | join(',') }}
     Should Be Equal Value Json String   ${r.json()}   ${subnet}..fvSubnet.attributes.virtual   {{ 'yes' if subnet.virtual | default(defaults.apic.tenants.bridge_domains.subnets.virtual)  else 'no' }}
 {% if subnet.ip_dataplane_learning is defined %}
-    Should Be Equal Value Json String   ${r.json()}   ${subnet}..fvSubnet.attributes.ipDPLearning   {{ 'enabled' if subnet.ip_dataplane_learning else 'disabled' }}              
+    Should Be Equal Value Json String   ${r.json()}   ${subnet}..fvSubnet.attributes.ipDPLearning   {{ 'enabled' if subnet.ip_dataplane_learning else 'disabled' }}
 {% endif %}
 {% if subnet.nd_ra_prefix_policy is defined %}
 {% set nd_ra_prefix_policy_name = subnet.nd_ra_prefix_policy ~ defaults.apic.tenants.policies.nd_ra_prefix_policies.name_suffix %}
@@ -112,7 +112,7 @@ Verify Bridge Domain {{ bd_name }} IGMP Interface Policy
 
 {% if bd.igmp_snooping_policy is defined %}
 {% set igmp_snooping_policy_name = bd.igmp_snooping_policy ~ defaults.apic.tenants.policies.igmp_snooping_policies.name_suffix %}
-                        
+
 Verify Bridge Domain {{ bd_name }} IGMP Snooping Policy
     Should Be Equal Value Json String   ${r.json()}   $..fvBD.children..fvRsIgmpsn.attributes.tnIgmpSnoopPolName   {{ igmp_snooping_policy_name }}
 

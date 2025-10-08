@@ -20,7 +20,7 @@ apic:
       key: cisco
 ```
 
-Example 2: In this example, we have configured the global MCP policy, whereby MCP is enabled globally and per VLAN (`per_vlan`). Every 5 seconds, an MCP PDU will be transmitted over the enabled interface, which will wait for 180 seconds (`initial_delay`) after the initial interface activation before sending out an MCP PDU every 5 seconds (`frequency_sec`). If the MCP PDU is received 3 times ( `frequency_sec`), the port will be disabled. A key, `cisco`, has been configured to transmit the MCP PDU and is validated upon receipt to ensure that the loop is detected within the same fabric. 
+Example 2: In this example, we have configured the global MCP policy, whereby MCP is enabled globally and per VLAN (`per_vlan`). Every 5 seconds, an MCP PDU will be transmitted over the enabled interface, which will wait for 180 seconds (`initial_delay`) after the initial interface activation before sending out an MCP PDU every 5 seconds (`frequency_sec`). If the MCP PDU is received 3 times ( `frequency_sec`), the port will be disabled. A key, `cisco`, has been configured to transmit the MCP PDU and is validated upon receipt to ensure that the loop is detected within the same fabric.
 
 ```yaml
 apic:

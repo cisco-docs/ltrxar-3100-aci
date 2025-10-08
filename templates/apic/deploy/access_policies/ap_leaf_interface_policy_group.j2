@@ -18,7 +18,7 @@
                         "brkoutMap": "{{ pg.map | default(defaults.apic.access_policies.leaf_interface_policy_groups.map)}}",
                         "childAction": "deleteNonPresent"
                     },
-                    "children": [            
+                    "children": [
             {% elif pg.type in ["vpc", "pc"] %}
             {
                 "infraAccBndlGrp": {

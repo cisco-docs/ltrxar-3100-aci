@@ -31,7 +31,7 @@
                                     "name": "{{ source.name }}",
                                     "descr":  "{{ source.description | default()}}",
                                     "dir": "{{ source.direction | default(defaults.apic.tenants.policies.span.source_groups.sources.direction ) }}",
-                                    "childAction": "deleteNonPresent"                                    
+                                    "childAction": "deleteNonPresent"
                                 },
                                 "children": [
                                     {% if source.application_profile is defined and source.endpoint_group is defined %}
@@ -62,7 +62,7 @@
                 }
             }
             {%- endfor %}
-            
+
         ]
     }
 }

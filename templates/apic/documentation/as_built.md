@@ -329,7 +329,7 @@ No SNMP policies configured.
 {% if apic.fabric_policies.monitoring.snmp_traps|length>0 %}
 {% for pol in apic.fabric_policies.monitoring.snmp_traps | default([])%}
 {{pol.name ~ defaults.apic.fabric_policies.monitoring.snmp_traps.name_suffix}}
-<caption name="SNMP Trap: {{pol.name ~ defaults.apic.fabric_policies.monitoring.snmp_traps.name_suffix}}"> 
+<caption name="SNMP Trap: {{pol.name ~ defaults.apic.fabric_policies.monitoring.snmp_traps.name_suffix}}">
 
 | Hostname/IP | Port | Version | Security/Community Name | v3 Security level | Management EPG |
 |---|---|---|---|---|---|
@@ -1904,7 +1904,7 @@ No Set Rules configured.
 </caption>
 
 {% else %}
-No Redirect Policy Policies 
+No Redirect Policy Policies
 {% endif %}
 
 #### Services (L4-L7)
@@ -1916,7 +1916,7 @@ No Redirect Policy Policies
 
 | Name | Service_type | Type | Physical_domain | Function |
 |---|---|---|---|---|
-{% for l4l7_device in tenant.services.l4l7_devices | default([]) %} 
+{% for l4l7_device in tenant.services.l4l7_devices | default([]) %}
 | {{ l4l7_device.name ~ defaults.apic.tenants.services.l4l7_devices.name_suffix }} | {{ l4l7_device.service_type | default("") }} | {{ l4l7_device.type | default("") }} | {{ l4l7_device.physical_domain | default("") }} | {{ l4l7_device.function | default("") }} |
 {% endfor %}
 </caption>
@@ -1924,8 +1924,8 @@ No Redirect Policy Policies
 <caption name="concrete_devices - L4L7 Device">
 | L4L7 Device | Concrete Device Name | Concrete Interface Name | Path |
 |---|---|---|---|
-{% for l4l7_device in tenant.services.l4l7_devices | default([]) %} 
-{% for concrete_device in l4l7_device.concrete_devices | default([]) %} 
+{% for l4l7_device in tenant.services.l4l7_devices | default([]) %}
+{% for concrete_device in l4l7_device.concrete_devices | default([]) %}
 {% for concrete_device_interface in concrete_device.interfaces | default([]) %}
 {% set ns = namespace(pod_id="1") %}{% for node in apic.node_policies.nodes | default([]) %}{% if node.id == concrete_device_interface.node_id %}{% set ns.pod_id = node.pod | default(defaults.apic.node_policies.nodes.pod)%}{%endif%}{% endfor %}
 | {{ l4l7_device.name ~ defaults.apic.tenants.services.l4l7_devices.name_suffix }} | {{ concrete_device.name ~ defaults.apic.tenants.services.l4l7_devices.concrete_devices.name_suffix }} | {{ concrete_device_interface.name ~ defaults.apic.tenants.services.l4l7_devices.concrete_devices.interfaces.name_suffix }} | {% if concrete_device_interface.channel is defined and concrete_device_interface.node2_id is defined %}topology/pod-{{ns.pod_id}}/protpaths-{{concrete_device_interface.node_id}}-{{concrete_device_interface.node2_id}}/pathep-[{{concrete_device_interface.channel}}]{% elif concrete_device_interface.channel is defined and concrete_device_interface.node2_id is not defined %}topology/pod-{{ns.pod_id}}/paths-{{concrete_device_interface.node_id}}/pathep-[{{concrete_device_interface.channel}}]{%else%}topology/pod-{{ns.pod_id}}/paths-{{concrete_device_interface.node_id}}/pathep-[eth{{concrete_device_interface.module|default(defaults.apic.tenants.services.l4l7_devices.concrete_devices.interfaces.module)}}/{{concrete_device_interface.port}}]{%endif%} |
@@ -1937,8 +1937,8 @@ No Redirect Policy Policies
 <caption name="logical_interfaces - L4L7 Device">
 | L4L7 Device | Logical Interface Name | Concrete Device Name | Concrete interface Name | vlan |
 |---|---|---|---|---|
-{% for l4l7_device in tenant.services.l4l7_devices | default([]) %} 
-{% for logical_interface in l4l7_device.logical_interfaces | default([]) %} 
+{% for l4l7_device in tenant.services.l4l7_devices | default([]) %}
+{% for logical_interface in l4l7_device.logical_interfaces | default([]) %}
 {% for concrete_interface in logical_interface.concrete_interfaces | default([]) %}
 | {{ l4l7_device.name ~ defaults.apic.tenants.services.l4l7_devices.name_suffix }} | {{ logical_interface.name ~ defaults.apic.tenants.services.l4l7_devices.logical_interfaces.name_suffix }} | {{ concrete_interface.device ~ defaults.apic.tenants.services.l4l7_devices.concrete_devices.name_suffix }} | {{ concrete_interface.interface_name ~ defaults.apic.tenants.services.l4l7_devices.concrete_devices.interfaces.name_suffix }} | {{ logical_interface.vlan }} |
 {% endfor %}
@@ -1957,7 +1957,7 @@ No L4L7 Device
 
 | Name | Template_type | Redirect | Device Name |
 |---|---|---|---|
-{% for service_graph_template in tenant.services.service_graph_templates | default([]) %} 
+{% for service_graph_template in tenant.services.service_graph_templates | default([]) %}
 | {{ service_graph_template.name ~ defaults.apic.tenants.services.l4l7_devices.name_suffix }} | {{ service_graph_template.template_type | default(defaults.apic.tenants.services.service_graph_templates.template_type) }} | {{ service_graph_template.redirect | default(defaults.apic.tenants.services.service_graph_templates.redirect) }} | {{ service_graph_template.device.name | default("") }} |
 {% endfor %}
 </caption>
@@ -1973,7 +1973,7 @@ No Service Graph Template
 
 | Contract Name | Service Graph Template Name | consumer - Redirect Policy | consumer - Logical Interface | consumer - Bridge Domain | provider - Redirect Policy | provider - Logical Interface | provider - Bridge Domain |
 |---|---|---|---|---|---|---|---|
-{% for device_selection_policy in tenant.services.device_selection_policies | default([]) %} 
+{% for device_selection_policy in tenant.services.device_selection_policies | default([]) %}
 | {{ device_selection_policy.service_graph_template }} | {{ device_selection_policy.contract }} | {{ device_selection_policy.consumer.redirect_policy.name }} | {{ device_selection_policy.consumer.logical_interface }} | {{ device_selection_policy.consumer.bridge_domain.name }} | {{ device_selection_policy.provider.redirect_policy.name }} | {{ device_selection_policy.provider.logical_interface }} | {{ device_selection_policy.provider.bridge_domain.name }} |
 {% endfor %}
 </caption>
@@ -1991,7 +1991,7 @@ No Device Selection Policy
 
 | Name | vlan | Bridge Domain | Static Route | Contract - Consumer | Contract - Provider |
 |---|---|---|---|---|---|
-{% for inb_endpoint_group in tenant.inb_endpoint_groups | default([]) %} 
+{% for inb_endpoint_group in tenant.inb_endpoint_groups | default([]) %}
 {% set static_route_list = [] %}
 {% for static_route in inb_endpoint_group.static_routes | default([]) %}
 {% set _ = static_route_list.append(static_route) %}
@@ -2018,7 +2018,7 @@ No INB Endpoint Group
 
 | Name | Contract - Provider |
 |---|---|
-{% for oob_endpoint_group in tenant.oob_endpoint_groups | default([]) %} 
+{% for oob_endpoint_group in tenant.oob_endpoint_groups | default([]) %}
 {% set contract_providers_list = [] %}
 {% for contract_providers in oob_endpoint_group.oob_contracts.providers | default([]) %}
 {% set _ = contract_providers_list.append(contract_providers) %}
@@ -2037,7 +2037,7 @@ No OOB Endpoint Group
 
 | Name | Subnets | Contract - Consumer |
 |---|---|---|
-{% for ext_mgmt_instance in tenant.ext_mgmt_instances | default([]) %} 
+{% for ext_mgmt_instance in tenant.ext_mgmt_instances | default([]) %}
 {% set subnets_list = [] %}
 {% for subnet in ext_mgmt_instance.subnets | default([]) %}
 {% set _ = subnets_list.append(subnet) %}

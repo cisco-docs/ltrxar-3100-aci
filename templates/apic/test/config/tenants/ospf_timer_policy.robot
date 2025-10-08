@@ -22,7 +22,7 @@ Verify OSPF Timer Policy {{ policy_name }}
     Should Be Equal Value Json String   ${r.json()}   $..ospfCtxPol.attributes.descr   {{ otp.description | default() }}
     Should Be Equal Value Json String   ${r.json()}   $..ospfCtxPol.attributes.dist   {{ otp.distance | default(defaults.apic.tenants.policies.ospf_timer_policies.distance) }}
     Should Be Equal Value Json String   ${r.json()}   $..ospfCtxPol.attributes.dn   uni/tn-{{ tenant.name }}/ospfCtxP-{{ policy_name }}
-    Should Be Equal Value Json String   ${r.json()}   $..ospfCtxPol.attributes.grCtrl   {% if otp.graceful_restart | default(defaults.apic.tenants.policies.ospf_timer_policies.graceful_restart) %}helper{% else %}{% endif %} 
+    Should Be Equal Value Json String   ${r.json()}   $..ospfCtxPol.attributes.grCtrl   {% if otp.graceful_restart | default(defaults.apic.tenants.policies.ospf_timer_policies.graceful_restart) %}helper{% else %}{% endif %}
     Should Be Equal Value Json String   ${r.json()}   $..ospfCtxPol.attributes.lsaArrivalIntvl   {{ otp.lsa_arrival_interval | default(defaults.apic.tenants.policies.ospf_timer_policies.lsa_arrival_interval) }}
     Should Be Equal Value Json String   ${r.json()}   $..ospfCtxPol.attributes.lsaGpPacingIntvl   {{ otp.lsa_group_pacing_interval | default(defaults.apic.tenants.policies.ospf_timer_policies.lsa_group_pacing_interval) }}
     Should Be Equal Value Json String   ${r.json()}   $..ospfCtxPol.attributes.lsaHoldIntvl   {{ otp.lsa_hold_interval | default(defaults.apic.tenants.policies.ospf_timer_policies.lsa_hold_interval) }}

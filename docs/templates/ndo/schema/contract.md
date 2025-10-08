@@ -31,13 +31,13 @@ ndo:
 
 ```
 
-Example-2: This example illustrates how a service graph is used to specify the redirection of traffic matching a contract through Layer 4 to Layer 7 (L4-L7) service devices, such as firewalls. 
+Example-2: This example illustrates how a service graph is used to specify the redirection of traffic matching a contract through Layer 4 to Layer 7 (L4-L7) service devices, such as firewalls.
 
-The contract `FW_NAT` is defined under the `Azure` Tenant/Schema and uses a filter named `Filter_Any`, which is defined in the `common` schema under `Site_AB` template. 
+The contract `FW_NAT` is defined under the `Azure` Tenant/Schema and uses a filter named `Filter_Any`, which is defined in the `common` schema under `Site_AB` template.
 
 The service graph `FW` is associated to this contract. It represents the path and sequence of service functions that traffic will traverse once the contract is matched. The Node Identifier `FW_1` represents the L4-L7 service device within the service graph.  These objects are further defined in the service graph section under NDO.
 
-Under the provider section, the details specify the bridge domain `FW_BD` where the provider node (service device) resides. The sites subsection under the provider specifies the deployment location of the service device, including the site name `Site_A`, tenant `Azure`, device name `FW1`, logical interface `Internal`, and the redirect policy `PBR1`. The redirect policy defines how traffic is steered to the service device. These objects are defined on the APIC , which is further explained in the sections L4L7 Device, Service Graph Templates and Redirect Policy. 
+Under the provider section, the details specify the bridge domain `FW_BD` where the provider node (service device) resides. The sites subsection under the provider specifies the deployment location of the service device, including the site name `Site_A`, tenant `Azure`, device name `FW1`, logical interface `Internal`, and the redirect policy `PBR1`. The redirect policy defines how traffic is steered to the service device. These objects are defined on the APIC , which is further explained in the sections L4L7 Device, Service Graph Templates and Redirect Policy.
 
 Similarly, the consumer section reflects the provider’s bridge domain, site, device, logical interface, and redirect policy, representing the traffic flow that is redirected into the same bridge domain where the provider resides. This enables the service graph to use the same physical or logical service node interfaces. This kind of configuration is often used for one-arm deployments, where the same device interface handles both provider and consumer traffic.
 

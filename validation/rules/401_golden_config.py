@@ -46,7 +46,7 @@ apic:
               private: true
               shared: false
 
-See https://netascode.cisco.com/tools/golden-config/overview for more information. 
+See https://netascode.cisco.com/tools/golden-config/overview for more information.
 """
 
 

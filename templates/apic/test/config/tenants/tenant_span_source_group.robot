@@ -27,9 +27,9 @@ Verify Tenant SPAN Source Group {{ span_grp_name }} Source {{ source.name }}
     Should Be Equal Value Json String   ${r.json()}   ${src}.attributes.dir   {{ source.direction | default(defaults.apic.tenants.policies.span.source_groups.sources.direction ) }}
 {% if source.application_profile is defined and source.endpoint_group is defined %}
 {% set application_profile_name = source.application_profile ~ defaults.apic.tenants.application_profiles.name_suffix %}
-{% set endpoint_group_name = source.endpoint_group ~ defaults.apic.tenants.application_profiles.endpoint_groups.name_suffix %}                                    
+{% set endpoint_group_name = source.endpoint_group ~ defaults.apic.tenants.application_profiles.endpoint_groups.name_suffix %}
     Should Be Equal Value Json String   ${r.json()}   ${src}..spanRsSrcToEpg.attributes.tDn   uni/tn-{{ tenant.name }}/ap-{{ application_profile_name }}/epg-{{ endpoint_group_name }}
-{% endif %} 
+{% endif %}
 
 {% endfor %}
 

@@ -36,7 +36,7 @@ Verify Context {{ context_name }} Route Map {{ route_map_name }}
 Verify Match Rule {{ match_rule_name }} Context {{ context_name }} Route Map {{ route_map_name }}
     ${context}=   Set Variable   $..rtctrlProfile.children[?(@.rtctrlCtxP.attributes.name=='{{ context_name }}')]
     ${match_rule}=   Set Variable   ${context}..rtctrlCtxP.children[?(@.rtctrlRsCtxPToSubjP.attributes.tnRtctrlSubjPName=='{{ match_rule_name }}')]
-    Should Be Equal Value Json String   ${r.json()}   ${match_rule}..rtctrlRsCtxPToSubjP.attributes.tnRtctrlSubjPName   {{ match_rule_name }}  
+    Should Be Equal Value Json String   ${r.json()}   ${match_rule}..rtctrlRsCtxPToSubjP.attributes.tnRtctrlSubjPName   {{ match_rule_name }}
 {% endfor %}
 
 {% endfor %}

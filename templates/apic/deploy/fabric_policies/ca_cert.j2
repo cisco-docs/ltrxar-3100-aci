@@ -3,7 +3,7 @@
         "attributes": {
             "dn": "uni/userext/pkiext"
         },
-        "children": [  
+        "children": [
             {%- set comma1 = joiner(",") %}
             {%- for ca in apic.fabric_policies.aaa.ca_certificates | default([]) %}{{ comma1() }}
             {% set ca_name = ca.name ~ defaults.apic.fabric_policies.aaa.ca_certificates.name_suffix %}

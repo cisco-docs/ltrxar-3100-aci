@@ -15,7 +15,7 @@
                         "adminSt": "{{ 'enabled' if span.admin_state | default(defaults.apic.fabric_policies.span.source_groups.admin_state) else 'disabled' }}",
                         "descr": "{{ span.description | default() }}",
                         "dn": "uni/fabric/srcgrp-{{ span_name }}",
-                        "childAction": "deleteNonPresent"                        
+                        "childAction": "deleteNonPresent"
                     },
                     "children": [
                         {%- set comma2 = joiner(",") %}
@@ -34,7 +34,7 @@
                                 "children": [
                                 {%- set comma3 = joiner(",") %}
                                 {%- if source.tenant is defined and source.vrf is defined %}{{ comma3() }}
-                                {%- set vrf_name = source.vrf ~ defaults.apic.tenants.vrfs.name_suffix %}      
+                                {%- set vrf_name = source.vrf ~ defaults.apic.tenants.vrfs.name_suffix %}
                                     {
                                         "spanRsSrcToCtx":  {
                                             "attributes": {
@@ -42,10 +42,10 @@
                                                 "tDn": "uni/tn-{{ source.tenant }}/ctx-{{ vrf_name }}"
                                             }
                                         }
-                                    }                                
+                                    }
                                 {%- endif %}
                                 {%- if source.tenant is defined and source.bridge_domain is defined %}{{ comma3() }}
-                                {%- set bd_name = source.bridge_domain ~ defaults.apic.tenants.bridge_domains.name_suffix %}   
+                                {%- set bd_name = source.bridge_domain ~ defaults.apic.tenants.bridge_domains.name_suffix %}
                                     {
                                         "spanRsSrcToBD": {
                                             "attributes": {

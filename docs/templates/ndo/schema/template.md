@@ -39,7 +39,7 @@ ndo:
         - name: stretched_app_template
           type: multi_site
           tenant: tnt
-          deploy_order: 2      
+          deploy_order: 2
           sites:
             - fabric_site1
             - fabric_site2

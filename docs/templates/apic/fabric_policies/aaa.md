@@ -64,7 +64,7 @@ apic:
             - uppercase
 ```
 
-Example 5: In this example we defined the maximum lifetime of an authentication token to `24` hours using the web_token_max_validity setting. Where web_token_timeout defines a token will be marked invalid if not used after `600` seconds, where the web_session_idle_timeout defines to demand reauthentication after `1200` seconds for idle sessions on the web GUI.  
+Example 5: In this example we defined the maximum lifetime of an authentication token to `24` hours using the web_token_max_validity setting. Where web_token_timeout defines a token will be marked invalid if not used after `600` seconds, where the web_session_idle_timeout defines to demand reauthentication after `1200` seconds for idle sessions on the web GUI.
 
 ```yaml
 apic:

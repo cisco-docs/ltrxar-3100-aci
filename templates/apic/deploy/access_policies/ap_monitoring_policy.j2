@@ -84,7 +84,7 @@
                                 },
                                 "children": [
                                 {%- set comma3 = joiner(",") %}
-                                {%- for fault in cl.faults | default([]) %}{{ comma3() }}    
+                                {%- for fault in cl.faults | default([]) %}{{ comma3() }}
                                 {
                                     "faultSevAsnP": {
                                         "attributes": {
@@ -94,7 +94,7 @@
                                             "dn": "uni/infra/moninfra-{{ policy_name }}/tarinfra-{{ cl.class }}/fsevp-{{ fault.fault_id }}",
                                             "initial": "{{ fault.initial_severity | default(defaults.apic.access_policies.monitoring.policies.fault_severity_policies.initial_severity) }}",
                                             "target": "{{ fault.target_severity | default(defaults.apic.access_policies.monitoring.policies.fault_severity_policies.target_severity) }}"
-                                        } 
+                                        }
                                     }
                                 }
                                 {% endfor %}

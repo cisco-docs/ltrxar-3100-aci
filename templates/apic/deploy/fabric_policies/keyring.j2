@@ -3,7 +3,7 @@
         "attributes": {
             "dn": "uni/userext/pkiext"
         },
-        "children": [  
+        "children": [
             {%- set comma1 = joiner(",") %}
             {%- for keyring in apic.fabric_policies.aaa.key_rings | default([]) %}{{ comma1() }}
             {% set keyring_name = keyring.name ~ defaults.apic.fabric_policies.aaa.key_rings.name_suffix %}

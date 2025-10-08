@@ -53,7 +53,7 @@ Verify VSPAN Session {{ vspan_name }} Source {{ source_name }}
     {% set node2 = (apic.interface_policies | default() | community.general.json_query(query))[1] %}
     {% if node2 < node %}{% set node_tmp = node %}{% set node = node2 %}{% set node2 = node_tmp %}{% endif %}
 {% endif %}
-    ${path}=   Set Variable   ${source}.children[?(@.spanRsSrcToPathEp.attributes.tDn=='topology/pod-{{ pod }}/protpaths-{{ node }}-{{ node2 }}/pathep-[{{ policy_group_name }}]')].spanRsSrcToPathEp 
+    ${path}=   Set Variable   ${source}.children[?(@.spanRsSrcToPathEp.attributes.tDn=='topology/pod-{{ pod }}/protpaths-{{ node }}-{{ node2 }}/pathep-[{{ policy_group_name }}]')].spanRsSrcToPathEp
     Should Be Equal Value Json String   ${r.json()}    ${path}.attributes.tDn   topology/pod-{{ pod }}/protpaths-{{ node }}-{{ node2 }}/pathep-[{{ policy_group_name }}]
 {% else %}
     ${path}=   Set Variable   ${source}.children[?(@.spanRsSrcToPathEp.attributes.tDn=='topology/pod-{{ pod }}/paths-{{ node }}/pathep-[{{ policy_group_name }}]')].spanRsSrcToPathEp
@@ -64,14 +64,14 @@ Verify VSPAN Session {{ vspan_name }} Source {{ source_name }}
 {% endfor %}
 
 {% if source.tenant is defined and source.application_profile is defined and source.endpoint_group is defined and source.endpoint is not defined %}
-{% set application_profile_name = source.application_profile ~ defaults.apic.tenants.application_profiles.name_suffix %}      
+{% set application_profile_name = source.application_profile ~ defaults.apic.tenants.application_profiles.name_suffix %}
 {% set endpoint_group_name = source.endpoint_group ~ defaults.apic.tenants.application_profiles.endpoint_groups.name_suffix %}
-    Should Be Equal Value Json String   ${r.json()}    ${source}..spanRsSrcToEpg.attributes.tDn   uni/tn-{{ source.tenant }}/ap-{{ application_profile_name }}/epg-{{ endpoint_group_name }}                           
+    Should Be Equal Value Json String   ${r.json()}    ${source}..spanRsSrcToEpg.attributes.tDn   uni/tn-{{ source.tenant }}/ap-{{ application_profile_name }}/epg-{{ endpoint_group_name }}
 {% endif %}
 {% if source.tenant is defined and source.application_profile is defined and source.endpoint_group is defined and source.endpoint is defined %}
-{% set application_profile_name = source.application_profile ~ defaults.apic.tenants.application_profiles.name_suffix %}      
+{% set application_profile_name = source.application_profile ~ defaults.apic.tenants.application_profiles.name_suffix %}
 {% set endpoint_group_name = source.endpoint_group ~ defaults.apic.tenants.application_profiles.endpoint_groups.name_suffix %}
-    Should Be Equal Value Json String   ${r.json()}    ${source}..spanRsSrcToVPort.attributes.tDn   uni/tn-{{ source.tenant }}/ap-{{ application_profile_name }}/epg-{{ endpoint_group_name }}/cep-{{ source.endpoint}}                           
+    Should Be Equal Value Json String   ${r.json()}    ${source}..spanRsSrcToVPort.attributes.tDn   uni/tn-{{ source.tenant }}/ap-{{ application_profile_name }}/epg-{{ endpoint_group_name }}/cep-{{ source.endpoint}}
 {% endif %}
 
 {% endfor %}

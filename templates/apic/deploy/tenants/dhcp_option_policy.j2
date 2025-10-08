@@ -6,7 +6,7 @@
             "dn": "uni/tn-{{ tenant.name }}",
             "name": "{{ tenant.name }}"
         },
-        "children": [  
+        "children": [
             {%- set comma1 = joiner(",") %}
             {%- for policy in tenant.policies.dhcp_option_policies | default([]) %}{{ comma1() }}
             {% set policy_name = policy.name ~ defaults.apic.tenants.policies.dhcp_option_policies.name_suffix %}
@@ -33,7 +33,7 @@
                                 }
                             }
                         }
-                        {%- endfor %} 
+                        {%- endfor %}
 
                     ]
                 }

@@ -70,7 +70,7 @@ Verify Access Leaf Interface Profile {{ leaf_interface_profile_name }} Selector 
     Should Be Equal Value Json String   ${r.json()}    $..infraRsAccBaseGrp.attributes.tDn   uni/infra/funcprof/accbundle-{{ policy_group_name }}
 {% elif type[0] == "breakout" %}
     Should Be Equal Value Json String   ${r.json()}    $..infraRsAccBaseGrp.attributes.tDn   uni/infra/funcprof/brkoutportgrp-{{ policy_group_name }}
-{% else %}    
+{% else %}
     Should Be Equal Value Json String   ${r.json()}    $..infraRsAccBaseGrp.attributes.tDn   uni/infra/funcprof/accportgrp-{{ policy_group_name }}
 {% endif %}
 {% endif %}

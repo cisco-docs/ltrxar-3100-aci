@@ -12,7 +12,7 @@
                     "attributes": {
                         "annotation": "orchestrator:aac",
                         "name": "{{ policy_name }}",
-                        "descr": "{{ policy.description | default() }}", 
+                        "descr": "{{ policy.description | default() }}",
                         "dn": "uni/infra/macsecpcont/paramp-{{ policy_name }}",
                         "cipherSuite": "{{ policy.cipher_suite | default(defaults.apic.access_policies.interface_policies.macsec_parameters_policies.cipher_suite) }}",
                         "confOffset": "{{ policy.confidentiality_offset | default(defaults.apic.access_policies.interface_policies.macsec_parameters_policies.confidentiality_offset) }}",

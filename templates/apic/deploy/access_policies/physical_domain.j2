@@ -24,7 +24,7 @@
                         "dn": "uni/phys-{{ domain_name }}"
                     },
                     "children": [
-                        {%- set comma2 = joiner(",") %}{{ comma2() }} 
+                        {%- set comma2 = joiner(",") %}{{ comma2() }}
                         {
                             "infraRsVlanNs": {
                                 "attributes": {
@@ -47,7 +47,7 @@
                             }
                         }
                         {%- endfor %}
-                        
+
                     ]
                 }
             }
