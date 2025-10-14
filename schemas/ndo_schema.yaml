@@ -166,7 +166,7 @@ policies_dhcp_options_options:
   data: str()
 
 schemas:
-  name: regex('^[a-zA-Z0-9_.:-]{1,64}$')
+  name: regex('^[a-zA-Z0-9\s+_.:-]{1,64}$')
   templates: list(include('schemas_templates'), required=False) # @ref_name(Template)
 
 schemas_templates:
