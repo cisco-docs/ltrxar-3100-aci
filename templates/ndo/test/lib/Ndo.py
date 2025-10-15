@@ -39,10 +39,11 @@ class Ndo(object):
     ROBOT_LIBRARY_VERSION = __version__
     ROBOT_LIBRARY_SCOPE = "GLOBAL"
 
-    def __init__(self, url: str, username: str, password: str):
+    def __init__(self, url: str, username: str, password: str, domain: str):
         self.url = url
         self.username = username
         self.password = password
+        self.domain = domain
         urllib3.disable_warnings()
         self.session = requests.Session()
         self.session.verify = False
@@ -52,9 +53,11 @@ class Ndo(object):
 
     def _login(self):
         """NDO login"""
-        credentials = {"username": self.username, "password": self.password}
+        credentials = {"userName": self.username, "userPasswd": self.password}
+        if self.domain:
+            credentials["domain"] = self.domain
         json_credentials = json.dumps(credentials)
-        base_url = self.url + "/api/v1/auth/login"
+        base_url = self.url + "/login"
 
         resp = self.session.post(base_url, data=json_credentials)
 

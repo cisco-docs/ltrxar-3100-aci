@@ -4,17 +4,17 @@ Library   RequestsLibrary
 Library   JSONLibrary
 Library   Collections
 Library   OperatingSystem
-Library   ./lib/Ndo.py   %{MSO_URL}   %{MSO_USERNAME}   %{MSO_PASSWORD}
+Library   ./lib/Ndo.py   %{MSO_URL}   %{MSO_USERNAME}   %{MSO_PASSWORD}    %{MSO_DOMAIN=DefaultAuth}
 
 *** Variables ***
-${login_json}   {"username" : "%{MSO_USERNAME}", "password" : "%{MSO_PASSWORD}"}
+${login_json}   {"userName" : "%{MSO_USERNAME}", "userPasswd" : "%{MSO_PASSWORD}", "domain" : "%{MSO_DOMAIN=DefaultAuth}"}
 ${state_path}   tests/state/
 
 *** Keywords ***
 Get NDO Token
     Create Session   login   %{MSO_URL}   headers={"Content-Type": "application/json"}
     ${log_level}=   Set Log Level   NONE
-    ${response}=   Wait Until Keyword Succeeds   6x   10s   POST On Session   login   /api/v1/auth/login   data=${login_json}
+    ${response}=   Wait Until Keyword Succeeds   6x   10s   POST On Session   login   /login   data=${login_json}
     Set Log Level   ${log_level}
     ${r_token}=   Get Value From Json   ${response.json()}   $..token
     Set Parallel Value For Key   ndo_token   ${r_token[0]}
