@@ -56,7 +56,7 @@ apic:
                   - CON1
 ```
 
-Exmaple-3: This is a single example of an EPG configuration where a static port is defined using a PC interface. The predefined PC interface policy group Internet_PC from the Access Policy is specified, and the nodes are defined as the PC, leaf `1010`. In this example, the mode is explicitly set to `regular` (trunk) and the deployment immediacy is specified as `immediate`. Apart from the static port specification, the configuration is the same as Example-1.
+Exaple-3: This is a single example of an EPG configuration where a static port is defined using a PC interface. The predefined PC interface policy group Internet_PC from the Access Policy is specified, and the nodes are defined as the PC, leaf `1010`. In this example, the mode is explicitly set to `regular` (trunk) and the deployment immediacy is specified as `immediate`. Apart from the static port specification, the configuration is the same as Example-1.
 
 ```yaml
 apic:

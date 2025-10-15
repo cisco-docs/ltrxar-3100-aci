@@ -25,7 +25,7 @@ apic:
                   - DC_PREFIXES
 ```
 
-Examlpe-2: This route-map `ROUTE_MAP_2` shows an example of the application of BGP routing policies. Its type is `global`, meaning matching will only occur based on the associated match rules (`DC_PREFIXES` in this example), and BD/extEPG subnet flags will be ignored. This behaves the same way as the well-known route-maps on NX-OS and other platforms. The route-map is configured with a set rule named `SET_BGP_ATTRS`, which can set a number of BGP attributes as per the overall BGP/routing design (e.g. weight, next-hop, community, metric, AS path, etc.)
+Example-2: This route-map `ROUTE_MAP_2` shows an example of the application of BGP routing policies. Its type is `global`, meaning matching will only occur based on the associated match rules (`DC_PREFIXES` in this example), and BD/extEPG subnet flags will be ignored. This behaves the same way as the well-known route-maps on NX-OS and other platforms. The route-map is configured with a set rule named `SET_BGP_ATTRS`, which can set a number of BGP attributes as per the overall BGP/routing design (e.g. weight, next-hop, community, metric, AS path, etc.)
 
 ```yaml
 apic:

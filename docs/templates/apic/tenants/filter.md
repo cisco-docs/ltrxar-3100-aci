@@ -8,7 +8,7 @@ Location in GUI:
 
 ### Examples
 
-Examlpe-1: This configures a basic filter `FILTER1` with a single `HTTP` entry, which matches traffic with the ethertype of `ip`, protocol of `tcp`, and a destination port of `80` for HTTP. The destination port can be a range between destination_from_port and destination_to_port, and they are both set to the same value to only match a single port and not a range.
+Example-1: This configures a basic filter `FILTER1` with a single `HTTP` entry, which matches traffic with the ethertype of `ip`, protocol of `tcp`, and a destination port of `80` for HTTP. The destination port can be a range between destination_from_port and destination_to_port, and they are both set to the same value to only match a single port and not a range.
 
 ```yaml
 apic:
@@ -46,7 +46,7 @@ apic:
               destination_to_port: 443
 ```
 
-Examlpe-3: This configures a filter `K8S` which demonstrates the use of a range of ports. This example allows TCP ports between destination_from_port `10250` to destination_to_port `10259` for Kubernetes as an example.
+Example-3: This configures a filter `K8S` which demonstrates the use of a range of ports. This example allows TCP ports between destination_from_port `10250` to destination_to_port `10259` for Kubernetes as an example.
 
 ```yaml
 apic:

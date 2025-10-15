@@ -43,7 +43,7 @@ apic:
           - VMM1
 ```
 
-Examlpe-3: this examlpe configures an AAEP `SCVMM` with the infra_vlan parameter enabled, which enables the extension of the ACI infra VLAN into external domains such as Microsoft SCVMM or other OpFlex-capable solutions. This is required in such integrations to enable the extension of the ACI infra into a non-ACI infra. The relevant domains must be associated to the AAEP to enable the integration, in this case `SCVMM` physical domain. It is recommended use a dedicated AAEP for such integrations, hence the `PHY1` physical domain being associated to another AAEP with the infra_vlan parameter left unspecified, since its default is `false`.
+Example-3: this example configures an AAEP `SCVMM` with the infra_vlan parameter enabled, which enables the extension of the ACI infra VLAN into external domains such as Microsoft SCVMM or other OpFlex-capable solutions. This is required in such integrations to enable the extension of the ACI infra into a non-ACI infra. The relevant domains must be associated to the AAEP to enable the integration, in this case `SCVMM` physical domain. It is recommended use a dedicated AAEP for such integrations, hence the `PHY1` physical domain being associated to another AAEP with the infra_vlan parameter left unspecified, since its default is `false`.
 
 ```yaml
 apic:

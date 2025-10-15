@@ -73,7 +73,7 @@ apic:
             logical_interface: OneArm
             bridge_domain:
               name: SVC_BD
-
+```
 
 Simple example:
 

@@ -88,7 +88,7 @@ apic:
               - description: My Desc
                 name: L3_DEST1
                 ip: 1.1.1.1
-                ip_2:
+                ip_2: 2.2.2.2
                 mac: 00:00:00:11:22:33
                 pod: 1
                 redirect_health_group: HEALTH_GROUP_1

@@ -21,7 +21,7 @@ apic:
         pod: 1
         role: leaf
         type: remote-leaf-wan
-        serial-number: ABC1234568
+        serial_number: ABC1234568
         name: RLEAF3101
       - id: 1001
         pod: 1
