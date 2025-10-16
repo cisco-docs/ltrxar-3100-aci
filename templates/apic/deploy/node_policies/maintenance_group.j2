@@ -29,7 +29,7 @@
                                     {% if group.scheduler is defined %}
                                         {% set scheduler_name = group.scheduler ~ defaults.apic.fabric_policies.schedulers.name_suffix %}
                                     {% endif %}
-                                    "tnTrigSchedPName": "{{ group.scheduler_name | default(defaults.apic.node_policies.update_groups.scheduler) }}"
+                                    "tnTrigSchedPName": "{{ scheduler_name | default(defaults.apic.node_policies.update_groups.scheduler) }}"
                                 }
                             }
                         }

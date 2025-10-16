@@ -19,7 +19,7 @@ Verify Maintenance Policy {{ update_group_name }}
 {% if group.scheduler is defined%}
     {% set scheduler_name = group.scheduler ~ defaults.apic.fabric_policies.schedulers.name_suffix %}
 {% endif %}
-    Should Be Equal Value Json String   ${r.json()}    $..maintRsPolScheduler.attributes.tnTrigSchedPName   {{ group.scheduler_name | default(defaults.apic.node_policies.update_groups.scheduler) }}
+    Should Be Equal Value Json String   ${r.json()}    $..maintRsPolScheduler.attributes.tnTrigSchedPName   {{ scheduler_name | default(defaults.apic.node_policies.update_groups.scheduler) }}
 
 Verify Maintenance Group {{ update_group_name }}
     ${r}=   GET On Session   apic   /api/mo/uni/fabric/maintgrp-{{ update_group_name }}.json   params=rsp-subtree=full
