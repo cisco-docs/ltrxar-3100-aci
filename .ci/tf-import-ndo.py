@@ -273,7 +273,7 @@ def generate_uuid_from_import_string(index, import_string, mappings):
     for i, j in enumerate(import_string):
         if "_id" in j:
             import_string[i] = next(
-                (k for k, v in mappings.get(f"{j.split("_id")[0]}s").items() if v == j),
+                (k for k, v in mappings.get(f"{j.split('_id')[0]}s").items() if v == j),
                 None,
             )
     return "/".join(import_string)
@@ -1026,7 +1026,7 @@ def tf_import():
     print(f"Successfully processed: {success_count}")
     print(f"Failed: {len(failed_imports)}")
     print(
-        f"Success rate: {(success_count/total_resources*100):.1f}%"
+        f"Success rate: {(success_count / total_resources * 100):.1f}%"
         if total_resources > 0
         else "N/A"
     )
