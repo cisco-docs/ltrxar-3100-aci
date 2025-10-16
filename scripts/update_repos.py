@@ -156,6 +156,10 @@ REPOS = [
                 "src": "../schemas/apic_schema.yaml",
                 "dst": "./.schema-apic.yaml",
             },
+            {
+                "src": "../.ci/tf-import-ndo.py",
+                "dst": "./.ci/tf-import-ndo.py",
+            },
         ],
     },
     {
