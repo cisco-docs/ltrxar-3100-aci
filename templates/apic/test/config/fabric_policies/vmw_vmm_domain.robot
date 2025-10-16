@@ -94,4 +94,26 @@ Verify VMware VMM Domain {{ vmm_name }} Uplink {{ ul.name }}
 {% endfor %}
 {% endif %}
 
+{% for tpg in vmm.trunk_port_groups | default([]) %}
+{% set tpg_name = tpg.name ~ defaults.apic.fabric_policies.vmware_vmm_domains.trunk_port_groups.name_suffix %}
+Verify VMware VMM Domain {{ vmm_name }} Trunk Port Group {{ tpg_name }}
+    ${cp}=   Set Variable   $..vmmDomP.children[?(@.vmmUsrAggr.attributes.name=='{{ tpg_name }}')]
+    Should Be Equal Value Json String   ${r.json()}    ${cp}..vmmUsrAggr.attributes.name   {{ tpg_name }}
+    Should Be Equal Value Json String   ${r.json()}    ${cp}..vmmUsrAggr.attributes.aggrImedcy   {{ tpg.immediacy | default(defaults.apic.fabric_policies.vmware_vmm_domains.trunk_port_groups.immediacy) }}
+    Should Be Equal Value Json String   ${r.json()}    ${cp}..vmmUsrAggr.attributes.forgedTransmit   {{ 'Enabled' if tpg.forged_transmit | default(defaults.apic.fabric_policies.vmware_vmm_domains.trunk_port_groups.forged_transmit) else 'Disabled' }}
+    Should Be Equal Value Json String   ${r.json()}    ${cp}..vmmUsrAggr.attributes.macChange   {{ 'Enabled' if tpg.mac_change | default(defaults.apic.fabric_policies.vmware_vmm_domains.trunk_port_groups.mac_change) else 'Disabled' }}
+    Should Be Equal Value Json String   ${r.json()}    ${cp}..vmmUsrAggr.attributes.promMode   {{ 'Enabled' if tpg.promiscuous_mode | default(defaults.apic.fabric_policies.vmware_vmm_domains.trunk_port_groups.promiscuous_mode) else 'Disabled' }}
+{% if tpg.enhanced_lag_policy is defined %}
+{% set elag_name = tpg.enhanced_lag_policy ~ defaults.apic.fabric_policies.vmware_vmm_domains.vswitch.enhanced_lags.name_suffix %}
+    Should Be Equal Value Json String   ${r.json()}    ${cp}..vmmRsUsrAggrLagPolAtt.attributes.tDn   uni/vmmp-VMware/dom-{{ vmm_name }}/vswitchpolcont/enlacplagp-{{ elag_name }}
+{% endif %}
+{% for vlan_range in tpg.vlan_ranges | default([]) %}
+Verify VMware VMM Domain {{ vmm_name }} Trunk Port Group {{ tpg_name }} Range From {{ vlan_range.from }} To {{ vlan_range.to | default(vlan_range.from) }}
+    ${range}=   Set Variable   $..vmmUsrAggr.children[?(@.fvnsEncapBlk.attributes.from=='vlan-{{ vlan_range.from }}')]
+    Should Be Equal Value Json String   ${r.json()}    ${range}..fvnsEncapBlk.attributes.from   vlan-{{ vlan_range.from }}
+    Should Be Equal Value Json String   ${r.json()}    ${range}..fvnsEncapBlk.attributes.to   vlan-{{ vlan_range.to }}
+{% endfor %}
+
+{% endfor %}
+
 {% endfor %}

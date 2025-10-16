@@ -92,4 +92,16 @@ apic:
             name: UPLINK1
           - id: 2
             name: UPLINK2
+        trunk_port_groups:
+          - name: trunk_port_group_1
+            promiscuous_mode: true
+            immediacy: immediate
+            mac_change: true
+            forged_transmit: true
+            enhanced_lag_policy: ELAGCUSTOM
+            vlan_ranges:
+              - from: 12
+                to: 20
+              - from: 21
+                to: 30
 ```

@@ -213,6 +213,52 @@
                             }
                         }
                         {%- endif %}
+                        {%- for tpg in vmm.trunk_port_groups | default([]) %}{{ comma3() }}
+                        {% set tpg_name = tpg.name ~ defaults.apic.fabric_policies.vmware_vmm_domains.trunk_port_groups.name_suffix %}
+                        {
+                            "vmmUsrAggr": {
+                                "attributes": {
+                                    "aggrImedcy": "{{ tpg.immediacy | default(defaults.apic.fabric_policies.vmware_vmm_domains.trunk_port_groups.immediacy) }}",
+                                    "annotation": "orchestrator:aac",
+                                    "forgedTransmit": "{{ 'Enabled' if tpg.forged_transmit | default(defaults.apic.fabric_policies.vmware_vmm_domains.trunk_port_groups.forged_transmit) else 'Disabled' }}",
+                                    "macChange": "{{ 'Enabled' if tpg.mac_change | default(defaults.apic.fabric_policies.vmware_vmm_domains.trunk_port_groups.mac_change) else 'Disabled' }}",
+                                    "name": "{{ tpg_name }}",
+                                    "promMode": "{{ 'Enabled' if tpg.promiscuous_mode | default(defaults.apic.fabric_policies.vmware_vmm_domains.trunk_port_groups.promiscuous_mode) else 'Disabled' }}"
+                                },
+                                "children": [
+                                    {%- set comma4 = joiner(",") %}
+                                    {%- for vlan_range in tpg.vlan_ranges | default([]) %}{{ comma4() }}
+                                    {
+                                        "fvnsEncapBlk": {
+                                            "attributes": {
+                                                "allocMode": "inherit",
+                                                "annotation": "orchestrator:aac",
+                                                "descr": "",
+                                                "from": "vlan-{{ vlan_range.from }}",
+                                                "name": "",
+                                                "nameAlias": "",
+                                                "role": "external",
+                                                "to": "vlan-{{ vlan_range.to }}"
+                                            }
+                                        }
+                                    }
+                                    {%- endfor %}
+                                    {%- if tpg.enhanced_lag_policy is defined %}{{ comma4() }}
+                                    {% set elag_name = tpg.enhanced_lag_policy ~ defaults.apic.fabric_policies.vmware_vmm_domains.vswitch.enhanced_lags.name_suffix %}
+                                    {
+                                        "vmmRsUsrAggrLagPolAtt": {
+                                            "attributes": {
+                                                "annotation": "orchestrator:aac",
+                                                "tDn": "uni/vmmp-VMware/dom-{{ vmm_name }}/vswitchpolcont/enlacplagp-{{ elag_name }}"
+                                            }
+                                        }
+                                    }
+                                    {%- endif %}
+
+                                ]
+                            }
+                        }
+                        {%- endfor %}
 
                     ]
                 }

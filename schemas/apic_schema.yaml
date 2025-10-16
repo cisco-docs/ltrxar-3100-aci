@@ -534,6 +534,7 @@ fp_vmware_vmm_domains:
   credential_policies: list(include('fp_vmware_vmm_domains_credential_policies'), required=False) # @name(VMware VMM Dom Cred Policies)
   vcenters: list(include('fp_vmware_vmm_domains_vcenters'), required=False) # @name(VMware VMM vCenters)
   uplinks: list(include('fp_vmware_vmm_domains_uplinks'), required=False) # @name(VMware VMM Uplinks)
+  trunk_port_groups: list(include('fp_vmware_vmm_domains_trunk_port_groups'), required=False)
   expected_state: include('fp_vmware_vmm_domains_expected_state', required=False) # @no_external_doc() @name(VMW VMM Domain Expected State) @sheet_hidden()
 
 fp_vmware_vmm_domains_vswitch:
@@ -567,6 +568,19 @@ fp_vmware_vmm_domains_vcenters:
 fp_vmware_vmm_domains_uplinks:
   id: int(min=1, max=32)
   name: regex('^[a-zA-Z0-9_.:-]{1,64}$')
+
+fp_vmware_vmm_domains_trunk_port_groups:
+  name: regex('^[a-zA-Z0-9_.:-]{1,64}$')
+  promiscuous_mode: bool(required=False)
+  immediacy: enum('immediate', 'lazy', required=False)
+  mac_change: bool(required=False)
+  forged_transmit: bool(required=False)
+  enhanced_lag_policy: regex('^[a-zA-Z0-9_.:-]{1,16}$', required=False)
+  vlan_ranges: list(include('fp_vmware_vmm_domains_trunk_port_groups_vlan_ranges'), required=False)
+
+fp_vmware_vmm_domains_trunk_port_groups_vlan_ranges:
+  from: int(min=1, max=4094)
+  to: int(min=1, max=4094)
 
 fp_vmware_vmm_domains_expected_state:
   minimum_health: int(min=0, max=100, required=False)

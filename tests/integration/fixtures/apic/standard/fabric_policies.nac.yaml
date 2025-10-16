@@ -648,6 +648,24 @@ apic:
             name: UPLINK3
           - id: 4
             name: UPLINK4
+        trunk_port_groups:
+          - name: trunk_port_group_1
+            promiscuous_mode: true
+            immediacy: immediate
+            mac_change: true
+            forged_transmit: true
+            enhanced_lag_policy: ELAGCustom
+            vlan_ranges:
+              - from: 12
+                to: 20
+              - from: 21
+                to: 30
+          - name: trunk_port_group_2
+            promiscuous_mode: false
+            immediacy: lazy
+            mac_change: false
+            forged_transmit: false
+          - name: trunk_port_group_3
         expected_state:
           minimum_health: 0
           maximum_critical_faults: 1000
