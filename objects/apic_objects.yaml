@@ -1575,6 +1575,7 @@ tenant_objects:
       - health
     paths:
       - apic.tenants.application_profiles.endpoint_groups
+      - apic.bulk_static_ports
   - name: uSeg Endpoint Group
     template: useg_endpoint_group
     folder: tenants

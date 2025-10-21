@@ -184,3 +184,26 @@ apic:
                   from: 11.11.11.100
                   to: 11.11.11.200
 ```
+
+Example-5: This is an example showing how to enable an optimization for static ports (applicable to Terraform users only). All static port bindings for the EPG will be created within the Terraform EPG resource instead of as a separate Terraform resource per static port binding.
+
+```yaml
+apic:
+  bulk_static_ports: true
+  tenants:
+    - name: ABC
+      application_profiles:
+        - name: AP1
+          endpoint_groups:
+            - name: EPG1
+              bridge_domain: BD1
+              physical_domains:
+                - PHY1
+              static_ports:
+                - node_id: 101
+                  port: 10
+                  vlan: 135
+              contracts:
+                consumers:
+                  - CON1
+```
