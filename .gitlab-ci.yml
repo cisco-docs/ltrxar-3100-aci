@@ -1,5 +1,5 @@
 ---
-image: danischm/nac:0.1.4
+image: danischm/nac:latest
 stages:
   - validate
   - plan
@@ -110,7 +110,7 @@ deploy:
 test-integration:
   stage: test
   script:
-   - set -o pipefail && iac-test -d ./data -d ./defaults.yaml -t ./tests/templates -f ./tests/filters -i tenants -o ./tests/results/aci |& tee test_output.txt
+    - set -o pipefail && iac-test -d ./data -d ./defaults.yaml -t ./tests/templates -f ./tests/filters -i tenants -o ./tests/results/aci |& tee test_output.txt
   artifacts:
     when: always
     paths:
@@ -177,5 +177,5 @@ destroy:
     - terraform init
     - terraform destroy -auto-approve
   rules:
-    - if: '$CI_COMMIT_TAG =~ /^cleanup-aci/'
+    - if: "$CI_COMMIT_TAG =~ /^cleanup-aci/"
       when: always

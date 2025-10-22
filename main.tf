@@ -14,7 +14,7 @@ provider "aci" {
 
 module "aci" {
   source  = "netascode/nac-aci/aci"
-  version = "0.9.3"
+  version = "1.1.0"
 
   yaml_directories = ["data"]
 
