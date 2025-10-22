@@ -1,0 +1,55 @@
+---
+apic:
+  tenants:
+    - name: CL-NAC-DEMO-UAT
+
+      vrfs:
+        - name: UAT
+
+      bridge_domains:
+        - name: BD_VLAN400
+          vrf: UAT
+
+        - name: BD_VLAN401
+          vrf: UAT
+
+        - name: BD_VLAN402
+          vrf: UAT
+
+        - name: BD_VLAN403
+          vrf: UAT
+
+        - name: BD_VLAN404
+          vrf: UAT
+
+      application_profiles:
+        - name: UAT
+          endpoint_groups:
+            - name: EPG_VLAN400
+              bridge_domain: BD_VLAN400
+              physical_domains:
+                - PHYSICAL1
+              static_ports:
+                - node_id: 101
+                  port: 4
+                  vlan: 400
+
+            - name: EPG_VLAN401
+              bridge_domain: BD_VLAN401
+              physical_domains:
+                - PHYSICAL1
+
+            - name: EPG_VLAN402
+              bridge_domain: BD_VLAN402
+              physical_domains:
+                - PHYSICAL1
+
+            - name: EPG_VLAN403
+              bridge_domain: BD_VLAN403
+              physical_domains:
+                - PHYSICAL1
+
+            - name: EPG_VLAN404
+              bridge_domain: BD_VLAN404
+              physical_domains:
+                - PHYSICAL1

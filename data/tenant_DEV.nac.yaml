@@ -1,0 +1,55 @@
+---
+apic:
+  tenants:
+    - name: CL-NAC-DEMO-DEV
+
+      vrfs:
+        - name: DEV
+
+      bridge_domains:
+        - name: BD_VLAN300
+          vrf: DEV
+
+        - name: BD_VLAN301
+          vrf: DEV
+
+        - name: BD_VLAN302
+          vrf: DEV
+
+        - name: BD_VLAN303
+          vrf: DEV
+
+        - name: BD_VLAN304
+          vrf: DEV
+
+      application_profiles:
+        - name: DEV
+          endpoint_groups:
+            - name: EPG_VLAN300
+              bridge_domain: BD_VLAN300
+              physical_domains:
+                - PHYSICAL1
+              static_ports:
+                - node_id: 101
+                  port: 3
+                  vlan: 300
+
+            - name: EPG_VLAN301
+              bridge_domain: BD_VLAN301
+              physical_domains:
+                - PHYSICAL1
+
+            - name: EPG_VLAN302
+              bridge_domain: BD_VLAN302
+              physical_domains:
+                - PHYSICAL1
+
+            - name: EPG_VLAN303
+              bridge_domain: BD_VLAN303
+              physical_domains:
+                - PHYSICAL1
+
+            - name: EPG_VLAN304
+              bridge_domain: BD_VLAN304
+              physical_domains:
+                - PHYSICAL1
