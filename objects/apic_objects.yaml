@@ -1066,6 +1066,7 @@ objects:
     folder: access_policies
     aci_classes:
       - macsecKeyChainPol
+    match_dn: 'uni\/infra\/macsecpcont\/keychainp-.*'
     test_types:
       - config
     paths:
