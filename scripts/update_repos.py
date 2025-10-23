@@ -63,7 +63,7 @@ REPOS = [
                 "dst": "./roles/ndo_deploy/molecule/01_standard/data/host_vars/ndo1",
             },
             {
-                "src": "../tests/integration/fixtures/ndo/standard_43",
+                "src": "../tests/integration/fixtures/ndo/standard_42",
                 "dst": "./roles/ndo_deploy/molecule/01_standard/data/host_vars/ndo1",
             },
         ],
