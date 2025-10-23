@@ -20,7 +20,11 @@
                         "slaDetectMultiplier": "{{ ip_sla.multiplier | default(defaults.apic.tenants.policies.ip_sla_policies.multiplier) }}",
                         "slaFrequency": "{{ ip_sla.frequency | default(defaults.apic.tenants.policies.ip_sla_policies.frequency) }}",
                         "slaPort": "{{ ip_sla.port | default(defaults.apic.tenants.policies.ip_sla_policies.port) }}",
-                        "slaType": "{{ ip_sla.sla_type | default(defaults.apic.tenants.policies.ip_sla_policies.sla_type) }}"
+                        "slaType": "{{ ip_sla.sla_type | default(defaults.apic.tenants.policies.ip_sla_policies.sla_type) }}"{% if ip_sla.sla_type | default(defaults.apic.tenants.policies.ip_sla_policies.sla_type) == 'http' %},
+                        "httpMethod": "{{ ip_sla.http_method | default(defaults.apic.tenants.policies.ip_sla_policies.http_method) }}",
+                        "httpVersion": "{{ ip_sla.http_version | default(defaults.apic.tenants.policies.ip_sla_policies.http_version) }}",
+                        "httpUri": "{{ ip_sla.http_uri | default(defaults.apic.tenants.policies.ip_sla_policies.http_uri) }}"
+                        {% endif %}
                     }
                 }
             }

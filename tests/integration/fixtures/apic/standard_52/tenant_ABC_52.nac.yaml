@@ -222,13 +222,21 @@ apic:
                 value: Linux
           - ip: 10.1.1.2
             vrf: VRF1
+        ip_sla_policies:
+          - name: IP_SLA_52
+            frequency: 10
+            multiplier: 10
+            sla_type: http
+            port: 80
+            http_method: get
+            http_version: HTTP10
+            http_uri: /example
         bfd_multihop_node_policies:
           - name: BFD_MHOP_POL
             description: My BFD Node Policy
             detection_multiplier: 5
             min_rx_interval: 300
             min_tx_interval: 300
-
       services:
         l4l7_devices:
           - name: DEV3

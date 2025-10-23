@@ -91,6 +91,15 @@ apic:
               name: L3OUT1-EPG1
               l3out: L3OUT1
               tenant: ABC
+        ip_sla_policies:
+          - name: IP_SLA_60
+            frequency: 10
+            multiplier: 10
+            sla_type: http
+            port: 80
+            http_method: get
+            http_version: HTTP10
+            http_uri: /example
         bfd_multihop_node_policies:
           - name: BFD-NODE1
             description: My BFD Node Policy

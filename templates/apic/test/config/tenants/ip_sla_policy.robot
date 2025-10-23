@@ -18,5 +18,10 @@ Verify IP SLA Policy {{ ip_sla_name }}
     Should Be Equal Value Json String   ${r.json()}   $..fvIPSLAMonitoringPol.attributes.slaFrequency   {{ ip_sla.frequency | default(defaults.apic.tenants.policies.ip_sla_policies.frequency) }}
     Should Be Equal Value Json String   ${r.json()}   $..fvIPSLAMonitoringPol.attributes.slaPort   {{ ip_sla.port | default(defaults.apic.tenants.policies.ip_sla_policies.port) }}
     Should Be Equal Value Json String   ${r.json()}   $..fvIPSLAMonitoringPol.attributes.slaType   {{ ip_sla.sla_type | default(defaults.apic.tenants.policies.ip_sla_policies.sla_type) }}
+{% if ip_sla.sla_type | default(defaults.apic.tenants.policies.ip_sla_policies.sla_type) == 'http' %}
+    Should Be Equal Value Json String   ${r.json()}   $..fvIPSLAMonitoringPol.attributes.httpMethod   {{ ip_sla.http_method | default(defaults.apic.tenants.policies.ip_sla_policies.http_method) }}
+    Should Be Equal Value Json String   ${r.json()}   $..fvIPSLAMonitoringPol.attributes.httpVersion   {{ ip_sla.http_version | default(defaults.apic.tenants.policies.ip_sla_policies.http_version) }}
+    Should Be Equal Value Json String   ${r.json()}   $..fvIPSLAMonitoringPol.attributes.httpUri   {{ ip_sla.http_uri | default(defaults.apic.tenants.policies.ip_sla_policies.http_uri) }}
+{% endif %}
 
 {% endfor %}

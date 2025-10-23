@@ -25,3 +25,20 @@ apic:
             frequency: 20
             multiplier: 4
 ```
+
+#### HTTP SLA Policy
+```yaml
+apic:
+  tenants:
+    - name: ABC
+      policies:
+        ip_sla_policies:
+          - name: SLA_HTTP
+            frequency: 10
+            multiplier: 10
+            sla_type: http
+            port: 80
+            http_method: get
+            http_version: HTTP10
+            http_uri: /example
+```

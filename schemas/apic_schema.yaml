@@ -3542,8 +3542,11 @@ ten_ip_sla_policies:
   description: regex('^[a-zA-Z0-9\\\\!#$%()*,-./:;@ _{|}~?&+]{1,128}$', required=False)
   frequency: int(min=1, max=300, required=False)
   multiplier: int(min=1, max=100, required=False)
-  sla_type: enum('icmp', 'tcp', 'l2ping', required=False)
+  sla_type: enum('icmp', 'tcp', 'l2ping', 'http', required=False)
   port: int(min=1, max=65535, required=False)
+  http_method: enum('get', required=False)
+  http_version: enum('HTTP10', 'HTTP11', required=False)
+  http_uri: regex('^/.{0,512}$', required=False)
   expected_state: include('ten_ip_sla_policies_expected_state', required=False) # @no_external_doc() @name(IP SLA Pol Expected State) @sheet_hidden()
 
 ten_ip_sla_policies_expected_state:
