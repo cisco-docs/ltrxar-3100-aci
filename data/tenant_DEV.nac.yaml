@@ -30,7 +30,7 @@ apic:
               physical_domains:
                 - PHYSICAL1
               static_ports:
-                - node_id: 101
+                - node_id: 102
                   port: 3
                   vlan: 300
 
