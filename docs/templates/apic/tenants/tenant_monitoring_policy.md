@@ -1,7 +1,7 @@
 # Tenant Monitoring Policy
 
 Location in GUI:
-`Tenant` » `XXX` » `Policies` » `Monitoring` » `XXX`
+`Tenants` » `XXX` » `Policies` » `Monitoring` » `XXX`
 
 
 {{ doc_gen }}
