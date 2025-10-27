@@ -656,10 +656,10 @@ apic:
             forged_transmit: true
             enhanced_lag_policy: ELAGCustom
             vlan_ranges:
-              - from: 12
-                to: 20
-              - from: 21
-                to: 30
+              - from: 2012
+                to: 2020
+              - from: 2021
+                to: 2030
           - name: trunk_port_group_2
             promiscuous_mode: false
             immediacy: lazy
