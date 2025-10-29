@@ -16,13 +16,14 @@ Resource        ../../apic_common.resource
 
 Verify Port Channel Interface Policy {{port_channel_policy_name }}
     ${r}=   GET On Session   apic   /api/mo/uni/infra/lacplagp-{{port_channel_policy_name }}.json   params=rsp-subtree=full
-    Should Be Equal Value Json String   ${r.json()}    $..lacpLagPol.attributes.name   {{ port_channel_policy_name }}
-    Should Be Equal Value Json String   ${r.json()}    $..lacpLagPol.attributes.ctrl   {{ ctrl | join(',') }}
-    Should Be Equal Value Json String   ${r.json()}    $..lacpLagPol.attributes.maxLinks   {{ policy.max_links | default(defaults.apic.access_policies.interface_policies.port_channel_policies.max_links) }}
-    Should Be Equal Value Json String   ${r.json()}    $..lacpLagPol.attributes.minLinks   {{ policy.min_links | default(defaults.apic.access_policies.interface_policies.port_channel_policies.min_links) }}
-    Should Be Equal Value Json String   ${r.json()}    $..lacpLagPol.attributes.mode   {{ policy.mode }}
+    Set Suite Variable   $r   ${r.json()}
+    Should Be Equal Value Json String   ${r}    $..lacpLagPol.attributes.name   {{ port_channel_policy_name }}
+    Should Be Equal Value Json String   ${r}    $..lacpLagPol.attributes.ctrl   {{ ctrl | join(',') }}
+    Should Be Equal Value Json String   ${r}    $..lacpLagPol.attributes.maxLinks   {{ policy.max_links | default(defaults.apic.access_policies.interface_policies.port_channel_policies.max_links) }}
+    Should Be Equal Value Json String   ${r}    $..lacpLagPol.attributes.minLinks   {{ policy.min_links | default(defaults.apic.access_policies.interface_policies.port_channel_policies.min_links) }}
+    Should Be Equal Value Json String   ${r}    $..lacpLagPol.attributes.mode   {{ policy.mode }}
 {% if policy.symmetric_hash | default(defaults.apic.access_policies.interface_policies.port_channel_policies.symmetric_hash) and policy.hash_key is defined %}
-    Should Be Equal Value Json String   ${r.json()}    $..l2LoadBalancePol.attributes.hashFields   {{ policy.hash_key }}
+    Should Be Equal Value Json String   ${r}    $..l2LoadBalancePol.attributes.hashFields   {{ policy.hash_key }}
 {% endif %}
 
 {% endfor %}

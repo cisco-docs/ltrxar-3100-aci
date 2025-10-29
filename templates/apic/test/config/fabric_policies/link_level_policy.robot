@@ -10,7 +10,8 @@ Resource        ../../apic_common.resource
 
 Verify Fabric Link Level Interface Policy {{ policy_name }}
     ${r}=   GET On Session   apic   /api/mo/uni/fabric/fintfpol-{{ policy_name }}.json   params=rsp-subtree=full
-    Should Be Equal Value Json String   ${r.json()}    $..fabricFIfPol.attributes.name           {{ policy_name }}
-    Should Be Equal Value Json String   ${r.json()}    $..fabricFIfPol.attributes.descr          {{ policy.description | default() }}
-    Should Be Equal Value Json String   ${r.json()}    $..fabricFIfPol.attributes.linkDebounce   {{ policy.link_debounce_interval | default(defaults.apic.fabric_policies.interface_policies.link_level_policies.link_debounce_interval) }}
+    Set Suite Variable   $r   ${r.json()}
+    Should Be Equal Value Json String   ${r}    $..fabricFIfPol.attributes.name           {{ policy_name }}
+    Should Be Equal Value Json String   ${r}    $..fabricFIfPol.attributes.descr          {{ policy.description | default() }}
+    Should Be Equal Value Json String   ${r}    $..fabricFIfPol.attributes.linkDebounce   {{ policy.link_debounce_interval | default(defaults.apic.fabric_policies.interface_policies.link_level_policies.link_debounce_interval) }}
 {% endfor %}

@@ -20,60 +20,62 @@ Resource        ../../../apic_common.resource
 
 Verify Access Leaf Interface Node {{ _node.id }} Port {{ module }}/{{ int.port }}
     ${r}=   GET On Session   apic   /api/mo/uni/infra/portconfnode-{{ _node.id }}-card-{{ module }}-port-{{ int.port }}-sub-0.json
+    Set Suite Variable   $r   ${r.json()}
 {% if (int.breakout is not defined) and (int.breakout | default() != 'none') %}
 {% if int.policy_group is defined %}
 {% set query = "leaf_interface_policy_groups[?name=='" ~ int.policy_group ~ "'].type[]" %}
 {% set type = (apic.access_policies | community.general.json_query(query)) %}
 {% set policy_group_name = int.policy_group ~ defaults.apic.access_policies.leaf_interface_policy_groups.name_suffix %}
 {% if type[0] in ["pc", "vpc"] %}
-    Should Be Equal Value Json String   ${r.json()}    $..attributes.assocGrp   uni/infra/funcprof/accbundle-{{ policy_group_name }}
+    Should Be Equal Value Json String   ${r}    $..attributes.assocGrp   uni/infra/funcprof/accbundle-{{ policy_group_name }}
 {% if int.port_channel_member_policy is defined %}
 {% set pc_member_policy_name = int.port_channel_member_policy ~ defaults.apic.access_policies.interface_policies.port_channel_member_policies.name_suffix %}
-    Should Be Equal Value Json String   ${r.json()}    $..attributes.pcMember   {{ pc_member_policy_name }}
+    Should Be Equal Value Json String   ${r}    $..attributes.pcMember   {{ pc_member_policy_name }}
 {% endif %}
 {% else %}
-    Should Be Equal Value Json String   ${r.json()}    $..attributes.assocGrp   uni/infra/funcprof/accportgrp-{{ policy_group_name }}
+    Should Be Equal Value Json String   ${r}    $..attributes.assocGrp   uni/infra/funcprof/accportgrp-{{ policy_group_name }}
 {% endif %}
 {% elif int.fex_id is defined %}
-    Should Be Equal Value Json String   ${r.json()}    $..attributes.connectedFex   {{ int.fex_id }}
+    Should Be Equal Value Json String   ${r}    $..attributes.connectedFex   {{ int.fex_id }}
 {% endif %}
 {% elif int.breakout is defined %}
-    Should Be Equal Value Json String   ${r.json()}    $..attributes.brkoutMap   {{ int.breakout }}
+    Should Be Equal Value Json String   ${r}    $..attributes.brkoutMap   {{ int.breakout }}
 {% endif %}
-    Should Be Equal Value Json String   ${r.json()}    $..attributes.card   {{ module }}
-    Should Be Equal Value Json String   ${r.json()}    $..attributes.description   {{ int.description | default() }}
-    Should Be Equal Value Json String   ${r.json()}    $..attributes.node   {{ _node.id }}
-    Should Be Equal Value Json String   ${r.json()}    $..attributes.port   {{ int.port }}
-    Should Be Equal Value Json String   ${r.json()}    $..attributes.role   {{ _node.role }}
-    Should Be Equal Value Json String   ${r.json()}    $..attributes.shutdown   {{ 'yes' if int.shutdown | default(defaults.apic.interface_policies.nodes.interfaces.shutdown) else 'no' }}
+    Should Be Equal Value Json String   ${r}    $..attributes.card   {{ module }}
+    Should Be Equal Value Json String   ${r}    $..attributes.description   {{ int.description | default() }}
+    Should Be Equal Value Json String   ${r}    $..attributes.node   {{ _node.id }}
+    Should Be Equal Value Json String   ${r}    $..attributes.port   {{ int.port }}
+    Should Be Equal Value Json String   ${r}    $..attributes.role   {{ _node.role }}
+    Should Be Equal Value Json String   ${r}    $..attributes.shutdown   {{ 'yes' if int.shutdown | default(defaults.apic.interface_policies.nodes.interfaces.shutdown) else 'no' }}
 
 {% for sub in int.sub_ports | default([]) %}
 
 Verify Access Leaf Interface Node {{ _node.id }} Port {{ module }}/{{ int.port }}/{{ sub.port }}
     ${r}=   GET On Session   apic   /api/mo/uni/infra/portconfnode-{{ _node.id }}-card-{{ module }}-port-{{ int.port }}-sub-{{ sub.port }}.json
+    Set Suite Variable   $r   ${r.json()}
 {% if sub.policy_group is defined %}
 {% set query = "leaf_interface_policy_groups[?name=='" ~ sub.policy_group ~ "'].type[]" %}
 {% set type = (apic.access_policies | community.general.json_query(query)) %}
 {% set policy_group_name = sub.policy_group ~ defaults.apic.access_policies.leaf_interface_policy_groups.name_suffix %}
 {% if type[0] in ["pc", "vpc"] %}
-    Should Be Equal Value Json String   ${r.json()}    $..attributes.assocGrp   uni/infra/funcprof/accbundle-{{ policy_group_name }}
+    Should Be Equal Value Json String   ${r}    $..attributes.assocGrp   uni/infra/funcprof/accbundle-{{ policy_group_name }}
 {% if int.port_channel_member_policy is defined %}
 {% set pc_member_policy_name = int.port_channel_member_policy ~ defaults.apic.access_policies.interface_policies.port_channel_member_policies.name_suffix %}
-    Should Be Equal Value Json String   ${r.json()}    $..attributes.pcMember   {{ pc_member_policy_name }}
+    Should Be Equal Value Json String   ${r}    $..attributes.pcMember   {{ pc_member_policy_name }}
 {% endif %}
 {% else %}
-    Should Be Equal Value Json String   ${r.json()}    $..attributes.assocGrp   uni/infra/funcprof/accportgrp-{{ policy_group_name }}
+    Should Be Equal Value Json String   ${r}    $..attributes.assocGrp   uni/infra/funcprof/accportgrp-{{ policy_group_name }}
 {% endif %}
 {% elif int.fex_id is defined %}
-    Should Be Equal Value Json String   ${r.json()}    $..attributes.connectedFex   {{ sub.fex_id }}
+    Should Be Equal Value Json String   ${r}    $..attributes.connectedFex   {{ sub.fex_id }}
 {% endif %}
-    Should Be Equal Value Json String   ${r.json()}    $..attributes.card   {{ module }}
-    Should Be Equal Value Json String   ${r.json()}    $..attributes.description   {{ sub.description | default() }}
-    Should Be Equal Value Json String   ${r.json()}    $..attributes.node   {{ _node.id }}
-    Should Be Equal Value Json String   ${r.json()}    $..attributes.port   {{ int.port }}
-    Should Be Equal Value Json String   ${r.json()}    $..attributes.subPort   {{ sub.port }}
-    Should Be Equal Value Json String   ${r.json()}    $..attributes.role   {{ _node.role }}
-    Should Be Equal Value Json String   ${r.json()}    $..attributes.shutdown   {{ 'yes' if sub.shutdown | default(defaults.apic.interface_policies.nodes.interfaces.sub_ports.shutdown) else 'no' }}
+    Should Be Equal Value Json String   ${r}    $..attributes.card   {{ module }}
+    Should Be Equal Value Json String   ${r}    $..attributes.description   {{ sub.description | default() }}
+    Should Be Equal Value Json String   ${r}    $..attributes.node   {{ _node.id }}
+    Should Be Equal Value Json String   ${r}    $..attributes.port   {{ int.port }}
+    Should Be Equal Value Json String   ${r}    $..attributes.subPort   {{ sub.port }}
+    Should Be Equal Value Json String   ${r}    $..attributes.role   {{ _node.role }}
+    Should Be Equal Value Json String   ${r}    $..attributes.shutdown   {{ 'yes' if sub.shutdown | default(defaults.apic.interface_policies.nodes.interfaces.sub_ports.shutdown) else 'no' }}
 
 {% endfor %}
 {% endif %}
@@ -85,27 +87,28 @@ Verify Access Leaf Interface Node {{ _node.id }} Port {{ module }}/{{ int.port }
 
 Verify Fex {{ fex.id }} Access Interface Port {{ module }}/{{ int.port }}
     ${r}=   GET On Session   apic   /api/mo/uni/infra/portconfnode-{{ _node.id }}-card-{{ fex.id }}-port-{{ module }}-sub-{{ int.port }}.json
+    Set Suite Variable   $r   ${r.json()}
 {% if int.policy_group is defined %}
 {% set query = "leaf_interface_policy_groups[?name=='" ~ int.policy_group ~ "'].type[]" %}
 {% set type = (apic.access_policies | community.general.json_query(query)) %}
 {% set policy_group_name = int.policy_group ~ defaults.apic.access_policies.leaf_interface_policy_groups.name_suffix %}
 {% if type[0] in ["pc", "vpc"] %}
-    Should Be Equal Value Json String   ${r.json()}    $..attributes.assocGrp   uni/infra/funcprof/accbundle-{{ policy_group_name }}
+    Should Be Equal Value Json String   ${r}    $..attributes.assocGrp   uni/infra/funcprof/accbundle-{{ policy_group_name }}
 {% if int.port_channel_member_policy is defined %}
 {% set pc_member_policy_name = int.port_channel_member_policy ~ defaults.apic.access_policies.interface_policies.port_channel_member_policies.name_suffix %}
-    Should Be Equal Value Json String   ${r.json()}    $..attributes.pcMember   {{ pc_member_policy_name }}
+    Should Be Equal Value Json String   ${r}    $..attributes.pcMember   {{ pc_member_policy_name }}
 {% endif %}
 {% else %}
-    Should Be Equal Value Json String   ${r.json()}    $..attributes.assocGrp   uni/infra/funcprof/accportgrp-{{ policy_group_name }}
+    Should Be Equal Value Json String   ${r}    $..attributes.assocGrp   uni/infra/funcprof/accportgrp-{{ policy_group_name }}
 {% endif %}
 {% endif %}
-    Should Be Equal Value Json String   ${r.json()}    $..attributes.card   {{ fex.id }}
-    Should Be Equal Value Json String   ${r.json()}    $..attributes.description   {{ int.description | default() }}
-    Should Be Equal Value Json String   ${r.json()}    $..attributes.node   {{ _node.id }}
-    Should Be Equal Value Json String   ${r.json()}    $..attributes.port   {{ module }}
-    Should Be Equal Value Json String   ${r.json()}    $..attributes.subPort   {{ int.port }}
-    Should Be Equal Value Json String   ${r.json()}    $..attributes.role   {{ _node.role }}
-    Should Be Equal Value Json String   ${r.json()}    $..attributes.shutdown   {{ 'yes' if int.shutdown | default(defaults.apic.interface_policies.nodes.fexes.interfaces.shutdown) else 'no' }}
+    Should Be Equal Value Json String   ${r}    $..attributes.card   {{ fex.id }}
+    Should Be Equal Value Json String   ${r}    $..attributes.description   {{ int.description | default() }}
+    Should Be Equal Value Json String   ${r}    $..attributes.node   {{ _node.id }}
+    Should Be Equal Value Json String   ${r}    $..attributes.port   {{ module }}
+    Should Be Equal Value Json String   ${r}    $..attributes.subPort   {{ int.port }}
+    Should Be Equal Value Json String   ${r}    $..attributes.role   {{ _node.role }}
+    Should Be Equal Value Json String   ${r}    $..attributes.shutdown   {{ 'yes' if int.shutdown | default(defaults.apic.interface_policies.nodes.fexes.interfaces.shutdown) else 'no' }}
 
 {% endfor %}
 {% endfor %}
@@ -127,16 +130,17 @@ Verify Fex {{ fex.id }} Access Interface Port {{ module }}/{{ int.port }}
 
 Verify Access Spine Interface Node {{ _node.id }} Port {{ module }}/{{ int.port }}
     ${r}=   GET On Session   apic   /api/mo/uni/infra/portconfnode-{{ _node.id }}-card-{{ module }}-port-{{ int.port }}-sub-0.json
+    Set Suite Variable   $r   ${r.json()}
 {% if int.policy_group is defined %}
 {% set policy_group_name = int.policy_group ~ defaults.apic.access_policies.spine_interface_policy_groups.name_suffix %}
-    Should Be Equal Value Json String   ${r.json()}    $..attributes.assocGrp   uni/infra/funcprof/spaccportgrp-{{ policy_group_name }}
+    Should Be Equal Value Json String   ${r}    $..attributes.assocGrp   uni/infra/funcprof/spaccportgrp-{{ policy_group_name }}
 {% endif %}
-    Should Be Equal Value Json String   ${r.json()}    $..attributes.card   {{ module }}
-    Should Be Equal Value Json String   ${r.json()}    $..attributes.description   {{ int.description | default() }}
-    Should Be Equal Value Json String   ${r.json()}    $..attributes.node   {{ _node.id }}
-    Should Be Equal Value Json String   ${r.json()}    $..attributes.port   {{ int.port }}
-    Should Be Equal Value Json String   ${r.json()}    $..attributes.role   {{ _node.role }}
-    Should Be Equal Value Json String   ${r.json()}    $..attributes.shutdown   {{ 'yes' if int.shutdown | default(defaults.apic.interface_policies.nodes.interfaces.shutdown) else 'no' }}
+    Should Be Equal Value Json String   ${r}    $..attributes.card   {{ module }}
+    Should Be Equal Value Json String   ${r}    $..attributes.description   {{ int.description | default() }}
+    Should Be Equal Value Json String   ${r}    $..attributes.node   {{ _node.id }}
+    Should Be Equal Value Json String   ${r}    $..attributes.port   {{ int.port }}
+    Should Be Equal Value Json String   ${r}    $..attributes.role   {{ _node.role }}
+    Should Be Equal Value Json String   ${r}    $..attributes.shutdown   {{ 'yes' if int.shutdown | default(defaults.apic.interface_policies.nodes.interfaces.shutdown) else 'no' }}
 
 {% endif %}
 {% endfor %}

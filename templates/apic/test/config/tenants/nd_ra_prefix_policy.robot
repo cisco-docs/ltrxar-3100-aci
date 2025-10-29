@@ -16,10 +16,11 @@ Resource        ../../../apic_common.resource
 
 Verify ND RA Prefix Policy {{ policy_name }}
     ${r}=   GET On Session   apic   /api/mo/uni/tn-{{ tenant.name }}/ndpfxpol-{{ policy_name }}.json
-    Should Be Equal Value Json String   ${r.json()}   $..ndPfxPol.attributes.name   {{ policy_name }}
-    Should Be Equal Value Json String   ${r.json()}   $..ndPfxPol.attributes.descr   {{ nd_ra_prefix_pol.description | default() }}
-    Should Be Equal Value Json String   ${r.json()}   $..ndPfxPol.attributes.ctrl   {{ ctrl | join(',') }}
-    Should Be Equal Value Json String   ${r.json()}   $..ndPfxPol.attributes.lifetime   {{ nd_ra_prefix_pol.valid_lifetime | default(defaults.apic.tenants.policies.nd_ra_prefix_policies.valid_lifetime) }}
-    Should Be Equal Value Json String   ${r.json()}   $..ndPfxPol.attributes.prefLifetime   {{ nd_ra_prefix_pol.preferred_lifetime | default(defaults.apic.tenants.policies.nd_ra_prefix_policies.preferred_lifetime) }}
+    Set Suite Variable   $r   ${r.json()}
+    Should Be Equal Value Json String   ${r}   $..ndPfxPol.attributes.name   {{ policy_name }}
+    Should Be Equal Value Json String   ${r}   $..ndPfxPol.attributes.descr   {{ nd_ra_prefix_pol.description | default() }}
+    Should Be Equal Value Json String   ${r}   $..ndPfxPol.attributes.ctrl   {{ ctrl | join(',') }}
+    Should Be Equal Value Json String   ${r}   $..ndPfxPol.attributes.lifetime   {{ nd_ra_prefix_pol.valid_lifetime | default(defaults.apic.tenants.policies.nd_ra_prefix_policies.valid_lifetime) }}
+    Should Be Equal Value Json String   ${r}   $..ndPfxPol.attributes.prefLifetime   {{ nd_ra_prefix_pol.preferred_lifetime | default(defaults.apic.tenants.policies.nd_ra_prefix_policies.preferred_lifetime) }}
 
 {% endfor %}

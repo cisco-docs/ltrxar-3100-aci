@@ -12,9 +12,10 @@ Resource        ../../../apic_common.resource
 
 Verify IGMP Snooping Policy {{ policy_name }} Faults
     ${r}=   GET On Session   apic   /api/mo/uni/tn-{{ tenant.name }}/snPol-{{ policy_name }}/fltCnts.json
-    ${critical}=   Get Value From Json   ${r.json()}   $..faultCounts.attributes.crit
-    ${major}=   Get Value From Json   ${r.json()}   $..faultCounts.attributes.maj
-    ${minor}=   Get Value From Json   ${r.json()}   $..faultCounts.attributes.minor
+    Set Suite Variable   $r   ${r.json()}
+    ${critical}=   Get Value From Json   ${r}   $..faultCounts.attributes.crit
+    ${major}=   Get Value From Json   ${r}   $..faultCounts.attributes.maj
+    ${minor}=   Get Value From Json   ${r}   $..faultCounts.attributes.minor
     Run Keyword If   ${critical}[0] > 0   Run Keyword And Continue On Failure
     ...   Fail  "{{ policy_name }} has ${critical}[0] critical faults"
     Run Keyword If   ${major}[0] > 0   Run Keyword And Continue On Failure

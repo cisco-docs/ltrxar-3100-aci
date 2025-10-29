@@ -11,11 +11,13 @@ Resource        ../../apic_common.resource
 
 Verify BGP Route Reflector {{ rr }} Peerings
     ${r}=   GET On Session   apic   /api/mo/uni/controller/setuppol/setupp-{{ pod }}.json
-    ${tep_pool}=   Get Value From Json   ${r.json()}   $..fabricSetupP.attributes.tepPool
+    Set Suite Variable   $r   ${r.json()}
+    ${tep_pool}=   Get Value From Json   ${r}   $..fabricSetupP.attributes.tepPool
     ${r}=   GET On Session   apic   api/node/class/fabricNode.json
+    Set Suite Variable   $r   ${r.json()}
 {% for node in apic.node_policies.nodes | default([]) %}
 {% if node.role == "leaf" and node.pod | default(defaults.apic.node_policies.nodes.pod) == pod %}
-    ${node_ip}=   Get Value From Json   ${r.json()}   $..imdata[?(@.fabricNode.attributes.id=='{{ node.id }}')].fabricNode.attributes.address
+    ${node_ip}=   Get Value From Json   ${r}   $..imdata[?(@.fabricNode.attributes.id=='{{ node.id }}')].fabricNode.attributes.address
 {% if node.type | default() == "remote-leaf-wan" %}
     ${r2}=   GET On Session   apic   /api/mo/uni/controller/setuppol/setupp-{{ pod }}/extsetupp-{{ node.remote_pool_id }}.json
     ${ext_tep_pool}=   Get Value From Json   ${r2.json()}   $..fabricExtSetupP.attributes.tepPool

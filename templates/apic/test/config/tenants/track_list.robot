@@ -12,18 +12,19 @@ Resource        ../../../apic_common.resource
 
 Verify Track List {{ list_name }}
     ${r}=   GET On Session   apic   /api/mo/uni/tn-{{ tenant.name }}/tracklist-{{ list_name }}.json    params=rsp-subtree=full
-    Should Be Equal Value Json String   ${r.json()}   $..fvTrackList.attributes.name   {{ list_name }}
-    Should Be Equal Value Json String   ${r.json()}   $..fvTrackList.attributes.descr   {{ track_list.description | default() }}
-    Should Be Equal Value Json String   ${r.json()}   $..fvTrackList.attributes.type   {{ track_list.type | default(defaults.apic.tenants.policies.track_lists.type) }}
-    Should Be Equal Value Json String   ${r.json()}   $..fvTrackList.attributes.percentageDown   {{ track_list.percentage_down | default(defaults.apic.tenants.policies.track_lists.percentage_down) }}
-    Should Be Equal Value Json String   ${r.json()}   $..fvTrackList.attributes.percentageUp   {{ track_list.percentage_up | default(defaults.apic.tenants.policies.track_lists.percentage_up) }}
-    Should Be Equal Value Json String   ${r.json()}   $..fvTrackList.attributes.weightDown   {{ track_list.weight_down | default(defaults.apic.tenants.policies.track_lists.weight_down) }}
-    Should Be Equal Value Json String   ${r.json()}   $..fvTrackList.attributes.weightUp   {{ track_list.weight_up | default(defaults.apic.tenants.policies.track_lists.weight_up) }}
+    Set Suite Variable   $r   ${r.json()}
+    Should Be Equal Value Json String   ${r}   $..fvTrackList.attributes.name   {{ list_name }}
+    Should Be Equal Value Json String   ${r}   $..fvTrackList.attributes.descr   {{ track_list.description | default() }}
+    Should Be Equal Value Json String   ${r}   $..fvTrackList.attributes.type   {{ track_list.type | default(defaults.apic.tenants.policies.track_lists.type) }}
+    Should Be Equal Value Json String   ${r}   $..fvTrackList.attributes.percentageDown   {{ track_list.percentage_down | default(defaults.apic.tenants.policies.track_lists.percentage_down) }}
+    Should Be Equal Value Json String   ${r}   $..fvTrackList.attributes.percentageUp   {{ track_list.percentage_up | default(defaults.apic.tenants.policies.track_lists.percentage_up) }}
+    Should Be Equal Value Json String   ${r}   $..fvTrackList.attributes.weightDown   {{ track_list.weight_down | default(defaults.apic.tenants.policies.track_lists.weight_down) }}
+    Should Be Equal Value Json String   ${r}   $..fvTrackList.attributes.weightUp   {{ track_list.weight_up | default(defaults.apic.tenants.policies.track_lists.weight_up) }}
 
 {% for member in track_list.track_members | default([]) %}
 {% set member_name = member ~ defaults.apic.tenants.policies.track_members.name_suffix %}
     ${mem}=   Set Variable    $..fvTrackList.children[?(@.fvRsOtmListMember.attributes.tDn=='uni/tn-{{ tenant.name }}/trackmember-{{ member_name }}')]
-    Should Be Equal Value Json String   ${r.json()}   ${mem}..fvRsOtmListMember.attributes.tDn   uni/tn-{{ tenant.name }}/trackmember-{{ member_name }}
+    Should Be Equal Value Json String   ${r}   ${mem}..fvRsOtmListMember.attributes.tDn   uni/tn-{{ tenant.name }}/trackmember-{{ member_name }}
 {% endfor %}
 
 {% endfor %}
@@ -43,9 +44,10 @@ Verify Track List {{ list_name }}
 
 Verify Track List for L3out {{ l3out_name }} Node {{ node.node_id }} Static Route {{ sr.prefix }} Next Hop {{ nh.ip }}
     ${r}=   GET On Session   apic   /api/mo/uni/tn-{{ tenant.name }}/tracklist-{{list_name}}.json    params=rsp-subtree=full
+    Set Suite Variable   $r   ${r.json()}
     ${mem}=   Set Variable    $..fvTrackList.children[?(@.fvRsOtmListMember.attributes.tDn=='uni/tn-{{ tenant.name }}/trackmember-{{ list_name }}')]
-    Should Be Equal Value Json String   ${r.json()}   $..fvTrackList.attributes.name  {{ list_name }}
-    Should Be Equal Value Json String   ${r.json()}   ${mem}..fvRsOtmListMember.attributes.tDn   uni/tn-{{ tenant.name }}/trackmember-{{ list_name }}
+    Should Be Equal Value Json String   ${r}   $..fvTrackList.attributes.name  {{ list_name }}
+    Should Be Equal Value Json String   ${r}   ${mem}..fvRsOtmListMember.attributes.tDn   uni/tn-{{ tenant.name }}/trackmember-{{ list_name }}
 
 {% endif %}
 {% endfor %}
@@ -64,9 +66,10 @@ Verify Track List for L3out {{ l3out_name }} Node {{ node.node_id }} Static Rout
 
 Verify Track List for L3out {{ l3out_name }} Node {{ node.node_id }} Static Route {{ sr.prefix }} Next Hop {{ nh.ip }}
     ${r}=   GET On Session   apic   /api/mo/uni/tn-{{ tenant.name }}/tracklist-{{list_name}}.json    params=rsp-subtree=full
+    Set Suite Variable   $r   ${r.json()}
     ${mem}=   Set Variable    $..fvTrackList.children[?(@.fvRsOtmListMember.attributes.tDn=='uni/tn-{{ tenant.name }}/trackmember-{{ list_name }}')]
-    Should Be Equal Value Json String   ${r.json()}   $..fvTrackList.attributes.name  {{ list_name }}
-    Should Be Equal Value Json String   ${r.json()}   ${mem}..fvRsOtmListMember.attributes.tDn   uni/tn-{{ tenant.name }}/trackmember-{{ list_name }}
+    Should Be Equal Value Json String   ${r}   $..fvTrackList.attributes.name  {{ list_name }}
+    Should Be Equal Value Json String   ${r}   ${mem}..fvRsOtmListMember.attributes.tDn   uni/tn-{{ tenant.name }}/trackmember-{{ list_name }}
 
 {% endif %}
 

@@ -12,8 +12,9 @@ Resource        ../../../apic_common.resource
 
 Verify Application Profile {{ ap_name }}
     ${r}=   GET On Session   apic   /api/mo/uni/tn-{{ tenant.name }}/ap-{{ ap_name }}.json
-    Should Be Equal Value Json String   ${r.json()}   $..fvAp.attributes.name   {{ ap_name }}
-    Should Be Equal Value Json String   ${r.json()}   $..fvAp.attributes.nameAlias   {{ ap.alias | default() }}
-    Should Be Equal Value Json String   ${r.json()}   $..fvAp.attributes.descr   {{ ap.description | default() }}
+    Set Suite Variable   $r   ${r.json()}
+    Should Be Equal Value Json String   ${r}   $..fvAp.attributes.name   {{ ap_name }}
+    Should Be Equal Value Json String   ${r}   $..fvAp.attributes.nameAlias   {{ ap.alias | default() }}
+    Should Be Equal Value Json String   ${r}   $..fvAp.attributes.descr   {{ ap.description | default() }}
 
 {% endfor %}

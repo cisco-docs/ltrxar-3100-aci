@@ -15,25 +15,25 @@ Resource        ../../apic_common.resource
 
 Verify Fabric Leaf Switch Profile {{ leaf_switch_profile_name }}
     ${r}=   GET On Session   apic   /api/mo/uni/fabric/leprof-{{ leaf_switch_profile_name }}.json   params=rsp-subtree=full
-    Set Suite Variable   ${r}
-    Should Be Equal Value Json String   ${r.json()}    $..fabricLeafP.attributes.name   {{ leaf_switch_profile_name }}
+    Set Suite Variable   $r   ${r.json()}
+    Should Be Equal Value Json String   ${r}    $..fabricLeafP.attributes.name   {{ leaf_switch_profile_name }}
 
 Verify Fabric Leaf Switch Profile {{ leaf_switch_profile_name }} Selector
-    Should Be Equal Value Json String   ${r.json()}    $..fabricLeafS.attributes.name   {{ leaf_switch_selector_name }}
+    Should Be Equal Value Json String   ${r}    $..fabricLeafS.attributes.name   {{ leaf_switch_selector_name }}
 
 {% if node.fabric_policy_group is defined %}
 {% set policy_group_name = node.fabric_policy_group ~ defaults.apic.fabric_policies.leaf_switch_policy_groups.name_suffix %}
 Verify Fabric Leaf Switch Profile {{ leaf_switch_profile_name }} Policy
-    Should Be Equal Value Json String   ${r.json()}    $..fabricRsLeNodePGrp.attributes.tDn   uni/fabric/funcprof/lenodepgrp-{{ policy_group_name }}
+    Should Be Equal Value Json String   ${r}    $..fabricRsLeNodePGrp.attributes.tDn   uni/fabric/funcprof/lenodepgrp-{{ policy_group_name }}
 {% endif %}
 
 Verify Fabric Leaf Switch Profile {{ leaf_switch_profile_name }} Node Block
-    Should Be Equal Value Json String   ${r.json()}    $..fabricNodeBlk.attributes.from_   {{ node.id }}
-    Should Be Equal Value Json String   ${r.json()}    $..fabricNodeBlk.attributes.name   {{ node.id }}
-    Should Be Equal Value Json String   ${r.json()}    $..fabricNodeBlk.attributes.to_   {{ node.id }}
+    Should Be Equal Value Json String   ${r}    $..fabricNodeBlk.attributes.from_   {{ node.id }}
+    Should Be Equal Value Json String   ${r}    $..fabricNodeBlk.attributes.name   {{ node.id }}
+    Should Be Equal Value Json String   ${r}    $..fabricNodeBlk.attributes.to_   {{ node.id }}
 
 Verify Fabric Leaf Switch Profile {{ leaf_switch_profile_name }} Interface Profile
-    Should Be Equal Value Json String   ${r.json()}    $..fabricRsLePortP.attributes.tDn   uni/fabric/leportp-{{ leaf_interface_profile_name }}
+    Should Be Equal Value Json String   ${r}    $..fabricRsLePortP.attributes.tDn   uni/fabric/leportp-{{ leaf_interface_profile_name }}
 
 {% endif %}
 {% endfor %}
@@ -44,21 +44,21 @@ Verify Fabric Leaf Switch Profile {{ leaf_switch_profile_name }} Interface Profi
 
 Verify Fabric Leaf Switch Profile {{ leaf_switch_profile_name }}
     ${r}=   GET On Session   apic   /api/mo/uni/fabric/leprof-{{ leaf_switch_profile_name }}.json   params=rsp-subtree=full
-    Set Suite Variable   ${r}
-    Should Be Equal Value Json String   ${r.json()}    $..fabricLeafP.attributes.name   {{ leaf_switch_profile_name }}
+    Set Suite Variable   $r   ${r.json()}
+    Should Be Equal Value Json String   ${r}    $..fabricLeafP.attributes.name   {{ leaf_switch_profile_name }}
 
 {% for sel in prof.selectors | default([]) %}
 {% set leaf_switch_selector_name = sel.name ~ defaults.apic.fabric_policies.leaf_switch_profiles.selectors.name_suffix %}
 
 Verify Fabric Leaf Switch Profile {{ leaf_switch_profile_name }} Selector {{ leaf_switch_selector_name }}
     ${sel}=   Set Variable   $..fabricLeafP.children[?(@.fabricLeafS.attributes.name=='{{ leaf_switch_selector_name }}')]
-    Should Be Equal Value Json String   ${r.json()}    ${sel}..fabricLeafS.attributes.name   {{ leaf_switch_selector_name }}
+    Should Be Equal Value Json String   ${r}    ${sel}..fabricLeafS.attributes.name   {{ leaf_switch_selector_name }}
 
 {% if sel.policy is defined %}
 {% set policy_group_name = sel.policy ~ defaults.apic.fabric_policies.leaf_switch_policy_groups.name_suffix %}
 Verify Fabric Leaf Switch Profile {{ leaf_switch_profile_name }} Selector {{ leaf_switch_selector_name }} Policy
     ${sel}=   Set Variable   $..fabricLeafP.children[?(@.fabricLeafS.attributes.name=='{{ leaf_switch_selector_name }}')]
-    Should Be Equal Value Json String   ${r.json()}    ${sel}..fabricRsLeNodePGrp.attributes.tDn   uni/fabric/funcprof/lenodepgrp-{{ policy_group_name }}
+    Should Be Equal Value Json String   ${r}    ${sel}..fabricRsLeNodePGrp.attributes.tDn   uni/fabric/funcprof/lenodepgrp-{{ policy_group_name }}
 {% endif %}
 
 {% for blk in sel.node_blocks | default([]) %}
@@ -66,9 +66,9 @@ Verify Fabric Leaf Switch Profile {{ leaf_switch_profile_name }} Selector {{ lea
 
 Verify Fabric Leaf Switch Profile {{ leaf_switch_profile_name }} Selector {{ leaf_switch_selector_name }} Node Block {{ block_name }}
     ${block}=   Set Variable   $..fabricLeafP.children[?(@.fabricLeafS.attributes.name=='{{ leaf_switch_selector_name }}')].fabricLeafS.children[?(@.fabricNodeBlk.attributes.name=='{{ block_name }}')]
-    Should Be Equal Value Json String   ${r.json()}    ${block}..fabricNodeBlk.attributes.from_   {{ blk.from }}
-    Should Be Equal Value Json String   ${r.json()}    ${block}..fabricNodeBlk.attributes.name   {{ block_name }}
-    Should Be Equal Value Json String   ${r.json()}    ${block}..fabricNodeBlk.attributes.to_   {{ blk.to | default(blk.from) }}
+    Should Be Equal Value Json String   ${r}    ${block}..fabricNodeBlk.attributes.from_   {{ blk.from }}
+    Should Be Equal Value Json String   ${r}    ${block}..fabricNodeBlk.attributes.name   {{ block_name }}
+    Should Be Equal Value Json String   ${r}    ${block}..fabricNodeBlk.attributes.to_   {{ blk.to | default(blk.from) }}
 
 {% endfor %}
 
@@ -78,7 +78,7 @@ Verify Fabric Leaf Switch Profile {{ leaf_switch_profile_name }} Selector {{ lea
 {% set leaf_interface_profile_name = intp ~ defaults.apic.fabric_policies.leaf_interface_profiles.name_suffix %}
 
 Verify Fabric Leaf Switch Profile {{ leaf_switch_profile_name }} Interface Profile
-    Should Be Equal Value Json String   ${r.json()}    $..fabricRsLePortP.attributes.tDn   uni/fabric/leportp-{{ leaf_interface_profile_name }}
+    Should Be Equal Value Json String   ${r}    $..fabricRsLePortP.attributes.tDn   uni/fabric/leportp-{{ leaf_interface_profile_name }}
 
 {% endfor %}
 

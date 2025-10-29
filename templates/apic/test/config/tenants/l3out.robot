@@ -35,77 +35,77 @@ Resource        ../../../apic_common.resource
 
 Verify L3out {{ l3out_name }}
     ${r}=   GET On Session   apic   /api/mo/uni/tn-{{ tenant.name }}/out-{{ l3out_name }}.json   params=rsp-subtree=full&rsp-prop-include=config-only
-    Set Suite Variable   ${r}
-    Should Be Equal Value Json String   ${r.json()}   $..l3extOut.attributes.name   {{ l3out_name }}
-    Should Be Equal Value Json String   ${r.json()}   $..l3extOut.attributes.nameAlias   {{ l3out.alias  | default() }}
-    Should Be Equal Value Json String   ${r.json()}   $..l3extOut.attributes.descr   {{ l3out.description | default() }}
-    Should Be Equal Value Json String   ${r.json()}   $..l3extOut.attributes.targetDscp   {{ l3out.target_dscp | default(defaults.apic.tenants.l3outs.target_dscp) }}
-    Should Be Equal Value Json String   ${r.json()}   $..l3extOut.attributes.enforceRtctrl   {{ route_control_enforcement | join(',') }}
-    Should Be Equal Value Json String   ${r.json()}   $..l3extRsL3DomAtt.attributes.tDn   uni/l3dom-{{ domain_name }}
-    Should Be Equal Value Json String   ${r.json()}   $..l3extRsEctx.attributes.tnFvCtxName   {{ vrf_name }}
+    Set Suite Variable   $r   ${r.json()}
+    Should Be Equal Value Json String   ${r}   $..l3extOut.attributes.name   {{ l3out_name }}
+    Should Be Equal Value Json String   ${r}   $..l3extOut.attributes.nameAlias   {{ l3out.alias  | default() }}
+    Should Be Equal Value Json String   ${r}   $..l3extOut.attributes.descr   {{ l3out.description | default() }}
+    Should Be Equal Value Json String   ${r}   $..l3extOut.attributes.targetDscp   {{ l3out.target_dscp | default(defaults.apic.tenants.l3outs.target_dscp) }}
+    Should Be Equal Value Json String   ${r}   $..l3extOut.attributes.enforceRtctrl   {{ route_control_enforcement | join(',') }}
+    Should Be Equal Value Json String   ${r}   $..l3extRsL3DomAtt.attributes.tDn   uni/l3dom-{{ domain_name }}
+    Should Be Equal Value Json String   ${r}   $..l3extRsEctx.attributes.tnFvCtxName   {{ vrf_name }}
 {% if l3out.ospf is defined %}
 {% set area_ctrl = [] %}
 {% if l3out.ospf.area_control_redistribute | default(defaults.apic.tenants.l3outs.ospf.area_control_redistribute) %}{% set area_ctrl = area_ctrl + [("redistribute")] %}{% endif %}
 {% if l3out.ospf.area_control_summary | default(defaults.apic.tenants.l3outs.ospf.area_control_summary) %}{% set area_ctrl = area_ctrl + [("summary")] %}{% endif %}
 {% if l3out.ospf.area_control_suppress_fa | default(defaults.apic.tenants.l3outs.ospf.area_control_suppress_fa) %}{% set area_ctrl = area_ctrl + [("suppress-fa")] %}{% endif %}
-    Should Be Equal Value Json String   ${r.json()}   $..ospfExtP.attributes.areaCost   {{ l3out.ospf.area_cost | default(defaults.apic.tenants.l3outs.ospf.area_cost) }}
-    Should Be Equal Value Json String   ${r.json()}   $..ospfExtP.attributes.areaId   {{ area_name(l3out.ospf.area) }}
-    Should Be Equal Value Json String   ${r.json()}   $..ospfExtP.attributes.areaType   {{ l3out.ospf.area_type | default(defaults.apic.tenants.l3outs.ospf.area_type) }}
-    Should Be Equal Value Json String   ${r.json()}   $..ospfExtP.attributes.areaCtrl   {{ area_ctrl | join(',') }}
+    Should Be Equal Value Json String   ${r}   $..ospfExtP.attributes.areaCost   {{ l3out.ospf.area_cost | default(defaults.apic.tenants.l3outs.ospf.area_cost) }}
+    Should Be Equal Value Json String   ${r}   $..ospfExtP.attributes.areaId   {{ area_name(l3out.ospf.area) }}
+    Should Be Equal Value Json String   ${r}   $..ospfExtP.attributes.areaType   {{ l3out.ospf.area_type | default(defaults.apic.tenants.l3outs.ospf.area_type) }}
+    Should Be Equal Value Json String   ${r}   $..ospfExtP.attributes.areaCtrl   {{ area_ctrl | join(',') }}
 {% endif %}
 {% if l3out.eigrp is defined %}
-    Should Be Equal Value Json String   ${r.json()}   $..eigrpExtP.attributes.asn   {{ l3out.eigrp.asn | default(defaults.apic.tenants.l3outs.eigrp.asn) }}
+    Should Be Equal Value Json String   ${r}   $..eigrpExtP.attributes.asn   {{ l3out.eigrp.asn | default(defaults.apic.tenants.l3outs.eigrp.asn) }}
 {% endif %}
 
 {% if ((l3out.nodes | default([])) | length) > 0 %}
 
 Verify L3out {{ l3out_name }} Profiles
-    Should Be Equal Value Json String   ${r.json()}   $..l3extLNodeP.attributes.name   {{ l3out_np_name }}
-    Should Be Equal Value Json String   ${r.json()}   $..l3extLIfP.attributes.name   {{ l3out_ip_name }}
-    Should Be Equal Value Json String   ${r.json()}   $..l3extLIfP.attributes.prio   {{ l3out.qos_class | default(defaults.apic.tenants.l3outs.qos_class) }}
+    Should Be Equal Value Json String   ${r}   $..l3extLNodeP.attributes.name   {{ l3out_np_name }}
+    Should Be Equal Value Json String   ${r}   $..l3extLIfP.attributes.name   {{ l3out_ip_name }}
+    Should Be Equal Value Json String   ${r}   $..l3extLIfP.attributes.prio   {{ l3out.qos_class | default(defaults.apic.tenants.l3outs.qos_class) }}
 {% if l3out.ospf is defined %}
-    Should Be Equal Value Json String   ${r.json()}   $..ospfIfP.attributes.name   {{ l3out.ospf.ospf_interface_profile_name | default(l3out.name) }}
-    Should Be Equal Value Json String   ${r.json()}   $..ospfIfP.attributes.authKeyId   {{ l3out.ospf.auth_key_id | default(defaults.apic.tenants.l3outs.ospf.auth_key_id) }}
-    Should Be Equal Value Json String   ${r.json()}   $..ospfIfP.attributes.authType   {{ l3out.ospf.auth_type | default(defaults.apic.tenants.l3outs.ospf.auth_type) }}
+    Should Be Equal Value Json String   ${r}   $..ospfIfP.attributes.name   {{ l3out.ospf.ospf_interface_profile_name | default(l3out.name) }}
+    Should Be Equal Value Json String   ${r}   $..ospfIfP.attributes.authKeyId   {{ l3out.ospf.auth_key_id | default(defaults.apic.tenants.l3outs.ospf.auth_key_id) }}
+    Should Be Equal Value Json String   ${r}   $..ospfIfP.attributes.authType   {{ l3out.ospf.auth_type | default(defaults.apic.tenants.l3outs.ospf.auth_type) }}
 {% if l3out.ospf.policy is defined %}
 {% set policy_name = l3out.ospf.policy ~ defaults.apic.tenants.policies.ospf_interface_policies.name_suffix %}
-    Should Be Equal Value Json String   ${r.json()}   $..ospfRsIfPol.attributes.tnOspfIfPolName   {{ policy_name }}
+    Should Be Equal Value Json String   ${r}   $..ospfRsIfPol.attributes.tnOspfIfPolName   {{ policy_name }}
 {% endif %}
 {% endif %}
 {% if l3out.eigrp is defined %}
-    Should Be Equal Value Json String   ${r.json()}   $..eigrpIfP.attributes.name   {{ l3out.eigrp.interface_profile_name | default(l3out.name) }}
+    Should Be Equal Value Json String   ${r}   $..eigrpIfP.attributes.name   {{ l3out.eigrp.interface_profile_name | default(l3out.name) }}
 {% if l3out.eigrp.interface_policy is defined %}
 {% set policy_name = l3out.eigrp.interface_policy ~ defaults.apic.tenants.policies.eigrp_interface_policies.name_suffix %}
-    Should Be Equal Value Json String   ${r.json()}   $..eigrpRsIfPol.attributes.tnEigrpIfPolName   {{ policy_name }}
+    Should Be Equal Value Json String   ${r}   $..eigrpRsIfPol.attributes.tnEigrpIfPolName   {{ policy_name }}
 {% endif %}
 {% endif %}
 {% if l3out.bfd_policy is defined %}
 {% set bfd_name = l3out.bfd_policy ~ defaults.apic.tenants.policies.bfd_interface_policies.name_suffix %}
-    Should Be Equal Value Json String   ${r.json()}   $..bfdRsIfPol.attributes.tnBfdIfPolName   {{ bfd_name }}
+    Should Be Equal Value Json String   ${r}   $..bfdRsIfPol.attributes.tnBfdIfPolName   {{ bfd_name }}
 {% endif %}
 {% if l3out.pim_policy is defined %}
 {% set pim_name = l3out.pim_policy ~ defaults.apic.tenants.policies.pim_policies.name_suffix %}
-    Should Be Equal Value Json String   ${r.json()}   $..pimRsIfPol.attributes.tDn   uni/tn-{{tenant.name}}/pimifpol-{{ pim_name }}
+    Should Be Equal Value Json String   ${r}   $..pimRsIfPol.attributes.tDn   uni/tn-{{tenant.name}}/pimifpol-{{ pim_name }}
 {% endif %}
 {% if l3out.igmp_interface_policy is defined %}
 {% set igmp_name = l3out.igmp_interface_policy ~ defaults.apic.tenants.policies.igmp_interface_policies.name_suffix %}
-    Should Be Equal Value Json String   ${r.json()}   $..igmpRsIfPol.attributes.tDn   uni/tn-{{tenant.name}}/igmpIfPol-{{ igmp_name }}
+    Should Be Equal Value Json String   ${r}   $..igmpRsIfPol.attributes.tDn   uni/tn-{{tenant.name}}/igmpIfPol-{{ igmp_name }}
 {% endif %}
 {% if l3out.custom_qos_policy is defined %}
 {% set custom_qos_policy_name = l3out.custom_qos_policy ~ defaults.apic.tenants.policies.custom_qos.name_suffix %}
-    Should Be Equal Value Json String   ${r.json()}   $..l3extRsLIfPCustQosPol.attributes.tnQosCustomPolName   {{ custom_qos_policy_name }}
+    Should Be Equal Value Json String   ${r}   $..l3extRsLIfPCustQosPol.attributes.tnQosCustomPolName   {{ custom_qos_policy_name }}
 {% endif %}
 {% if l3out.nd_interface_policy is defined %}
     {% set nd_interface_policy_name = l3out.nd_interface_policy ~ defaults.apic.tenants.policies.nd_interface_policies.name_suffix %}
-    Should Be Equal Value Json String   ${r.json()}   $..l3extRsNdIfPol.attributes.tnNdIfPolName   {{ nd_interface_policy_name }}
+    Should Be Equal Value Json String   ${r}   $..l3extRsNdIfPol.attributes.tnNdIfPolName   {{ nd_interface_policy_name }}
 {% endif %}
 {% if l3out.ingress_data_plane_policing_policy is defined %}
     {% set dpp_name = l3out.ingress_data_plane_policing_policy ~ defaults.apic.tenants.policies.data_plane_policing_policies.name_suffix %}
-    Should Be Equal Value Json String   ${r.json()}   $..l3extRsIngressQosDppPol.attributes.tnQosDppPolName   {{ dpp_name }}
+    Should Be Equal Value Json String   ${r}   $..l3extRsIngressQosDppPol.attributes.tnQosDppPolName   {{ dpp_name }}
 {% endif %}
 {% if l3out.egress_data_plane_policing_policy is defined %}
     {% set dpp_name = l3out.egress_data_plane_policing_policy ~ defaults.apic.tenants.policies.data_plane_policing_policies.name_suffix %}
-    Should Be Equal Value Json String   ${r.json()}   $..l3extRsEgressQosDppPol.attributes.tnQosDppPolName   {{ dpp_name }}
+    Should Be Equal Value Json String   ${r}   $..l3extRsEgressQosDppPol.attributes.tnQosDppPolName   {{ dpp_name }}
 {% endif %}
 
 {% for node in l3out.nodes | default([]) %}
@@ -114,17 +114,17 @@ Verify L3out {{ l3out_name }} Profiles
 
 Verify L3out {{ l3out_name }} Node {{ node.node_id }}
     ${node}=   Set Variable   $..l3extLNodeP.children[?(@.l3extRsNodeL3OutAtt.attributes.tDn=='topology/pod-{{ pod | default(defaults.apic.tenants.l3outs.nodes.pod) }}/node-{{ node.node_id }}')]
-    Should Be Equal Value Json String   ${r.json()}   ${node}..l3extRsNodeL3OutAtt.attributes.tDn   topology/pod-{{ pod | default(defaults.apic.tenants.l3outs.nodes.pod) }}/node-{{ node.node_id }}
-    Should Be Equal Value Json String   ${r.json()}   ${node}..l3extRsNodeL3OutAtt.attributes.rtrId   {{ node.router_id }}
-    Should Be Equal Value Json String   ${r.json()}   ${node}..l3extRsNodeL3OutAtt.attributes.rtrIdLoopBack   {{ 'yes' if node.router_id_as_loopback | default(defaults.apic.tenants.l3outs.nodes.router_id_as_loopback) else 'no' }}
+    Should Be Equal Value Json String   ${r}   ${node}..l3extRsNodeL3OutAtt.attributes.tDn   topology/pod-{{ pod | default(defaults.apic.tenants.l3outs.nodes.pod) }}/node-{{ node.node_id }}
+    Should Be Equal Value Json String   ${r}   ${node}..l3extRsNodeL3OutAtt.attributes.rtrId   {{ node.router_id }}
+    Should Be Equal Value Json String   ${r}   ${node}..l3extRsNodeL3OutAtt.attributes.rtrIdLoopBack   {{ 'yes' if node.router_id_as_loopback | default(defaults.apic.tenants.l3outs.nodes.router_id_as_loopback) else 'no' }}
 {% if ((node.loopbacks | default([])) | length) > 0 %}
 {% for lp in node.loopbacks %}
-    Should Be Equal Value Json String   ${r.json()}   ${node}..l3extRsNodeL3OutAtt.children[?(@.l3extLoopBackIfP.attributes.addr=='{{ lp }}')].l3extLoopBackIfP.attributes.addr   {{ lp }}
+    Should Be Equal Value Json String   ${r}   ${node}..l3extRsNodeL3OutAtt.children[?(@.l3extLoopBackIfP.attributes.addr=='{{ lp }}')].l3extLoopBackIfP.attributes.addr   {{ lp }}
 {% endfor %}
 {% endif %}
 
 {% if ( tenant.name == 'infra' ) and ( l3out.multipod | default(defaults.apic.tenants.l3outs.multipod) ) and not ( l3out.remote_leaf | default(defaults.apic.tenants.l3outs.remote_leaf) ) %}
-    Should Be Equal Value Json String   ${r.json()}   ${node}..l3extInfraNodeP.attributes.fabricExtCtrlPeering   yes
+    Should Be Equal Value Json String   ${r}   ${node}..l3extInfraNodeP.attributes.fabricExtCtrlPeering   yes
 {% endif %}
 
 {% for sr in node.static_routes | default([]) %}
@@ -132,13 +132,13 @@ Verify L3out {{ l3out_name }} Node {{ node.node_id }}
 Verify L3out {{ l3out_name }} Node {{ node.node_id }} Static Route {{ sr.prefix }}
     ${node}=   Set Variable   $..l3extLNodeP.children[?(@.l3extRsNodeL3OutAtt.attributes.tDn=='topology/pod-{{ pod | default(defaults.apic.tenants.l3outs.nodes.pod) }}/node-{{ node.node_id }}')]
     ${route}=   Set Variable   ${node}..l3extRsNodeL3OutAtt.children[?(@.ipRouteP.attributes.ip=='{{ sr.prefix }}')]
-    Should Be Equal Value Json String   ${r.json()}   ${route}..ipRouteP.attributes.ip   {{ sr.prefix }}
-    Should Be Equal Value Json String   ${r.json()}   ${route}..ipRouteP.attributes.descr   {{ sr.description | default() }}
-    Should Be Equal Value Json String   ${r.json()}   ${route}..ipRouteP.attributes.pref   {{ sr.preference | default(defaults.apic.tenants.l3outs.nodes.static_routes.preference) }}
-    Should Be Equal Value Json String   ${r.json()}   ${route}..ipRouteP.attributes.rtCtrl   {{ 'bfd' if sr.bfd | default(defaults.apic.tenants.l3outs.nodes.static_routes.bfd) }}
+    Should Be Equal Value Json String   ${r}   ${route}..ipRouteP.attributes.ip   {{ sr.prefix }}
+    Should Be Equal Value Json String   ${r}   ${route}..ipRouteP.attributes.descr   {{ sr.description | default() }}
+    Should Be Equal Value Json String   ${r}   ${route}..ipRouteP.attributes.pref   {{ sr.preference | default(defaults.apic.tenants.l3outs.nodes.static_routes.preference) }}
+    Should Be Equal Value Json String   ${r}   ${route}..ipRouteP.attributes.rtCtrl   {{ 'bfd' if sr.bfd | default(defaults.apic.tenants.l3outs.nodes.static_routes.bfd) }}
 {% if sr.track_list is defined %}
 {% set list_name = sr.track_list ~ defaults.apic.tenants.policies.track_lists.name_suffix %}
-    Should Be Equal Value Json String   ${r.json()}   ${route}..ipRsRouteTrack.attributes.tDn  uni/tn-{{ tenant.name }}/tracklist-{{ list_name }}
+    Should Be Equal Value Json String   ${r}   ${route}..ipRsRouteTrack.attributes.tDn  uni/tn-{{ tenant.name }}/tracklist-{{ list_name }}
 {% endif %}
 
 
@@ -148,17 +148,17 @@ Verify L3out {{ l3out_name }} Node {{ node.node_id }} Static Route {{ sr.prefix 
     ${node}=   Set Variable   $..l3extLNodeP.children[?(@.l3extRsNodeL3OutAtt.attributes.tDn=='topology/pod-{{ pod | default(defaults.apic.tenants.l3outs.nodes.pod) }}/node-{{ node.node_id }}')]
     ${route}=   Set Variable   ${node}..l3extRsNodeL3OutAtt.children[?(@.ipRouteP.attributes.ip=='{{ sr.prefix }}')]
     ${nh}=   Set Variable   ${route}..ipRouteP.children[?(@.ipNexthopP.attributes.nhAddr=='{{ nh.ip }}')]
-    Should Be Equal Value Json String   ${r.json()}   ${nh}..ipNexthopP.attributes.nhAddr   {{ nh.ip }}
-    Should Be Equal Value Json String   ${r.json()}   ${nh}..ipNexthopP.attributes.descr   {{ nh.description | default() }}
-    Should Be Equal Value Json String   ${r.json()}   ${nh}..ipNexthopP.attributes.pref   {{ get_preference_from_num(nh.preference | default(defaults.apic.tenants.l3outs.node_profiles.nodes.static_routes.next_hops.preference)) }}
-    Should Be Equal Value Json String   ${r.json()}   ${nh}..ipNexthopP.attributes.type   {{ nh.type | default(defaults.apic.tenants.l3outs.node_profiles.nodes.static_routes.next_hops.type) }}
+    Should Be Equal Value Json String   ${r}   ${nh}..ipNexthopP.attributes.nhAddr   {{ nh.ip }}
+    Should Be Equal Value Json String   ${r}   ${nh}..ipNexthopP.attributes.descr   {{ nh.description | default() }}
+    Should Be Equal Value Json String   ${r}   ${nh}..ipNexthopP.attributes.pref   {{ get_preference_from_num(nh.preference | default(defaults.apic.tenants.l3outs.node_profiles.nodes.static_routes.next_hops.preference)) }}
+    Should Be Equal Value Json String   ${r}   ${nh}..ipNexthopP.attributes.type   {{ nh.type | default(defaults.apic.tenants.l3outs.node_profiles.nodes.static_routes.next_hops.type) }}
 {% if nh.ip_sla_policy is defined %}
 {% set list_name = vrf_name ~ "_" ~ nh.ip %}
-    Should Be Equal Value Json String   ${r.json()}   ${nh}..ipRsNHTrackMember.attributes.tDn  uni/tn-{{ tenant.name }}/trackmember-{{ list_name }}
-    Should Be Equal Value Json String   ${r.json()}   ${nh}..ipRsNexthopRouteTrack.attributes.tDn  uni/tn-{{ tenant.name }}/tracklist-{{ list_name }}
+    Should Be Equal Value Json String   ${r}   ${nh}..ipRsNHTrackMember.attributes.tDn  uni/tn-{{ tenant.name }}/trackmember-{{ list_name }}
+    Should Be Equal Value Json String   ${r}   ${nh}..ipRsNexthopRouteTrack.attributes.tDn  uni/tn-{{ tenant.name }}/tracklist-{{ list_name }}
 {% elif nh.track_list is defined %}
 {% set list_name = nh.track_list ~ defaults.apic.tenants.policies.track_lists.name_suffix %}
-    Should Be Equal Value Json String   ${r.json()}   ${nh}..ipRsNexthopRouteTrack.attributes.tDn  uni/tn-{{ tenant.name }}/tracklist-{{ list_name }}
+    Should Be Equal Value Json String   ${r}   ${nh}..ipRsNexthopRouteTrack.attributes.tDn  uni/tn-{{ tenant.name }}/tracklist-{{ list_name }}
 {% endif %}
 
 {% endfor %}
@@ -189,34 +189,34 @@ Verify L3out {{ l3out_name }} Node {{ node.node_id }} Static Route {{ sr.prefix 
 Verify L3out {{ l3out_name }} Node Profile {{ l3out_np_name }} BGP Peer {{ peer.ip }}
     ${np}=   Set Variable   $..l3extOut.children[?(@.l3extLNodeP.attributes.name=='{{ l3out_np_name }}')]
     ${peer}=   Set Variable   ${np}..children[?(@.bgpPeerP.attributes.addr=='{{ peer.ip }}')]
-    Should Be Equal Value Json String   ${r.json()}   ${peer}..bgpPeerP.attributes.addr   {{ peer.ip }}
-    Should Be Equal Value Json String   ${r.json()}   ${peer}..bgpPeerP.attributes.descr   {{ peer.description | default() }}
-    Should Be Equal Value Json String   ${r.json()}   ${peer}..bgpPeerP.attributes.ctrl   {{ ctrl | join(',') }}
-    Should Be Equal Value Json String   ${r.json()}   ${peer}..bgpPeerP.attributes.allowedSelfAsCnt   {{ peer.allowed_self_as_count |default(defaults.apic.tenants.l3outs.bgp_peers.allowed_self_as_count) }}
-    Should Be Equal Value Json String   ${r.json()}   ${peer}..bgpPeerP.attributes.peerCtrl   {{ peer_ctrl | join(',') }}
-    Should Be Equal Value Json String   ${r.json()}   ${peer}..bgpPeerP.attributes.ttl   {{ peer.ttl | default(defaults.apic.tenants.l3outs.bgp_peers.ttl) }}
-    Should Be Equal Value Json String   ${r.json()}   ${peer}..bgpPeerP.attributes.weight   {{ peer.weight | default(defaults.apic.tenants.l3outs.bgp_peers.weight) }}
-    Should Be Equal Value Json String   ${r.json()}   ${peer}..bgpPeerP.attributes.privateASctrl   {{ priv_as_ctrl | join(',') }}
-    Should Be Equal Value Json String   ${r.json()}   ${peer}..bgpPeerP.attributes.addrTCtrl   {{ af | join(',') }}
-    Should Be Equal Value Json String   ${r.json()}   ${peer}..bgpPeerP.attributes.adminSt   {{ 'enabled' if peer.admin_state | default(defaults.apic.tenants.l3outs.bgp_peers.admin_state) else 'disabled' }}
-    Should Be Equal Value Json String   ${r.json()}   ${peer}..bgpAsP.attributes.asn   {{ peer.remote_as }}
+    Should Be Equal Value Json String   ${r}   ${peer}..bgpPeerP.attributes.addr   {{ peer.ip }}
+    Should Be Equal Value Json String   ${r}   ${peer}..bgpPeerP.attributes.descr   {{ peer.description | default() }}
+    Should Be Equal Value Json String   ${r}   ${peer}..bgpPeerP.attributes.ctrl   {{ ctrl | join(',') }}
+    Should Be Equal Value Json String   ${r}   ${peer}..bgpPeerP.attributes.allowedSelfAsCnt   {{ peer.allowed_self_as_count |default(defaults.apic.tenants.l3outs.bgp_peers.allowed_self_as_count) }}
+    Should Be Equal Value Json String   ${r}   ${peer}..bgpPeerP.attributes.peerCtrl   {{ peer_ctrl | join(',') }}
+    Should Be Equal Value Json String   ${r}   ${peer}..bgpPeerP.attributes.ttl   {{ peer.ttl | default(defaults.apic.tenants.l3outs.bgp_peers.ttl) }}
+    Should Be Equal Value Json String   ${r}   ${peer}..bgpPeerP.attributes.weight   {{ peer.weight | default(defaults.apic.tenants.l3outs.bgp_peers.weight) }}
+    Should Be Equal Value Json String   ${r}   ${peer}..bgpPeerP.attributes.privateASctrl   {{ priv_as_ctrl | join(',') }}
+    Should Be Equal Value Json String   ${r}   ${peer}..bgpPeerP.attributes.addrTCtrl   {{ af | join(',') }}
+    Should Be Equal Value Json String   ${r}   ${peer}..bgpPeerP.attributes.adminSt   {{ 'enabled' if peer.admin_state | default(defaults.apic.tenants.l3outs.bgp_peers.admin_state) else 'disabled' }}
+    Should Be Equal Value Json String   ${r}   ${peer}..bgpAsP.attributes.asn   {{ peer.remote_as }}
 {% if peer.local_as is defined %}
-    Should Be Equal Value Json String   ${r.json()}   ${peer}..bgpLocalAsnP.attributes.localAsn   {{ peer.local_as }}
-    Should Be Equal Value Json String   ${r.json()}   ${peer}..bgpLocalAsnP.attributes.asnPropagate   {{ peer.as_propagate | default(defaults.apic.tenants.l3outs.bgp_peers.as_propagate) }}
+    Should Be Equal Value Json String   ${r}   ${peer}..bgpLocalAsnP.attributes.localAsn   {{ peer.local_as }}
+    Should Be Equal Value Json String   ${r}   ${peer}..bgpLocalAsnP.attributes.asnPropagate   {{ peer.as_propagate | default(defaults.apic.tenants.l3outs.bgp_peers.as_propagate) }}
 {% endif %}
 {% if peer.peer_prefix_policy is defined %}
 {% set peer_prefix_policy_name = peer.peer_prefix_policy ~ defaults.apic.tenants.policies.bgp_peer_prefix_policies.name_suffix %}
-    Should Be Equal Value Json String   ${r.json()}   ${peer}..bgpRsPeerPfxPol.attributes.tnBgpPeerPfxPolName   {{ peer_prefix_policy_name }}
+    Should Be Equal Value Json String   ${r}   ${peer}..bgpRsPeerPfxPol.attributes.tnBgpPeerPfxPolName   {{ peer_prefix_policy_name }}
 {% endif %}
 {% if peer.export_route_control is defined %}
 {% set export_route_control_name = peer.export_route_control ~ defaults.apic.tenants.policies.route_control_route_maps.name_suffix  %}
     ${export_rc}=   Set Variable   ${peer}..children[?(@.bgpRsPeerToProfile.attributes.direction=='export')]
-    Should Be Equal Value Json String   ${r.json()}   ${export_rc}..bgpRsPeerToProfile.attributes.tDn   uni/tn-{{ tenant.name }}/prof-{{ export_route_control_name }}
+    Should Be Equal Value Json String   ${r}   ${export_rc}..bgpRsPeerToProfile.attributes.tDn   uni/tn-{{ tenant.name }}/prof-{{ export_route_control_name }}
 {% endif %}
 {% if peer.import_route_control is defined %}
 {% set import_route_control_name = peer.import_route_control ~ defaults.apic.tenants.policies.route_control_route_maps.name_suffix  %}
     ${import_rc}=   Set Variable   ${peer}..children[?(@.bgpRsPeerToProfile.attributes.direction=='import')]
-    Should Be Equal Value Json String   ${r.json()}   ${import_rc}..bgpRsPeerToProfile.attributes.tDn   uni/tn-{{ tenant.name}}/prof-{{ import_route_control_name }}
+    Should Be Equal Value Json String   ${r}   ${import_rc}..bgpRsPeerToProfile.attributes.tDn   uni/tn-{{ tenant.name}}/prof-{{ import_route_control_name }}
 {% endif %}
 
 {% endfor %}
@@ -264,43 +264,43 @@ Verify L3out {{ l3out_name }} Node {{ node.node_id }} Interface {{ loop.index }}
         {% set tDn = "topology/pod-" ~ pod | default(defaults.apic.tenants.l3outs.nodes.interfaces.pod) ~ "/protpaths-" ~ node_ ~ "-" ~ node2 ~ "/pathep-[" ~ policy_group_name ~ "]" %}
     {% endif %}
     ${int}=   Set Variable   $..l3extLIfP.children[?(@.l3extRsPathL3OutAtt.attributes.tDn=='{{ tDn }}')]
-    Should Be Equal Value Json String   ${r.json()}   ${int}..l3extRsPathL3OutAtt.attributes.addr   {{ defaults.apic.tenants.l3outs.nodes.interfaces.ip if type == 'vpc' else int.ip }}
-    Should Be Equal Value Json String   ${r.json()}   ${int}..l3extRsPathL3OutAtt.attributes.descr   {{ int.description | default() }}
+    Should Be Equal Value Json String   ${r}   ${int}..l3extRsPathL3OutAtt.attributes.addr   {{ defaults.apic.tenants.l3outs.nodes.interfaces.ip if type == 'vpc' else int.ip }}
+    Should Be Equal Value Json String   ${r}   ${int}..l3extRsPathL3OutAtt.attributes.descr   {{ int.description | default() }}
 
     {% if int.vlan is defined %}
-    Should Be Equal Value Json String   ${r.json()}   ${int}..l3extRsPathL3OutAtt.attributes.ifInstT   {{ 'ext-svi' if int.svi | default(defaults.apic.tenants.l3outs.nodes.interfaces.svi) else 'sub-interface'}}
-    Should Be Equal Value Json String   ${r.json()}   ${int}..l3extRsPathL3OutAtt.attributes.autostate   {{ 'enabled' if int.autostate | default(defaults.apic.tenants.l3outs.nodes.interfaces.autostate) else 'disabled' }}
-    Should Be Equal Value Json String   ${r.json()}   ${int}..l3extRsPathL3OutAtt.attributes.encapScope   {{ 'ctx' if int.scope | default(defaults.apic.tenants.l3outs.nodes.interfaces.scope) == 'vrf' and int.svi | default(defaults.apic.tenants.l3outs.nodes.interfaces.svi) else 'local' }}
-    Should Be Equal Value Json String   ${r.json()}   ${int}..l3extRsPathL3OutAtt.attributes.encap   vlan-{{ int.vlan }}
+    Should Be Equal Value Json String   ${r}   ${int}..l3extRsPathL3OutAtt.attributes.ifInstT   {{ 'ext-svi' if int.svi | default(defaults.apic.tenants.l3outs.nodes.interfaces.svi) else 'sub-interface'}}
+    Should Be Equal Value Json String   ${r}   ${int}..l3extRsPathL3OutAtt.attributes.autostate   {{ 'enabled' if int.autostate | default(defaults.apic.tenants.l3outs.nodes.interfaces.autostate) else 'disabled' }}
+    Should Be Equal Value Json String   ${r}   ${int}..l3extRsPathL3OutAtt.attributes.encapScope   {{ 'ctx' if int.scope | default(defaults.apic.tenants.l3outs.nodes.interfaces.scope) == 'vrf' and int.svi | default(defaults.apic.tenants.l3outs.nodes.interfaces.svi) else 'local' }}
+    Should Be Equal Value Json String   ${r}   ${int}..l3extRsPathL3OutAtt.attributes.encap   vlan-{{ int.vlan }}
         {% if int.multipod_direct is defined %}
-    Should Be Equal Value Json String   ${r.json()}   ${int}..l3extRsPathL3OutAtt.attributes.isMultiPodDirect    {{ 'yes' if int.multipod_direct | default(defaults.apic.tenants.l3outs.nodes.interfaces.multipod_direct) else 'no' }}
+    Should Be Equal Value Json String   ${r}   ${int}..l3extRsPathL3OutAtt.attributes.isMultiPodDirect    {{ 'yes' if int.multipod_direct | default(defaults.apic.tenants.l3outs.nodes.interfaces.multipod_direct) else 'no' }}
         {% endif %}
     {% else %}
-    Should Be Equal Value Json String   ${r.json()}   ${int}..l3extRsPathL3OutAtt.attributes.ifInstT   l3-port
+    Should Be Equal Value Json String   ${r}   ${int}..l3extRsPathL3OutAtt.attributes.ifInstT   l3-port
     {% endif %}
-    Should Be Equal Value Json String   ${r.json()}   ${int}..l3extRsPathL3OutAtt.attributes.llAddr   {{ int.link_local_address | default('::') }}
-    Should Be Equal Value Json String   ${r.json()}   ${int}..l3extRsPathL3OutAtt.attributes.mac   {{ int.mac | default(defaults.apic.tenants.l3outs.nodes.interfaces.mac) }}
-    Should Be Equal Value Json String   ${r.json()}   ${int}..l3extRsPathL3OutAtt.attributes.mtu   {{ int.mtu | default(defaults.apic.tenants.l3outs.nodes.interfaces.mtu) }}
-    Should Be Equal Value Json String   ${r.json()}   ${int}..l3extRsPathL3OutAtt.attributes.tDn   {{ tDn }}
+    Should Be Equal Value Json String   ${r}   ${int}..l3extRsPathL3OutAtt.attributes.llAddr   {{ int.link_local_address | default('::') }}
+    Should Be Equal Value Json String   ${r}   ${int}..l3extRsPathL3OutAtt.attributes.mac   {{ int.mac | default(defaults.apic.tenants.l3outs.nodes.interfaces.mac) }}
+    Should Be Equal Value Json String   ${r}   ${int}..l3extRsPathL3OutAtt.attributes.mtu   {{ int.mtu | default(defaults.apic.tenants.l3outs.nodes.interfaces.mtu) }}
+    Should Be Equal Value Json String   ${r}   ${int}..l3extRsPathL3OutAtt.attributes.tDn   {{ tDn }}
     {% if type != 'vpc' and int.ip_shared is defined %}
-    Should Be Equal Value Json String   ${r.json()}   ${int}..l3extIp.attributes.addr   {{ int.ip_shared }}
+    Should Be Equal Value Json String   ${r}   ${int}..l3extIp.attributes.addr   {{ int.ip_shared }}
         {% if int.ip_shared_dhcp_relay | default(defaults.apic.tenants.l3outs.nodes.interfaces.ip_shared_dhcp_relay) %}
     Should Not Be Empty    ${int}..dhcpRelayGwExtIp.attributes
         {% endif %}
     {% endif %}
     {% if type == 'vpc' %}
     ${ip1}=   Set Variable   ${int}..l3extRsPathL3OutAtt.children[?(@.l3extMember.attributes.addr=='{{ int.ip_a }}')]
-    Should Be Equal Value Json String   ${r.json()}   ${ip1}..l3extMember.attributes.addr   {{ int.ip_a }}
+    Should Be Equal Value Json String   ${r}   ${ip1}..l3extMember.attributes.addr   {{ int.ip_a }}
         {% if int.ip_shared is defined %}
-    Should Be Equal Value Json String   ${r.json()}   ${ip1}..l3extIp.attributes.addr   {{ int.ip_shared }}
+    Should Be Equal Value Json String   ${r}   ${ip1}..l3extIp.attributes.addr   {{ int.ip_shared }}
             {% if int.ip_shared_dhcp_relay | default(defaults.apic.tenants.l3outs.nodes.interfaces.ip_shared_dhcp_relay) %}
     Should Not Be Empty    ${int}..dhcpRelayGwExtIp.attributes
             {% endif %}
         {% endif %}
     ${ip2}=   Set Variable   ${int}..l3extRsPathL3OutAtt.children[?(@.l3extMember.attributes.addr=='{{ int.ip_b }}')]
-    Should Be Equal Value Json String   ${r.json()}   ${ip2}..l3extMember.attributes.addr   {{ int.ip_b }}
+    Should Be Equal Value Json String   ${r}   ${ip2}..l3extMember.attributes.addr   {{ int.ip_b }}
         {% if int.ip_shared is defined %}
-    Should Be Equal Value Json String   ${r.json()}   ${ip2}..l3extIp.attributes.addr   {{ int.ip_shared }}
+    Should Be Equal Value Json String   ${r}   ${ip2}..l3extIp.attributes.addr   {{ int.ip_shared }}
             {% if int.ip_shared_dhcp_relay | default(defaults.apic.tenants.l3outs.nodes.interfaces.ip_shared_dhcp_relay) %}
     Should Not Be Empty    ${int}..dhcpRelayGwExtIp.attributes
             {% endif %}
@@ -308,16 +308,16 @@ Verify L3out {{ l3out_name }} Node {{ node.node_id }} Interface {{ loop.index }}
     {% endif %}
 {% else %}
     ${int}=   Set Variable   $..l3extLIfP.children[?(@.l3extVirtualLIfP.attributes.nodeDn=='topology/pod-{{ pod | default(defaults.apic.tenants.l3outs.nodes.interfaces.pod) }}/node-{{ node.node_id }}' & @.l3extVirtualLIfP.attributes.encap=='vlan-{{ int.vlan }}')]
-    Should Be Equal Value Json String   ${r.json()}   ${int}..l3extVirtualLIfP.attributes.addr   {{ int.ip }}
-    Should Be Equal Value Json String   ${r.json()}   ${int}..l3extVirtualLIfP.attributes.descr   {{ int.description | default() }}
-    Should Be Equal Value Json String   ${r.json()}   ${int}..l3extVirtualLIfP.attributes.ifInstT   ext-svi
-    Should Be Equal Value Json String   ${r.json()}   ${int}..l3extVirtualLIfP.attributes.encap   vlan-{{ int.vlan }}
-    Should Be Equal Value Json String   ${r.json()}   ${int}..l3extVirtualLIfP.attributes.encapScope   {{ 'ctx' if int.scope | default(defaults.apic.tenants.l3outs.nodes.interfaces.scope) == 'vrf' else 'local' }}
-    Should Be Equal Value Json String   ${r.json()}   ${int}..l3extVirtualLIfP.attributes.llAddr   {{ int.link_local_address | default('::') }}
-    Should Be Equal Value Json String   ${r.json()}   ${int}..l3extVirtualLIfP.attributes.mac   {{ int.mac | default(defaults.apic.tenants.l3outs.nodes.interfaces.mac) }}
-    Should Be Equal Value Json String   ${r.json()}   ${int}..l3extVirtualLIfP.attributes.mode   {{ int.mode | default(defaults.apic.tenants.l3outs.nodes.interfaces.mode) }}
-    Should Be Equal Value Json String   ${r.json()}   ${int}..l3extVirtualLIfP.attributes.mtu   {{ int.mtu | default(defaults.apic.tenants.l3outs.nodes.interfaces.mtu) }}
-    Should Be Equal Value Json String   ${r.json()}   ${int}..l3extVirtualLIfP.attributes.nodeDn   topology/pod-{{ pod | default(defaults.apic.tenants.l3outs.nodes.interfaces.pod) }}/node-{{ node.node_id }}
+    Should Be Equal Value Json String   ${r}   ${int}..l3extVirtualLIfP.attributes.addr   {{ int.ip }}
+    Should Be Equal Value Json String   ${r}   ${int}..l3extVirtualLIfP.attributes.descr   {{ int.description | default() }}
+    Should Be Equal Value Json String   ${r}   ${int}..l3extVirtualLIfP.attributes.ifInstT   ext-svi
+    Should Be Equal Value Json String   ${r}   ${int}..l3extVirtualLIfP.attributes.encap   vlan-{{ int.vlan }}
+    Should Be Equal Value Json String   ${r}   ${int}..l3extVirtualLIfP.attributes.encapScope   {{ 'ctx' if int.scope | default(defaults.apic.tenants.l3outs.nodes.interfaces.scope) == 'vrf' else 'local' }}
+    Should Be Equal Value Json String   ${r}   ${int}..l3extVirtualLIfP.attributes.llAddr   {{ int.link_local_address | default('::') }}
+    Should Be Equal Value Json String   ${r}   ${int}..l3extVirtualLIfP.attributes.mac   {{ int.mac | default(defaults.apic.tenants.l3outs.nodes.interfaces.mac) }}
+    Should Be Equal Value Json String   ${r}   ${int}..l3extVirtualLIfP.attributes.mode   {{ int.mode | default(defaults.apic.tenants.l3outs.nodes.interfaces.mode) }}
+    Should Be Equal Value Json String   ${r}   ${int}..l3extVirtualLIfP.attributes.mtu   {{ int.mtu | default(defaults.apic.tenants.l3outs.nodes.interfaces.mtu) }}
+    Should Be Equal Value Json String   ${r}   ${int}..l3extVirtualLIfP.attributes.nodeDn   topology/pod-{{ pod | default(defaults.apic.tenants.l3outs.nodes.interfaces.pod) }}/node-{{ node.node_id }}
 {% endif %}
 
 {% if int.floating_svi | default(defaults.apic.tenants.l3outs.nodes.interfaces.floating_svi) %}
@@ -326,16 +326,16 @@ Verify L3out {{ l3out_name }} Node {{ node.node_id }} Interface {{ loop.index }}
 Verify L3out {{ l3out_name }} Node {{ node.node_id }} Interface {{ loop.index }} Path {{ path.floating_ip }}
     ${int}=   Set Variable   $..l3extLIfP.children[?(@.l3extVirtualLIfP.attributes.nodeDn=='topology/pod-{{ pod | default(defaults.apic.tenants.l3outs.nodes.interfaces.pod) }}/node-{{ node.node_id }}' & @.l3extVirtualLIfP.attributes.encap=='vlan-{{ int.vlan }}')]
     ${path}=   Set Variable   ${int}..l3extVirtualLIfP.children[?(@.l3extRsDynPathAtt.attributes.floatingAddr=='{{ path.floating_ip }}')]
-    Should Be Equal Value Json String   ${r.json()}   ${path}..l3extRsDynPathAtt.attributes.floatingAddr   {{ path.floating_ip }}
+    Should Be Equal Value Json String   ${r}   ${path}..l3extRsDynPathAtt.attributes.floatingAddr   {{ path.floating_ip }}
     {% if path.vlan is defined and path.physical_domain is defined%}
-    Should Be Equal Value Json String   ${r.json()}   ${path}..l3extRsDynPathAtt.attributes.encap   vlan-{{ path.vlan }}
+    Should Be Equal Value Json String   ${r}   ${path}..l3extRsDynPathAtt.attributes.encap   vlan-{{ path.vlan }}
     {% endif %}
     {% if path.physical_domain is defined %}
-    Should Be Equal Value Json String   ${r.json()}   ${path}..l3extRsDynPathAtt.attributes.tDn   uni/phys-{{ path.physical_domain }}
+    Should Be Equal Value Json String   ${r}   ${path}..l3extRsDynPathAtt.attributes.tDn   uni/phys-{{ path.physical_domain }}
     {% elif path.vmware_vmm_domain is defined %}
-    Should Be Equal Value Json String   ${r.json()}   ${path}..l3extRsDynPathAtt.attributes.tDn   uni/vmmp-VMware/dom-{{ path.vmware_vmm_domain }}
+    Should Be Equal Value Json String   ${r}   ${path}..l3extRsDynPathAtt.attributes.tDn   uni/vmmp-VMware/dom-{{ path.vmware_vmm_domain }}
     {% if path.elag is defined and path.vmware_vmm_domain is defined %}
-    Should Be Equal Value Json String   ${r.json()}   ${path}..l3extRsDynPathAtt.children..l3extVirtualLIfPLagPolAtt.children..l3extRsVSwitchEnhancedLagPol.attributes.tDn   uni/vmmp-VMware/dom-{{ path.vmware_vmm_domain }}/vswitchpolcont/enlacplagp-{{ path.elag }}
+    Should Be Equal Value Json String   ${r}   ${path}..l3extRsDynPathAtt.children..l3extVirtualLIfPLagPolAtt.children..l3extRsVSwitchEnhancedLagPol.attributes.tDn   uni/vmmp-VMware/dom-{{ path.vmware_vmm_domain }}/vswitchpolcont/enlacplagp-{{ path.elag }}
     {% endif %}
     {% endif %}
 
@@ -387,45 +387,45 @@ Verify L3out {{ l3out_name }} Node {{ node.node_id }} Interface {{ loop.index }}
     ${int}=   Set Variable   $..l3extLIfP.children[?(@.l3extVirtualLIfP.attributes.nodeDn=='topology/pod-{{ pod | default(defaults.apic.tenants.l3outs.nodes.interfaces.pod) }}/node-{{ node.node_id }}' & @.l3extVirtualLIfP.attributes.encap=='vlan-{{ int.vlan }}')]
     ${peer}=   Set Variable   ${int}..l3extVirtualLIfP.children[?(@.bgpPeerP.attributes.addr=='{{ peer.ip }}')]
 {% endif %}
-    Should Be Equal Value Json String   ${r.json()}   ${peer}..bgpPeerP.attributes.addr   {{ peer.ip }}
-    Should Be Equal Value Json String   ${r.json()}   ${peer}..bgpPeerP.attributes.descr   {{ peer.description | default() }}
-    Should Be Equal Value Json String   ${r.json()}   ${peer}..bgpPeerP.attributes.ctrl   {{ ctrl | join(',') }}
-    Should Be Equal Value Json String   ${r.json()}   ${peer}..bgpPeerP.attributes.allowedSelfAsCnt   {{ peer.allowed_self_as_count |default(defaults.apic.tenants.l3outs.nodes.interfaces.bgp_peers.allowed_self_as_count) }}
-    Should Be Equal Value Json String   ${r.json()}   ${peer}..bgpPeerP.attributes.peerCtrl   {{ peer_ctrl | join(',') }}
-    Should Be Equal Value Json String   ${r.json()}   ${peer}..bgpPeerP.attributes.ttl   {{ peer.ttl | default(defaults.apic.tenants.l3outs.nodes.interfaces.bgp_peers.ttl) }}
-    Should Be Equal Value Json String   ${r.json()}   ${peer}..bgpPeerP.attributes.weight   {{ peer.weight | default(defaults.apic.tenants.l3outs.nodes.interfaces.bgp_peers.weight) }}
-    Should Be Equal Value Json String   ${r.json()}   ${peer}..bgpPeerP.attributes.privateASctrl   {{ priv_as_ctrl | join(',') }}
-    Should Be Equal Value Json String   ${r.json()}   ${peer}..bgpPeerP.attributes.addrTCtrl   {{ af | join(',') }}
-    Should Be Equal Value Json String   ${r.json()}   ${peer}..bgpPeerP.attributes.adminSt   {{ 'enabled' if peer.admin_state | default(defaults.apic.tenants.l3outs.nodes.interfaces.bgp_peers.admin_state) else 'disabled' }}
+    Should Be Equal Value Json String   ${r}   ${peer}..bgpPeerP.attributes.addr   {{ peer.ip }}
+    Should Be Equal Value Json String   ${r}   ${peer}..bgpPeerP.attributes.descr   {{ peer.description | default() }}
+    Should Be Equal Value Json String   ${r}   ${peer}..bgpPeerP.attributes.ctrl   {{ ctrl | join(',') }}
+    Should Be Equal Value Json String   ${r}   ${peer}..bgpPeerP.attributes.allowedSelfAsCnt   {{ peer.allowed_self_as_count |default(defaults.apic.tenants.l3outs.nodes.interfaces.bgp_peers.allowed_self_as_count) }}
+    Should Be Equal Value Json String   ${r}   ${peer}..bgpPeerP.attributes.peerCtrl   {{ peer_ctrl | join(',') }}
+    Should Be Equal Value Json String   ${r}   ${peer}..bgpPeerP.attributes.ttl   {{ peer.ttl | default(defaults.apic.tenants.l3outs.nodes.interfaces.bgp_peers.ttl) }}
+    Should Be Equal Value Json String   ${r}   ${peer}..bgpPeerP.attributes.weight   {{ peer.weight | default(defaults.apic.tenants.l3outs.nodes.interfaces.bgp_peers.weight) }}
+    Should Be Equal Value Json String   ${r}   ${peer}..bgpPeerP.attributes.privateASctrl   {{ priv_as_ctrl | join(',') }}
+    Should Be Equal Value Json String   ${r}   ${peer}..bgpPeerP.attributes.addrTCtrl   {{ af | join(',') }}
+    Should Be Equal Value Json String   ${r}   ${peer}..bgpPeerP.attributes.adminSt   {{ 'enabled' if peer.admin_state | default(defaults.apic.tenants.l3outs.nodes.interfaces.bgp_peers.admin_state) else 'disabled' }}
 {% if ( tenant.name == 'infra' ) and ( l3out.remote_leaf | default(defaults.apic.tenants.l3outs.remote_leaf) or l3out.multipod | default(defaults.apic.tenants.l3outs.multipod) ) %}
-    Should Be Equal Value Json String   ${r.json()}   ${peer}..bgpPeerP.attributes.connectivityType   multipod,multisite
+    Should Be Equal Value Json String   ${r}   ${peer}..bgpPeerP.attributes.connectivityType   multipod,multisite
 {% endif %}
-    Should Be Equal Value Json String   ${r.json()}   ${peer}..bgpAsP.attributes.asn   {{ peer.remote_as }}
+    Should Be Equal Value Json String   ${r}   ${peer}..bgpAsP.attributes.asn   {{ peer.remote_as }}
 {% if peer.local_as is defined %}
-    Should Be Equal Value Json String   ${r.json()}   ${peer}..bgpLocalAsnP.attributes.localAsn   {{ peer.local_as }}
-    Should Be Equal Value Json String   ${r.json()}   ${peer}..bgpLocalAsnP.attributes.asnPropagate   {{ peer.as_propagate | default(defaults.apic.tenants.l3outs.nodes.interfaces.bgp_peers.as_propagate) }}
+    Should Be Equal Value Json String   ${r}   ${peer}..bgpLocalAsnP.attributes.localAsn   {{ peer.local_as }}
+    Should Be Equal Value Json String   ${r}   ${peer}..bgpLocalAsnP.attributes.asnPropagate   {{ peer.as_propagate | default(defaults.apic.tenants.l3outs.nodes.interfaces.bgp_peers.as_propagate) }}
 {% endif %}
 {% if peer.peer_prefix_policy is defined %}
 {% set peer_prefix_policy_name = peer.peer_prefix_policy ~ defaults.apic.tenants.policies.bgp_peer_prefix_policies.name_suffix %}
-    Should Be Equal Value Json String   ${r.json()}   ${peer}..bgpRsPeerPfxPol.attributes.tnBgpPeerPfxPolName   {{ peer_prefix_policy_name }}
+    Should Be Equal Value Json String   ${r}   ${peer}..bgpRsPeerPfxPol.attributes.tnBgpPeerPfxPolName   {{ peer_prefix_policy_name }}
 {% endif %}
 {% if peer.export_route_control is defined %}
 {% set export_route_control_name = peer.export_route_control ~ defaults.apic.tenants.policies.route_control_route_maps.name_suffix  %}
     ${export_rc}=   Set Variable   ${peer}..children[?(@.bgpRsPeerToProfile.attributes.direction=='export')]
-    Should Be Equal Value Json String   ${r.json()}   ${export_rc}..bgpRsPeerToProfile.attributes.tDn   uni/tn-{{ tenant.name }}/prof-{{ export_route_control_name }}
+    Should Be Equal Value Json String   ${r}   ${export_rc}..bgpRsPeerToProfile.attributes.tDn   uni/tn-{{ tenant.name }}/prof-{{ export_route_control_name }}
 {% endif %}
 {% if peer.import_route_control is defined %}
 {% set import_route_control_name = peer.import_route_control ~ defaults.apic.tenants.policies.route_control_route_maps.name_suffix  %}
     ${import_rc}=   Set Variable   ${peer}..children[?(@.bgpRsPeerToProfile.attributes.direction=='import')]
-    Should Be Equal Value Json String   ${r.json()}   ${import_rc}..bgpRsPeerToProfile.attributes.tDn   uni/tn-{{ tenant.name}}/prof-{{ import_route_control_name }}
+    Should Be Equal Value Json String   ${r}   ${import_rc}..bgpRsPeerToProfile.attributes.tDn   uni/tn-{{ tenant.name}}/prof-{{ import_route_control_name }}
 {% endif %}
 
 {% endfor %}
 
 {% if int.micro_bfd is defined %}
-    Should Be Equal Value Json String   ${r.json()}   ${int}..bfdMicroBfdP.attributes.adminState   yes
-    Should Be Equal Value Json String   ${r.json()}   ${int}..bfdMicroBfdP.attributes.dst   {{ int.micro_bfd.destination_ip }}
-    Should Be Equal Value Json String   ${r.json()}   ${int}..bfdMicroBfdP.attributes.stTm   {{ int.micro_bfd.start_timer | default(defaults.apic.tenants.l3outs.nodes.interfaces.micro_bfd.start_timer )}}
+    Should Be Equal Value Json String   ${r}   ${int}..bfdMicroBfdP.attributes.adminState   yes
+    Should Be Equal Value Json String   ${r}   ${int}..bfdMicroBfdP.attributes.dst   {{ int.micro_bfd.destination_ip }}
+    Should Be Equal Value Json String   ${r}   ${int}..bfdMicroBfdP.attributes.stTm   {{ int.micro_bfd.start_timer | default(defaults.apic.tenants.l3outs.nodes.interfaces.micro_bfd.start_timer )}}
 {% endif %}
 
 {% endfor %}
@@ -438,12 +438,12 @@ Verify L3out {{ l3out_name }} Node {{ node.node_id }} Interface {{ loop.index }}
 Verify L3out {{ l3out_name }} Node Profile {{ l3out_np_name }} Interface Profile {{ l3out_ip_name }} DHCP Label {{ dhcp_relay_policy_name }}
 
     ${dhcp}=   Set Variable   $..l3extLIfP.children[?(@.dhcpLbl.attributes.name=='{{ dhcp_relay_policy_name }}')]
-    Should Be Equal Value Json String   ${r.json()}   ${dhcp}..dhcpLbl.attributes.name   {{ dhcp_relay_policy_name }}
-    Should Be Equal Value Json String   ${r.json()}   ${dhcp}..dhcpLbl.attributes.owner   {{ dhcp_label.scope | default(defaults.apic.tenants.l3outs.dhcp_labels.scope) }}
+    Should Be Equal Value Json String   ${r}   ${dhcp}..dhcpLbl.attributes.name   {{ dhcp_relay_policy_name }}
+    Should Be Equal Value Json String   ${r}   ${dhcp}..dhcpLbl.attributes.owner   {{ dhcp_label.scope | default(defaults.apic.tenants.l3outs.dhcp_labels.scope) }}
 
 {% if dhcp_label.dhcp_option_policy is defined %}
 {% set dhcp_option_policy_name = dhcp_label.dhcp_option_policy ~ defaults.apic.tenants.policies.dhcp_option_policies.name_suffix %}
-    Should Be Equal Value Json String   ${r.json()}   ${dhcp}..dhcpRsDhcpOptionPol.attributes.tnDhcpOptionPolName   {{ dhcp_option_policy_name }}
+    Should Be Equal Value Json String   ${r}   ${dhcp}..dhcpRsDhcpOptionPol.attributes.tnDhcpOptionPolName   {{ dhcp_option_policy_name }}
 {% endif %}
 
 {% endfor %}
@@ -452,7 +452,7 @@ Verify L3out {{ l3out_name }} Node Profile {{ l3out_np_name }} Interface Profile
 {% set bfd_multihop_node_policy_name = l3out.bfd_multihop_node_policy ~ defaults.apic.tenants.policies.bfd_multihop_node_policies.name_suffix %}
 
 Verify L3out {{ l3out_name }} BFD Multihop Policy {{ bfd_multihop_node_policy_name }}
-    Should Be Equal Value Json String   ${r.json()}   $..bfdRsMhNodePol.attributes.tnBfdMhNodePolName   {{ bfd_multihop_node_policy_name }}
+    Should Be Equal Value Json String   ${r}   $..bfdRsMhNodePol.attributes.tnBfdMhNodePolName   {{ bfd_multihop_node_policy_name }}
 {% endif %}
 
 
@@ -461,17 +461,17 @@ Verify L3out {{ l3out_name }} BFD Multihop Policy {{ bfd_multihop_node_policy_na
 Verify L3out {{ l3out_name }} BGP Protocol Profile
 
 {% if l3out.bgp.name is defined | default() %}
-    Should Be Equal Value Json String   ${r.json()}   $..bgpProtP.attributes.name  {{ l3out.bgp.name }}
+    Should Be Equal Value Json String   ${r}   $..bgpProtP.attributes.name  {{ l3out.bgp.name }}
 {% endif %}
 
 {% if l3out.bgp.timer_policy is defined %}
 {% set bgp_timer_policy_name = l3out.bgp.timer_policy ~ defaults.apic.tenants.policies.bgp_timer_policies.name_suffix %}
-    Should Be Equal Value Json String   ${r.json()}   $..bgpRsBgpNodeCtxPol.attributes.tnBgpCtxPolName   {{ bgp_timer_policy_name }}
+    Should Be Equal Value Json String   ${r}   $..bgpRsBgpNodeCtxPol.attributes.tnBgpCtxPolName   {{ bgp_timer_policy_name }}
 {% endif %}
 
 {% if l3out.bgp.as_path_policy is defined %}
 {% set bgp_as_path_policy_name = l3out.bgp.as_path_policy ~ defaults.apic.tenants.policies.bgp_best_path_policies.name_suffix %}
-    Should Be Equal Value Json String   ${r.json()}   $..bgpRsBestPathCtrlPol.attributes.tnBgpBestPathCtrlPolName   {{ bgp_as_path_policy_name }}
+    Should Be Equal Value Json String   ${r}   $..bgpRsBestPathCtrlPol.attributes.tnBgpBestPathCtrlPolName   {{ bgp_as_path_policy_name }}
 {% endif %}
 
 {% endif %}
@@ -483,11 +483,11 @@ Verify L3out {{ l3out_name }} BGP Protocol Profile
 
 Verify L3out {{ l3out_name }} Node Profile {{ l3out_np_name }}
     ${np}=   Set Variable   $..l3extOut.children[?(@.l3extLNodeP.attributes.name=='{{ l3out_np_name }}')]
-    Should Be Equal Value Json String   ${r.json()}   ${np}..l3extLNodeP.attributes.name   {{ l3out_np_name }}
+    Should Be Equal Value Json String   ${r}   ${np}..l3extLNodeP.attributes.name   {{ l3out_np_name }}
 
 {% if np.bfd_multihop_node_policy is defined %}
 {% set bfd_multihop_node_policy_name = np.bfd_multihop_node_policy ~ defaults.apic.tenants.policies.bfd_multihop_node_policies.name_suffix %}
-    Should Be Equal Value Json String   ${r.json()}   ${np}..bfdRsMhNodePol.attributes.tnBfdMhNodePolName   {{ bfd_multihop_node_policy_name }}
+    Should Be Equal Value Json String   ${r}   ${np}..bfdRsMhNodePol.attributes.tnBfdMhNodePolName   {{ bfd_multihop_node_policy_name }}
 {% endif %}
 
 {% for node in np.nodes | default([]) %}
@@ -497,17 +497,17 @@ Verify L3out {{ l3out_name }} Node Profile {{ l3out_np_name }}
 Verify L3out {{ l3out_name }} Node Profile {{ l3out_np_name }} Node {{ node.node_id }}
     ${np}=   Set Variable   $..l3extOut.children[?(@.l3extLNodeP.attributes.name=='{{ l3out_np_name }}')]
     ${node}=   Set Variable   ${np}..l3extLNodeP.children[?(@.l3extRsNodeL3OutAtt.attributes.tDn=='topology/pod-{{ pod | default(defaults.apic.tenants.l3outs.node_profiles.nodes.pod) }}/node-{{ node.node_id }}')]
-    Should Be Equal Value Json String   ${r.json()}   ${node}..l3extRsNodeL3OutAtt.attributes.tDn   topology/pod-{{ pod | default(defaults.apic.tenants.l3outs.node_profiles.nodes.pod) }}/node-{{ node.node_id }}
-    Should Be Equal Value Json String   ${r.json()}   ${node}..l3extRsNodeL3OutAtt.attributes.rtrId   {{ node.router_id }}
-    Should Be Equal Value Json String   ${r.json()}   ${node}..l3extRsNodeL3OutAtt.attributes.rtrIdLoopBack   {{ 'yes' if node.router_id_as_loopback | default(defaults.apic.tenants.l3outs.node_profiles.nodes.router_id_as_loopback) else 'no' }}
+    Should Be Equal Value Json String   ${r}   ${node}..l3extRsNodeL3OutAtt.attributes.tDn   topology/pod-{{ pod | default(defaults.apic.tenants.l3outs.node_profiles.nodes.pod) }}/node-{{ node.node_id }}
+    Should Be Equal Value Json String   ${r}   ${node}..l3extRsNodeL3OutAtt.attributes.rtrId   {{ node.router_id }}
+    Should Be Equal Value Json String   ${r}   ${node}..l3extRsNodeL3OutAtt.attributes.rtrIdLoopBack   {{ 'yes' if node.router_id_as_loopback | default(defaults.apic.tenants.l3outs.node_profiles.nodes.router_id_as_loopback) else 'no' }}
 {% if ((node.loopbacks | default([])) | length) > 0 %}
 {% for lp in node.loopbacks %}
-    Should Be Equal Value Json String   ${r.json()}   ${node}..l3extRsNodeL3OutAtt.children[?(@.l3extLoopBackIfP.attributes.addr=='{{ lp }}')].l3extLoopBackIfP.attributes.addr   {{ lp }}
+    Should Be Equal Value Json String   ${r}   ${node}..l3extRsNodeL3OutAtt.children[?(@.l3extLoopBackIfP.attributes.addr=='{{ lp }}')].l3extLoopBackIfP.attributes.addr   {{ lp }}
 {% endfor %}
 {% endif %}
 
 {% if ( tenant.name == 'infra' ) and ( l3out.multipod | default(defaults.apic.tenants.l3outs.multipod) ) and not ( l3out.remote_leaf | default(defaults.apic.tenants.l3outs.remote_leaf) ) %}
-    Should Be Equal Value Json String   ${r.json()}   ${node}..l3extInfraNodeP.attributes.fabricExtCtrlPeering   yes
+    Should Be Equal Value Json String   ${r}   ${node}..l3extInfraNodeP.attributes.fabricExtCtrlPeering   yes
 {% endif %}
 
 {% for sr in node.static_routes | default([]) %}
@@ -516,13 +516,13 @@ Verify L3out {{ l3out_name }} Node Profile {{ l3out_np_name }} Node {{ node.node
     ${np}=   Set Variable   $..l3extOut.children[?(@.l3extLNodeP.attributes.name=='{{ l3out_np_name }}')]
     ${node}=   Set Variable   ${np}..l3extLNodeP.children[?(@.l3extRsNodeL3OutAtt.attributes.tDn=='topology/pod-{{ pod | default(defaults.apic.tenants.l3outs.node_profiles.nodes.pod) }}/node-{{ node.node_id }}')]
     ${route}=   Set Variable   ${node}..l3extRsNodeL3OutAtt.children[?(@.ipRouteP.attributes.ip=='{{ sr.prefix }}')]
-    Should Be Equal Value Json String   ${r.json()}   ${route}..ipRouteP.attributes.ip   {{ sr.prefix }}
-    Should Be Equal Value Json String   ${r.json()}   ${route}..ipRouteP.attributes.descr   {{ sr.description | default() }}
-    Should Be Equal Value Json String   ${r.json()}   ${route}..ipRouteP.attributes.pref   {{ sr.preference | default(defaults.apic.tenants.l3outs.node_profiles.nodes.static_routes.preference) }}
-    Should Be Equal Value Json String   ${r.json()}   ${route}..ipRouteP.attributes.rtCtrl   {{ 'bfd' if sr.bfd | default(defaults.apic.tenants.l3outs.node_profiles.nodes.static_routes.bfd) }}
+    Should Be Equal Value Json String   ${r}   ${route}..ipRouteP.attributes.ip   {{ sr.prefix }}
+    Should Be Equal Value Json String   ${r}   ${route}..ipRouteP.attributes.descr   {{ sr.description | default() }}
+    Should Be Equal Value Json String   ${r}   ${route}..ipRouteP.attributes.pref   {{ sr.preference | default(defaults.apic.tenants.l3outs.node_profiles.nodes.static_routes.preference) }}
+    Should Be Equal Value Json String   ${r}   ${route}..ipRouteP.attributes.rtCtrl   {{ 'bfd' if sr.bfd | default(defaults.apic.tenants.l3outs.node_profiles.nodes.static_routes.bfd) }}
 {% if sr.track_list is defined %}
 {% set list_name = sr.track_list ~ defaults.apic.tenants.policies.track_lists.name_suffix %}
-    Should Be Equal Value Json String   ${r.json()}   ${route}..ipRsRouteTrack.attributes.tDn  uni/tn-{{ tenant.name }}/tracklist-{{ list_name }}
+    Should Be Equal Value Json String   ${r}   ${route}..ipRsRouteTrack.attributes.tDn  uni/tn-{{ tenant.name }}/tracklist-{{ list_name }}
 {% endif %}
 
 
@@ -533,17 +533,17 @@ Verify L3out {{ l3out_name }} Node Profile {{ l3out_np_name }} Node {{ node.node
     ${node}=   Set Variable   ${np}..l3extLNodeP.children[?(@.l3extRsNodeL3OutAtt.attributes.tDn=='topology/pod-{{ pod | default(defaults.apic.tenants.l3outs.node_profiles.nodes.pod) }}/node-{{ node.node_id }}')]
     ${route}=   Set Variable   ${node}..l3extRsNodeL3OutAtt.children[?(@.ipRouteP.attributes.ip=='{{ sr.prefix }}')]
     ${nh}=   Set Variable   ${route}..ipRouteP.children[?(@.ipNexthopP.attributes.nhAddr=='{{ nh.ip }}')]
-    Should Be Equal Value Json String   ${r.json()}   ${nh}..ipNexthopP.attributes.nhAddr   {{ nh.ip }}
-    Should Be Equal Value Json String   ${r.json()}   ${nh}..ipNexthopP.attributes.descr   {{ nh.description | default() }}
-    Should Be Equal Value Json String   ${r.json()}   ${nh}..ipNexthopP.attributes.pref   {{ get_preference_from_num(nh.preference | default(defaults.apic.tenants.l3outs.node_profiles.nodes.static_routes.next_hops.preference)) }}
-    Should Be Equal Value Json String   ${r.json()}   ${nh}..ipNexthopP.attributes.type   {{ nh.type | default(defaults.apic.tenants.l3outs.node_profiles.nodes.static_routes.next_hops.type) }}
+    Should Be Equal Value Json String   ${r}   ${nh}..ipNexthopP.attributes.nhAddr   {{ nh.ip }}
+    Should Be Equal Value Json String   ${r}   ${nh}..ipNexthopP.attributes.descr   {{ nh.description | default() }}
+    Should Be Equal Value Json String   ${r}   ${nh}..ipNexthopP.attributes.pref   {{ get_preference_from_num(nh.preference | default(defaults.apic.tenants.l3outs.node_profiles.nodes.static_routes.next_hops.preference)) }}
+    Should Be Equal Value Json String   ${r}   ${nh}..ipNexthopP.attributes.type   {{ nh.type | default(defaults.apic.tenants.l3outs.node_profiles.nodes.static_routes.next_hops.type) }}
 {% if nh.ip_sla_policy is defined %}
 {% set list_name = vrf_name ~ "_" ~ nh.ip %}
-    Should Be Equal Value Json String   ${r.json()}   ${nh}..ipRsNHTrackMember.attributes.tDn  uni/tn-{{ tenant.name }}/trackmember-{{ list_name }}
-    Should Be Equal Value Json String   ${r.json()}   ${nh}..ipRsNexthopRouteTrack.attributes.tDn  uni/tn-{{ tenant.name }}/tracklist-{{ list_name }}
+    Should Be Equal Value Json String   ${r}   ${nh}..ipRsNHTrackMember.attributes.tDn  uni/tn-{{ tenant.name }}/trackmember-{{ list_name }}
+    Should Be Equal Value Json String   ${r}   ${nh}..ipRsNexthopRouteTrack.attributes.tDn  uni/tn-{{ tenant.name }}/tracklist-{{ list_name }}
 {% elif nh.track_list is defined %}
 {% set list_name = nh.track_list ~ defaults.apic.tenants.policies.track_lists.name_suffix %}
-    Should Be Equal Value Json String   ${r.json()}   ${nh}..ipRsNexthopRouteTrack.attributes.tDn  uni/tn-{{ tenant.name }}/tracklist-{{ list_name }}
+    Should Be Equal Value Json String   ${r}   ${nh}..ipRsNexthopRouteTrack.attributes.tDn  uni/tn-{{ tenant.name }}/tracklist-{{ list_name }}
 {% endif %}
 
 {% endfor %}
@@ -572,34 +572,34 @@ Verify L3out {{ l3out_name }} Node Profile {{ l3out_np_name }} Node {{ node.node
 Verify L3out {{ l3out_name }} Node Profile {{ l3out_np_name }} BGP Peer {{ peer.ip }}
     ${np}=   Set Variable   $..l3extOut.children[?(@.l3extLNodeP.attributes.name=='{{ l3out_np_name }}')]
     ${peer}=   Set Variable   ${np}..children[?(@.bgpPeerP.attributes.addr=='{{ peer.ip }}')]
-    Should Be Equal Value Json String   ${r.json()}   ${peer}..bgpPeerP.attributes.addr   {{ peer.ip }}
-    Should Be Equal Value Json String   ${r.json()}   ${peer}..bgpPeerP.attributes.descr   {{ peer.description | default() }}
-    Should Be Equal Value Json String   ${r.json()}   ${peer}..bgpPeerP.attributes.ctrl   {{ ctrl | join(',') }}
-    Should Be Equal Value Json String   ${r.json()}   ${peer}..bgpPeerP.attributes.allowedSelfAsCnt   {{ peer.allowed_self_as_count |default(defaults.apic.tenants.l3outs.node_profiles.bgp_peers.allowed_self_as_count) }}
-    Should Be Equal Value Json String   ${r.json()}   ${peer}..bgpPeerP.attributes.peerCtrl   {{ peer_ctrl | join(',') }}
-    Should Be Equal Value Json String   ${r.json()}   ${peer}..bgpPeerP.attributes.ttl   {{ peer.ttl | default(defaults.apic.tenants.l3outs.node_profiles.bgp_peers.ttl) }}
-    Should Be Equal Value Json String   ${r.json()}   ${peer}..bgpPeerP.attributes.weight   {{ peer.weight | default(defaults.apic.tenants.l3outs.node_profiles.bgp_peers.weight) }}
-    Should Be Equal Value Json String   ${r.json()}   ${peer}..bgpPeerP.attributes.privateASctrl   {{ priv_as_ctrl | join(',') }}
-    Should Be Equal Value Json String   ${r.json()}   ${peer}..bgpPeerP.attributes.addrTCtrl   {{ af | join(',') }}
-    Should Be Equal Value Json String   ${r.json()}   ${peer}..bgpPeerP.attributes.adminSt   {{ 'enabled' if peer.admin_state | default(defaults.apic.tenants.l3outs.node_profiles.bgp_peers.admin_state) else 'disabled' }}
-    Should Be Equal Value Json String   ${r.json()}   ${peer}..bgpAsP.attributes.asn   {{ peer.remote_as }}
+    Should Be Equal Value Json String   ${r}   ${peer}..bgpPeerP.attributes.addr   {{ peer.ip }}
+    Should Be Equal Value Json String   ${r}   ${peer}..bgpPeerP.attributes.descr   {{ peer.description | default() }}
+    Should Be Equal Value Json String   ${r}   ${peer}..bgpPeerP.attributes.ctrl   {{ ctrl | join(',') }}
+    Should Be Equal Value Json String   ${r}   ${peer}..bgpPeerP.attributes.allowedSelfAsCnt   {{ peer.allowed_self_as_count |default(defaults.apic.tenants.l3outs.node_profiles.bgp_peers.allowed_self_as_count) }}
+    Should Be Equal Value Json String   ${r}   ${peer}..bgpPeerP.attributes.peerCtrl   {{ peer_ctrl | join(',') }}
+    Should Be Equal Value Json String   ${r}   ${peer}..bgpPeerP.attributes.ttl   {{ peer.ttl | default(defaults.apic.tenants.l3outs.node_profiles.bgp_peers.ttl) }}
+    Should Be Equal Value Json String   ${r}   ${peer}..bgpPeerP.attributes.weight   {{ peer.weight | default(defaults.apic.tenants.l3outs.node_profiles.bgp_peers.weight) }}
+    Should Be Equal Value Json String   ${r}   ${peer}..bgpPeerP.attributes.privateASctrl   {{ priv_as_ctrl | join(',') }}
+    Should Be Equal Value Json String   ${r}   ${peer}..bgpPeerP.attributes.addrTCtrl   {{ af | join(',') }}
+    Should Be Equal Value Json String   ${r}   ${peer}..bgpPeerP.attributes.adminSt   {{ 'enabled' if peer.admin_state | default(defaults.apic.tenants.l3outs.node_profiles.bgp_peers.admin_state) else 'disabled' }}
+    Should Be Equal Value Json String   ${r}   ${peer}..bgpAsP.attributes.asn   {{ peer.remote_as }}
 {% if peer.local_as is defined %}
-    Should Be Equal Value Json String   ${r.json()}   ${peer}..bgpLocalAsnP.attributes.localAsn   {{ peer.local_as }}
-    Should Be Equal Value Json String   ${r.json()}   ${peer}..bgpLocalAsnP.attributes.asnPropagate   {{ peer.as_propagate | default(defaults.apic.tenants.l3outs.node_profiles.bgp_peers.as_propagate) }}
+    Should Be Equal Value Json String   ${r}   ${peer}..bgpLocalAsnP.attributes.localAsn   {{ peer.local_as }}
+    Should Be Equal Value Json String   ${r}   ${peer}..bgpLocalAsnP.attributes.asnPropagate   {{ peer.as_propagate | default(defaults.apic.tenants.l3outs.node_profiles.bgp_peers.as_propagate) }}
 {% endif %}
 {% if peer.peer_prefix_policy is defined %}
 {% set peer_prefix_policy_name = peer.peer_prefix_policy ~ defaults.apic.tenants.policies.bgp_peer_prefix_policies.name_suffix %}
-    Should Be Equal Value Json String   ${r.json()}   ${peer}..bgpRsPeerPfxPol.attributes.tnBgpPeerPfxPolName   {{ peer_prefix_policy_name }}
+    Should Be Equal Value Json String   ${r}   ${peer}..bgpRsPeerPfxPol.attributes.tnBgpPeerPfxPolName   {{ peer_prefix_policy_name }}
 {% endif %}
 {% if peer.export_route_control is defined %}
 {% set export_route_control_name = peer.export_route_control ~ defaults.apic.tenants.policies.route_control_route_maps.name_suffix  %}
     ${export_rc}=   Set Variable   ${peer}..children[?(@.bgpRsPeerToProfile.attributes.direction=='export')]
-    Should Be Equal Value Json String   ${r.json()}   ${export_rc}..bgpRsPeerToProfile.attributes.tDn   uni/tn-{{ tenant.name }}/prof-{{ export_route_control_name }}
+    Should Be Equal Value Json String   ${r}   ${export_rc}..bgpRsPeerToProfile.attributes.tDn   uni/tn-{{ tenant.name }}/prof-{{ export_route_control_name }}
 {% endif %}
 {% if peer.import_route_control is defined %}
 {% set import_route_control_name = peer.import_route_control ~ defaults.apic.tenants.policies.route_control_route_maps.name_suffix  %}
     ${import_rc}=   Set Variable   ${peer}..children[?(@.bgpRsPeerToProfile.attributes.direction=='import')]
-    Should Be Equal Value Json String   ${r.json()}   ${import_rc}..bgpRsPeerToProfile.attributes.tDn   uni/tn-{{ tenant.name}}/prof-{{ import_route_control_name }}
+    Should Be Equal Value Json String   ${r}   ${import_rc}..bgpRsPeerToProfile.attributes.tDn   uni/tn-{{ tenant.name}}/prof-{{ import_route_control_name }}
 {% endif %}
 
 {% endfor %}
@@ -612,52 +612,52 @@ Verify L3out {{ l3out_name }} Node Profile {{ l3out_np_name }} BGP Peer {{ peer.
 Verify L3out {{ l3out_name }} Node Profile {{ l3out_np_name }} Interface Profile {{ l3out_ip_name }}
     ${np}=   Set Variable   $..l3extOut.children[?(@.l3extLNodeP.attributes.name=='{{ l3out_np_name }}')]
     ${ip}=   Set Variable   ${np}..l3extLNodeP.children[?(@.l3extLIfP.attributes.name=='{{ l3out_ip_name }}')]
-    Should Be Equal Value Json String   ${r.json()}   ${ip}..l3extLIfP.attributes.name   {{ l3out_ip_name }}
-    Should Be Equal Value Json String   ${r.json()}   ${ip}..l3extLIfP.attributes.descr   {{ ip.description | default() }}
-    Should Be Equal Value Json String   ${r.json()}   ${ip}..l3extLIfP.attributes.prio   {{ ip.qos_class | default(defaults.apic.tenants.l3outs.node_profiles.interface_profiles.qos_class) }}
+    Should Be Equal Value Json String   ${r}   ${ip}..l3extLIfP.attributes.name   {{ l3out_ip_name }}
+    Should Be Equal Value Json String   ${r}   ${ip}..l3extLIfP.attributes.descr   {{ ip.description | default() }}
+    Should Be Equal Value Json String   ${r}   ${ip}..l3extLIfP.attributes.prio   {{ ip.qos_class | default(defaults.apic.tenants.l3outs.node_profiles.interface_profiles.qos_class) }}
 {% if ip.ospf is defined %}
-    Should Be Equal Value Json String   ${r.json()}   ${ip}..ospfIfP.attributes.name   {{ ip.ospf.ospf_interface_profile_name | default(l3out.name) }}
-    Should Be Equal Value Json String   ${r.json()}   ${ip}..ospfIfP.attributes.authKeyId   {{ ip.ospf.auth_key_id | default(defaults.apic.tenants.l3outs.ospf.auth_key_id) }}
-    Should Be Equal Value Json String   ${r.json()}   ${ip}..ospfIfP.attributes.authType   {{ ip.ospf.auth_type | default(defaults.apic.tenants.l3outs.ospf.auth_type) }}
+    Should Be Equal Value Json String   ${r}   ${ip}..ospfIfP.attributes.name   {{ ip.ospf.ospf_interface_profile_name | default(l3out.name) }}
+    Should Be Equal Value Json String   ${r}   ${ip}..ospfIfP.attributes.authKeyId   {{ ip.ospf.auth_key_id | default(defaults.apic.tenants.l3outs.ospf.auth_key_id) }}
+    Should Be Equal Value Json String   ${r}   ${ip}..ospfIfP.attributes.authType   {{ ip.ospf.auth_type | default(defaults.apic.tenants.l3outs.ospf.auth_type) }}
     {% if ip.ospf.policy is defined %}
         {% set policy_name = ip.ospf.policy ~ defaults.apic.tenants.policies.ospf_interface_policies.name_suffix %}
-    Should Be Equal Value Json String   ${r.json()}   ${ip}..ospfRsIfPol.attributes.tnOspfIfPolName   {{ policy_name }}
+    Should Be Equal Value Json String   ${r}   ${ip}..ospfRsIfPol.attributes.tnOspfIfPolName   {{ policy_name }}
     {% endif %}
 {% endif %}
 {% if ip.eigrp is defined %}
-    Should Be Equal Value Json String   ${r.json()}   ${ip}..eigrpIfP.attributes.name   {{ ip.eigrp.interface_profile_name | default(l3out.name) }}
+    Should Be Equal Value Json String   ${r}   ${ip}..eigrpIfP.attributes.name   {{ ip.eigrp.interface_profile_name | default(l3out.name) }}
     {% if ip.eigrp.interface_policy is defined %}
         {% set policy_name = ip.eigrp.interface_policy ~ defaults.apic.tenants.policies.eigrp_interface_policies.name_suffix %}
-    Should Be Equal Value Json String   ${r.json()}   ${ip}..eigrpRsIfPol.attributes.tnEigrpIfPolName   {{ policy_name }}
+    Should Be Equal Value Json String   ${r}   ${ip}..eigrpRsIfPol.attributes.tnEigrpIfPolName   {{ policy_name }}
     {% endif %}
 {% endif %}
 {% if ip.bfd_policy is defined %}
     {% set bfd_name = ip.bfd_policy ~ defaults.apic.tenants.policies.bfd_interface_policies.name_suffix %}
-    Should Be Equal Value Json String   ${r.json()}   ${ip}..bfdRsIfPol.attributes.tnBfdIfPolName   {{ bfd_name }}
+    Should Be Equal Value Json String   ${r}   ${ip}..bfdRsIfPol.attributes.tnBfdIfPolName   {{ bfd_name }}
 {% endif %}
 {% if ip.pim_policy is defined %}
     {% set pim_name = ip.pim_policy ~ defaults.apic.tenants.policies.pim_policies.name_suffix %}
-    Should Be Equal Value Json String   ${r.json()}   ${ip}..pimRsIfPol.attributes.tDn   uni/tn-{{tenant.name}}/pimifpol-{{ pim_name }}
+    Should Be Equal Value Json String   ${r}   ${ip}..pimRsIfPol.attributes.tDn   uni/tn-{{tenant.name}}/pimifpol-{{ pim_name }}
 {% endif %}
 {% if ip.igmp_interface_policy is defined %}
     {% set igmp_name = ip.igmp_interface_policy ~ defaults.apic.tenants.policies.igmp_interface_policies.name_suffix %}
-    Should Be Equal Value Json String   ${r.json()}   ${ip}..igmpRsIfPol.attributes.tDn   uni/tn-{{tenant.name}}/igmpIfPol-{{ igmp_name }}
+    Should Be Equal Value Json String   ${r}   ${ip}..igmpRsIfPol.attributes.tDn   uni/tn-{{tenant.name}}/igmpIfPol-{{ igmp_name }}
 {% endif %}
 {% if ip.custom_qos_policy is defined %}
     {% set custom_qos_policy_name = ip.custom_qos_policy ~ defaults.apic.tenants.policies.custom_qos.name_suffix %}
-    Should Be Equal Value Json String   ${r.json()}   ${ip}..l3extRsLIfPCustQosPol.attributes.tnQosCustomPolName   {{ custom_qos_policy_name }}
+    Should Be Equal Value Json String   ${r}   ${ip}..l3extRsLIfPCustQosPol.attributes.tnQosCustomPolName   {{ custom_qos_policy_name }}
 {% endif %}
 {% if ip.nd_interface_policy is defined %}
     {% set nd_interface_policy_name = ip.nd_interface_policy ~ defaults.apic.tenants.policies.nd_interface_policies.name_suffix %}
-    Should Be Equal Value Json String   ${r.json()}   ${ip}..l3extRsNdIfPol.attributes.tnNdIfPolName   {{ nd_interface_policy_name }}
+    Should Be Equal Value Json String   ${r}   ${ip}..l3extRsNdIfPol.attributes.tnNdIfPolName   {{ nd_interface_policy_name }}
 {% endif %}
 {% if ip.ingress_data_plane_policing_policy is defined %}
     {% set dpp_name = ip.ingress_data_plane_policing_policy ~ defaults.apic.tenants.policies.data_plane_policing_policies.name_suffix %}
-    Should Be Equal Value Json String   ${r.json()}   $..l3extRsIngressQosDppPol.attributes.tnQosDppPolName   {{ dpp_name }}
+    Should Be Equal Value Json String   ${r}   $..l3extRsIngressQosDppPol.attributes.tnQosDppPolName   {{ dpp_name }}
 {% endif %}
 {% if ip.egress_data_plane_policing_policy is defined %}
     {% set dpp_name = ip.egress_data_plane_policing_policy ~ defaults.apic.tenants.policies.data_plane_policing_policies.name_suffix %}
-    Should Be Equal Value Json String   ${r.json()}   $..l3extRsEgressQosDppPol.attributes.tnQosDppPolName   {{ dpp_name }}
+    Should Be Equal Value Json String   ${r}   $..l3extRsEgressQosDppPol.attributes.tnQosDppPolName   {{ dpp_name }}
 {% endif %}
 
 
@@ -705,42 +705,42 @@ Verify L3out {{ l3out_name }} Node Profile {{ l3out_np_name }} Interface Profile
     ${np}=   Set Variable   $..l3extOut.children[?(@.l3extLNodeP.attributes.name=='{{ l3out_np_name }}')]
     ${ip}=   Set Variable   ${np}..l3extLNodeP.children[?(@.l3extLIfP.attributes.name=='{{ l3out_ip_name }}')]
     ${int}=   Set Variable   ${ip}..l3extLIfP.children[?(@.l3extRsPathL3OutAtt.attributes.tDn=='{{ tDn }}')]
-    Should Be Equal Value Json String   ${r.json()}   ${int}..l3extRsPathL3OutAtt.attributes.addr   {{ defaults.apic.tenants.l3outs.node_profiles.interface_profiles.interfaces.ip if type == 'vpc' else int.ip }}
-    Should Be Equal Value Json String   ${r.json()}   ${int}..l3extRsPathL3OutAtt.attributes.descr   {{ int.description | default() }}
+    Should Be Equal Value Json String   ${r}   ${int}..l3extRsPathL3OutAtt.attributes.addr   {{ defaults.apic.tenants.l3outs.node_profiles.interface_profiles.interfaces.ip if type == 'vpc' else int.ip }}
+    Should Be Equal Value Json String   ${r}   ${int}..l3extRsPathL3OutAtt.attributes.descr   {{ int.description | default() }}
     {% if int.vlan is defined %}
-    Should Be Equal Value Json String   ${r.json()}   ${int}..l3extRsPathL3OutAtt.attributes.ifInstT   {{ 'ext-svi' if int.svi | default(defaults.apic.tenants.l3outs.node_profiles.interface_profiles.interfaces.svi) else 'sub-interface'}}
-    Should Be Equal Value Json String   ${r.json()}   ${int}..l3extRsPathL3OutAtt.attributes.autostate   {{ 'enabled' if int.autostate | default(defaults.apic.tenants.l3outs.node_profiles.interface_profiles.interfaces.autostate) else 'disabled' }}
-    Should Be Equal Value Json String   ${r.json()}   ${int}..l3extRsPathL3OutAtt.attributes.encapScope   {{ 'ctx' if int.scope | default(defaults.apic.tenants.l3outs.nodes.interfaces.scope) == 'vrf' and int.svi | default(defaults.apic.tenants.l3outs.nodes.interfaces.svi) else 'local' }}
-    Should Be Equal Value Json String   ${r.json()}   ${int}..l3extRsPathL3OutAtt.attributes.encap   vlan-{{ int.vlan }}
+    Should Be Equal Value Json String   ${r}   ${int}..l3extRsPathL3OutAtt.attributes.ifInstT   {{ 'ext-svi' if int.svi | default(defaults.apic.tenants.l3outs.node_profiles.interface_profiles.interfaces.svi) else 'sub-interface'}}
+    Should Be Equal Value Json String   ${r}   ${int}..l3extRsPathL3OutAtt.attributes.autostate   {{ 'enabled' if int.autostate | default(defaults.apic.tenants.l3outs.node_profiles.interface_profiles.interfaces.autostate) else 'disabled' }}
+    Should Be Equal Value Json String   ${r}   ${int}..l3extRsPathL3OutAtt.attributes.encapScope   {{ 'ctx' if int.scope | default(defaults.apic.tenants.l3outs.nodes.interfaces.scope) == 'vrf' and int.svi | default(defaults.apic.tenants.l3outs.nodes.interfaces.svi) else 'local' }}
+    Should Be Equal Value Json String   ${r}   ${int}..l3extRsPathL3OutAtt.attributes.encap   vlan-{{ int.vlan }}
         {% if int.multipod_direct is defined %}
-    Should Be Equal Value Json String   ${r.json()}   ${int}..l3extRsPathL3OutAtt.attributes.isMultiPodDirect    {{ 'yes' if int.multipod_direct | default(defaults.apic.tenants.l3outs.nodes.interfaces.multipod_direct) else 'no' }}
+    Should Be Equal Value Json String   ${r}   ${int}..l3extRsPathL3OutAtt.attributes.isMultiPodDirect    {{ 'yes' if int.multipod_direct | default(defaults.apic.tenants.l3outs.nodes.interfaces.multipod_direct) else 'no' }}
         {% endif %}
     {% else %}
-    Should Be Equal Value Json String   ${r.json()}   ${int}..l3extRsPathL3OutAtt.attributes.ifInstT   l3-port
+    Should Be Equal Value Json String   ${r}   ${int}..l3extRsPathL3OutAtt.attributes.ifInstT   l3-port
     {% endif %}
-    Should Be Equal Value Json String   ${r.json()}   ${int}..l3extRsPathL3OutAtt.attributes.llAddr   {{ int.link_local_address | default('::') }}
-    Should Be Equal Value Json String   ${r.json()}   ${int}..l3extRsPathL3OutAtt.attributes.mac   {{ int.mac | default(defaults.apic.tenants.l3outs.node_profiles.interface_profiles.interfaces.mac) }}
-    Should Be Equal Value Json String   ${r.json()}   ${int}..l3extRsPathL3OutAtt.attributes.mtu   {{ int.mtu | default(defaults.apic.tenants.l3outs.node_profiles.interface_profiles.interfaces.mtu) }}
-    Should Be Equal Value Json String   ${r.json()}   ${int}..l3extRsPathL3OutAtt.attributes.tDn   {{ tDn }}
+    Should Be Equal Value Json String   ${r}   ${int}..l3extRsPathL3OutAtt.attributes.llAddr   {{ int.link_local_address | default('::') }}
+    Should Be Equal Value Json String   ${r}   ${int}..l3extRsPathL3OutAtt.attributes.mac   {{ int.mac | default(defaults.apic.tenants.l3outs.node_profiles.interface_profiles.interfaces.mac) }}
+    Should Be Equal Value Json String   ${r}   ${int}..l3extRsPathL3OutAtt.attributes.mtu   {{ int.mtu | default(defaults.apic.tenants.l3outs.node_profiles.interface_profiles.interfaces.mtu) }}
+    Should Be Equal Value Json String   ${r}   ${int}..l3extRsPathL3OutAtt.attributes.tDn   {{ tDn }}
     {% if type != 'vpc' and int.ip_shared is defined %}
-    Should Be Equal Value Json String   ${r.json()}   ${int}..l3extIp.attributes.addr   {{ int.ip_shared }}
+    Should Be Equal Value Json String   ${r}   ${int}..l3extIp.attributes.addr   {{ int.ip_shared }}
         {% if int.ip_shared_dhcp_relay | default(defaults.apic.tenants.l3outs.node_profiles.interface_profiles.interfaces.ip_shared_dhcp_relay) %}
     Should Not Be Empty    ${int}..dhcpRelayGwExtIp.attributes
         {% endif %}
     {% endif %}
     {% if type == 'vpc' %}
     ${ip1}=   Set Variable   ${int}..l3extRsPathL3OutAtt.children[?(@.l3extMember.attributes.addr=='{{ int.ip_a }}')]
-    Should Be Equal Value Json String   ${r.json()}   ${ip1}..l3extMember.attributes.addr   {{ int.ip_a }}
+    Should Be Equal Value Json String   ${r}   ${ip1}..l3extMember.attributes.addr   {{ int.ip_a }}
         {% if int.ip_shared is defined %}
-    Should Be Equal Value Json String   ${r.json()}   ${ip1}..l3extIp.attributes.addr   {{ int.ip_shared }}
+    Should Be Equal Value Json String   ${r}   ${ip1}..l3extIp.attributes.addr   {{ int.ip_shared }}
             {% if int.ip_shared_dhcp_relay | default(defaults.apic.tenants.l3outs.node_profiles.interface_profiles.interfaces.ip_shared_dhcp_relay) %}
     Should Not Be Empty    ${int}..dhcpRelayGwExtIp.attributes
             {% endif %}
         {% endif %}
     ${ip2}=   Set Variable   ${int}..l3extRsPathL3OutAtt.children[?(@.l3extMember.attributes.addr=='{{ int.ip_b }}')]
-    Should Be Equal Value Json String   ${r.json()}   ${ip2}..l3extMember.attributes.addr   {{ int.ip_b }}
+    Should Be Equal Value Json String   ${r}   ${ip2}..l3extMember.attributes.addr   {{ int.ip_b }}
         {% if int.ip_shared is defined %}
-    Should Be Equal Value Json String   ${r.json()}   ${ip2}..l3extIp.attributes.addr   {{ int.ip_shared }}
+    Should Be Equal Value Json String   ${r}   ${ip2}..l3extIp.attributes.addr   {{ int.ip_shared }}
             {% if int.ip_shared_dhcp_relay | default(defaults.apic.tenants.l3outs.node_profiles.interface_profiles.interfaces.ip_shared_dhcp_relay) %}
     Should Not Be Empty    ${int}..dhcpRelayGwExtIp.attributes
             {% endif %}
@@ -748,16 +748,16 @@ Verify L3out {{ l3out_name }} Node Profile {{ l3out_np_name }} Interface Profile
     {% endif %}
 {% else %}
     ${int}=   Set Variable   $..l3extLIfP.children[?(@.l3extVirtualLIfP.attributes.nodeDn=='topology/pod-{{ pod | default(defaults.apic.tenants.l3outs.node_profiles.interface_profiles.interfaces.pod) }}/node-{{ int.node_id }}' & @.l3extVirtualLIfP.attributes.encap=='vlan-{{ int.vlan }}')]
-    Should Be Equal Value Json String   ${r.json()}   ${int}..l3extVirtualLIfP.attributes.addr   {{ int.ip }}
-    Should Be Equal Value Json String   ${r.json()}   ${int}..l3extVirtualLIfP.attributes.descr   {{ int.description | default() }}
-    Should Be Equal Value Json String   ${r.json()}   ${int}..l3extVirtualLIfP.attributes.ifInstT   ext-svi
-    Should Be Equal Value Json String   ${r.json()}   ${int}..l3extVirtualLIfP.attributes.encapScope   {{ 'ctx' if int.scope | default(defaults.apic.tenants.l3outs.nodes.interfaces.scope) == 'vrf' else 'local' }}
-    Should Be Equal Value Json String   ${r.json()}   ${int}..l3extVirtualLIfP.attributes.encap   vlan-{{ int.vlan }}
-    Should Be Equal Value Json String   ${r.json()}   ${int}..l3extVirtualLIfP.attributes.llAddr   {{ int.link_local_address | default('::') }}
-    Should Be Equal Value Json String   ${r.json()}   ${int}..l3extVirtualLIfP.attributes.mac   {{ int.mac | default(defaults.apic.tenants.l3outs.node_profiles.interface_profiles.interfaces.mac) }}
-    Should Be Equal Value Json String   ${r.json()}   ${int}..l3extVirtualLIfP.attributes.mode   {{ int.mode | default(defaults.apic.tenants.l3outs.node_profiles.interface_profiles.interfaces.mode) }}
-    Should Be Equal Value Json String   ${r.json()}   ${int}..l3extVirtualLIfP.attributes.mtu   {{ int.mtu | default(defaults.apic.tenants.l3outs.node_profiles.interface_profiles.interfaces.mtu) }}
-    Should Be Equal Value Json String   ${r.json()}   ${int}..l3extVirtualLIfP.attributes.nodeDn   topology/pod-{{ pod | default(defaults.apic.tenants.l3outs.node_profiles.interface_profiles.interfaces.pod) }}/node-{{ int.node_id }}
+    Should Be Equal Value Json String   ${r}   ${int}..l3extVirtualLIfP.attributes.addr   {{ int.ip }}
+    Should Be Equal Value Json String   ${r}   ${int}..l3extVirtualLIfP.attributes.descr   {{ int.description | default() }}
+    Should Be Equal Value Json String   ${r}   ${int}..l3extVirtualLIfP.attributes.ifInstT   ext-svi
+    Should Be Equal Value Json String   ${r}   ${int}..l3extVirtualLIfP.attributes.encapScope   {{ 'ctx' if int.scope | default(defaults.apic.tenants.l3outs.nodes.interfaces.scope) == 'vrf' else 'local' }}
+    Should Be Equal Value Json String   ${r}   ${int}..l3extVirtualLIfP.attributes.encap   vlan-{{ int.vlan }}
+    Should Be Equal Value Json String   ${r}   ${int}..l3extVirtualLIfP.attributes.llAddr   {{ int.link_local_address | default('::') }}
+    Should Be Equal Value Json String   ${r}   ${int}..l3extVirtualLIfP.attributes.mac   {{ int.mac | default(defaults.apic.tenants.l3outs.node_profiles.interface_profiles.interfaces.mac) }}
+    Should Be Equal Value Json String   ${r}   ${int}..l3extVirtualLIfP.attributes.mode   {{ int.mode | default(defaults.apic.tenants.l3outs.node_profiles.interface_profiles.interfaces.mode) }}
+    Should Be Equal Value Json String   ${r}   ${int}..l3extVirtualLIfP.attributes.mtu   {{ int.mtu | default(defaults.apic.tenants.l3outs.node_profiles.interface_profiles.interfaces.mtu) }}
+    Should Be Equal Value Json String   ${r}   ${int}..l3extVirtualLIfP.attributes.nodeDn   topology/pod-{{ pod | default(defaults.apic.tenants.l3outs.node_profiles.interface_profiles.interfaces.pod) }}/node-{{ int.node_id }}
 {% endif %}
 
 {% if int.floating_svi | default(defaults.apic.tenants.l3outs.node_profiles.interface_profiles.interfaces.floating_svi) %}
@@ -766,17 +766,17 @@ Verify L3out {{ l3out_name }} Node Profile {{ l3out_np_name }} Interface Profile
 Verify L3out {{ l3out_name }} Node Profile {{ l3out_np_name }} Interface Profile {{ l3out_ip_name }} Interface {{ loop.index }} Path {{ path.floating_ip }}
     ${int}=   Set Variable   $..l3extLIfP.children[?(@.l3extVirtualLIfP.attributes.nodeDn=='topology/pod-{{ pod | default(defaults.apic.tenants.l3outs.node_profiles.interface_profiles.interfaces.pod) }}/node-{{ int.node_id }}' & @.l3extVirtualLIfP.attributes.encap=='vlan-{{ int.vlan }}')]
     ${path}=   Set Variable   ${int}..l3extVirtualLIfP.children[?(@.l3extRsDynPathAtt.attributes.floatingAddr=='{{ path.floating_ip }}')]
-    Should Be Equal Value Json String   ${r.json()}   ${path}..l3extRsDynPathAtt.attributes.floatingAddr   {{ path.floating_ip }}
-    Should Be Equal Value Json String   ${r.json()}   ${path}..l3extRsDynPathAtt.attributes.floatingAddr   {{ path.floating_ip }}
+    Should Be Equal Value Json String   ${r}   ${path}..l3extRsDynPathAtt.attributes.floatingAddr   {{ path.floating_ip }}
+    Should Be Equal Value Json String   ${r}   ${path}..l3extRsDynPathAtt.attributes.floatingAddr   {{ path.floating_ip }}
     {% if path.vlan is defined and path.physical_domain is defined%}
-    Should Be Equal Value Json String   ${r.json()}   ${path}..l3extRsDynPathAtt.attributes.encap   vlan-{{ path.vlan }}
+    Should Be Equal Value Json String   ${r}   ${path}..l3extRsDynPathAtt.attributes.encap   vlan-{{ path.vlan }}
     {% endif %}
     {% if path.physical_domain is defined %}
-    Should Be Equal Value Json String   ${r.json()}   ${path}..l3extRsDynPathAtt.attributes.tDn   uni/phys-{{ path.physical_domain }}
+    Should Be Equal Value Json String   ${r}   ${path}..l3extRsDynPathAtt.attributes.tDn   uni/phys-{{ path.physical_domain }}
     {% elif path.vmware_vmm_domain is defined %}
-    Should Be Equal Value Json String   ${r.json()}   ${path}..l3extRsDynPathAtt.attributes.tDn   uni/vmmp-VMware/dom-{{ path.vmware_vmm_domain }}
+    Should Be Equal Value Json String   ${r}   ${path}..l3extRsDynPathAtt.attributes.tDn   uni/vmmp-VMware/dom-{{ path.vmware_vmm_domain }}
     {% if path.elag is defined and path.vmware_vmm_domain is defined %}
-    Should Be Equal Value Json String   ${r.json()}   ${path}..l3extRsDynPathAtt.children[?(@.l3extVirtualLIfPLagPolAtt.children[?(@.l3extRsVSwitchEnhancedLagPol.attributes.tDn)])]   uni/vmmp-VMware/dom-{{ path.vmware_vmm_domain }}/vswitchpolcont/enlacplagp-{{ path.elag }}
+    Should Be Equal Value Json String   ${r}   ${path}..l3extRsDynPathAtt.children[?(@.l3extVirtualLIfPLagPolAtt.children[?(@.l3extRsVSwitchEnhancedLagPol.attributes.tDn)])]   uni/vmmp-VMware/dom-{{ path.vmware_vmm_domain }}/vswitchpolcont/enlacplagp-{{ path.elag }}
     {% endif %}
     {% endif %}
 {% endfor %}
@@ -829,45 +829,45 @@ Verify L3out {{ l3out_name }} Node Profile {{ l3out_np_name }} Interface Profile
     ${int}=   Set Variable   $..l3extLIfP.children[?(@.l3extVirtualLIfP.attributes.nodeDn=='topology/pod-{{ pod | default(defaults.apic.tenants.l3outs.node_profiles.interface_profiles.interfaces.pod) }}/node-{{ int.node_id }}' & @.l3extVirtualLIfP.attributes.encap=='vlan-{{ int.vlan }}')]
     ${peer}=   Set Variable   ${int}..l3extVirtualLIfP.children[?(@.bgpPeerP.attributes.addr=='{{ peer.ip }}')]
 {% endif %}
-    Should Be Equal Value Json String   ${r.json()}   ${peer}..bgpPeerP.attributes.addr   {{ peer.ip }}
-    Should Be Equal Value Json String   ${r.json()}   ${peer}..bgpPeerP.attributes.descr   {{ peer.description | default() }}
-    Should Be Equal Value Json String   ${r.json()}   ${peer}..bgpPeerP.attributes.ctrl   {{ ctrl | join(',') }}
-    Should Be Equal Value Json String   ${r.json()}   ${peer}..bgpPeerP.attributes.allowedSelfAsCnt   {{ peer.allowed_self_as_count |default(defaults.apic.tenants.l3outs.node_profiles.interface_profiles.interfaces.bgp_peers.allowed_self_as_count) }}
-    Should Be Equal Value Json String   ${r.json()}   ${peer}..bgpPeerP.attributes.peerCtrl   {{ peer_ctrl | join(',') }}
-    Should Be Equal Value Json String   ${r.json()}   ${peer}..bgpPeerP.attributes.ttl   {{ peer.ttl | default(defaults.apic.tenants.l3outs.node_profiles.interface_profiles.interfaces.bgp_peers.ttl) }}
-    Should Be Equal Value Json String   ${r.json()}   ${peer}..bgpPeerP.attributes.weight   {{ peer.weight | default(defaults.apic.tenants.l3outs.node_profiles.interface_profiles.interfaces.bgp_peers.weight) }}
-    Should Be Equal Value Json String   ${r.json()}   ${peer}..bgpPeerP.attributes.privateASctrl   {{ priv_as_ctrl | join(',') }}
-    Should Be Equal Value Json String   ${r.json()}   ${peer}..bgpPeerP.attributes.addrTCtrl   {{ af | join(',') }}
-    Should Be Equal Value Json String   ${r.json()}   ${peer}..bgpPeerP.attributes.adminSt   {{ 'enabled' if peer.admin_state | default(defaults.apic.tenants.l3outs.node_profiles.interface_profiles.interfaces.bgp_peers.admin_state) else 'disabled' }}
+    Should Be Equal Value Json String   ${r}   ${peer}..bgpPeerP.attributes.addr   {{ peer.ip }}
+    Should Be Equal Value Json String   ${r}   ${peer}..bgpPeerP.attributes.descr   {{ peer.description | default() }}
+    Should Be Equal Value Json String   ${r}   ${peer}..bgpPeerP.attributes.ctrl   {{ ctrl | join(',') }}
+    Should Be Equal Value Json String   ${r}   ${peer}..bgpPeerP.attributes.allowedSelfAsCnt   {{ peer.allowed_self_as_count |default(defaults.apic.tenants.l3outs.node_profiles.interface_profiles.interfaces.bgp_peers.allowed_self_as_count) }}
+    Should Be Equal Value Json String   ${r}   ${peer}..bgpPeerP.attributes.peerCtrl   {{ peer_ctrl | join(',') }}
+    Should Be Equal Value Json String   ${r}   ${peer}..bgpPeerP.attributes.ttl   {{ peer.ttl | default(defaults.apic.tenants.l3outs.node_profiles.interface_profiles.interfaces.bgp_peers.ttl) }}
+    Should Be Equal Value Json String   ${r}   ${peer}..bgpPeerP.attributes.weight   {{ peer.weight | default(defaults.apic.tenants.l3outs.node_profiles.interface_profiles.interfaces.bgp_peers.weight) }}
+    Should Be Equal Value Json String   ${r}   ${peer}..bgpPeerP.attributes.privateASctrl   {{ priv_as_ctrl | join(',') }}
+    Should Be Equal Value Json String   ${r}   ${peer}..bgpPeerP.attributes.addrTCtrl   {{ af | join(',') }}
+    Should Be Equal Value Json String   ${r}   ${peer}..bgpPeerP.attributes.adminSt   {{ 'enabled' if peer.admin_state | default(defaults.apic.tenants.l3outs.node_profiles.interface_profiles.interfaces.bgp_peers.admin_state) else 'disabled' }}
 {% if ( tenant.name == 'infra' ) and ( l3out.remote_leaf | default(defaults.apic.tenants.l3outs.remote_leaf) or l3out.multipod | default(defaults.apic.tenants.l3outs.multipod) ) %}
-    Should Be Equal Value Json String   ${r.json()}   ${peer}..bgpPeerP.attributes.connectivityType   multipod,multisite
+    Should Be Equal Value Json String   ${r}   ${peer}..bgpPeerP.attributes.connectivityType   multipod,multisite
 {% endif %}
-    Should Be Equal Value Json String   ${r.json()}   ${peer}..bgpAsP.attributes.asn   {{ peer.remote_as }}
+    Should Be Equal Value Json String   ${r}   ${peer}..bgpAsP.attributes.asn   {{ peer.remote_as }}
 {% if peer.local_as is defined %}
-    Should Be Equal Value Json String   ${r.json()}   ${peer}..bgpLocalAsnP.attributes.localAsn   {{ peer.local_as }}
-    Should Be Equal Value Json String   ${r.json()}   ${peer}..bgpLocalAsnP.attributes.asnPropagate   {{ peer.as_propagate | default(defaults.apic.tenants.l3outs.node_profiles.interface_profiles.interfaces.bgp_peers.as_propagate) }}
+    Should Be Equal Value Json String   ${r}   ${peer}..bgpLocalAsnP.attributes.localAsn   {{ peer.local_as }}
+    Should Be Equal Value Json String   ${r}   ${peer}..bgpLocalAsnP.attributes.asnPropagate   {{ peer.as_propagate | default(defaults.apic.tenants.l3outs.node_profiles.interface_profiles.interfaces.bgp_peers.as_propagate) }}
 {% endif %}
 {% if peer.peer_prefix_policy is defined %}
 {% set peer_prefix_policy_name = peer.peer_prefix_policy ~ defaults.apic.tenants.policies.bgp_peer_prefix_policies.name_suffix %}
-    Should Be Equal Value Json String   ${r.json()}   ${peer}..bgpRsPeerPfxPol.attributes.tnBgpPeerPfxPolName   {{ peer_prefix_policy_name }}
+    Should Be Equal Value Json String   ${r}   ${peer}..bgpRsPeerPfxPol.attributes.tnBgpPeerPfxPolName   {{ peer_prefix_policy_name }}
 {% endif %}
 {% if peer.export_route_control is defined %}
 {% set export_route_control_name = peer.export_route_control ~ defaults.apic.tenants.policies.route_control_route_maps.name_suffix  %}
     ${export_rc}=   Set Variable   ${peer}..children[?(@.bgpRsPeerToProfile.attributes.direction=='export')]
-    Should Be Equal Value Json String   ${r.json()}   ${export_rc}..bgpRsPeerToProfile.attributes.tDn   uni/tn-{{ tenant.name }}/prof-{{ export_route_control_name }}
+    Should Be Equal Value Json String   ${r}   ${export_rc}..bgpRsPeerToProfile.attributes.tDn   uni/tn-{{ tenant.name }}/prof-{{ export_route_control_name }}
 {% endif %}
 {% if peer.import_route_control is defined %}
 {% set import_route_control_name = peer.import_route_control ~ defaults.apic.tenants.policies.route_control_route_maps.name_suffix  %}
     ${import_rc}=   Set Variable   ${peer}..children[?(@.bgpRsPeerToProfile.attributes.direction=='import')]
-    Should Be Equal Value Json String   ${r.json()}   ${import_rc}..bgpRsPeerToProfile.attributes.tDn   uni/tn-{{ tenant.name}}/prof-{{ import_route_control_name }}
+    Should Be Equal Value Json String   ${r}   ${import_rc}..bgpRsPeerToProfile.attributes.tDn   uni/tn-{{ tenant.name}}/prof-{{ import_route_control_name }}
 {% endif %}
 
 {% endfor %}
 
 {% if int.micro_bfd is defined %}
-    Should Be Equal Value Json String   ${r.json()}   ${int}..bfdMicroBfdP.attributes.adminState   yes
-    Should Be Equal Value Json String   ${r.json()}   ${int}..bfdMicroBfdP.attributes.dst   {{ int.micro_bfd.destination_ip }}
-    Should Be Equal Value Json String   ${r.json()}   ${int}..bfdMicroBfdP.attributes.stTm   {{ int.micro_bfd.start_timer | default(defaults.apic.tenants.l3outs.node_profiles.interface_profiles.interfaces.micro_bfd.start_timer )}}
+    Should Be Equal Value Json String   ${r}   ${int}..bfdMicroBfdP.attributes.adminState   yes
+    Should Be Equal Value Json String   ${r}   ${int}..bfdMicroBfdP.attributes.dst   {{ int.micro_bfd.destination_ip }}
+    Should Be Equal Value Json String   ${r}   ${int}..bfdMicroBfdP.attributes.stTm   {{ int.micro_bfd.start_timer | default(defaults.apic.tenants.l3outs.node_profiles.interface_profiles.interfaces.micro_bfd.start_timer )}}
 {% endif %}
 
 {% endfor %}
@@ -879,12 +879,12 @@ Verify L3out {{ l3out_name }} Node Profile {{ l3out_np_name }} Interface Profile
 Verify L3out {{ l3out_name }} Node Profile {{ l3out_np_name }} Interface Profile {{ l3out_ip_name }} DHCP Label {{ dhcp_relay_policy_name }}
 
     ${dhcp}=   Set Variable   $..l3extLIfP.children[?(@.dhcpLbl.attributes.name=='{{ dhcp_relay_policy_name }}')]
-    Should Be Equal Value Json String   ${r.json()}   ${dhcp}..dhcpLbl.attributes.name   {{ dhcp_relay_policy_name }}
-    Should Be Equal Value Json String   ${r.json()}   ${dhcp}..dhcpLbl.attributes.owner   {{ dhcp_label.scope | default(defaults.apic.tenants.l3outs.dhcp_labels.scope) }}
+    Should Be Equal Value Json String   ${r}   ${dhcp}..dhcpLbl.attributes.name   {{ dhcp_relay_policy_name }}
+    Should Be Equal Value Json String   ${r}   ${dhcp}..dhcpLbl.attributes.owner   {{ dhcp_label.scope | default(defaults.apic.tenants.l3outs.dhcp_labels.scope) }}
 
 {% if dhcp_label.dhcp_option_policy is defined %}
 {% set dhcp_option_policy_name = dhcp_label.dhcp_option_policy ~ defaults.apic.tenants.policies.dhcp_option_policies.name_suffix %}
-    Should Be Equal Value Json String   ${r.json()}   ${dhcp}..dhcpRsDhcpOptionPol.attributes.tnDhcpOptionPolName   {{ dhcp_option_policy_name }}
+    Should Be Equal Value Json String   ${r}   ${dhcp}..dhcpRsDhcpOptionPol.attributes.tnDhcpOptionPolName   {{ dhcp_option_policy_name }}
 {% endif %}
 
 {% endfor %}
@@ -896,17 +896,17 @@ Verify L3out {{ l3out_name }} Node Profile {{ l3out_np_name }} Interface Profile
 Verify L3out {{ l3out_name }} BGP Protocol Profile
 
 {% if np.bgp.name is defined | default() %}
-    Should Be Equal Value Json String   ${r.json()}   $..bgpProtP.attributes.name  {{ np.bgp.name }}
+    Should Be Equal Value Json String   ${r}   $..bgpProtP.attributes.name  {{ np.bgp.name }}
 {% endif %}
 
 {% if np.bgp.timer_policy is defined %}
 {% set bgp_timer_policy_name = np.bgp.timer_policy ~ defaults.apic.tenants.policies.bgp_timer_policies.name_suffix %}
-    Should Be Equal Value Json String   ${r.json()}   $..bgpRsBgpNodeCtxPol.attributes.tnBgpCtxPolName   {{ bgp_timer_policy_name }}
+    Should Be Equal Value Json String   ${r}   $..bgpRsBgpNodeCtxPol.attributes.tnBgpCtxPolName   {{ bgp_timer_policy_name }}
 {% endif %}
 
 {% if np.bgp.as_path_policy is defined %}
 {% set bgp_as_path_policy_name = np.bgp.as_path_policy ~ defaults.apic.tenants.policies.bgp_best_path_policies.name_suffix %}
-    Should Be Equal Value Json String   ${r.json()}   $..bgpRsBestPathCtrlPol.attributes.tnBgpBestPathCtrlPolName   {{ bgp_as_path_policy_name }}
+    Should Be Equal Value Json String   ${r}   $..bgpRsBestPathCtrlPol.attributes.tnBgpBestPathCtrlPolName   {{ bgp_as_path_policy_name }}
 {% endif %}
 
 {% endif %}
@@ -918,12 +918,12 @@ Verify L3out {{ l3out_name }} BGP Protocol Profile
 Verify L3out {{ l3out_name }} Import Route Map
     {% if l3out.import_route_map.name is defined %}
         ${route_map}=   Set Variable   $..l3extOut.children[?(@.rtctrlProfile.attributes.name=='{{ l3out.import_route_map.name }}')]
-        Should Be Equal Value Json String   ${r.json()}   ${route_map}..rtctrlProfile.attributes.name   {{ l3out.import_route_map.name }}
+        Should Be Equal Value Json String   ${r}   ${route_map}..rtctrlProfile.attributes.name   {{ l3out.import_route_map.name }}
     {% else %}
         ${route_map}=   Set Variable   $..l3extOut.children[?(@.rtctrlProfile.attributes.name=='default-import')]
     {% endif %}
-    Should Be Equal Value Json String   ${r.json()}   ${route_map}..rtctrlProfile.attributes.descr   {{ context.description | default() }}
-    Should Be Equal Value Json String   ${r.json()}   ${route_map}..rtctrlProfile.attributes.type   {{ l3out.import_route_map.type | default(defaults.apic.tenants.l3outs.import_route_map.type) }}
+    Should Be Equal Value Json String   ${r}   ${route_map}..rtctrlProfile.attributes.descr   {{ context.description | default() }}
+    Should Be Equal Value Json String   ${r}   ${route_map}..rtctrlProfile.attributes.type   {{ l3out.import_route_map.type | default(defaults.apic.tenants.l3outs.import_route_map.type) }}
 
 {% for context in l3out.import_route_map.contexts | default([]) %}
 {% set context_name = context.name ~ defaults.apic.tenants.l3outs.import_route_map.contexts.name_suffix %}
@@ -935,19 +935,19 @@ Verify L3out {{ l3out_name }} Import Route Map Context {{ context_name }}
         ${route_map}=   Set Variable   $..l3extOut.children[?(@.rtctrlProfile.attributes.name=='default-import')]
     {% endif %}
     ${context}=   Set Variable   ${route_map}..rtctrlProfile.children[?(@.rtctrlCtxP.attributes.name=='{{ context_name }}')]
-    Should Be Equal Value Json String   ${r.json()}   ${context}..rtctrlCtxP.attributes.name   {{ context_name }}
-    Should Be Equal Value Json String   ${r.json()}   ${context}..rtctrlCtxP.attributes.descr   {{ context.description | default() }}
-    Should Be Equal Value Json String   ${r.json()}   ${context}..rtctrlCtxP.attributes.action   {{ context.action | default(defaults.apic.tenants.l3outs.import_route_map.contexts.action) }}
-    Should Be Equal Value Json String   ${r.json()}   ${context}..rtctrlCtxP.attributes.order   {{ context.order | default(defaults.apic.tenants.l3outs.import_route_map.contexts.order) }}
+    Should Be Equal Value Json String   ${r}   ${context}..rtctrlCtxP.attributes.name   {{ context_name }}
+    Should Be Equal Value Json String   ${r}   ${context}..rtctrlCtxP.attributes.descr   {{ context.description | default() }}
+    Should Be Equal Value Json String   ${r}   ${context}..rtctrlCtxP.attributes.action   {{ context.action | default(defaults.apic.tenants.l3outs.import_route_map.contexts.action) }}
+    Should Be Equal Value Json String   ${r}   ${context}..rtctrlCtxP.attributes.order   {{ context.order | default(defaults.apic.tenants.l3outs.import_route_map.contexts.order) }}
 {% if context.set_rule is defined %}
 {% set rule_name = context.set_rule ~ defaults.apic.tenants.policies.set_rules.name_suffix %}
-    Should Be Equal Value Json String   ${r.json()}   ${context}..rtctrlRsScopeToAttrP.attributes.tnRtctrlAttrPName   {{ rule_name }}
+    Should Be Equal Value Json String   ${r}   ${context}..rtctrlRsScopeToAttrP.attributes.tnRtctrlAttrPName   {{ rule_name }}
 {% endif %}
 
 {% if context.match_rules is defined %}
 {% for rule in context.match_rules | default([]) %}
 {% set match_rule_name_with_suffix = rule ~ defaults.apic.tenants.policies.match_rules.name_suffix %}
-  Should Be Equal Value Json String   ${r.json()}   $..rtctrlCtxP.children[?(@.rtctrlRsCtxPToSubjP.attributes.tnRtctrlSubjPName=='{{ match_rule_name_with_suffix }}')]
+  Should Be Equal Value Json String   ${r}   $..rtctrlCtxP.children[?(@.rtctrlRsCtxPToSubjP.attributes.tnRtctrlSubjPName=='{{ match_rule_name_with_suffix }}')]
 {% endfor %}
 {% endif %}
 
@@ -962,9 +962,9 @@ Verify L3out {{ l3out_name }} Import Route Map Context {{ context_name }}
 Verify L3out {{ l3out_name }} Route Maps {{route_map_name}}
 
     ${route_map}=   Set Variable   $..l3extOut.children[?(@.rtctrlProfile.attributes.name=='{{ route_map_name }}')]
-    Should Be Equal Value Json String   ${r.json()}   ${route_map}..rtctrlProfile.attributes.name   {{ route_map_name }}
-    Should Be Equal Value Json String   ${r.json()}   ${route_map}..rtctrlProfile.attributes.descr   {{ route_map.description | default() }}
-    Should Be Equal Value Json String   ${r.json()}   ${route_map}..rtctrlProfile.attributes.type   {{ route_map.type | default(defaults.apic.tenants.l3outs.route_maps.type) }}
+    Should Be Equal Value Json String   ${r}   ${route_map}..rtctrlProfile.attributes.name   {{ route_map_name }}
+    Should Be Equal Value Json String   ${r}   ${route_map}..rtctrlProfile.attributes.descr   {{ route_map.description | default() }}
+    Should Be Equal Value Json String   ${r}   ${route_map}..rtctrlProfile.attributes.type   {{ route_map.type | default(defaults.apic.tenants.l3outs.route_maps.type) }}
 
 {% for context in route_map.contexts | default([]) %}
 {% set context_name = context.name ~ defaults.apic.tenants.l3outs.route_maps.contexts.name_suffix %}
@@ -972,19 +972,19 @@ Verify L3out {{ l3out_name }} Route Maps {{route_map_name}}
 Verify L3out {{ l3out_name }} Route Maps Context {{ context_name }}
     ${route_map}=   Set Variable   $..l3extOut.children[?(@.rtctrlProfile.attributes.name=='{{ route_map_name }}')]
     ${context}=   Set Variable   ${route_map}..rtctrlProfile.children[?(@.rtctrlCtxP.attributes.name=='{{ context_name }}')]
-    Should Be Equal Value Json String   ${r.json()}   ${context}..rtctrlCtxP.attributes.name   {{ context_name }}
-    Should Be Equal Value Json String   ${r.json()}   ${context}..rtctrlCtxP.attributes.descr   {{ context.description | default() }}
-    Should Be Equal Value Json String   ${r.json()}   ${context}..rtctrlCtxP.attributes.action   {{ context.action | default(defaults.apic.tenants.l3outs.route_maps.contexts.action) }}
-    Should Be Equal Value Json String   ${r.json()}   ${context}..rtctrlCtxP.attributes.order   {{ context.order | default(defaults.apic.tenants.l3outs.route_maps.contexts.order) }}
+    Should Be Equal Value Json String   ${r}   ${context}..rtctrlCtxP.attributes.name   {{ context_name }}
+    Should Be Equal Value Json String   ${r}   ${context}..rtctrlCtxP.attributes.descr   {{ context.description | default() }}
+    Should Be Equal Value Json String   ${r}   ${context}..rtctrlCtxP.attributes.action   {{ context.action | default(defaults.apic.tenants.l3outs.route_maps.contexts.action) }}
+    Should Be Equal Value Json String   ${r}   ${context}..rtctrlCtxP.attributes.order   {{ context.order | default(defaults.apic.tenants.l3outs.route_maps.contexts.order) }}
 {% if context.set_rule is defined %}
 {% set rule_name = context.set_rule ~ defaults.apic.tenants.policies.set_rules.name_suffix %}
-    Should Be Equal Value Json String   ${r.json()}   ${context}..rtctrlRsScopeToAttrP.attributes.tnRtctrlAttrPName   {{ rule_name }}
+    Should Be Equal Value Json String   ${r}   ${context}..rtctrlRsScopeToAttrP.attributes.tnRtctrlAttrPName   {{ rule_name }}
 {% endif %}
 
 {% if context.match_rules is defined %}
 {% for rule in context.match_rules | default([]) %}
 {% set match_rule_name_with_suffix = rule ~ defaults.apic.tenants.policies.match_rules.name_suffix %}
-  Should Be Equal Value Json String   ${r.json()}   $..rtctrlCtxP.children[?(@.rtctrlRsCtxPToSubjP.attributes.tnRtctrlSubjPName=='{{ match_rule_name_with_suffix }}')]
+  Should Be Equal Value Json String   ${r}   $..rtctrlCtxP.children[?(@.rtctrlRsCtxPToSubjP.attributes.tnRtctrlSubjPName=='{{ match_rule_name_with_suffix }}')]
 {% endfor %}
 {% endif %}
 
@@ -999,12 +999,12 @@ Verify L3out {{ l3out_name }} Route Maps Context {{ context_name }}
 Verify L3out {{ l3out_name }} Export Route Map
     {% if l3out.export_route_map.name is defined %}
         ${route_map}=   Set Variable   $..l3extOut.children[?(@.rtctrlProfile.attributes.name=='{{ l3out.export_route_map.name }}')]
-        Should Be Equal Value Json String   ${r.json()}   ${route_map}..rtctrlProfile.attributes.name   {{ l3out.export_route_map.name }}
+        Should Be Equal Value Json String   ${r}   ${route_map}..rtctrlProfile.attributes.name   {{ l3out.export_route_map.name }}
     {% else %}
         ${route_map}=   Set Variable   $..l3extOut.children[?(@.rtctrlProfile.attributes.name=='default-export')]
     {% endif %}
-    Should Be Equal Value Json String   ${r.json()}   ${route_map}..rtctrlProfile.attributes.descr   {{ context.description | default() }}
-    Should Be Equal Value Json String   ${r.json()}   ${route_map}..rtctrlProfile.attributes.type   {{ l3out.export_route_map.type | default(defaults.apic.tenants.l3outs.export_route_map.type) }}
+    Should Be Equal Value Json String   ${r}   ${route_map}..rtctrlProfile.attributes.descr   {{ context.description | default() }}
+    Should Be Equal Value Json String   ${r}   ${route_map}..rtctrlProfile.attributes.type   {{ l3out.export_route_map.type | default(defaults.apic.tenants.l3outs.export_route_map.type) }}
 
 {% for context in l3out.export_route_map.contexts | default([]) %}
 {% set context_name = context.name ~ defaults.apic.tenants.l3outs.export_route_map.contexts.name_suffix %}
@@ -1016,19 +1016,19 @@ Verify L3out {{ l3out_name }} Export Route Map Context {{ context_name }}
         ${route_map}=   Set Variable   $..l3extOut.children[?(@.rtctrlProfile.attributes.name=='default-export')]
     {% endif %}
     ${context}=   Set Variable   ${route_map}..rtctrlProfile.children[?(@.rtctrlCtxP.attributes.name=='{{ context_name }}')]
-    Should Be Equal Value Json String   ${r.json()}   ${context}..rtctrlCtxP.attributes.name   {{ context_name }}
-    Should Be Equal Value Json String   ${r.json()}   ${context}..rtctrlCtxP.attributes.descr   {{ context.description | default() }}
-    Should Be Equal Value Json String   ${r.json()}   ${context}..rtctrlCtxP.attributes.action   {{ context.action | default(defaults.apic.tenants.l3outs.export_route_map.contexts.action) }}
-    Should Be Equal Value Json String   ${r.json()}   ${context}..rtctrlCtxP.attributes.order   {{ context.order | default(defaults.apic.tenants.l3outs.export_route_map.contexts.order) }}
+    Should Be Equal Value Json String   ${r}   ${context}..rtctrlCtxP.attributes.name   {{ context_name }}
+    Should Be Equal Value Json String   ${r}   ${context}..rtctrlCtxP.attributes.descr   {{ context.description | default() }}
+    Should Be Equal Value Json String   ${r}   ${context}..rtctrlCtxP.attributes.action   {{ context.action | default(defaults.apic.tenants.l3outs.export_route_map.contexts.action) }}
+    Should Be Equal Value Json String   ${r}   ${context}..rtctrlCtxP.attributes.order   {{ context.order | default(defaults.apic.tenants.l3outs.export_route_map.contexts.order) }}
 {% if context.set_rule is defined %}
 {% set rule_name = context.set_rule ~ defaults.apic.tenants.policies.set_rules.name_suffix %}
-    Should Be Equal Value Json String   ${r.json()}   ${context}..rtctrlRsScopeToAttrP.attributes.tnRtctrlAttrPName   {{ rule_name }}
+    Should Be Equal Value Json String   ${r}   ${context}..rtctrlRsScopeToAttrP.attributes.tnRtctrlAttrPName   {{ rule_name }}
 {% endif %}
 
 {% if context.match_rules is defined %}
 {% for rule in context.match_rules | default([]) %}
 {% set match_rule_name_with_suffix = rule ~ defaults.apic.tenants.policies.match_rules.name_suffix %}
-  Should Be Equal Value Json String   ${r.json()}   $..rtctrlCtxP.children[?(@.rtctrlRsCtxPToSubjP.attributes.tnRtctrlSubjPName=='{{ match_rule_name_with_suffix }}')]
+  Should Be Equal Value Json String   ${r}   $..rtctrlCtxP.children[?(@.rtctrlRsCtxPToSubjP.attributes.tnRtctrlSubjPName=='{{ match_rule_name_with_suffix }}')]
 {% endfor %}
 {% endif %}
 
@@ -1039,15 +1039,15 @@ Verify L3out {{ l3out_name }} Export Route Map Context {{ context_name }}
 {% if l3out.l3_multicast_ipv4 | default(defaults.apic.tenants.l3outs.l3_multicast_ipv4) %}
 
 Verify L3out {{ l3out_name }} Multicast IPv4
-    Should Be Equal Value Json String   ${r.json()}   $..pimExtP.attributes.enabledAf   ipv4-mcast
-    Should Be Equal Value Json String   ${r.json()}   $..pimExtP.attributes.name   pim
+    Should Be Equal Value Json String   ${r}   $..pimExtP.attributes.enabledAf   ipv4-mcast
+    Should Be Equal Value Json String   ${r}   $..pimExtP.attributes.name   pim
 {% endif %}
 
 {% if l3out.interleak_route_map is defined %}
 {% set interleak_route_map_name = l3out.interleak_route_map ~ defaults.apic.tenants.policies.route_control_route_maps.name_suffix %}
 
 Verify L3out {{ l3out_name }} Route Profile for Interleak
-    Should Be Equal Value Json String   ${r.json()}   $..l3extRsInterleakPol.attributes.tnRtctrlProfileName   {{ interleak_route_map_name }}
+    Should Be Equal Value Json String   ${r}   $..l3extRsInterleakPol.attributes.tnRtctrlProfileName   {{ interleak_route_map_name }}
 
 {% endif %}
 
@@ -1057,9 +1057,9 @@ Verify L3out {{ l3out_name }} Route Profile for Interleak
 {% if l3out.default_route_leak_policy.outside_scope | default(defaults.apic.tenants.l3outs.default_route_leak_policy.outside_scope) %}{% set scope = scope + [("l3-out")] %}{% endif %}
 
 Verify L3out {{ l3out_name }} Default Route Leak Policy
-    Should Be Equal Value Json String   ${r.json()}   $..l3extDefaultRouteLeakP.attributes.always   {{ 'yes' if l3out.default_route_leak_policy.always | default(defaults.apic.tenants.l3outs.default_route_leak_policy.always) else 'no' }}
-    Should Be Equal Value Json String   ${r.json()}   $..l3extDefaultRouteLeakP.attributes.criteria   {{ l3out.default_route_leak_policy.criteria | default(defaults.apic.tenants.l3outs.default_route_leak_policy.criteria) }}
-    Should Be Equal Value Json String   ${r.json()}   $..l3extDefaultRouteLeakP.attributes.scope   {{ scope | join(',') }}
+    Should Be Equal Value Json String   ${r}   $..l3extDefaultRouteLeakP.attributes.always   {{ 'yes' if l3out.default_route_leak_policy.always | default(defaults.apic.tenants.l3outs.default_route_leak_policy.always) else 'no' }}
+    Should Be Equal Value Json String   ${r}   $..l3extDefaultRouteLeakP.attributes.criteria   {{ l3out.default_route_leak_policy.criteria | default(defaults.apic.tenants.l3outs.default_route_leak_policy.criteria) }}
+    Should Be Equal Value Json String   ${r}   $..l3extDefaultRouteLeakP.attributes.scope   {{ scope | join(',') }}
 
 {% endif %}
 
@@ -1068,7 +1068,7 @@ Verify L3out {{ l3out_name }} Default Route Leak Policy
 
 Verify L3out {{ l3out_name }} Dampening Policy for IPv4
     ${dampen_pol_ipv4}=   Set Variable   $..l3extOut.children[?(@.l3extRsDampeningPol.attributes.af=='ipv4-ucast')]
-    Should Be Equal Value Json String   ${r.json()}   ${dampen_pol_ipv4}..attributes.tnRtctrlProfileName   {{ dampening_ipv4_route_map_name }}
+    Should Be Equal Value Json String   ${r}   ${dampen_pol_ipv4}..attributes.tnRtctrlProfileName   {{ dampening_ipv4_route_map_name }}
 
 {% endif %}
 
@@ -1077,7 +1077,7 @@ Verify L3out {{ l3out_name }} Dampening Policy for IPv4
 
 Verify L3out {{ l3out_name }} Dampening Policy for IPv6
     ${dampen_pol_ipv6}=   Set Variable   $..l3extOut.children[?(@.l3extRsDampeningPol.attributes.af=='ipv6-ucast')]
-    Should Be Equal Value Json String   ${r.json()}   ${dampen_pol_ipv6}..attributes.tnRtctrlProfileName   {{ dampening_ipv6_route_map_name }}
+    Should Be Equal Value Json String   ${r}   ${dampen_pol_ipv6}..attributes.tnRtctrlProfileName   {{ dampening_ipv6_route_map_name }}
 
 {% endif %}
 
@@ -1086,8 +1086,8 @@ Verify L3out {{ l3out_name }} Dampening Policy for IPv6
 
 Verify L3out {{ l3out_name }} Route Profile for Redistribution {{ redistribution_route_map_name }}
     ${route_map}=   Set Variable   $..l3extOut.children[?(@.l3extRsRedistributePol.attributes.tnRtctrlProfileName=='{{ redistribution_route_map_name }}')]
-    Should Be Equal Value Json String   ${r.json()}   ${route_map}..attributes.tnRtctrlProfileName   {{ redistribution_route_map_name }}
-    Should Be Equal Value Json String   ${r.json()}   ${route_map}..attributes.src   {{ rm.source | default(defaults.apic.tenants.l3outs.redistribution_route_maps.source) }}
+    Should Be Equal Value Json String   ${r}   ${route_map}..attributes.tnRtctrlProfileName   {{ redistribution_route_map_name }}
+    Should Be Equal Value Json String   ${r}   ${route_map}..attributes.src   {{ rm.source | default(defaults.apic.tenants.l3outs.redistribution_route_maps.source) }}
 
 {% endfor %}
 
@@ -1096,20 +1096,20 @@ Verify L3out {{ l3out_name }} Route Profile for Redistribution {{ redistribution
 
 Verify L3out {{ l3out_name }} External EPG {{ eepg_name }}
     ${eepg}=   Set Variable   $..l3extOut.children[?(@.l3extInstP.attributes.name=='{{ eepg_name }}')]
-    Should Be Equal Value Json String   ${r.json()}   ${eepg}..l3extInstP.attributes.name   {{ eepg_name }}
-    Should Be Equal Value Json String   ${r.json()}   ${eepg}..l3extInstP.attributes.nameAlias   {{ epg.alias | default() }}
-    Should Be Equal Value Json String   ${r.json()}   ${eepg}..l3extInstP.attributes.descr   {{ epg.description | default() }}
-    Should Be Equal Value Json String   ${r.json()}   ${eepg}..l3extInstP.attributes.prefGrMemb   {{ 'include' if epg.preferred_group | default(defaults.apic.tenants.l3outs.external_endpoint_groups.preferred_group) else 'exclude' }}
-    Should Be Equal Value Json String   ${r.json()}   ${eepg}..l3extInstP.attributes.prio   {{ epg.qos_class | default(defaults.apic.tenants.l3outs.external_endpoint_groups.qos_class) }}
-    Should Be Equal Value Json String   ${r.json()}   ${eepg}..l3extInstP.attributes.targetDscp   {{ epg.target_dscp | default(defaults.apic.tenants.l3outs.external_endpoint_groups.target_dscp) }}
+    Should Be Equal Value Json String   ${r}   ${eepg}..l3extInstP.attributes.name   {{ eepg_name }}
+    Should Be Equal Value Json String   ${r}   ${eepg}..l3extInstP.attributes.nameAlias   {{ epg.alias | default() }}
+    Should Be Equal Value Json String   ${r}   ${eepg}..l3extInstP.attributes.descr   {{ epg.description | default() }}
+    Should Be Equal Value Json String   ${r}   ${eepg}..l3extInstP.attributes.prefGrMemb   {{ 'include' if epg.preferred_group | default(defaults.apic.tenants.l3outs.external_endpoint_groups.preferred_group) else 'exclude' }}
+    Should Be Equal Value Json String   ${r}   ${eepg}..l3extInstP.attributes.prio   {{ epg.qos_class | default(defaults.apic.tenants.l3outs.external_endpoint_groups.qos_class) }}
+    Should Be Equal Value Json String   ${r}   ${eepg}..l3extInstP.attributes.targetDscp   {{ epg.target_dscp | default(defaults.apic.tenants.l3outs.external_endpoint_groups.target_dscp) }}
 
 {%- for route_control_profile in epg.route_control_profiles | default([]) %}
 {% set route_control_profile_name = route_control_profile.name ~ defaults.apic.tenants.l3outs.external_endpoint_groups.route_control_profiles.name_suffix %}
 
 Verify L3out {{ l3out_name }} External EPG {{ eepg_name }} Route Control Profile {{ route_control_profile_name }}
     ${eepg}=   Set Variable   $..l3extOut.children[?(@.l3extInstP.attributes.name=='{{ eepg_name }}')]
-    Should Be Equal Value Json String   ${r.json()}   ${eepg}..l3extRsInstPToProfile.attributes.tnRtctrlProfileName   {{ route_control_profile_name ~ defaults.apic.tenants.l3outs.external_endpoint_groups.route_control_profiles.name_suffix }}
-    Should Be Equal Value Json String   ${r.json()}   ${eepg}..l3extRsInstPToProfile.attributes.direction   {{ route_control_profile.direction | default(defaults.apic.tenants.l3outs.external_endpoint_groups.route_control_profiles.direction) }}
+    Should Be Equal Value Json String   ${r}   ${eepg}..l3extRsInstPToProfile.attributes.tnRtctrlProfileName   {{ route_control_profile_name ~ defaults.apic.tenants.l3outs.external_endpoint_groups.route_control_profiles.name_suffix }}
+    Should Be Equal Value Json String   ${r}   ${eepg}..l3extRsInstPToProfile.attributes.direction   {{ route_control_profile.direction | default(defaults.apic.tenants.l3outs.external_endpoint_groups.route_control_profiles.direction) }}
 
 {% endfor %}
 
@@ -1128,21 +1128,21 @@ Verify L3out {{ l3out_name }} External EPG {{ eepg_name }} Route Control Profile
 Verify L3out {{ l3out_name }} External EPG {{ eepg_name }} Subnet {{ subnet.prefix }}
     ${eepg}=   Set Variable   $..l3extOut.children[?(@.l3extInstP.attributes.name=='{{ eepg_name }}')]
     ${subnet}=   Set Variable   ${eepg}..l3extInstP.children[?(@.l3extSubnet.attributes.ip=='{{ subnet.prefix }}')]
-    Should Be Equal Value Json String   ${r.json()}   ${subnet}..l3extSubnet.attributes.aggregate   {{ agg | join(',') }}
-    Should Be Equal Value Json String   ${r.json()}   ${subnet}..l3extSubnet.attributes.ip   {{ subnet.prefix }}
-    Should Be Equal Value Json String   ${r.json()}   ${subnet}..l3extSubnet.attributes.descr   {{ subnet.descr | default() }}
-    Should Be Equal Value Json String   ${r.json()}   ${subnet}..l3extSubnet.attributes.name   {{ subnet.name | default() }}
-    Should Be Equal Value Json String   ${r.json()}   ${subnet}..l3extSubnet.attributes.scope   {{ scope | join(',') }}
+    Should Be Equal Value Json String   ${r}   ${subnet}..l3extSubnet.attributes.aggregate   {{ agg | join(',') }}
+    Should Be Equal Value Json String   ${r}   ${subnet}..l3extSubnet.attributes.ip   {{ subnet.prefix }}
+    Should Be Equal Value Json String   ${r}   ${subnet}..l3extSubnet.attributes.descr   {{ subnet.descr | default() }}
+    Should Be Equal Value Json String   ${r}   ${subnet}..l3extSubnet.attributes.name   {{ subnet.name | default() }}
+    Should Be Equal Value Json String   ${r}   ${subnet}..l3extSubnet.attributes.scope   {{ scope | join(',') }}
 {% if subnet.bgp_route_summarization | default(defaults.apic.tenants.l3outs.external_endpoint_groups.subnets.bgp_route_summarization) %}
     {% if subnet.bgp_route_summarization_policy is defined %}
-        Should Be Equal Value Json String   ${r.json()}   ${subnet}..l3extRsSubnetToRtSumm.attributes.tDn   uni/tn-{{ tenant.name }}/bgprtsum-{{ subnet.bgp_route_summarization_policy }}
+        Should Be Equal Value Json String   ${r}   ${subnet}..l3extRsSubnetToRtSumm.attributes.tDn   uni/tn-{{ tenant.name }}/bgprtsum-{{ subnet.bgp_route_summarization_policy }}
     {% else %}
-        Should Be Equal Value Json String   ${r.json()}   ${subnet}..l3extRsSubnetToRtSumm.attributes.tDn   uni/tn-common/bgprtsum-default
+        Should Be Equal Value Json String   ${r}   ${subnet}..l3extRsSubnetToRtSumm.attributes.tDn   uni/tn-common/bgprtsum-default
     {% endif %}
 {% elif subnet.ospf_route_summarization | default(defaults.apic.tenants.l3outs.external_endpoint_groups.subnets.ospf_route_summarization) %}
-    Should Be Equal Value Json String   ${r.json()}   ${subnet}..l3extRsSubnetToRtSumm.attributes.tDn   uni/tn-common/ospfrtsumm-default
+    Should Be Equal Value Json String   ${r}   ${subnet}..l3extRsSubnetToRtSumm.attributes.tDn   uni/tn-common/ospfrtsumm-default
 {% elif subnet.eigrp_route_summarization | default(defaults.apic.tenants.l3outs.external_endpoint_groups.subnets.eigrp_route_summarization) %}
-    Should Be Equal Value Json String   ${r.json()}   ${subnet}..l3extRsSubnetToRtSumm.attributes.tDn   uni/tn-{{ tenant.name }}/eigrprtsumm-eigrp_pol
+    Should Be Equal Value Json String   ${r}   ${subnet}..l3extRsSubnetToRtSumm.attributes.tDn   uni/tn-{{ tenant.name }}/eigrprtsumm-eigrp_pol
 {% endif %}
 
 {% for route_control_profile in subnet.route_control_profiles | default([]) %}
@@ -1151,8 +1151,8 @@ Verify L3out {{ l3out_name }} External EPG {{ eepg_name }} Subnet {{ subnet.pref
 Verify L3out {{ l3out_name }} External EPG {{ eepg_name }} Subnet {{ subnet.prefix }} Route Control Profile {{ route_control_profile_name }}
     ${eepg}=   Set Variable   $..l3extOut.children[?(@.l3extInstP.attributes.name=='{{ eepg_name }}')]
     ${subnet}=   Set Variable   ${eepg}..l3extInstP.children[?(@.l3extSubnet.attributes.ip=='{{ subnet.prefix }}')]
-    Should Be Equal Value Json String   ${r.json()}     ${subnet}..l3extRsSubnetToProfile.attributes.tnRtctrlProfileName   {{ route_control_profile_name }}
-    Should Be Equal Value Json String   ${r.json()}     ${subnet}..l3extRsSubnetToProfile.attributes.direction   {{ route_control_profile.direction | default(defaults.apic.tenants.l3outs.external_endpoint_groups.subnets.route_control_profiles.direction) }}
+    Should Be Equal Value Json String   ${r}     ${subnet}..l3extRsSubnetToProfile.attributes.tnRtctrlProfileName   {{ route_control_profile_name }}
+    Should Be Equal Value Json String   ${r}     ${subnet}..l3extRsSubnetToProfile.attributes.direction   {{ route_control_profile.direction | default(defaults.apic.tenants.l3outs.external_endpoint_groups.subnets.route_control_profiles.direction) }}
 {% endfor %}
 
 {% endfor %}
@@ -1163,7 +1163,7 @@ Verify L3out {{ l3out_name }} External EPG {{ eepg_name }} Subnet {{ subnet.pref
 Verify L3out {{ l3out_name }} External EPG {{ eepg_name }} Provided Contract {{ contract_name }}
     ${eepg}=   Set Variable   $..l3extOut.children[?(@.l3extInstP.attributes.name=='{{ eepg_name }}')]
     ${contract}=   Set Variable   ${eepg}..l3extInstP.children[?(@.fvRsProv.attributes.tnVzBrCPName=='{{ contract_name }}')]
-    Should Be Equal Value Json String   ${r.json()}   ${contract}..fvRsProv.attributes.tnVzBrCPName   {{ contract_name }}
+    Should Be Equal Value Json String   ${r}   ${contract}..fvRsProv.attributes.tnVzBrCPName   {{ contract_name }}
 
 {% endfor %}
 
@@ -1173,7 +1173,7 @@ Verify L3out {{ l3out_name }} External EPG {{ eepg_name }} Provided Contract {{ 
 Verify L3out {{ l3out_name }} External EPG {{ eepg_name }} Consumed Contract {{ contract_name }}
     ${eepg}=   Set Variable   $..l3extOut.children[?(@.l3extInstP.attributes.name=='{{ eepg_name }}')]
     ${contract}=   Set Variable   ${eepg}..l3extInstP.children[?(@.fvRsCons.attributes.tnVzBrCPName=='{{ contract_name }}')]
-    Should Be Equal Value Json String   ${r.json()}   ${contract}..fvRsCons.attributes.tnVzBrCPName   {{ contract_name }}
+    Should Be Equal Value Json String   ${r}   ${contract}..fvRsCons.attributes.tnVzBrCPName   {{ contract_name }}
 
 {% endfor %}
 
@@ -1183,7 +1183,7 @@ Verify L3out {{ l3out_name }} External EPG {{ eepg_name }} Consumed Contract {{ 
 Verify L3out {{ l3out_name }} External EPG {{ eepg_name }} Consumed Contract {{ contract_name }}
     ${eepg}=   Set Variable   $..l3extOut.children[?(@.l3extInstP.attributes.name=='{{ eepg_name }}')]
     ${contract}=   Set Variable   ${eepg}..l3extInstP.children[?(@.fvRsConsIf.attributes.tnVzCPIfName=='{{ contract_name }}')]
-    Should Be Equal Value Json String   ${r.json()}   ${contract}..fvRsConsIf.attributes.tnVzCPIfName   {{ contract_name }}
+    Should Be Equal Value Json String   ${r}   ${contract}..fvRsConsIf.attributes.tnVzCPIfName   {{ contract_name }}
 
 {% endfor %}
 

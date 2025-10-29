@@ -15,7 +15,8 @@ Resource        ../../../apic_common.resource
 
 Verify BGP Best Path Policy {{ bpp_name }}
     ${r}=   GET On Session   apic   /api/mo/uni/tn-{{ tenant.name }}/bestpath-{{ bpp_name }}.json
-    Should Be Equal Value Json String   ${r.json()}   $..bgpBestPathCtrlPol.attributes.name    {{ bpp_name }}
-    Should Be Equal Value Json String   ${r.json()}   $..bgpBestPathCtrlPol.attributes.descr    {{ bpp.description | default() }}
-    Should Be Equal Value Json String   ${r.json()}   $..bgpBestPathCtrlPol.attributes.ctrl    {{ control_type | join(',') }}
+    Set Suite Variable   $r   ${r.json()}
+    Should Be Equal Value Json String   ${r}   $..bgpBestPathCtrlPol.attributes.name    {{ bpp_name }}
+    Should Be Equal Value Json String   ${r}   $..bgpBestPathCtrlPol.attributes.descr    {{ bpp.description | default() }}
+    Should Be Equal Value Json String   ${r}   $..bgpBestPathCtrlPol.attributes.ctrl    {{ control_type | join(',') }}
 {% endfor %}

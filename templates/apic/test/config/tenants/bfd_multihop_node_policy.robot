@@ -12,10 +12,11 @@ Resource        ../../../apic_common.resource
 
 Verify BFD Multihop Node Policy {{ bfd_name }}
     ${r}=   GET On Session   apic   /api/mo/uni/tn-{{ tenant.name }}/bfdMhNodePol-{{ bfd_name }}.json
-    Should Be Equal Value Json String   ${r.json()}   $..bfdMhNodePol.attributes.name   {{ bfd_name }}
-    Should Be Equal Value Json String   ${r.json()}   $..bfdMhNodePol.attributes.descr   {{ bfd.description | default() }}
-    Should Be Equal Value Json String   ${r.json()}   $..bfdMhNodePol.attributes.detectMult   {{ bfd.detection_multiplier | default(defaults.apic.tenants.policies.bfd_multihop_node_policies.detection_multiplier) }}
-    Should Be Equal Value Json String   ${r.json()}   $..bfdMhNodePol.attributes.minRxIntvl   {{ bfd.min_rx_interval | default(defaults.apic.tenants.policies.bfd_multihop_node_policies.min_rx_interval) }}
-    Should Be Equal Value Json String   ${r.json()}   $..bfdMhNodePol.attributes.minTxIntvl   {{ bfd.min_tx_interval | default(defaults.apic.tenants.policies.bfd_multihop_node_policies.min_tx_interval) }}
+    Set Suite Variable   $r   ${r.json()}
+    Should Be Equal Value Json String   ${r}   $..bfdMhNodePol.attributes.name   {{ bfd_name }}
+    Should Be Equal Value Json String   ${r}   $..bfdMhNodePol.attributes.descr   {{ bfd.description | default() }}
+    Should Be Equal Value Json String   ${r}   $..bfdMhNodePol.attributes.detectMult   {{ bfd.detection_multiplier | default(defaults.apic.tenants.policies.bfd_multihop_node_policies.detection_multiplier) }}
+    Should Be Equal Value Json String   ${r}   $..bfdMhNodePol.attributes.minRxIntvl   {{ bfd.min_rx_interval | default(defaults.apic.tenants.policies.bfd_multihop_node_policies.min_rx_interval) }}
+    Should Be Equal Value Json String   ${r}   $..bfdMhNodePol.attributes.minTxIntvl   {{ bfd.min_tx_interval | default(defaults.apic.tenants.policies.bfd_multihop_node_policies.min_tx_interval) }}
 
 {% endfor %}

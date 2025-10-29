@@ -14,25 +14,26 @@ Resource        ../../apic_common.resource
 
 Verify Storm Control Policy {{ storm_control_policy_name }}
     ${r}=   GET On Session   apic   /api/mo/uni/infra/stormctrlifp-{{ storm_control_policy_name }}.json
-    Should Be Equal Value Json String   ${r.json()}    $..stormctrlIfPol.attributes.name   {{ storm_control_policy_name }}
-    Should Be Equal Value Json String   ${r.json()}    $..stormctrlIfPol.attributes.nameAlias   {{ policy.alias | default() }}
-    Should Be Equal Value Json String   ${r.json()}    $..stormctrlIfPol.attributes.descr   {{ policy.description | default() }}
-    Should Be Equal Value Json String   ${r.json()}    $..stormctrlIfPol.attributes.stormCtrlAction   {{ policy.action | default(defaults.apic.access_policies.interface_policies.storm_control_policies.action) }}
-    Should Be Equal Value Json String   ${r.json()}    $..stormctrlIfPol.attributes.bcBurstPps   {{ policy.broadcast_burst_pps | default(defaults.apic.access_policies.interface_policies.storm_control_policies.broadcast_burst_pps) }}
-    Should Be Equal Value Json String   ${r.json()}    $..stormctrlIfPol.attributes.bcBurstRate   {{get_float_rate(policy.broadcast_burst_rate | default(defaults.apic.access_policies.interface_policies.storm_control_policies.broadcast_burst_rate)) }}
-    Should Be Equal Value Json String   ${r.json()}    $..stormctrlIfPol.attributes.bcRate   {{ get_float_rate(policy.broadcast_rate | default(defaults.apic.access_policies.interface_policies.storm_control_policies.broadcast_rate)) }}
-    Should Be Equal Value Json String   ${r.json()}    $..stormctrlIfPol.attributes.bcRatePps   {{ policy.broadcast_pps | default(defaults.apic.access_policies.interface_policies.storm_control_policies.broadcast_pps) }}
-    Should Be Equal Value Json String   ${r.json()}    $..stormctrlIfPol.attributes.mcBurstPps   {{ policy.multicast_burst_pps | default(defaults.apic.access_policies.interface_policies.storm_control_policies.multicast_burst_pps) }}
-    Should Be Equal Value Json String   ${r.json()}    $..stormctrlIfPol.attributes.mcBurstRate   {{ get_float_rate(policy.multicast_burst_rate | default(defaults.apic.access_policies.interface_policies.storm_control_policies.multicast_burst_rate)) }}
-    Should Be Equal Value Json String   ${r.json()}    $..stormctrlIfPol.attributes.mcRate   {{ get_float_rate(policy.multicast_rate | default(defaults.apic.access_policies.interface_policies.storm_control_policies.multicast_rate)) }}
-    Should Be Equal Value Json String   ${r.json()}    $..stormctrlIfPol.attributes.mcRatePps   {{ policy.multicast_pps | default(defaults.apic.access_policies.interface_policies.storm_control_policies.multicast_pps) }}
-    Should Be Equal Value Json String   ${r.json()}    $..stormctrlIfPol.attributes.uucBurstPps   {{ policy.unknown_unicast_burst_pps | default(defaults.apic.access_policies.interface_policies.storm_control_policies.unknown_unicast_burst_pps) }}
-    Should Be Equal Value Json String   ${r.json()}    $..stormctrlIfPol.attributes.uucBurstRate   {{ get_float_rate(policy.unknown_unicast_burst_rate | default(defaults.apic.access_policies.interface_policies.storm_control_policies.unknown_unicast_burst_rate)) }}
-    Should Be Equal Value Json String   ${r.json()}    $..stormctrlIfPol.attributes.uucRate   {{ get_float_rate(policy.unknown_unicast_rate | default(defaults.apic.access_policies.interface_policies.storm_control_policies.unknown_unicast_rate)) }}
-    Should Be Equal Value Json String   ${r.json()}    $..stormctrlIfPol.attributes.uucRatePps   {{ policy.unknown_unicast_pps | default(defaults.apic.access_policies.interface_policies.storm_control_policies.unknown_unicast_pps) }}
-    Should Be Equal Value Json String   ${r.json()}    $..stormctrlIfPol.attributes.burstPps   {{ policy.burst_pps | default(defaults.apic.access_policies.interface_policies.storm_control_policies.burst_pps) }}
-    Should Be Equal Value Json String   ${r.json()}    $..stormctrlIfPol.attributes.burstRate   {{ get_float_rate(policy.burst_rate | default(defaults.apic.access_policies.interface_policies.storm_control_policies.burst_rate)) }}
-    Should Be Equal Value Json String   ${r.json()}    $..stormctrlIfPol.attributes.rate   {{ get_float_rate(policy.rate | default(defaults.apic.access_policies.interface_policies.storm_control_policies.rate)) }}
-    Should Be Equal Value Json String   ${r.json()}    $..stormctrlIfPol.attributes.ratePps   {{ policy.rate_pps | default(defaults.apic.access_policies.interface_policies.storm_control_policies.rate_pps) }}
+    Set Suite Variable   $r   ${r.json()}
+    Should Be Equal Value Json String   ${r}    $..stormctrlIfPol.attributes.name   {{ storm_control_policy_name }}
+    Should Be Equal Value Json String   ${r}    $..stormctrlIfPol.attributes.nameAlias   {{ policy.alias | default() }}
+    Should Be Equal Value Json String   ${r}    $..stormctrlIfPol.attributes.descr   {{ policy.description | default() }}
+    Should Be Equal Value Json String   ${r}    $..stormctrlIfPol.attributes.stormCtrlAction   {{ policy.action | default(defaults.apic.access_policies.interface_policies.storm_control_policies.action) }}
+    Should Be Equal Value Json String   ${r}    $..stormctrlIfPol.attributes.bcBurstPps   {{ policy.broadcast_burst_pps | default(defaults.apic.access_policies.interface_policies.storm_control_policies.broadcast_burst_pps) }}
+    Should Be Equal Value Json String   ${r}    $..stormctrlIfPol.attributes.bcBurstRate   {{get_float_rate(policy.broadcast_burst_rate | default(defaults.apic.access_policies.interface_policies.storm_control_policies.broadcast_burst_rate)) }}
+    Should Be Equal Value Json String   ${r}    $..stormctrlIfPol.attributes.bcRate   {{ get_float_rate(policy.broadcast_rate | default(defaults.apic.access_policies.interface_policies.storm_control_policies.broadcast_rate)) }}
+    Should Be Equal Value Json String   ${r}    $..stormctrlIfPol.attributes.bcRatePps   {{ policy.broadcast_pps | default(defaults.apic.access_policies.interface_policies.storm_control_policies.broadcast_pps) }}
+    Should Be Equal Value Json String   ${r}    $..stormctrlIfPol.attributes.mcBurstPps   {{ policy.multicast_burst_pps | default(defaults.apic.access_policies.interface_policies.storm_control_policies.multicast_burst_pps) }}
+    Should Be Equal Value Json String   ${r}    $..stormctrlIfPol.attributes.mcBurstRate   {{ get_float_rate(policy.multicast_burst_rate | default(defaults.apic.access_policies.interface_policies.storm_control_policies.multicast_burst_rate)) }}
+    Should Be Equal Value Json String   ${r}    $..stormctrlIfPol.attributes.mcRate   {{ get_float_rate(policy.multicast_rate | default(defaults.apic.access_policies.interface_policies.storm_control_policies.multicast_rate)) }}
+    Should Be Equal Value Json String   ${r}    $..stormctrlIfPol.attributes.mcRatePps   {{ policy.multicast_pps | default(defaults.apic.access_policies.interface_policies.storm_control_policies.multicast_pps) }}
+    Should Be Equal Value Json String   ${r}    $..stormctrlIfPol.attributes.uucBurstPps   {{ policy.unknown_unicast_burst_pps | default(defaults.apic.access_policies.interface_policies.storm_control_policies.unknown_unicast_burst_pps) }}
+    Should Be Equal Value Json String   ${r}    $..stormctrlIfPol.attributes.uucBurstRate   {{ get_float_rate(policy.unknown_unicast_burst_rate | default(defaults.apic.access_policies.interface_policies.storm_control_policies.unknown_unicast_burst_rate)) }}
+    Should Be Equal Value Json String   ${r}    $..stormctrlIfPol.attributes.uucRate   {{ get_float_rate(policy.unknown_unicast_rate | default(defaults.apic.access_policies.interface_policies.storm_control_policies.unknown_unicast_rate)) }}
+    Should Be Equal Value Json String   ${r}    $..stormctrlIfPol.attributes.uucRatePps   {{ policy.unknown_unicast_pps | default(defaults.apic.access_policies.interface_policies.storm_control_policies.unknown_unicast_pps) }}
+    Should Be Equal Value Json String   ${r}    $..stormctrlIfPol.attributes.burstPps   {{ policy.burst_pps | default(defaults.apic.access_policies.interface_policies.storm_control_policies.burst_pps) }}
+    Should Be Equal Value Json String   ${r}    $..stormctrlIfPol.attributes.burstRate   {{ get_float_rate(policy.burst_rate | default(defaults.apic.access_policies.interface_policies.storm_control_policies.burst_rate)) }}
+    Should Be Equal Value Json String   ${r}    $..stormctrlIfPol.attributes.rate   {{ get_float_rate(policy.rate | default(defaults.apic.access_policies.interface_policies.storm_control_policies.rate)) }}
+    Should Be Equal Value Json String   ${r}    $..stormctrlIfPol.attributes.ratePps   {{ policy.rate_pps | default(defaults.apic.access_policies.interface_policies.storm_control_policies.rate_pps) }}
 
 {% endfor %}

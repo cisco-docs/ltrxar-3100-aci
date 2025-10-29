@@ -10,7 +10,8 @@ Resource        ../../apic_common.resource
 
 Verify Forwarding Scale Switch Policy {{forwarding_scale_policy_name }}
     ${r}=   GET On Session   apic   /api/mo/uni/infra/fwdscalepol-{{forwarding_scale_policy_name }}.json
-    Should Be Equal Value Json String   ${r.json()}    $..topoctrlFwdScaleProfilePol.attributes.name   {{ forwarding_scale_policy_name }}
-    Should Be Equal Value Json String   ${r.json()}    $..topoctrlFwdScaleProfilePol.attributes.profType   {{ policy.profile | default(defaults.apic.access_policies.switch_policies.forwarding_scale_policies.profile) }}
+    Set Suite Variable   $r   ${r.json()}
+    Should Be Equal Value Json String   ${r}    $..topoctrlFwdScaleProfilePol.attributes.name   {{ forwarding_scale_policy_name }}
+    Should Be Equal Value Json String   ${r}    $..topoctrlFwdScaleProfilePol.attributes.profType   {{ policy.profile | default(defaults.apic.access_policies.switch_policies.forwarding_scale_policies.profile) }}
 
 {% endfor %}

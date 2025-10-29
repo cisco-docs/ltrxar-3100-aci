@@ -10,27 +10,27 @@ Resource        ../../apic_common.resource
 
 Verify SPAN Source Group {{ span_name }}
     ${r}=   GET On Session   apic   /api/mo/uni/infra/srcgrp-{{ span_name }}.json   params=rsp-subtree=full
-    Set Suite Variable   ${r}
-    Should Be Equal Value Json String   ${r.json()}    $..spanSrcGrp.attributes.name   {{ span_name }}
-    Should Be Equal Value Json String   ${r.json()}    $..spanSrcGrp.attributes.descr   {{ span.description | default() }}
-    Should Be Equal Value Json String   ${r.json()}    $..spanSrcGrp.attributes.adminSt   {{ 'enabled' if span.admin_state | default(defaults.apic.access_policies.span.source_groups.admin_state) else 'disabled' }}
+    Set Suite Variable   $r   ${r.json()}
+    Should Be Equal Value Json String   ${r}    $..spanSrcGrp.attributes.name   {{ span_name }}
+    Should Be Equal Value Json String   ${r}    $..spanSrcGrp.attributes.descr   {{ span.description | default() }}
+    Should Be Equal Value Json String   ${r}    $..spanSrcGrp.attributes.adminSt   {{ 'enabled' if span.admin_state | default(defaults.apic.access_policies.span.source_groups.admin_state) else 'disabled' }}
 
 {% for source in span.sources | default([]) %}
 {% set source_name = source.name ~ defaults.apic.access_policies.span.source_groups.sources.name_suffix %}
 Verify SPAN Source Group {{ span_name }} Source {{ source_name }}
     ${source}=   Set Variable   $..spanSrcGrp.children[?(@.spanSrc.attributes.name=='{{ source_name }}')].spanSrc
-    Should Be Equal Value Json String   ${r.json()}    ${source}.attributes.name   {{ source_name }}
-    Should Be Equal Value Json String   ${r.json()}    ${source}.attributes.dir   {{ source.direction | default(defaults.apic.access_policies.span.source_groups.sources.direction) }}
-    Should Be Equal Value Json String   ${r.json()}    ${source}.attributes.spanOnDrop   {{ 'yes' if source.span_drop | default(defaults.apic.access_policies.span.source_groups.sources.span_drop) else 'no' }}
+    Should Be Equal Value Json String   ${r}    ${source}.attributes.name   {{ source_name }}
+    Should Be Equal Value Json String   ${r}    ${source}.attributes.dir   {{ source.direction | default(defaults.apic.access_policies.span.source_groups.sources.direction) }}
+    Should Be Equal Value Json String   ${r}    ${source}.attributes.spanOnDrop   {{ 'yes' if source.span_drop | default(defaults.apic.access_policies.span.source_groups.sources.span_drop) else 'no' }}
 {% if source.tenant is defined and source.application_profile is defined and source.endpoint_group is defined %}
 {% set application_profile_name = source.application_profile ~ defaults.apic.tenants.application_profiles.name_suffix %}
 {% set endpoint_group_name = source.endpoint_group ~ defaults.apic.tenants.application_profiles.endpoint_groups.name_suffix %}
-    Should Be Equal Value Json String   ${r.json()}    ${source}..spanRsSrcToEpg.attributes.tDn   uni/tn-{{ source.tenant }}/ap-{{ application_profile_name }}/epg-{{ endpoint_group_name }}
+    Should Be Equal Value Json String   ${r}    ${source}..spanRsSrcToEpg.attributes.tDn   uni/tn-{{ source.tenant }}/ap-{{ application_profile_name }}/epg-{{ endpoint_group_name }}
 {% endif %}
 {% if source.tenant is defined and source.l3out is defined %}
 {% set l3out_name = source.l3out ~ defaults.apic.tenants.l3outs.name_suffix %}
-    Should Be Equal Value Json String   ${r.json()}    ${source}..spanRsSrcToL3extOut.attributes.tDn   uni/tn-{{ source.tenant }}/out-{{ l3out_name }}
-    Should Be Equal Value Json String   ${r.json()}    ${source}..spanRsSrcToL3extOut.attributes.encap   vlan-{{ source.vlan }}
+    Should Be Equal Value Json String   ${r}    ${source}..spanRsSrcToL3extOut.attributes.tDn   uni/tn-{{ source.tenant }}/out-{{ l3out_name }}
+    Should Be Equal Value Json String   ${r}    ${source}..spanRsSrcToL3extOut.attributes.encap   vlan-{{ source.vlan }}
 {% endif %}
 {% for path in source.access_paths| default([]) %}
 
@@ -39,13 +39,13 @@ Verify SPAN Source Group {{ span_name }} Source {{ source_name }}
     {% set pod = path.pod_id | default(((apic.node_policies | default()) | community.general.json_query(query))[0] | default(defaults.apic.access_policies.span.source_groups.sources.access_paths.pod_id)) %}
     {% if path.sub_port is defined %}
     ${path}=   Set Variable   ${source}.children[?(@.spanRsSrcToPathEp.attributes.tDn=='topology/pod-{{ pod }}/paths-{{ path.node_id }}/pathep-[eth{{ path.module | default(defaults.apic.access_policies.span.source_groups.sources.access_paths.module) }}/{{ path.port }}/{{ path.sub_port }}]')].spanRsSrcToPathEp
-    Should Be Equal Value Json String   ${r.json()}    ${path}.attributes.tDn   topology/pod-{{ pod }}/paths-{{ path.node_id }}/pathep-[eth{{ path.module | default(defaults.apic.access_policies.span.source_groups.sources.access_paths.module) }}/{{ path.port }}/{{ path.sub_port }}]
+    Should Be Equal Value Json String   ${r}    ${path}.attributes.tDn   topology/pod-{{ pod }}/paths-{{ path.node_id }}/pathep-[eth{{ path.module | default(defaults.apic.access_policies.span.source_groups.sources.access_paths.module) }}/{{ path.port }}/{{ path.sub_port }}]
     {% elif path.fex_id is defined %}
     ${path}=   Set Variable   ${source}.children[?(@.spanRsSrcToPathEp.attributes.tDn=='topology/pod-{{ pod }}/paths-{{ path.node_id }}/extpaths-{{ path.fex_id }}/pathep-[eth{{ path.module | default(defaults.apic.access_policies.span.source_groups.sources.access_paths.module) }}/{{ path.port }}]')].spanRsSrcToPathEp
-    Should Be Equal Value Json String   ${r.json()}    ${path}.attributes.tDn   topology/pod-{{ pod }}/paths-{{ path.node_id }}/extpaths-{{ path.fex_id }}/pathep-[eth{{ path.module | default(defaults.apic.access_policies.span.source_groups.sources.access_paths.module) }}/{{ path.port }}]
+    Should Be Equal Value Json String   ${r}    ${path}.attributes.tDn   topology/pod-{{ pod }}/paths-{{ path.node_id }}/extpaths-{{ path.fex_id }}/pathep-[eth{{ path.module | default(defaults.apic.access_policies.span.source_groups.sources.access_paths.module) }}/{{ path.port }}]
     {%else%}
     ${path}=   Set Variable   ${source}.children[?(@.spanRsSrcToPathEp.attributes.tDn=='topology/pod-{{ pod }}/paths-{{ path.node_id }}/pathep-[eth{{ path.module | default(defaults.apic.access_policies.span.source_groups.sources.access_paths.module) }}/{{ path.port }}]')].spanRsSrcToPathEp
-    Should Be Equal Value Json String   ${r.json()}    ${path}.attributes.tDn   topology/pod-{{ pod }}/paths-{{ path.node_id }}/pathep-[eth{{ path.module | default(defaults.apic.access_policies.span.source_groups.sources.access_paths.module) }}/{{ path.port }}]
+    Should Be Equal Value Json String   ${r}    ${path}.attributes.tDn   topology/pod-{{ pod }}/paths-{{ path.node_id }}/pathep-[eth{{ path.module | default(defaults.apic.access_policies.span.source_groups.sources.access_paths.module) }}/{{ path.port }}]
     {% endif %}
 {% elif apic.interface_policies is not defined and path.channel is defined and path.node_id is defined %}
     {% set policy_group_name = path.channel ~ defaults.apic.access_policies.leaf_interface_policy_groups.name_suffix %}
@@ -62,10 +62,10 @@ Verify SPAN Source Group {{ span_name }} Source {{ source_name }}
     {% if type == 'vpc' %}
         {% set node2 = path.node2_id %}
     ${path}=   Set Variable   ${source}.children[?(@.spanRsSrcToPathEp.attributes.tDn=='topology/pod-{{ pod }}/protpaths-{{ node }}-{{ node2 }}/pathep-[{{ policy_group_name }}]')].spanRsSrcToPathEp
-    Should Be Equal Value Json String   ${r.json()}    ${path}.attributes.tDn   topology/pod-{{ pod }}/protpaths-{{ node }}-{{ node2 }}/pathep-[{{ policy_group_name }}]
+    Should Be Equal Value Json String   ${r}    ${path}.attributes.tDn   topology/pod-{{ pod }}/protpaths-{{ node }}-{{ node2 }}/pathep-[{{ policy_group_name }}]
     {% else %}
     ${path}=   Set Variable   ${source}.children[?(@.spanRsSrcToPathEp.attributes.tDn=='topology/pod-{{ pod }}/paths-{{ node }}/pathep-[{{ policy_group_name }}]')].spanRsSrcToPathEp
-    Should Be Equal Value Json String   ${r.json()}    ${path}.attributes.tDn   topology/pod-{{ pod }}/paths-{{ node }}/pathep-[{{ policy_group_name }}]
+    Should Be Equal Value Json String   ${r}    ${path}.attributes.tDn   topology/pod-{{ pod }}/paths-{{ node }}/pathep-[{{ policy_group_name }}]
     {% endif %}
 {% else %}
     {% set policy_group_name = path.channel ~ defaults.apic.access_policies.leaf_interface_policy_groups.name_suffix %}
@@ -98,10 +98,10 @@ Verify SPAN Source Group {{ span_name }} Source {{ source_name }}
                 {% if node2 < node %}{% set node_tmp = node %}{% set node = node2 %}{% set node2 = node_tmp %}{% endif %}
             {% endif %}
     ${path}=   Set Variable   ${source}.children[?(@.spanRsSrcToPathEp.attributes.tDn=='topology/pod-{{ pod }}/protpaths-{{ node }}-{{ node2 }}/pathep-[{{ policy_group_name }}]')].spanRsSrcToPathEp
-    Should Be Equal Value Json String   ${r.json()}    ${path}.attributes.tDn   topology/pod-{{ pod }}/protpaths-{{ node }}-{{ node2 }}/pathep-[{{ policy_group_name }}]
+    Should Be Equal Value Json String   ${r}    ${path}.attributes.tDn   topology/pod-{{ pod }}/protpaths-{{ node }}-{{ node2 }}/pathep-[{{ policy_group_name }}]
         {% else %}
     ${path}=   Set Variable   ${source}.children[?(@.spanRsSrcToPathEp.attributes.tDn=='topology/pod-{{ pod }}/paths-{{ node }}/pathep-[{{ policy_group_name }}]')].spanRsSrcToPathEp
-    Should Be Equal Value Json String   ${r.json()}    ${path}.attributes.tDn   topology/pod-{{ pod }}/paths-{{ node }}/pathep-[{{ policy_group_name }}]
+    Should Be Equal Value Json String   ${r}    ${path}.attributes.tDn   topology/pod-{{ pod }}/paths-{{ node }}/pathep-[{{ policy_group_name }}]
         {% endif %}
     {% elif id_ports | length > 0 %}
         {% if path.node_id is defined %}
@@ -121,10 +121,10 @@ Verify SPAN Source Group {{ span_name }} Source {{ source_name }}
                 {% if node2 < node %}{% set node_tmp = node %}{% set node = node2 %}{% set node2 = node_tmp %}{% endif %}
             {% endif %}
     ${path}=   Set Variable   ${source}.children[?(@.spanRsSrcToPathEp.attributes.tDn=='topology/pod-{{ pod }}/protpaths-{{ node }}-{{ node2 }}/pathep-[{{ policy_group_name }}]')].spanRsSrcToPathEp
-    Should Be Equal Value Json String   ${r.json()}    ${path}.attributes.tDn   topology/pod-{{ pod }}/protpaths-{{ node }}-{{ node2 }}/pathep-[{{ policy_group_name }}]
+    Should Be Equal Value Json String   ${r}    ${path}.attributes.tDn   topology/pod-{{ pod }}/protpaths-{{ node }}-{{ node2 }}/pathep-[{{ policy_group_name }}]
         {% else %}
     ${path}=   Set Variable   ${source}.children[?(@.spanRsSrcToPathEp.attributes.tDn=='topology/pod-{{ pod }}/paths-{{ node }}/pathep-[{{ policy_group_name }}]')].spanRsSrcToPathEp
-    Should Be Equal Value Json String   ${r.json()}    ${path}.attributes.tDn   topology/pod-{{ pod }}/paths-{{ node }}/pathep-[{{ policy_group_name }}]
+    Should Be Equal Value Json String   ${r}    ${path}.attributes.tDn   topology/pod-{{ pod }}/paths-{{ node }}/pathep-[{{ policy_group_name }}]
         {% endif %}
     {% endif %}
 {% endif %}
@@ -137,11 +137,11 @@ Verify SPAN Source Group {{ span_name }} Source {{ source_name }}
 {% if span.filter_group is defined %}
 {% set filter_group_name = span.filter_group ~ defaults.apic.access_policies.span.filter_groups.name_suffix %}
 Verify SPAN Source Group {{ span_name }} Filter Group
-    Should Be Equal Value Json String   ${r.json()}    $..spanSrcGrp.children..spanRsSrcGrpToFilterGrp.attributes.tDn   uni/infra/filtergrp-{{ filter_group_name }}
+    Should Be Equal Value Json String   ${r}    $..spanSrcGrp.children..spanRsSrcGrpToFilterGrp.attributes.tDn   uni/infra/filtergrp-{{ filter_group_name }}
 {% endif %}
 
 {% set destination_name = span.destination.name ~ defaults.apic.access_policies.span.destination_groups.name_suffix %}
 Verify SPAN Source Group {{ span_name }} Destination Group
-    Should Be Equal Value Json String   ${r.json()}    $..spanSrcGrp.children..spanSpanLbl.attributes.name   {{ destination_name }}
-    Should Be Equal Value Json String   ${r.json()}    $..spanSrcGrp.children..spanSpanLbl.attributes.descr   {{ span.destination.description | default() }}
+    Should Be Equal Value Json String   ${r}    $..spanSrcGrp.children..spanSpanLbl.attributes.name   {{ destination_name }}
+    Should Be Equal Value Json String   ${r}    $..spanSrcGrp.children..spanSpanLbl.attributes.descr   {{ span.destination.description | default() }}
 {% endfor %}

@@ -17,16 +17,16 @@ Resource        ../../../apic_common.resource
 
 Verify OSPF Interface Policy {{ policy_name }}
     ${r}=   GET On Session   apic   /api/mo/uni/tn-{{ tenant.name }}/ospfIfPol-{{ policy_name }}.json
-    Set Suite Variable   ${r}
-    Should Be Equal Value Json String   ${r.json()}   $..ospfIfPol.attributes.name   {{ policy_name }}
-    Should Be Equal Value Json String   ${r.json()}   $..ospfIfPol.attributes.descr   {{ oip.description | default() }}
-    Should Be Equal Value Json String   ${r.json()}   $..ospfIfPol.attributes.cost   {{ oip.cost | default(defaults.apic.tenants.policies.ospf_interface_policies.cost) }}
-    Should Be Equal Value Json String   ${r.json()}   $..ospfIfPol.attributes.ctrl   {{ ctrl | join(',') }}
-    Should Be Equal Value Json String   ${r.json()}   $..ospfIfPol.attributes.deadIntvl   {{ oip.dead_interval | default(defaults.apic.tenants.policies.ospf_interface_policies.dead_interval) }}
-    Should Be Equal Value Json String   ${r.json()}   $..ospfIfPol.attributes.helloIntvl   {{ oip.hello_interval | default(defaults.apic.tenants.policies.ospf_interface_policies.hello_interval) }}
-    Should Be Equal Value Json String   ${r.json()}   $..ospfIfPol.attributes.nwT   {{ oip.network_type | default(defaults.apic.tenants.policies.ospf_interface_policies.network_type) }}
-    Should Be Equal Value Json String   ${r.json()}   $..ospfIfPol.attributes.prio   {{ oip.priority | default(defaults.apic.tenants.policies.ospf_interface_policies.priority) }}
-    Should Be Equal Value Json String   ${r.json()}   $..ospfIfPol.attributes.rexmitIntvl   {{ oip.lsa_retransmit_interval | default(defaults.apic.tenants.policies.ospf_interface_policies.lsa_retransmit_interval) }}
-    Should Be Equal Value Json String   ${r.json()}   $..ospfIfPol.attributes.xmitDelay   {{ oip.lsa_transmit_delay | default(defaults.apic.tenants.policies.ospf_interface_policies.lsa_transmit_delay) }}
+    Set Suite Variable   $r   ${r.json()}
+    Should Be Equal Value Json String   ${r}   $..ospfIfPol.attributes.name   {{ policy_name }}
+    Should Be Equal Value Json String   ${r}   $..ospfIfPol.attributes.descr   {{ oip.description | default() }}
+    Should Be Equal Value Json String   ${r}   $..ospfIfPol.attributes.cost   {{ oip.cost | default(defaults.apic.tenants.policies.ospf_interface_policies.cost) }}
+    Should Be Equal Value Json String   ${r}   $..ospfIfPol.attributes.ctrl   {{ ctrl | join(',') }}
+    Should Be Equal Value Json String   ${r}   $..ospfIfPol.attributes.deadIntvl   {{ oip.dead_interval | default(defaults.apic.tenants.policies.ospf_interface_policies.dead_interval) }}
+    Should Be Equal Value Json String   ${r}   $..ospfIfPol.attributes.helloIntvl   {{ oip.hello_interval | default(defaults.apic.tenants.policies.ospf_interface_policies.hello_interval) }}
+    Should Be Equal Value Json String   ${r}   $..ospfIfPol.attributes.nwT   {{ oip.network_type | default(defaults.apic.tenants.policies.ospf_interface_policies.network_type) }}
+    Should Be Equal Value Json String   ${r}   $..ospfIfPol.attributes.prio   {{ oip.priority | default(defaults.apic.tenants.policies.ospf_interface_policies.priority) }}
+    Should Be Equal Value Json String   ${r}   $..ospfIfPol.attributes.rexmitIntvl   {{ oip.lsa_retransmit_interval | default(defaults.apic.tenants.policies.ospf_interface_policies.lsa_retransmit_interval) }}
+    Should Be Equal Value Json String   ${r}   $..ospfIfPol.attributes.xmitDelay   {{ oip.lsa_transmit_delay | default(defaults.apic.tenants.policies.ospf_interface_policies.lsa_transmit_delay) }}
 
 {% endfor %}

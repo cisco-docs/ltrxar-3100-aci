@@ -7,9 +7,10 @@ Resource        ../../apic_common.resource
 *** Test Cases ***
 Verify Port Tracking
     ${r}=   GET On Session   apic   /api/mo/uni/infra/trackEqptFabP-default.json
-    Should Be Equal Value Json String   ${r.json()}    $..infraPortTrackPol.attributes.adminSt   {{ 'on' if apic.fabric_policies.port_tracking.admin_state | default(defaults.apic.fabric_policies.port_tracking.admin_state) else 'off' }}
-    Should Be Equal Value Json String   ${r.json()}    $..infraPortTrackPol.attributes.delay   {{ apic.fabric_policies.port_tracking.delay | default(defaults.apic.fabric_policies.port_tracking.delay) }}
-    Should Be Equal Value Json String   ${r.json()}    $..infraPortTrackPol.attributes.minlinks   {{ apic.fabric_policies.port_tracking.min_links | default(defaults.apic.fabric_policies.port_tracking.min_links) }}
+    Set Suite Variable   $r   ${r.json()}
+    Should Be Equal Value Json String   ${r}    $..infraPortTrackPol.attributes.adminSt   {{ 'on' if apic.fabric_policies.port_tracking.admin_state | default(defaults.apic.fabric_policies.port_tracking.admin_state) else 'off' }}
+    Should Be Equal Value Json String   ${r}    $..infraPortTrackPol.attributes.delay   {{ apic.fabric_policies.port_tracking.delay | default(defaults.apic.fabric_policies.port_tracking.delay) }}
+    Should Be Equal Value Json String   ${r}    $..infraPortTrackPol.attributes.minlinks   {{ apic.fabric_policies.port_tracking.min_links | default(defaults.apic.fabric_policies.port_tracking.min_links) }}
     {% if apic.fabric_policies.port_tracking.include_apic is defined %}
-    Should Be Equal Value Json String   ${r.json()}    $..infraPortTrackPol.attributes.includeApicPorts   {{ 'yes' if apic.fabric_policies.port_tracking.include_apic | default(defaults.apic.fabric_policies.port_tracking.include_apic) else 'no' }}
+    Should Be Equal Value Json String   ${r}    $..infraPortTrackPol.attributes.includeApicPorts   {{ 'yes' if apic.fabric_policies.port_tracking.include_apic | default(defaults.apic.fabric_policies.port_tracking.include_apic) else 'no' }}
     {% endif %}

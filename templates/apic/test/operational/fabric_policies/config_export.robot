@@ -10,7 +10,8 @@ Resource        ../../apic_common.resource
 
 Verify Config Export {{ policy_name }} Job Status
     ${r}=   GET On Session   apic   /api/mo/uni/backupst/jobs-[uni/fabric/configexp-{{ policy_name }}].json   params=rsp-subtree=full
-    ${jobs}=   Get Value From Json   ${r.json()}   $..configJobCont.children
+    Set Suite Variable   $r   ${r.json()}
+    ${jobs}=   Get Value From Json   ${r}   $..configJobCont.children
     IF   @{jobs}
         FOR   ${job}   IN   @{jobs[0]}
             ${state}=   Get Value From Json   ${job}   $..configJob.attributes.operSt

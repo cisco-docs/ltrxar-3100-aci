@@ -13,9 +13,10 @@ Resource        ../../../apic_common.resource
 {% if span.expected_state.maximum_critical_faults is defined or span.expected_state.maximum_major_faults is defined or span.expected_state.maximum_minor_faults is defined %}
 Verify Tenant SPAN Destination Group {{ span_dst_grp_name }} Faults
     ${r}=   GET On Session   apic   /api/mo/uni/tn-{{ tenant.name }}/destgrp-{{ span_dst_grp_name }}/fltCnts.json
-    ${critical}=   Get Value From Json   ${r.json()}   $..faultCounts.attributes.crit
-    ${major}=   Get Value From Json   ${r.json()}   $..faultCounts.attributes.maj
-    ${minor}=   Get Value From Json   ${r.json()}   $..faultCounts.attributes.minor
+    Set Suite Variable   $r   ${r.json()}
+    ${critical}=   Get Value From Json   ${r}   $..faultCounts.attributes.crit
+    ${major}=   Get Value From Json   ${r}   $..faultCounts.attributes.maj
+    ${minor}=   Get Value From Json   ${r}   $..faultCounts.attributes.minor
 {% if span.expected_state.maximum_critical_faults is defined %}
     Run Keyword If   ${critical}[0] > {{ span.expected_state.maximum_critical_faults }}   Run Keyword And Continue On Failure
     ...   Fail  "{{ span_dst_grp_name }} has ${critical}[0] critical faults"
@@ -34,9 +35,10 @@ Verify Tenant SPAN Destination Group {{ span_dst_grp_name }} Faults
 Verify Tenant SPAN Destination Group {{ span_dst_grp_name }} Faults Pre-Check
     [Tags]   pre-check
     ${r}=   GET On Session   apic   /api/mo/uni/tn-{{ tenant.name }}/destgrp-{{ span_dst_grp_name }}/fltCnts.json
-    ${critical}=   Get Value From Json   ${r.json()}   $..faultCounts.attributes.crit
-    ${major}=   Get Value From Json   ${r.json()}   $..faultCounts.attributes.maj
-    ${minor}=   Get Value From Json   ${r.json()}   $..faultCounts.attributes.minor
+    Set Suite Variable   $r   ${r.json()}
+    ${critical}=   Get Value From Json   ${r}   $..faultCounts.attributes.crit
+    ${major}=   Get Value From Json   ${r}   $..faultCounts.attributes.maj
+    ${minor}=   Get Value From Json   ${r}   $..faultCounts.attributes.minor
     &{json}=    Create Dictionary   critical=${critical}[0]   major=${major}[0]   minor=${minor}[0]
     Create Directory   ${STATE_PATH}
     evaluate   json.dump($json, open('${STATE_PATH}tenant_{{ tenant.name }}_span_destination_group_{{ span_dst_grp_name }}_faults.json', 'w'))   modules=json
@@ -46,9 +48,10 @@ Verify Tenant SPAN Destination Group {{ span_dst_grp_name }} Faults Pre-Check
 Verify Tenant SPAN Destination Group {{ span_dst_grp_name }} Faults Post-Check
     [Tags]   post-check
     ${r}=   GET On Session   apic   /api/mo/uni/tn-{{ tenant.name }}/destgrp-{{ span_dst_grp_name }}/fltCnts.json
-    ${critical}=   Get Value From Json   ${r.json()}   $..faultCounts.attributes.crit
-    ${major}=   Get Value From Json   ${r.json()}   $..faultCounts.attributes.maj
-    ${minor}=   Get Value From Json   ${r.json()}   $..faultCounts.attributes.minor
+    Set Suite Variable   $r   ${r.json()}
+    ${critical}=   Get Value From Json   ${r}   $..faultCounts.attributes.crit
+    ${major}=   Get Value From Json   ${r}   $..faultCounts.attributes.maj
+    ${minor}=   Get Value From Json   ${r}   $..faultCounts.attributes.minor
     &{previous}=   evaluate   json.load(open('${STATE_PATH}tenant_{{ tenant.name }}_span_destination_group_{{ span_dst_grp_name }}_faults.json'))   modules=json
     Run Keyword If   ${critical}[0] > ${previous["critical"]}   Run Keyword And Continue On Failure
     ...   Fail  "Number of critical faults increased from ${previous["critical"]} to ${critical}[0]"

@@ -7,4 +7,5 @@ Resource        ../../apic_common.resource
 *** Test Cases ***
 Verify ISIS Policy
     ${r}=   GET On Session   apic   /api/mo/uni/fabric/isisDomP-default.json
-    Should Be Equal Value Json String   ${r.json()}    $..isisDomPol.attributes.redistribMetric   {{ apic.fabric_policies.fabric_isis_redistribute_metric | default(defaults.apic.fabric_policies.fabric_isis_redistribute_metric) }}
+    Set Suite Variable   $r   ${r.json()}
+    Should Be Equal Value Json String   ${r}    $..isisDomPol.attributes.redistribMetric   {{ apic.fabric_policies.fabric_isis_redistribute_metric | default(defaults.apic.fabric_policies.fabric_isis_redistribute_metric) }}

@@ -22,46 +22,48 @@ Resource        ../../../apic_common.resource
 
 Verify Fabric Spine Interface Profile {{ spine_interface_profile_name }} Selector {{ spine_interface_selector_name }}
     ${r}=   GET On Session   apic   /api/mo/uni/fabric/spportp-{{ spine_interface_profile_name }}/spfabports-{{ spine_interface_selector_name }}-typ-range.json   params=rsp-subtree=full
-    Should Be Equal Value Json String   ${r.json()}    $..fabricSFPortS.attributes.name   {{ spine_interface_selector_name }}
+    Set Suite Variable   $r   ${r.json()}
+    Should Be Equal Value Json String   ${r}    $..fabricSFPortS.attributes.name   {{ spine_interface_selector_name }}
 {% if apic.interface_selector_description | default(defaults.apic.interface_selector_description) is true %}
-    Should Be Equal Value Json String   ${r.json()}    $..fabricSFPortS.attributes.descr   {{ int.description | default() }}
+    Should Be Equal Value Json String   ${r}    $..fabricSFPortS.attributes.descr   {{ int.description | default() }}
 {% endif %}
 {% if int.policy_group is defined %}
 {% set query = "spine_interface_policy_groups[?name=='" ~ int.policy_group ~ "'].type[]" %}
 {% set type = (apic.fabric_policies | community.general.json_query(query)) %}
 {% set policy_group_name = int.policy_group ~ defaults.apic.fabric_policies.spine_interface_policy_groups.name_suffix %}
-    Should Be Equal Value Json String   ${r.json()}    $..fabricRsSpPortPGrp.attributes.tDn   uni/fabric/funcprof/spportgrp-{{ policy_group_name }}
+    Should Be Equal Value Json String   ${r}    $..fabricRsSpPortPGrp.attributes.tDn   uni/fabric/funcprof/spportgrp-{{ policy_group_name }}
 {% endif %}
-    Should Be Equal Value Json String   ${r.json()}    $..fabricPortBlk.attributes.descr   {{ int.description | default() }}
-    Should Be Equal Value Json String   ${r.json()}    $..fabricPortBlk.attributes.fromCard   {{ module }}
-    Should Be Equal Value Json String   ${r.json()}    $..fabricPortBlk.attributes.fromPort   {{ int.port }}
-    Should Be Equal Value Json String   ${r.json()}    $..fabricPortBlk.attributes.name   {{ module }}-{{ int.port }}
-    Should Be Equal Value Json String   ${r.json()}    $..fabricPortBlk.attributes.toCard   {{ module }}
-    Should Be Equal Value Json String   ${r.json()}    $..fabricPortBlk.attributes.toPort   {{ int.port }}
+    Should Be Equal Value Json String   ${r}    $..fabricPortBlk.attributes.descr   {{ int.description | default() }}
+    Should Be Equal Value Json String   ${r}    $..fabricPortBlk.attributes.fromCard   {{ module }}
+    Should Be Equal Value Json String   ${r}    $..fabricPortBlk.attributes.fromPort   {{ int.port }}
+    Should Be Equal Value Json String   ${r}    $..fabricPortBlk.attributes.name   {{ module }}-{{ int.port }}
+    Should Be Equal Value Json String   ${r}    $..fabricPortBlk.attributes.toCard   {{ module }}
+    Should Be Equal Value Json String   ${r}    $..fabricPortBlk.attributes.toPort   {{ int.port }}
 
 {% for sub in int.sub_ports | default([]) %}
 {% set module = sub.module | default(defaults.apic.interface_policies.nodes.interfaces.module) %}
 {% set spine_interface_selector_sub_port_name = (module ~ ":" ~ int.port ~ ":" ~ sub.port ) | regex_replace("^(?P<mod>.+):(?P<port>.+):(?P<sport>.+)$", (apic.fabric_policies.spine_interface_selector_sub_port_name | default(defaults.apic.fabric_policies.spine_interface_selector_sub_port_name))) %}
 Verify Fabric Spine Interface Profile {{ spine_interface_profile_name }} Selector {{ spine_interface_selector_sub_port_name }}
     ${r}=   GET On Session   apic   /api/mo/uni/fabric/spportp-{{ spine_interface_profile_name }}/spfabports-{{ spine_interface_selector_sub_port_name }}-typ-range.json   params=rsp-subtree=full
-    Should Be Equal Value Json String   ${r.json()}    $..fabricSFPortS.attributes.name   {{ spine_interface_selector_sub_port_name }}
+    Set Suite Variable   $r   ${r.json()}
+    Should Be Equal Value Json String   ${r}    $..fabricSFPortS.attributes.name   {{ spine_interface_selector_sub_port_name }}
 {% if apic.interface_selector_description | default(defaults.apic.interface_selector_description) is true %}
-    Should Be Equal Value Json String   ${r.json()}    $..fabricSFPortS.attributes.descr   {{ sub.description | default() }}
+    Should Be Equal Value Json String   ${r}    $..fabricSFPortS.attributes.descr   {{ sub.description | default() }}
 {% endif %}
 {% if sub.policy_group is defined %}
 {% set query = "spine_interface_policy_groups[?name=='" ~ sub.policy_group ~ "'].type[]" %}
 {% set type = (apic.fabric_policies | community.general.json_query(query)) %}
 {% set policy_group_name = sub.policy_group ~ defaults.apic.fabric_policies.spine_interface_policy_groups.name_suffix %}
-    Should Be Equal Value Json String   ${r.json()}    $..fabricRsSpPortPGrp.attributes.tDn   uni/fabric/funcprof/spportgrp-{{ policy_group_name }}
+    Should Be Equal Value Json String   ${r}    $..fabricRsSpPortPGrp.attributes.tDn   uni/fabric/funcprof/spportgrp-{{ policy_group_name }}
 {% endif %}
-    Should Be Equal Value Json String   ${r.json()}    $..fabricSubPortBlk.attributes.descr   {{ sub.description | default() }}
-    Should Be Equal Value Json String   ${r.json()}    $..fabricSubPortBlk.attributes.fromCard   {{ module }}
-    Should Be Equal Value Json String   ${r.json()}    $..fabricSubPortBlk.attributes.fromPort   {{ int.port }}
-    Should Be Equal Value Json String   ${r.json()}    $..fabricSubPortBlk.attributes.name   {{ module }}-{{int.port}}-{{ sub.port }}
-    Should Be Equal Value Json String   ${r.json()}    $..fabricSubPortBlk.attributes.toCard   {{ module }}
-    Should Be Equal Value Json String   ${r.json()}    $..fabricSubPortBlk.attributes.toPort   {{ int.port }}
-    Should Be Equal Value Json String   ${r.json()}    $..fabricSubPortBlk.attributes.fromSubPort   {{ sub.port }}
-    Should Be Equal Value Json String   ${r.json()}    $..fabricSubPortBlk.attributes.toSubPort   {{ sub.port }}
+    Should Be Equal Value Json String   ${r}    $..fabricSubPortBlk.attributes.descr   {{ sub.description | default() }}
+    Should Be Equal Value Json String   ${r}    $..fabricSubPortBlk.attributes.fromCard   {{ module }}
+    Should Be Equal Value Json String   ${r}    $..fabricSubPortBlk.attributes.fromPort   {{ int.port }}
+    Should Be Equal Value Json String   ${r}    $..fabricSubPortBlk.attributes.name   {{ module }}-{{int.port}}-{{ sub.port }}
+    Should Be Equal Value Json String   ${r}    $..fabricSubPortBlk.attributes.toCard   {{ module }}
+    Should Be Equal Value Json String   ${r}    $..fabricSubPortBlk.attributes.toPort   {{ int.port }}
+    Should Be Equal Value Json String   ${r}    $..fabricSubPortBlk.attributes.fromSubPort   {{ sub.port }}
+    Should Be Equal Value Json String   ${r}    $..fabricSubPortBlk.attributes.toSubPort   {{ sub.port }}
 
 {% endfor %}
 

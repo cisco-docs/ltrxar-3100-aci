@@ -10,11 +10,12 @@ Resource        ../../apic_common.resource
 
 Verify Leaf Fabric Port Policy Group {{ policy_group_name }}
     ${r}=   GET On Session   apic   /api/mo/uni/fabric/funcprof/leportgrp-{{ policy_group_name }}.json   params=rsp-subtree=full
-    Should Be Equal Value Json String   ${r.json()}    $..fabricLePortPGrp.attributes.name   {{ policy_group_name }}
-    Should Be Equal Value Json String   ${r.json()}    $..fabricLePortPGrp.attributes.descr   {{ pg.description | default() }}
+    Set Suite Variable   $r   ${r.json()}
+    Should Be Equal Value Json String   ${r}    $..fabricLePortPGrp.attributes.name   {{ policy_group_name }}
+    Should Be Equal Value Json String   ${r}    $..fabricLePortPGrp.attributes.descr   {{ pg.description | default() }}
 {% if pg.link_level_policy is defined %}
 {% set link_level_policy_name = pg.link_level_policy ~ defaults.apic.fabric_policies.interface_policies.link_level_policies.name_suffix %}
-    Should Be Equal Value Json String   ${r.json()}    $..fabricRsFIfPol.attributes.tnFabricFIfPolName   {{ link_level_policy_name }}
+    Should Be Equal Value Json String   ${r}    $..fabricRsFIfPol.attributes.tnFabricFIfPolName   {{ link_level_policy_name }}
 {% endif %}
 
 {% endfor %}

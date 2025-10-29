@@ -20,16 +20,16 @@ Resource        ../../../apic_common.resource
 
 Verify uSeg Endpoint Group {{ epg_name }}
     ${r}=   GET On Session   apic   /api/mo/uni/tn-{{ tenant.name }}/ap-{{ ap_name }}/epg-{{ epg_name }}.json   params=rsp-subtree=full
-    Set Suite Variable   ${r}
-    Should Be Equal Value Json String   ${r.json()}   $..fvAEPg.attributes.name   {{ epg_name }}
-    Should Be Equal Value Json String   ${r.json()}   $..fvAEPg.attributes.descr   {{ epg.description | default() }}
-    Should Be Equal Value Json String   ${r.json()}   $..fvAEPg.attributes.nameAlias   {{ epg.alias | default() }}
-    Should Be Equal Value Json String   ${r.json()}   $..fvAEPg.attributes.floodOnEncap   {{ 'enabled' if epg.flood_in_encap | default(defaults.apic.tenants.application_profiles.useg_endpoint_groups.flood_in_encap) else 'disabled' }}
-    Should Be Equal Value Json String   ${r.json()}   $..fvAEPg.attributes.pcEnfPref   {{ 'enforced' if epg.intra_epg_isolation | default(defaults.apic.tenants.application_profiles.useg_endpoint_groups.intra_epg_isolation) else 'unenforced' }}
-    Should Be Equal Value Json String   ${r.json()}   $..fvAEPg.attributes.prefGrMemb   {{ 'include' if epg.preferred_group | default(defaults.apic.tenants.application_profiles.useg_endpoint_groups.preferred_group) else 'exclude' }}
-    Should Be Equal Value Json String   ${r.json()}   $..fvRsBd.attributes.tnFvBDName   {{ bd_name }}
-    Should Be Equal Value Json String   ${r.json()}   $..fvAEPg.attributes.prio   {{ epg.qos_class | default(defaults.apic.tenants.application_profiles.useg_endpoint_groups.qos_class) }}
-    Should Be Equal Value Json String   ${r.json()}   $..fvAEPg.attributes.isAttrBasedEPg   yes
+    Set Suite Variable   $r   ${r.json()}
+    Should Be Equal Value Json String   ${r}   $..fvAEPg.attributes.name   {{ epg_name }}
+    Should Be Equal Value Json String   ${r}   $..fvAEPg.attributes.descr   {{ epg.description | default() }}
+    Should Be Equal Value Json String   ${r}   $..fvAEPg.attributes.nameAlias   {{ epg.alias | default() }}
+    Should Be Equal Value Json String   ${r}   $..fvAEPg.attributes.floodOnEncap   {{ 'enabled' if epg.flood_in_encap | default(defaults.apic.tenants.application_profiles.useg_endpoint_groups.flood_in_encap) else 'disabled' }}
+    Should Be Equal Value Json String   ${r}   $..fvAEPg.attributes.pcEnfPref   {{ 'enforced' if epg.intra_epg_isolation | default(defaults.apic.tenants.application_profiles.useg_endpoint_groups.intra_epg_isolation) else 'unenforced' }}
+    Should Be Equal Value Json String   ${r}   $..fvAEPg.attributes.prefGrMemb   {{ 'include' if epg.preferred_group | default(defaults.apic.tenants.application_profiles.useg_endpoint_groups.preferred_group) else 'exclude' }}
+    Should Be Equal Value Json String   ${r}   $..fvRsBd.attributes.tnFvBDName   {{ bd_name }}
+    Should Be Equal Value Json String   ${r}   $..fvAEPg.attributes.prio   {{ epg.qos_class | default(defaults.apic.tenants.application_profiles.useg_endpoint_groups.qos_class) }}
+    Should Be Equal Value Json String   ${r}   $..fvAEPg.attributes.isAttrBasedEPg   yes
 
 {% for vmm in epg.vmware_vmm_domains | default([]) %}
 {% set vmm_name = vmm.name ~ defaults.apic.tenants.application_profiles.useg_endpoint_groups.vmware_vmm_domains.name_suffix %}
@@ -37,14 +37,14 @@ Verify uSeg Endpoint Group {{ epg_name }}
 Verify uSeg Endpoint Group {{ epg_name }} VMM Domain {{ vmm_name }}
     ${conn}=   Set Variable   $..fvAEPg.children[?(@.fvRsDomAtt.attributes.tDn=='uni/vmmp-VMware/dom-{{ vmm_name }}')].fvRsDomAtt
 
-    Should Be Equal Value Json String   ${r.json()}   ${conn}.attributes.instrImedcy   {{ vmm.deployment_immediacy  | default(defaults.apic.tenants.application_profiles.useg_endpoint_groups.vmware_vmm_domains.deployment_immediacy) }}
-    Should Be Equal Value Json String   ${r.json()}   ${conn}.attributes.netflowPref   {{ 'enabled' if vmm.netflow | default(defaults.apic.tenants.application_profiles.useg_endpoint_groups.vmware_vmm_domains.netflow) else 'disabled' }}
+    Should Be Equal Value Json String   ${r}   ${conn}.attributes.instrImedcy   {{ vmm.deployment_immediacy  | default(defaults.apic.tenants.application_profiles.useg_endpoint_groups.vmware_vmm_domains.deployment_immediacy) }}
+    Should Be Equal Value Json String   ${r}   ${conn}.attributes.netflowPref   {{ 'enabled' if vmm.netflow | default(defaults.apic.tenants.application_profiles.useg_endpoint_groups.vmware_vmm_domains.netflow) else 'disabled' }}
 {% if vmm.active_uplinks_order is defined or vmm.standby_uplinks is defined %}
-    Should Be Equal Value Json String   ${r.json()}   ${conn}.children..fvUplinkOrderCont.attributes.active   {{ vmm.active_uplinks_order | default() }}
-    Should Be Equal Value Json String   ${r.json()}   ${conn}.children..fvUplinkOrderCont.attributes.standby   {{ vmm.standby_uplinks | default() }}
+    Should Be Equal Value Json String   ${r}   ${conn}.children..fvUplinkOrderCont.attributes.active   {{ vmm.active_uplinks_order | default() }}
+    Should Be Equal Value Json String   ${r}   ${conn}.children..fvUplinkOrderCont.attributes.standby   {{ vmm.standby_uplinks | default() }}
 {% endif %}
 {% if vmm.elag is defined %}
-    Should Be Equal Value Json String   ${r.json()}   ${conn}.children..fvAEPgLagPolAtt.children..fvRsVmmVSwitchEnhancedLagPol.attributes.tDn   uni/vmmp-VMware/dom-{{ vmm_name }}/vswitchpolcont/enlacplagp-{{ vmm.elag }}
+    Should Be Equal Value Json String   ${r}   ${conn}.children..fvAEPgLagPolAtt.children..fvRsVmmVSwitchEnhancedLagPol.attributes.tDn   uni/vmmp-VMware/dom-{{ vmm_name }}/vswitchpolcont/enlacplagp-{{ vmm.elag }}
 {% endif %}
 {% endfor %}
 
@@ -54,8 +54,8 @@ Verify uSeg Endpoint Group {{ epg_name }} VMM Domain {{ vmm_name }}
 
 Verify uSeg Endpoint Group {{ epg_name }} Static Leaf {{ sl.node_id }}
     ${sl}=   Set Variable   $..fvAEPg.children[?(@.fvRsNodeAtt.attributes.tDn=='topology/pod-{{ pod }}/node-{{ sl.node_id }}')].fvRsNodeAtt
-    Should Be Equal Value Json String   ${r.json()}   ${sl}.attributes.instrImedcy   immediate
-    Should Be Equal Value Json String   ${r.json()}   ${sl}.attributes.tDn   topology/pod-{{ pod }}/node-{{ sl.node_id }}
+    Should Be Equal Value Json String   ${r}   ${sl}.attributes.instrImedcy   immediate
+    Should Be Equal Value Json String   ${r}   ${sl}.attributes.tDn   topology/pod-{{ pod }}/node-{{ sl.node_id }}
 
 {% endfor %}
 
@@ -71,7 +71,7 @@ Verify EPG Contract Master 'uni/tn-{{ tenant.name }}/ap-{{ app_profile_name }}/e
 
 Verify uSeg Endpoint Group {{ epg_name }} Contract Provider {{ contract_name }}
     ${con}=   Set Variable   $..fvAEPg.children[?(@.fvRsProv.attributes.tnVzBrCPName=='{{ contract_name }}')]
-    Should Be Equal Value Json String   ${r.json()}   ${con}..fvRsProv.attributes.tnVzBrCPName   {{ contract_name }}
+    Should Be Equal Value Json String   ${r}   ${con}..fvRsProv.attributes.tnVzBrCPName   {{ contract_name }}
 
 {% endfor %}
 
@@ -80,7 +80,7 @@ Verify uSeg Endpoint Group {{ epg_name }} Contract Provider {{ contract_name }}
 
 Verify uSeg Endpoint Group {{ epg_name }} Contract Consumers {{ contract_name }}
     ${con}=   Set Variable   $..fvAEPg.children[?(@.fvRsCons.attributes.tnVzBrCPName=='{{ contract_name }}')]
-    Should Be Equal Value Json String   ${r.json()}   ${con}..fvRsCons.attributes.tnVzBrCPName   {{ contract_name }}
+    Should Be Equal Value Json String   ${r}   ${con}..fvRsCons.attributes.tnVzBrCPName   {{ contract_name }}
 
 {% endfor %}
 
@@ -89,7 +89,7 @@ Verify uSeg Endpoint Group {{ epg_name }} Contract Consumers {{ contract_name }}
 
 Verify uSeg Endpoint Group {{ epg_name }} Imported Contract {{ contract_name }}
     ${con}=   Set Variable   $..fvAEPg.children[?(@.fvRsConsIf.attributes.tnVzCPIfName=='{{ contract_name }}')]
-    Should Be Equal Value Json String   ${r.json()}   ${con}..fvRsConsIf.attributes.tnVzCPIfName   {{ contract_name }}
+    Should Be Equal Value Json String   ${r}   ${con}..fvRsConsIf.attributes.tnVzCPIfName   {{ contract_name }}
 
 {% endfor %}
 
@@ -98,7 +98,7 @@ Verify uSeg Endpoint Group {{ epg_name }} Imported Contract {{ contract_name }}
 
 Verify uSeg Endpoint Group {{ epg_name }} Intra-EPG Contract {{ contract_name }}
     ${con}=   Set Variable   $..fvAEPg.children[?(@.fvRsIntraEpg.attributes.tnVzBrCPName=='{{ contract_name }}')]
-    Should Be Equal Value Json String   ${r.json()}   ${con}..fvRsIntraEpg.attributes.tnVzBrCPName   {{ contract_name }}
+    Should Be Equal Value Json String   ${r}   ${con}..fvRsIntraEpg.attributes.tnVzBrCPName   {{ contract_name }}
 
 {% endfor %}
 
@@ -107,39 +107,39 @@ Verify uSeg Endpoint Group {{ epg_name }} Intra-EPG Contract {{ contract_name }}
 
 Verify Endpoint Group {{ epg_name }} Physical Domain {{ domain_name }}
     ${conn}=   Set Variable   $..fvAEPg.children[?(@.fvRsDomAtt.attributes.tDn=='uni/phys-{{ domain_name }}')].fvRsDomAtt
-    Should Be Equal Value Json String   ${r.json()}   ${conn}.attributes.tDn   uni/phys-{{ domain_name }}
+    Should Be Equal Value Json String   ${r}   ${conn}.attributes.tDn   uni/phys-{{ domain_name }}
 
 {% endfor %}
 
 Verify uSeg Endpoint Group {{ epg_name }} uSeg Attributes
-    Should Be Equal Value Json String   ${r.json()}   $..fvAEPg.children..fvCrtrn.attributes.match   {{ epg.useg_attributes.match_type | default(defaults.apic.tenants.application_profiles.useg_endpoint_groups.useg_attributes.match_type) }}
+    Should Be Equal Value Json String   ${r}   $..fvAEPg.children..fvCrtrn.attributes.match   {{ epg.useg_attributes.match_type | default(defaults.apic.tenants.application_profiles.useg_endpoint_groups.useg_attributes.match_type) }}
 
 {% for ip_statement in epg.useg_attributes.ip_statements | default([]) %}
 Verify uSeg Endpoint Group {{ epg_name }} uSeg Attributes IP Statement {{ ip_statement.name }}
     ${statement}=   Set Variable   $..fvAEPg.children..fvCrtrn.children[?(@.fvIpAttr.attributes.name=='{{ ip_statement.name }}')].fvIpAttr
-    Should Be Equal Value Json String   ${r.json()}   ${statement}.attributes.name   {{ ip_statement.name }}
-    Should Be Equal Value Json String   ${r.json()}   ${statement}.attributes.usefvSubnet   {{ 'yes' if ip_statement.use_epg_subnet | default(defaults.apic.tenants.application_profiles.useg_endpoint_groups.useg_attributes.ip_statements.use_epg_subnet) else 'no' }}
-    Should Be Equal Value Json String   ${r.json()}   ${statement}.attributes.ip   {{ '0.0.0.0' if ip_statement.use_epg_subnet | default(defaults.apic.tenants.application_profiles.useg_endpoint_groups.useg_attributes.ip_statements.use_epg_subnet) else ip_statement.ip }}
+    Should Be Equal Value Json String   ${r}   ${statement}.attributes.name   {{ ip_statement.name }}
+    Should Be Equal Value Json String   ${r}   ${statement}.attributes.usefvSubnet   {{ 'yes' if ip_statement.use_epg_subnet | default(defaults.apic.tenants.application_profiles.useg_endpoint_groups.useg_attributes.ip_statements.use_epg_subnet) else 'no' }}
+    Should Be Equal Value Json String   ${r}   ${statement}.attributes.ip   {{ '0.0.0.0' if ip_statement.use_epg_subnet | default(defaults.apic.tenants.application_profiles.useg_endpoint_groups.useg_attributes.ip_statements.use_epg_subnet) else ip_statement.ip }}
 
 {% endfor %}
 
 {% for mac_statement in epg.useg_attributes.mac_statements | default([]) %}
 Verify uSeg Endpoint Group {{ epg_name }} uSeg Attributes MAC Statement {{ mac_statement.name }}
     ${statement}=   Set Variable   $..fvAEPg.children..fvCrtrn.children[?(@.fvMacAttr.attributes.name=='{{ mac_statement.name }}')].fvMacAttr
-    Should Be Equal Value Json String   ${r.json()}   ${statement}.attributes.name   {{ mac_statement.name }}
-    Should Be Equal Value Json String   ${r.json()}   ${statement}.attributes.mac   {{ mac_statement.mac | upper }}
+    Should Be Equal Value Json String   ${r}   ${statement}.attributes.name   {{ mac_statement.name }}
+    Should Be Equal Value Json String   ${r}   ${statement}.attributes.mac   {{ mac_statement.mac | upper }}
 
 {% endfor %}
 
 {% for vm_statement in epg.useg_attributes.vm_statements | default([]) %}
 Verify uSeg Endpoint Group {{ epg_name }} uSeg Attributes VM Statement {{ vm_statement.name }}
     ${statement}=   Set Variable   $..fvAEPg.children..fvCrtrn.children[?(@.fvVmAttr.attributes.name=='{{ vm_statement.name }}')].fvVmAttr
-    Should Be Equal Value Json String   ${r.json()}   ${statement}.attributes.name   {{ vm_statement.name }}
-    Should Be Equal Value Json String   ${r.json()}   ${statement}.attributes.type   {{ vm_statement.type | default(defaults.apic.tenants.application_profiles.useg_endpoint_groups.useg_attributes.vm_statements.type) }}
-    Should Be Equal Value Json String   ${r.json()}   ${statement}.attributes.operator   {{ vm_statement.operator | default(defaults.apic.tenants.application_profiles.useg_endpoint_groups.useg_attributes.vm_statements.operator) }}
-    Should Be Equal Value Json String   ${r.json()}   ${statement}.attributes.value   {{ vm_statement.value }}
-    Should Be Equal Value Json String   ${r.json()}   ${statement}.attributes.category   {{ vm_statement.category | default() }}
-    Should Be Equal Value Json String   ${r.json()}   ${statement}.attributes.labelName   {{ vm_statement.label | default() }}
+    Should Be Equal Value Json String   ${r}   ${statement}.attributes.name   {{ vm_statement.name }}
+    Should Be Equal Value Json String   ${r}   ${statement}.attributes.type   {{ vm_statement.type | default(defaults.apic.tenants.application_profiles.useg_endpoint_groups.useg_attributes.vm_statements.type) }}
+    Should Be Equal Value Json String   ${r}   ${statement}.attributes.operator   {{ vm_statement.operator | default(defaults.apic.tenants.application_profiles.useg_endpoint_groups.useg_attributes.vm_statements.operator) }}
+    Should Be Equal Value Json String   ${r}   ${statement}.attributes.value   {{ vm_statement.value }}
+    Should Be Equal Value Json String   ${r}   ${statement}.attributes.category   {{ vm_statement.category | default() }}
+    Should Be Equal Value Json String   ${r}   ${statement}.attributes.labelName   {{ vm_statement.label | default() }}
 
 {% endfor %}
 
@@ -153,23 +153,23 @@ Verify uSeg Endpoint Group {{ epg_name }} uSeg Attributes VM Statement {{ vm_sta
 {% if subnet.igmp_querier | default(defaults.apic.tenants.application_profiles.useg_endpoint_groups.subnets.igmp_querier) %}{% set ctrl = ctrl + [("querier")] %}{% endif %}
 Verify uSeg Endpoint Group {{ epg_name }} Subnet {{ subnet.ip }}
     ${subnet}=   Set Variable   $..fvAEPg.children[?(@.fvSubnet.attributes.ip=='{{ subnet.ip }}')]
-    Should Be Equal Value Json String   ${r.json()}   ${subnet}..fvSubnet.attributes.ip   {{ subnet.ip }}
-    Should Be Equal Value Json String   ${r.json()}   ${subnet}..fvSubnet.attributes.ctrl   {{ ctrl | join(',') }}
-    Should Be Equal Value Json String   ${r.json()}   ${subnet}..fvSubnet.attributes.descr   {{ subnet.description | default() }}
-    Should Be Equal Value Json String   ${r.json()}   ${subnet}..fvSubnet.attributes.scope   {{ scope | join(',') }}
-    Should Be Equal Value Json String   ${r.json()}   ${subnet}..fvSubnet.attributes.virtual   {{ 'yes' if subnet.virtual | default(defaults.apic.tenants.application_profiles.useg_endpoint_groups.subnets.virtual) else 'no' }}
+    Should Be Equal Value Json String   ${r}   ${subnet}..fvSubnet.attributes.ip   {{ subnet.ip }}
+    Should Be Equal Value Json String   ${r}   ${subnet}..fvSubnet.attributes.ctrl   {{ ctrl | join(',') }}
+    Should Be Equal Value Json String   ${r}   ${subnet}..fvSubnet.attributes.descr   {{ subnet.description | default() }}
+    Should Be Equal Value Json String   ${r}   ${subnet}..fvSubnet.attributes.scope   {{ scope | join(',') }}
+    Should Be Equal Value Json String   ${r}   ${subnet}..fvSubnet.attributes.virtual   {{ 'yes' if subnet.virtual | default(defaults.apic.tenants.application_profiles.useg_endpoint_groups.subnets.virtual) else 'no' }}
 {% if subnet.next_hop_ip is defined %}
-    Should Be Equal Value Json String   ${r.json()}   ${subnet}..ipNexthopEpP.attributes.nhAddr   {{ subnet.next_hop_ip }}
+    Should Be Equal Value Json String   ${r}   ${subnet}..ipNexthopEpP.attributes.nhAddr   {{ subnet.next_hop_ip }}
 {% elif subnet.anycast_mac is defined %}
-    Should Be Equal Value Json String   ${r.json()}   ${subnet}..fvEpAnycast.attributes.mac   {{ subnet.anycast_mac }}
+    Should Be Equal Value Json String   ${r}   ${subnet}..fvEpAnycast.attributes.mac   {{ subnet.anycast_mac }}
 {% elif subnet.nlb_mode is defined %}
-    Should Be Equal Value Json String   ${r.json()}   ${subnet}..fvEpNlb.attributes.group   {{ subnet.nlb_group | default(defaults.apic.tenants.application_profiles.useg_endpoint_groups.subnets.nlb_group) }}
-    Should Be Equal Value Json String   ${r.json()}   ${subnet}..fvEpNlb.attributes.mac   {{ subnet.nlb_mac | default(defaults.apic.tenants.application_profiles.useg_endpoint_groups.subnets.nlb_mac) }}
-    Should Be Equal Value Json String   ${r.json()}   ${subnet}..fvEpNlb.attributes.mode   {{ get_nlb_mode(subnet.nlb_mode) }}
+    Should Be Equal Value Json String   ${r}   ${subnet}..fvEpNlb.attributes.group   {{ subnet.nlb_group | default(defaults.apic.tenants.application_profiles.useg_endpoint_groups.subnets.nlb_group) }}
+    Should Be Equal Value Json String   ${r}   ${subnet}..fvEpNlb.attributes.mac   {{ subnet.nlb_mac | default(defaults.apic.tenants.application_profiles.useg_endpoint_groups.subnets.nlb_mac) }}
+    Should Be Equal Value Json String   ${r}   ${subnet}..fvEpNlb.attributes.mode   {{ get_nlb_mode(subnet.nlb_mode) }}
 {% endif %}
 {% if subnet.nd_ra_prefix_policy is defined %}
 {% set nd_ra_prefix_policy_name = subnet.nd_ra_prefix_policy ~ defaults.apic.tenants.policies.nd_ra_prefix_policies.name_suffix %}
-    Should Be Equal Value Json String   ${r.json()}   ${subnet}..fvSubnet.children..fvRsNdPfxPol.attributes.tnNdPfxPolName   {{ nd_ra_prefix_policy_name }}
+    Should Be Equal Value Json String   ${r}   ${subnet}..fvSubnet.children..fvRsNdPfxPol.attributes.tnNdPfxPolName   {{ nd_ra_prefix_policy_name }}
 {% endif %}
 
 {% for pool in subnet.ip_pools | default([]) %}
@@ -177,13 +177,13 @@ Verify uSeg Endpoint Group {{ epg_name }} Subnet {{ subnet.ip }}
 Verify uSeg Endpoint Group {{ epg_name }} Subnet {{ subnet.ip }} IP Address Pool {{ pool_name }}
     ${subnet}=   Set Variable   $..fvAEPg.children[?(@.fvSubnet.attributes.ip=='{{ subnet.ip }}')].fvSubnet
     ${pool}=   Set Variable   ${subnet}.children[?(@.fvCepNetCfgPol.attributes.name=='{{ pool_name }}')]
-    Should Be Equal Value Json String   ${r.json()}   ${pool}..fvCepNetCfgPol.attributes.name   {{ pool_name }}
-    Should Be Equal Value Json String   ${r.json()}   ${pool}..fvCepNetCfgPol.attributes.startIp   {{ pool.start_ip | default(defaults.apic.tenants.application_profiles.useg_endpoint_groups.subnets.ip_pools.start_ip) }}
-    Should Be Equal Value Json String   ${r.json()}   ${pool}..fvCepNetCfgPol.attributes.endIp   {{ pool.end_ip | default(defaults.apic.tenants.application_profiles.useg_endpoint_groups.subnets.ip_pools.end_ip) }}
-    Should Be Equal Value Json String   ${r.json()}   ${pool}..fvCepNetCfgPol.attributes.dnsSearchSuffix   {{ pool.dns_search_suffix | default() }}
-    Should Be Equal Value Json String   ${r.json()}   ${pool}..fvCepNetCfgPol.attributes.dnsServers   {{ pool.dns_server | default() }}
-    Should Be Equal Value Json String   ${r.json()}   ${pool}..fvCepNetCfgPol.attributes.dnsSuffix   {{ pool.dns_suffix | default() }}
-    Should Be Equal Value Json String   ${r.json()}   ${pool}..fvCepNetCfgPol.attributes.winsServers   {{ pool.wins_server | default() }}
+    Should Be Equal Value Json String   ${r}   ${pool}..fvCepNetCfgPol.attributes.name   {{ pool_name }}
+    Should Be Equal Value Json String   ${r}   ${pool}..fvCepNetCfgPol.attributes.startIp   {{ pool.start_ip | default(defaults.apic.tenants.application_profiles.useg_endpoint_groups.subnets.ip_pools.start_ip) }}
+    Should Be Equal Value Json String   ${r}   ${pool}..fvCepNetCfgPol.attributes.endIp   {{ pool.end_ip | default(defaults.apic.tenants.application_profiles.useg_endpoint_groups.subnets.ip_pools.end_ip) }}
+    Should Be Equal Value Json String   ${r}   ${pool}..fvCepNetCfgPol.attributes.dnsSearchSuffix   {{ pool.dns_search_suffix | default() }}
+    Should Be Equal Value Json String   ${r}   ${pool}..fvCepNetCfgPol.attributes.dnsServers   {{ pool.dns_server | default() }}
+    Should Be Equal Value Json String   ${r}   ${pool}..fvCepNetCfgPol.attributes.dnsSuffix   {{ pool.dns_suffix | default() }}
+    Should Be Equal Value Json String   ${r}   ${pool}..fvCepNetCfgPol.attributes.winsServers   {{ pool.wins_server | default() }}
 
 {% endfor %}
 
@@ -192,7 +192,7 @@ Verify uSeg Endpoint Group {{ epg_name }} Subnet {{ subnet.ip }} IP Address Pool
 {% if epg.custom_qos_policy is defined %}
 {% set custom_qos_policy_name = epg.custom_qos_policy ~ defaults.apic.tenants.policies.custom_qos.name_suffix %}
 Verify Endpoint Group {{ epg_name }} Custom QoS Policy
-    Should Be Equal Value Json String   ${r.json()}   $..fvRsCustQosPol.attributes.tnQosCustomPolName   {{ custom_qos_policy_name }}
+    Should Be Equal Value Json String   ${r}   $..fvRsCustQosPol.attributes.tnQosCustomPolName   {{ custom_qos_policy_name }}
 {% endif %}
 
 {% if epg.tags is defined %}
@@ -200,7 +200,7 @@ Verify uSeg Endpoint Group {{ epg_name }} Tags
 {% for tag in epg.tags | default([]) %}
 
     ${tag}=   Set Variable   $..fvAEPg.children[?(@.tagInst.attributes.name=='{{ tag }}')]
-    Should Be Equal Value Json String   ${r.json()}   ${tag}..attributes.name   {{ tag }}
+    Should Be Equal Value Json String   ${r}   ${tag}..attributes.name   {{ tag }}
 
 {% endfor %}
 
@@ -209,11 +209,11 @@ Verify uSeg Endpoint Group {{ epg_name }} Tags
 {% for pool in epg.l4l7_address_pools | default([]) %}
 Verify uSeg Endpoint Group {{ epg_name }} L4-L7 IP Address Pool {{ pool.name }}
     ${pool}=   Set Variable   $..fvAEPg.children[?(@.vnsAddrInst.attributes.name=='{{ pool.name }}')].vnsAddrInst
-    Should Be Equal Value Json String   ${r.json()}   ${pool}.attributes.name   {{ pool.name }}
-    Should Be Equal Value Json String   ${r.json()}   ${pool}.attributes.addr   {{ pool.gateway_address }}
+    Should Be Equal Value Json String   ${r}   ${pool}.attributes.name   {{ pool.name }}
+    Should Be Equal Value Json String   ${r}   ${pool}.attributes.addr   {{ pool.gateway_address }}
 {% if pool.from is defined and pool.to is defined %}
-    Should Be Equal Value Json String   ${r.json()}   ${pool}..fvnsUcastAddrBlk.attributes.from   {{ pool.from }}
-    Should Be Equal Value Json String   ${r.json()}   ${pool}..fvnsUcastAddrBlk.attributes.to   {{ pool.to }}
+    Should Be Equal Value Json String   ${r}   ${pool}..fvnsUcastAddrBlk.attributes.from   {{ pool.from }}
+    Should Be Equal Value Json String   ${r}   ${pool}..fvnsUcastAddrBlk.attributes.to   {{ pool.to }}
 {% endif %}
 
 {% endfor %}
@@ -221,7 +221,7 @@ Verify uSeg Endpoint Group {{ epg_name }} L4-L7 IP Address Pool {{ pool.name }}
 {% if epg.trust_control_policy is defined %}
 {% set trust_control_policy_name = epg.trust_control_policy ~ defaults.apic.tenants.policies.trust_control_policies.name_suffix %}
 Verify Endpoint Group {{ epg_name }} Trust Control Policy {{ trust_control_policy_name }}
-    Should Be Equal Value Json String   ${r.json()}   $..fvRsTrustCtrl.attributes.tnFhsTrustCtrlPolName   {{ trust_control_policy_name }}
+    Should Be Equal Value Json String   ${r}   $..fvRsTrustCtrl.attributes.tnFhsTrustCtrlPolName   {{ trust_control_policy_name }}
 {% endif %}
 
 {% endfor %}

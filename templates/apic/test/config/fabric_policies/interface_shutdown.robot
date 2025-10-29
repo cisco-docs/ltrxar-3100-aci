@@ -17,7 +17,8 @@ Resource        ../../apic_common.resource
 {% set module = int.module | default(defaults.apic.interface_policies.nodes.fexes.interfaces.module) %}
 Verify Interface Shutdown State for Node-{{ node.id }} Fex-{{ fex.id }} eth{{ module }}/{{ int.port }}
     ${r}=   GET On Session   apic   /api/mo/uni/fabric/outofsvc/rsoosPath-[topology/pod-{{ full_node.pod | default(defaults.apic.node_policies.nodes.pod) }}/paths-{{ node.id }}/extpaths-{{fex.id}}/pathep-[eth{{ module }}/{{ int.port }}]].json   params=rsp-subtree=full
-    Should Be Equal Value Json String   ${r.json()}    $..fabricRsOosPath.attributes.lc   blacklist
+    Set Suite Variable   $r   ${r.json()}
+    Should Be Equal Value Json String   ${r}    $..fabricRsOosPath.attributes.lc   blacklist
 {% endif %}
 {% endfor %}
 {% endfor %}
@@ -27,7 +28,8 @@ Verify Interface Shutdown State for Node-{{ node.id }} Fex-{{ fex.id }} eth{{ mo
 {% set module = interface.module | default(defaults.apic.interface_policies.nodes.interfaces.module) %}
 Verify Interface Shutdown State for Node-{{ node.id }} eth{{ module }}/{{ interface.port }}
     ${r}=   GET On Session   apic   /api/mo/uni/fabric/outofsvc/rsoosPath-[topology/pod-{{ full_node.pod | default(defaults.apic.node_policies.nodes.pod) }}/paths-{{ node.id }}/pathep-[eth{{ module }}/{{ interface.port }}]].json   params=rsp-subtree=full
-    Should Be Equal Value Json String   ${r.json()}    $..fabricRsOosPath.attributes.lc   blacklist
+    Set Suite Variable   $r   ${r.json()}
+    Should Be Equal Value Json String   ${r}    $..fabricRsOosPath.attributes.lc   blacklist
 {% endif %}
 
 {% for sub_port in interface.sub_ports | default([]) %}
@@ -35,7 +37,8 @@ Verify Interface Shutdown State for Node-{{ node.id }} eth{{ module }}/{{ interf
 {% set module = interface.module | default(defaults.apic.interface_policies.nodes.interfaces.module) %}
 Verify Interface Shutdown State for Node-{{ node.id }} eth{{ module }}/{{ interface.port }}/{{ sub_port.port }}
     ${r}=   GET On Session   apic   /api/mo/uni/fabric/outofsvc/rsoosPath-[topology/pod-{{ full_node.pod | default(defaults.apic.node_policies.nodes.pod) }}/paths-{{ node.id }}/pathep-[eth{{ module }}/{{ interface.port }}/{{ sub_port.port }}]].json   params=rsp-subtree=full
-    Should Be Equal Value Json String   ${r.json()}    $..fabricRsOosPath.attributes.lc   blacklist
+    Set Suite Variable   $r   ${r.json()}
+    Should Be Equal Value Json String   ${r}    $..fabricRsOosPath.attributes.lc   blacklist
 {% endif %}
 {% endfor %}
 {% endfor %}

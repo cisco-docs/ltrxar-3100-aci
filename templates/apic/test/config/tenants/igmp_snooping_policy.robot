@@ -15,14 +15,15 @@ Resource        ../../../apic_common.resource
 
 Verify IGMP Snooping Policy {{ policy_name }}
     ${r}=   GET On Session   apic   /api/mo/uni/tn-{{ tenant.name }}/snPol-{{ policy_name }}.json
-    Should Be Equal Value Json String   ${r.json()}   $..igmpSnoopPol.attributes.name   {{ policy_name }}
-    Should Be Equal Value Json String   ${r.json()}   $..igmpSnoopPol.attributes.descr   {{ igmp_snoop_pol.description | default() }}
-    Should Be Equal Value Json String   ${r.json()}   $..igmpSnoopPol.attributes.adminSt   {{ 'enabled' if igmp_snoop_pol.admin_state | default(defaults.apic.tenants.policies.igmp_snooping_policies.admin_state) else 'disabled' }}
-    Should Be Equal Value Json String   ${r.json()}   $..igmpSnoopPol.attributes.ctrl   {{ ctrl | join(',') }}
-    Should Be Equal Value Json String   ${r.json()}   $..igmpSnoopPol.attributes.lastMbrIntvl   {{ igmp_snoop_pol.last_member_query_interval | default(defaults.apic.tenants.policies.igmp_snooping_policies.last_member_query_interval) }}
-    Should Be Equal Value Json String   ${r.json()}   $..igmpSnoopPol.attributes.queryIntvl   {{ igmp_snoop_pol.query_interval | default(defaults.apic.tenants.policies.igmp_snooping_policies.query_interval) }}
-    Should Be Equal Value Json String   ${r.json()}   $..igmpSnoopPol.attributes.rspIntvl   {{ igmp_snoop_pol.query_response_interval | default(defaults.apic.tenants.policies.igmp_snooping_policies.query_response_interval) }}
-    Should Be Equal Value Json String   ${r.json()}   $..igmpSnoopPol.attributes.startQueryCnt   {{ igmp_snoop_pol.start_query_count | default(defaults.apic.tenants.policies.igmp_snooping_policies.start_query_count) }}
-    Should Be Equal Value Json String   ${r.json()}   $..igmpSnoopPol.attributes.startQueryIntvl   {{ igmp_snoop_pol.start_query_interval | default(defaults.apic.tenants.policies.igmp_snooping_policies.start_query_interval) }}
+    Set Suite Variable   $r   ${r.json()}
+    Should Be Equal Value Json String   ${r}   $..igmpSnoopPol.attributes.name   {{ policy_name }}
+    Should Be Equal Value Json String   ${r}   $..igmpSnoopPol.attributes.descr   {{ igmp_snoop_pol.description | default() }}
+    Should Be Equal Value Json String   ${r}   $..igmpSnoopPol.attributes.adminSt   {{ 'enabled' if igmp_snoop_pol.admin_state | default(defaults.apic.tenants.policies.igmp_snooping_policies.admin_state) else 'disabled' }}
+    Should Be Equal Value Json String   ${r}   $..igmpSnoopPol.attributes.ctrl   {{ ctrl | join(',') }}
+    Should Be Equal Value Json String   ${r}   $..igmpSnoopPol.attributes.lastMbrIntvl   {{ igmp_snoop_pol.last_member_query_interval | default(defaults.apic.tenants.policies.igmp_snooping_policies.last_member_query_interval) }}
+    Should Be Equal Value Json String   ${r}   $..igmpSnoopPol.attributes.queryIntvl   {{ igmp_snoop_pol.query_interval | default(defaults.apic.tenants.policies.igmp_snooping_policies.query_interval) }}
+    Should Be Equal Value Json String   ${r}   $..igmpSnoopPol.attributes.rspIntvl   {{ igmp_snoop_pol.query_response_interval | default(defaults.apic.tenants.policies.igmp_snooping_policies.query_response_interval) }}
+    Should Be Equal Value Json String   ${r}   $..igmpSnoopPol.attributes.startQueryCnt   {{ igmp_snoop_pol.start_query_count | default(defaults.apic.tenants.policies.igmp_snooping_policies.start_query_count) }}
+    Should Be Equal Value Json String   ${r}   $..igmpSnoopPol.attributes.startQueryIntvl   {{ igmp_snoop_pol.start_query_interval | default(defaults.apic.tenants.policies.igmp_snooping_policies.start_query_interval) }}
 
 {% endfor %}

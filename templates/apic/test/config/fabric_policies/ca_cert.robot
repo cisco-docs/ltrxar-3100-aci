@@ -10,7 +10,8 @@ Resource        ../../apic_common.resource
 
 Verify CA Certificate {{ ca_name }}
     ${r}=   GET On Session   apic   api/node/mo/uni/userext/pkiext/tp-{{ ca_name }}.json
-    Should Be Equal Value Json String   ${r.json()}    $..pkiTP.attributes.name   {{ ca_name }}
-    Should Be Equal Value Json String   ${r.json()}    $..pkiTP.attributes.descr   {{ ca.description | default() }}
+    Set Suite Variable   $r   ${r.json()}
+    Should Be Equal Value Json String   ${r}    $..pkiTP.attributes.name   {{ ca_name }}
+    Should Be Equal Value Json String   ${r}    $..pkiTP.attributes.descr   {{ ca.description | default() }}
 
 {% endfor %}

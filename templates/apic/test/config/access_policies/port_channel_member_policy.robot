@@ -10,8 +10,9 @@ Resource        ../../apic_common.resource
 
 Verify Port Channel Member Interface Policy {{port_channel_member_policy_name }}
     ${r}=   GET On Session   apic   /api/mo/uni/infra/lacpifp-{{port_channel_member_policy_name }}.json
-    Should Be Equal Value Json String   ${r.json()}    $..lacpIfPol.attributes.name   {{ port_channel_member_policy_name }}
-    Should Be Equal Value Json String   ${r.json()}    $..lacpIfPol.attributes.prio   {{ policy.priority | default(defaults.apic.access_policies.interface_policies.port_channel_member_policies.priority) }}
-    Should Be Equal Value Json String   ${r.json()}    $..lacpIfPol.attributes.txRate   {{ policy.rate | default(defaults.apic.access_policies.interface_policies.port_channel_member_policies.rate) }}
+    Set Suite Variable   $r   ${r.json()}
+    Should Be Equal Value Json String   ${r}    $..lacpIfPol.attributes.name   {{ port_channel_member_policy_name }}
+    Should Be Equal Value Json String   ${r}    $..lacpIfPol.attributes.prio   {{ policy.priority | default(defaults.apic.access_policies.interface_policies.port_channel_member_policies.priority) }}
+    Should Be Equal Value Json String   ${r}    $..lacpIfPol.attributes.txRate   {{ policy.rate | default(defaults.apic.access_policies.interface_policies.port_channel_member_policies.rate) }}
 
 {% endfor %}

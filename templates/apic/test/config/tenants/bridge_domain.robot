@@ -17,38 +17,38 @@ Verify Bridge Domain {{ bd_name }}
 {%- set bd_move_detection = "garp" %}
 {%- endif %}
     ${r}=   GET On Session   apic   /api/node/mo/uni/tn-{{ tenant.name }}/BD-{{ bd_name }}.json   params=rsp-subtree=full
-    Set Suite Variable   ${r}
-    Should Be Equal Value Json String   ${r.json()}   $..fvBD.attributes.arpFlood   {{ 'yes' if bd.arp_flooding | default(defaults.apic.tenants.bridge_domains.arp_flooding) else 'no' }}
-    Should Be Equal Value Json String   ${r.json()}   $..fvBD.attributes.descr   {{ bd.description | default() }}
-    Should Be Equal Value Json String   ${r.json()}   $..fvBD.attributes.hostBasedRouting   {{ 'yes' if bd.advertise_host_routes | default(defaults.apic.tenants.bridge_domains.advertise_host_routes) else 'no' }}
-    Should Be Equal Value Json String   ${r.json()}   $..fvBD.attributes.ipLearning   {{ 'yes' if bd.ip_dataplane_learning | default(defaults.apic.tenants.bridge_domains.ip_dataplane_learning) else 'no' }}
-    Should Be Equal Value Json String   ${r.json()}   $..fvBD.attributes.limitIpLearnToSubnets  {{ 'yes' if bd.limit_ip_learn_to_subnets | default(defaults.apic.tenants.bridge_domains.limit_ip_learn_to_subnets) else 'no' }}
-    Should Be Equal Value Json String   ${r.json()}   $..fvBD.attributes.mac   {{ bd.mac | default(defaults.apic.tenants.bridge_domains.mac) }}
-    Should Be Equal Value Json String   ${r.json()}   $..fvBD.attributes.vmac   {{ bd.virtual_mac | default(defaults.apic.tenants.bridge_domains.virtual_mac) }}
-    Should Be Equal Value Json String   ${r.json()}   $..fvBD.attributes.mcastAllow   {{ 'yes' if bd.l3_multicast | default(defaults.apic.tenants.bridge_domains.l3_multicast) else 'no' }}
+    Set Suite Variable   $r   ${r.json()}
+    Should Be Equal Value Json String   ${r}   $..fvBD.attributes.arpFlood   {{ 'yes' if bd.arp_flooding | default(defaults.apic.tenants.bridge_domains.arp_flooding) else 'no' }}
+    Should Be Equal Value Json String   ${r}   $..fvBD.attributes.descr   {{ bd.description | default() }}
+    Should Be Equal Value Json String   ${r}   $..fvBD.attributes.hostBasedRouting   {{ 'yes' if bd.advertise_host_routes | default(defaults.apic.tenants.bridge_domains.advertise_host_routes) else 'no' }}
+    Should Be Equal Value Json String   ${r}   $..fvBD.attributes.ipLearning   {{ 'yes' if bd.ip_dataplane_learning | default(defaults.apic.tenants.bridge_domains.ip_dataplane_learning) else 'no' }}
+    Should Be Equal Value Json String   ${r}   $..fvBD.attributes.limitIpLearnToSubnets  {{ 'yes' if bd.limit_ip_learn_to_subnets | default(defaults.apic.tenants.bridge_domains.limit_ip_learn_to_subnets) else 'no' }}
+    Should Be Equal Value Json String   ${r}   $..fvBD.attributes.mac   {{ bd.mac | default(defaults.apic.tenants.bridge_domains.mac) }}
+    Should Be Equal Value Json String   ${r}   $..fvBD.attributes.vmac   {{ bd.virtual_mac | default(defaults.apic.tenants.bridge_domains.virtual_mac) }}
+    Should Be Equal Value Json String   ${r}   $..fvBD.attributes.mcastAllow   {{ 'yes' if bd.l3_multicast | default(defaults.apic.tenants.bridge_domains.l3_multicast) else 'no' }}
     {% if bd.multicast_arp_drop is defined %}
-        Should Be Equal Value Json String   ${r.json()}   $..fvBD.attributes.mcastARPDrop   {{ 'yes' if bd.multicast_arp_drop else 'no' }}
+        Should Be Equal Value Json String   ${r}   $..fvBD.attributes.mcastARPDrop   {{ 'yes' if bd.multicast_arp_drop else 'no' }}
     {% endif %}
-    Should Be Equal Value Json String   ${r.json()}   $..fvBD.attributes.multiDstPktAct   {{ bd.multi_destination_flooding | default(defaults.apic.tenants.bridge_domains.multi_destination_flooding) }}
-    Should Be Equal Value Json String   ${r.json()}   $..fvBD.attributes.nameAlias   {{ bd.alias | default() }}
-    Should Be Equal Value Json String   ${r.json()}   $..fvBD.attributes.unicastRoute   {{ 'yes' if bd.unicast_routing | default(defaults.apic.tenants.bridge_domains.unicast_routing) else 'no' }}
-    Should Be Equal Value Json String   ${r.json()}   $..fvBD.attributes.unkMacUcastAct   {{ bd.unknown_unicast | default(defaults.apic.tenants.bridge_domains.unknown_unicast) }}
-    Should Be Equal Value Json String   ${r.json()}   $..fvBD.attributes.unkMcastAct   {{ bd.unknown_ipv4_multicast | default(defaults.apic.tenants.bridge_domains.unknown_ipv4_multicast) }}
+    Should Be Equal Value Json String   ${r}   $..fvBD.attributes.multiDstPktAct   {{ bd.multi_destination_flooding | default(defaults.apic.tenants.bridge_domains.multi_destination_flooding) }}
+    Should Be Equal Value Json String   ${r}   $..fvBD.attributes.nameAlias   {{ bd.alias | default() }}
+    Should Be Equal Value Json String   ${r}   $..fvBD.attributes.unicastRoute   {{ 'yes' if bd.unicast_routing | default(defaults.apic.tenants.bridge_domains.unicast_routing) else 'no' }}
+    Should Be Equal Value Json String   ${r}   $..fvBD.attributes.unkMacUcastAct   {{ bd.unknown_unicast | default(defaults.apic.tenants.bridge_domains.unknown_unicast) }}
+    Should Be Equal Value Json String   ${r}   $..fvBD.attributes.unkMcastAct   {{ bd.unknown_ipv4_multicast | default(defaults.apic.tenants.bridge_domains.unknown_ipv4_multicast) }}
 {% if bd.clear_remote_mac_entries is defined %}
-    Should Be Equal Value Json String   ${r.json()}   $..fvBD.attributes.epClear   {{ 'yes' if bd.clear_remote_mac_entries | default(defaults.apic.tenants.bridge_domains.clear_remote_mac_entries) else 'no' }}
+    Should Be Equal Value Json String   ${r}   $..fvBD.attributes.epClear   {{ 'yes' if bd.clear_remote_mac_entries | default(defaults.apic.tenants.bridge_domains.clear_remote_mac_entries) else 'no' }}
 {% endif %}
-    Should Be Equal Value Json String   ${r.json()}   $..fvBD.attributes.v6unkMcastAct   {{ bd.unknown_ipv6_multicast | default(defaults.apic.tenants.bridge_domains.unknown_ipv6_multicast) }}
-    Should Be Equal Value Json String   ${r.json()}   $..fvRsCtx.attributes.tnFvCtxName   {{ vrf_name }}
-    Should Be Equal Value Json String   ${r.json()}   $..fvBD.attributes.epMoveDetectMode   {{ bd_move_detection }}
+    Should Be Equal Value Json String   ${r}   $..fvBD.attributes.v6unkMcastAct   {{ bd.unknown_ipv6_multicast | default(defaults.apic.tenants.bridge_domains.unknown_ipv6_multicast) }}
+    Should Be Equal Value Json String   ${r}   $..fvRsCtx.attributes.tnFvCtxName   {{ vrf_name }}
+    Should Be Equal Value Json String   ${r}   $..fvBD.attributes.epMoveDetectMode   {{ bd_move_detection }}
 {% if bd.pim_source_filter is defined %}
-    Should Be Equal Value Json String   ${r.json()}   $..pimBDSrcFilterPol..rtdmcRsFilterToRtMapPol.attributes.tDn   uni/tn-{{ tenant.name }}/rtmap-{{ bd.pim_source_filter ~ defaults.apic.tenants.policies.multicast_route_maps.name_suffix }}
+    Should Be Equal Value Json String   ${r}   $..pimBDSrcFilterPol..rtdmcRsFilterToRtMapPol.attributes.tDn   uni/tn-{{ tenant.name }}/rtmap-{{ bd.pim_source_filter ~ defaults.apic.tenants.policies.multicast_route_maps.name_suffix }}
 {% endif %}
 {% if bd.pim_destination_filter is defined %}
-    Should Be Equal Value Json String   ${r.json()}   $..pimBDDestFilterPol..rtdmcRsFilterToRtMapPol.attributes.tDn   uni/tn-{{ tenant.name }}/rtmap-{{ bd.pim_destination_filter ~ defaults.apic.tenants.policies.multicast_route_maps.name_suffix }}
+    Should Be Equal Value Json String   ${r}   $..pimBDDestFilterPol..rtdmcRsFilterToRtMapPol.attributes.tDn   uni/tn-{{ tenant.name }}/rtmap-{{ bd.pim_destination_filter ~ defaults.apic.tenants.policies.multicast_route_maps.name_suffix }}
 {% endif %}
 {% if bd.endpoint_retention_policy is defined %}
 {% set endpoint_retention_policy_name = bd.endpoint_retention_policy ~ defaults.apic.tenants.policies.endpoint_retention_policies.name_suffix %}
-    Should Be Equal Value Json String   ${r.json()}   $..fvBD.children..fvRsBdToEpRet.attributes.tnFvEpRetPolName   {{ endpoint_retention_policy_name }}
+    Should Be Equal Value Json String   ${r}   $..fvBD.children..fvRsBdToEpRet.attributes.tnFvEpRetPolName   {{ endpoint_retention_policy_name }}
 {% endif %}
 
 {% for dhcp_label in bd.dhcp_labels | default([]) %}
@@ -56,12 +56,12 @@ Verify Bridge Domain {{ bd_name }}
 
 Verify Bridge Domain {{ bd_name }} DHCP Relay Policy {{ dhcp_relay_policy_name }}
     ${dhcp_label}=   Set Variable   $..fvBD.children[?(@.dhcpLbl.attributes.name=='{{ dhcp_relay_policy_name }}')]
-    Should Be Equal Value Json String   ${r.json()}   ${dhcp_label}..dhcpLbl.attributes.name   {{ dhcp_relay_policy_name }}
-    Should Be Equal Value Json String   ${r.json()}   ${dhcp_label}..dhcpLbl.attributes.descr   {{ dhcp_label.description | default() }}
-    Should Be Equal Value Json String   ${r.json()}   ${dhcp_label}..dhcpLbl.attributes.owner   {{ dhcp_label.scope | default(defaults.apic.tenants.bridge_domains.dhcp_labels.scope) }}
+    Should Be Equal Value Json String   ${r}   ${dhcp_label}..dhcpLbl.attributes.name   {{ dhcp_relay_policy_name }}
+    Should Be Equal Value Json String   ${r}   ${dhcp_label}..dhcpLbl.attributes.descr   {{ dhcp_label.description | default() }}
+    Should Be Equal Value Json String   ${r}   ${dhcp_label}..dhcpLbl.attributes.owner   {{ dhcp_label.scope | default(defaults.apic.tenants.bridge_domains.dhcp_labels.scope) }}
 {% if dhcp_label.dhcp_option_policy is defined %}
 {% set dhcp_option_policy_name = dhcp_label.dhcp_option_policy ~ defaults.apic.tenants.policies.dhcp_option_policies.name_suffix %}
-    Should Be Equal Value Json String   ${r.json()}   ${dhcp_label}..dhcpRsDhcpOptionPol.attributes.tnDhcpOptionPolName   {{ dhcp_option_policy_name }}
+    Should Be Equal Value Json String   ${r}   ${dhcp_label}..dhcpRsDhcpOptionPol.attributes.tnDhcpOptionPolName   {{ dhcp_option_policy_name }}
 {% endif %}
 
 {% endfor %}
@@ -77,18 +77,18 @@ Verify Bridge Domain {{ bd_name }} DHCP Relay Policy {{ dhcp_relay_policy_name }
 
 Verify Bridge Domain {{ bd_name }} Subnet {{ subnet.ip }}
     ${subnet}=   Set Variable   $..fvBD.children[?(@.fvSubnet.attributes.ip=='{{ subnet.ip }}')]
-    Should Be Equal Value Json String   ${r.json()}   ${subnet}..fvSubnet.attributes.ip   {{ subnet.ip }}
-    Should Be Equal Value Json String   ${r.json()}   ${subnet}..fvSubnet.attributes.ctrl   {{ ctrl | join(',') }}
-    Should Be Equal Value Json String   ${r.json()}   ${subnet}..fvSubnet.attributes.descr   {{ subnet.description | default() }}
-    Should Be Equal Value Json String   ${r.json()}   ${subnet}..fvSubnet.attributes.preferred   {{ 'yes' if subnet.primary_ip | default(defaults.apic.tenants.bridge_domains.subnets.primary_ip) else 'no' }}
-    Should Be Equal Value Json String   ${r.json()}   ${subnet}..fvSubnet.attributes.scope   {{ scope | join(',') }}
-    Should Be Equal Value Json String   ${r.json()}   ${subnet}..fvSubnet.attributes.virtual   {{ 'yes' if subnet.virtual | default(defaults.apic.tenants.bridge_domains.subnets.virtual)  else 'no' }}
+    Should Be Equal Value Json String   ${r}   ${subnet}..fvSubnet.attributes.ip   {{ subnet.ip }}
+    Should Be Equal Value Json String   ${r}   ${subnet}..fvSubnet.attributes.ctrl   {{ ctrl | join(',') }}
+    Should Be Equal Value Json String   ${r}   ${subnet}..fvSubnet.attributes.descr   {{ subnet.description | default() }}
+    Should Be Equal Value Json String   ${r}   ${subnet}..fvSubnet.attributes.preferred   {{ 'yes' if subnet.primary_ip | default(defaults.apic.tenants.bridge_domains.subnets.primary_ip) else 'no' }}
+    Should Be Equal Value Json String   ${r}   ${subnet}..fvSubnet.attributes.scope   {{ scope | join(',') }}
+    Should Be Equal Value Json String   ${r}   ${subnet}..fvSubnet.attributes.virtual   {{ 'yes' if subnet.virtual | default(defaults.apic.tenants.bridge_domains.subnets.virtual)  else 'no' }}
 {% if subnet.ip_dataplane_learning is defined %}
-    Should Be Equal Value Json String   ${r.json()}   ${subnet}..fvSubnet.attributes.ipDPLearning   {{ 'enabled' if subnet.ip_dataplane_learning else 'disabled' }}
+    Should Be Equal Value Json String   ${r}   ${subnet}..fvSubnet.attributes.ipDPLearning   {{ 'enabled' if subnet.ip_dataplane_learning else 'disabled' }}
 {% endif %}
 {% if subnet.nd_ra_prefix_policy is defined %}
 {% set nd_ra_prefix_policy_name = subnet.nd_ra_prefix_policy ~ defaults.apic.tenants.policies.nd_ra_prefix_policies.name_suffix %}
-    Should Be Equal Value Json String   ${r.json()}   ${subnet}..fvSubnet.children..fvRsNdPfxPol.attributes.tnNdPfxPolName   {{ nd_ra_prefix_policy_name }}
+    Should Be Equal Value Json String   ${r}   ${subnet}..fvSubnet.children..fvRsNdPfxPol.attributes.tnNdPfxPolName   {{ nd_ra_prefix_policy_name }}
 {% endif %}
 
 {% endfor %}
@@ -98,7 +98,7 @@ Verify Bridge Domain {{ bd_name }} Subnet {{ subnet.ip }}
 
 Verify Bridge Domain {{ bd_name }} L3out {{ l3out_name }}
     ${l3out}=   Set Variable   $..fvBD.children[?(@.fvRsBDToOut.attributes.tnL3extOutName=='{{ l3out_name }}')]
-    Should Be Equal Value Json String   ${r.json()}   ${l3out}..fvRsBDToOut.attributes.tnL3extOutName   {{ l3out_name }}
+    Should Be Equal Value Json String   ${r}   ${l3out}..fvRsBDToOut.attributes.tnL3extOutName   {{ l3out_name }}
 
 {% endfor %}
 
@@ -106,7 +106,7 @@ Verify Bridge Domain {{ bd_name }} L3out {{ l3out_name }}
 {% set igmp_interface_policy_name = bd.igmp_interface_policy ~ defaults.apic.tenants.policies.igmp_interface_policies.name_suffix %}
 
 Verify Bridge Domain {{ bd_name }} IGMP Interface Policy
-    Should Be Equal Value Json String   ${r.json()}   $..fvBD.children..igmpIfP.children..igmpRsIfPol.attributes.tDn   uni/tn-{{ tenant.name }}/igmpIfPol-{{ igmp_interface_policy_name }}
+    Should Be Equal Value Json String   ${r}   $..fvBD.children..igmpIfP.children..igmpRsIfPol.attributes.tDn   uni/tn-{{ tenant.name }}/igmpIfPol-{{ igmp_interface_policy_name }}
 
 {% endif %}
 
@@ -114,14 +114,14 @@ Verify Bridge Domain {{ bd_name }} IGMP Interface Policy
 {% set igmp_snooping_policy_name = bd.igmp_snooping_policy ~ defaults.apic.tenants.policies.igmp_snooping_policies.name_suffix %}
 
 Verify Bridge Domain {{ bd_name }} IGMP Snooping Policy
-    Should Be Equal Value Json String   ${r.json()}   $..fvBD.children..fvRsIgmpsn.attributes.tnIgmpSnoopPolName   {{ igmp_snooping_policy_name }}
+    Should Be Equal Value Json String   ${r}   $..fvBD.children..fvRsIgmpsn.attributes.tnIgmpSnoopPolName   {{ igmp_snooping_policy_name }}
 
 {% endif %}
 
 {% if bd.nd_interface_policy is defined %}
 {% set nd_interface_policy_name = bd.nd_interface_policy ~ defaults.apic.tenants.policies.nd_interface_policies.name_suffix %}
 Verify Bridge Domain {{ bd_name }} ND Interface Policy
-    Should Be Equal Value Json String   ${r.json()}   $..fvBD.children..fvRsBDToNdP.attributes.tnNdIfPolName   {{ nd_interface_policy_name }}
+    Should Be Equal Value Json String   ${r}   $..fvBD.children..fvRsBDToNdP.attributes.tnNdIfPolName   {{ nd_interface_policy_name }}
 {% endif %}
 
 {% endfor %}

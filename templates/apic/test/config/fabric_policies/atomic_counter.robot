@@ -8,6 +8,7 @@ Resource        ../../apic_common.resource
 {% if apic.fabric_policies.atomic_counter.admin_state is defined %}
 Verify Atomic Counter
     ${r}=   GET On Session   apic   /api/mo/uni/fabric/ogmode.json
-    Should Be Equal Value Json String   ${r.json()}    $..dbgOngoingAcMode.attributes.adminSt   {{ 'enabled' if apic.fabric_policies.atomic_counter.admin_state else 'disabled' }}
-    Should Be Equal Value Json String   ${r.json()}    $..dbgOngoingAcMode.attributes.mode   {{ apic.fabric_policies.atomic_counter.mode | default(defaults.apic.fabric_policies.atomic_counter.mode) }}
+    Set Suite Variable   $r   ${r.json()}
+    Should Be Equal Value Json String   ${r}    $..dbgOngoingAcMode.attributes.adminSt   {{ 'enabled' if apic.fabric_policies.atomic_counter.admin_state else 'disabled' }}
+    Should Be Equal Value Json String   ${r}    $..dbgOngoingAcMode.attributes.mode   {{ apic.fabric_policies.atomic_counter.mode | default(defaults.apic.fabric_policies.atomic_counter.mode) }}
 {% endif %}

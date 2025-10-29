@@ -12,8 +12,9 @@ Resource        ../../../apic_common.resource
 
 Verify Service EPG Policy {{ pol_name }}
     ${r}=   GET On Session   apic   /api/mo/uni/tn-{{ tenant.name }}/svcCont/svcEPgPol-{{ pol_name }}.json   params=rsp-subtree=full
-    Should Be Equal Value Json String   ${r.json()}   $..vnsSvcEPgPol.attributes.descr   {{ pol.description | default() }}
-    Should Be Equal Value Json String   ${r.json()}   $..vnsSvcEPgPol.attributes.name   {{ pol_name }}
-    Should Be Equal Value Json String   ${r.json()}   $..vnsSvcEPgPol.attributes.prefGrMemb   {{ 'include' if pol.preferred_group | default(defaults.apic.tenants.services.service_epg_policies.preferred_group) else 'exclude' }}
+    Set Suite Variable   $r   ${r.json()}
+    Should Be Equal Value Json String   ${r}   $..vnsSvcEPgPol.attributes.descr   {{ pol.description | default() }}
+    Should Be Equal Value Json String   ${r}   $..vnsSvcEPgPol.attributes.name   {{ pol_name }}
+    Should Be Equal Value Json String   ${r}   $..vnsSvcEPgPol.attributes.prefGrMemb   {{ 'include' if pol.preferred_group | default(defaults.apic.tenants.services.service_epg_policies.preferred_group) else 'exclude' }}
 
 {% endfor %}

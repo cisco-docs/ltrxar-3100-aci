@@ -11,9 +11,10 @@ Resource        ../../apic_common.resource
 {% if vmm.expected_state.maximum_critical_faults is defined or vmm.expected_state.maximum_major_faults is defined or vmm.expected_state.maximum_minor_faults is defined %}
 Verify VMware VMM Domain {{ vmm_name }} Faults
     ${r}=   GET On Session   apic   /api/mo/uni/vmmp-VMware/dom-{{ vmm_name }}/fltCnts.json
-     ${critical}=   Get Value From Json   ${r.json()}   $..faultCounts.attributes.crit
-    ${major}=   Get Value From Json   ${r.json()}   $..faultCounts.attributes.maj
-    ${minor}=   Get Value From Json   ${r.json()}   $..faultCounts.attributes.minor
+    Set Suite Variable   $r   ${r.json()}
+     ${critical}=   Get Value From Json   ${r}   $..faultCounts.attributes.crit
+    ${major}=   Get Value From Json   ${r}   $..faultCounts.attributes.maj
+    ${minor}=   Get Value From Json   ${r}   $..faultCounts.attributes.minor
 {% if vmm.expected_state.maximum_critical_faults is defined %}
     Run Keyword If   ${critical}[0] > {{ vmm.expected_state.maximum_critical_faults }}   Run Keyword And Continue On Failure
     ...   Fail  "{{ vmm_name }} has ${critical}[0] critical faults"
@@ -32,9 +33,10 @@ Verify VMware VMM Domain {{ vmm_name }} Faults
 Verify VMware VMM Domain {{ vmm_name }} Faults Pre-Check
     [Tags]   pre-check
     ${r}=   GET On Session   apic   /api/mo/uni/vmmp-VMware/dom-{{ vmm_name }}/fltCnts.json
-    ${critical}=   Get Value From Json   ${r.json()}   $..faultCounts.attributes.crit
-    ${major}=   Get Value From Json   ${r.json()}   $..faultCounts.attributes.maj
-    ${minor}=   Get Value From Json   ${r.json()}   $..faultCounts.attributes.minor
+    Set Suite Variable   $r   ${r.json()}
+    ${critical}=   Get Value From Json   ${r}   $..faultCounts.attributes.crit
+    ${major}=   Get Value From Json   ${r}   $..faultCounts.attributes.maj
+    ${minor}=   Get Value From Json   ${r}   $..faultCounts.attributes.minor
     &{json}=    Create Dictionary   critical=${critical}[0]   major=${major}[0]   minor=${minor}[0]
     Create Directory   ${STATE_PATH}
     evaluate   json.dump($json, open('${STATE_PATH}vmw_vmm_domain_{{ vmm_name }}_faults.json', 'w'))   modules=json
@@ -44,9 +46,10 @@ Verify VMware VMM Domain {{ vmm_name }} Faults Pre-Check
 Verify VMware VMM Domain {{ vmm_name }} Faults Post-Check
     [Tags]   post-check
     ${r}=   GET On Session   apic   /api/mo/uni/vmmp-VMware/dom-{{ vmm_name }}/fltCnts.json
-    ${critical}=   Get Value From Json   ${r.json()}   $..faultCounts.attributes.crit
-    ${major}=   Get Value From Json   ${r.json()}   $..faultCounts.attributes.maj
-    ${minor}=   Get Value From Json   ${r.json()}   $..faultCounts.attributes.minor
+    Set Suite Variable   $r   ${r.json()}
+    ${critical}=   Get Value From Json   ${r}   $..faultCounts.attributes.crit
+    ${major}=   Get Value From Json   ${r}   $..faultCounts.attributes.maj
+    ${minor}=   Get Value From Json   ${r}   $..faultCounts.attributes.minor
     &{previous}=   evaluate   json.load(open('${STATE_PATH}vmw_vmm_domain_{{ vmm_name }}_faults.json'))   modules=json
     Run Keyword If   ${critical}[0] > ${previous["critical"]}   Run Keyword And Continue On Failure
     ...   Fail  "Number of critical faults increased from ${previous["critical"]} to ${critical}[0]"

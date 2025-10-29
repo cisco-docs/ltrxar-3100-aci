@@ -10,15 +10,15 @@ Resource        ../../apic_common.resource
 
 Verify Node Control {{ policy_name }} Policy
     ${r}=   GET On Session   apic   /api/mo/uni/fabric/nodecontrol-{{ policy_name }}.json
-    Set Suite Variable   ${r}
-    Should Be Equal Value Json String   ${r.json()}    $..fabricNodeControl.attributes.name   {{ policy_name }}
+    Set Suite Variable   $r   ${r.json()}
+    Should Be Equal Value Json String   ${r}    $..fabricNodeControl.attributes.name   {{ policy_name }}
 
 Verify Dom enablement for {{ policy_name }}
 {% set dom = "" %}
 {% if policy.dom | default(defaults.apic.fabric_policies.switch_policies.node_control_policies.dom) %}{% set dom = "Dom" %}{% endif %}
-    Should Be Equal Value Json String   ${r.json()}    $..fabricNodeControl.attributes.control   {{ dom }}
+    Should Be Equal Value Json String   ${r}    $..fabricNodeControl.attributes.control   {{ dom }}
 
 Verify Feature Selection for {{ policy_name }}
-    Should Be Equal Value Json String   ${r.json()}    $..fabricNodeControl.attributes.featureSel   {{ policy.telemetry | default(defaults.apic.fabric_policies.switch_policies.node_control_policies.telemetry) }}
+    Should Be Equal Value Json String   ${r}    $..fabricNodeControl.attributes.featureSel   {{ policy.telemetry | default(defaults.apic.fabric_policies.switch_policies.node_control_policies.telemetry) }}
 
 {% endfor %}

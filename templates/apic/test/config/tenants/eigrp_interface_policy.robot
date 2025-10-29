@@ -17,13 +17,13 @@ Resource        ../../../apic_common.resource
 
 Verify EIGRP Interface Policy {{ policy_name }}
     ${r}=   GET On Session   apic   /api/mo/uni/tn-{{ tenant.name }}/eigrpIfPol-{{ policy_name }}.json
-    Set Suite Variable   ${r}
-    Should Be Equal Value Json String   ${r.json()}   $..eigrpIfPol.attributes.name   {{ policy_name }}
-    Should Be Equal Value Json String   ${r.json()}   $..eigrpIfPol.attributes.descr   {{ eip.description | default() }}
-    Should Be Equal Value Json String   ${r.json()}   $..eigrpIfPol.attributes.ctrl   {{ ctrl | join(',') }}
-    Should Be Equal Value Json String   ${r.json()}   $..eigrpIfPol.attributes.holdIntvl   {{ eip.hold_interval | default(defaults.apic.tenants.policies.eigrp_interface_policies.hold_interval) }}
-    Should Be Equal Value Json String   ${r.json()}   $..eigrpIfPol.attributes.helloIntvl   {{ eip.hello_interval | default(defaults.apic.tenants.policies.eigrp_interface_policies.hello_interval) }}
-    Should Be Equal Value Json String   ${r.json()}   $..eigrpIfPol.attributes.bw   {{ eip.bandwidth | default(defaults.apic.tenants.policies.eigrp_interface_policies.bandwidth) }}
-    Should Be Equal Value Json String   ${r.json()}   $..eigrpIfPol.attributes.delay   {{ eip.delay | default(defaults.apic.tenants.policies.eigrp_interface_policies.delay) }}
-    Should Be Equal Value Json String   ${r.json()}   $..eigrpIfPol.attributes.delayUnit   {{ eip.delay_unit | default(defaults.apic.tenants.policies.eigrp_interface_policies.delay_unit) }}
+    Set Suite Variable   $r   ${r.json()}
+    Should Be Equal Value Json String   ${r}   $..eigrpIfPol.attributes.name   {{ policy_name }}
+    Should Be Equal Value Json String   ${r}   $..eigrpIfPol.attributes.descr   {{ eip.description | default() }}
+    Should Be Equal Value Json String   ${r}   $..eigrpIfPol.attributes.ctrl   {{ ctrl | join(',') }}
+    Should Be Equal Value Json String   ${r}   $..eigrpIfPol.attributes.holdIntvl   {{ eip.hold_interval | default(defaults.apic.tenants.policies.eigrp_interface_policies.hold_interval) }}
+    Should Be Equal Value Json String   ${r}   $..eigrpIfPol.attributes.helloIntvl   {{ eip.hello_interval | default(defaults.apic.tenants.policies.eigrp_interface_policies.hello_interval) }}
+    Should Be Equal Value Json String   ${r}   $..eigrpIfPol.attributes.bw   {{ eip.bandwidth | default(defaults.apic.tenants.policies.eigrp_interface_policies.bandwidth) }}
+    Should Be Equal Value Json String   ${r}   $..eigrpIfPol.attributes.delay   {{ eip.delay | default(defaults.apic.tenants.policies.eigrp_interface_policies.delay) }}
+    Should Be Equal Value Json String   ${r}   $..eigrpIfPol.attributes.delayUnit   {{ eip.delay_unit | default(defaults.apic.tenants.policies.eigrp_interface_policies.delay_unit) }}
 {% endfor %}

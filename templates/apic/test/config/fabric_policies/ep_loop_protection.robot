@@ -21,7 +21,8 @@ Resource        ../../apic_common.resource
 
 Verify EP Loop Protection
     ${r}=   GET On Session   apic   /api/mo/uni/infra/epLoopProtectP-default.json
-    Should Be Equal Value Json String   ${r.json()}    $..epLoopProtectP.attributes.action   {{ action | join(',') }}
-    Should Be Equal Value Json String   ${r.json()}    $..epLoopProtectP.attributes.adminSt   {{ 'enabled' if apic.fabric_policies.ep_loop_protection.admin_state | default(defaults.apic.fabric_policies.ep_loop_protection.admin_state) else 'disabled' }}
-    Should Be Equal Value Json String   ${r.json()}    $..epLoopProtectP.attributes.loopDetectIntvl   {{ apic.fabric_policies.ep_loop_protection.detection_interval | default(defaults.apic.fabric_policies.ep_loop_protection.detection_interval) }}
-    Should Be Equal Value Json String   ${r.json()}    $..epLoopProtectP.attributes.loopDetectMult   {{ apic.fabric_policies.ep_loop_protection.detection_multiplier | default(defaults.apic.fabric_policies.ep_loop_protection.detection_multiplier) }}
+    Set Suite Variable   $r   ${r.json()}
+    Should Be Equal Value Json String   ${r}    $..epLoopProtectP.attributes.action   {{ action | join(',') }}
+    Should Be Equal Value Json String   ${r}    $..epLoopProtectP.attributes.adminSt   {{ 'enabled' if apic.fabric_policies.ep_loop_protection.admin_state | default(defaults.apic.fabric_policies.ep_loop_protection.admin_state) else 'disabled' }}
+    Should Be Equal Value Json String   ${r}    $..epLoopProtectP.attributes.loopDetectIntvl   {{ apic.fabric_policies.ep_loop_protection.detection_interval | default(defaults.apic.fabric_policies.ep_loop_protection.detection_interval) }}
+    Should Be Equal Value Json String   ${r}    $..epLoopProtectP.attributes.loopDetectMult   {{ apic.fabric_policies.ep_loop_protection.detection_multiplier | default(defaults.apic.fabric_policies.ep_loop_protection.detection_multiplier) }}

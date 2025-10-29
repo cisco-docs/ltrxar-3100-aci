@@ -12,10 +12,11 @@ Resource        ../../apic_common.resource
 
 Verify MACsec Fabric Interfaces Policy {{ policy_name }}
     ${r}=   GET On Session   apic   /api/mo/uni/fabric/macsecfabifp-{{ policy_name }}.json   params=rsp-subtree=full
-    Should Be Equal Value Json String   ${r.json()}    $..macsecFabIfPol.attributes.name   {{ policy_name }}
-    Should Be Equal Value Json String   ${r.json()}    $..macsecFabIfPol.attributes.descr   {{ policy.description | default() }}
-    Should Be Equal Value Json String   ${r.json()}    $..macsecFabIfPol.attributes.adminSt   {{ 'enabled' if policy.admin_state | default(defaults.apic.fabric_policies.macsec_interfaces_policies.admin_state) else 'disabled' }}
-    Should Be Equal Value Json String   ${r.json()}    $..macsecRsToParamPol.attributes.tDn   uni/fabric/macsecpcontfab/fabparamp-{{ param_policy_name }}
-    Should Be Equal Value Json String   ${r.json()}    $..macsecRsToKeyChainPol.attributes.tDn   uni/fabric/macsecpcontfab/keychainp-{{ keychain_policy_name }}
+    Set Suite Variable   $r   ${r.json()}
+    Should Be Equal Value Json String   ${r}    $..macsecFabIfPol.attributes.name   {{ policy_name }}
+    Should Be Equal Value Json String   ${r}    $..macsecFabIfPol.attributes.descr   {{ policy.description | default() }}
+    Should Be Equal Value Json String   ${r}    $..macsecFabIfPol.attributes.adminSt   {{ 'enabled' if policy.admin_state | default(defaults.apic.fabric_policies.macsec_interfaces_policies.admin_state) else 'disabled' }}
+    Should Be Equal Value Json String   ${r}    $..macsecRsToParamPol.attributes.tDn   uni/fabric/macsecpcontfab/fabparamp-{{ param_policy_name }}
+    Should Be Equal Value Json String   ${r}    $..macsecRsToKeyChainPol.attributes.tDn   uni/fabric/macsecpcontfab/keychainp-{{ keychain_policy_name }}
 
 {% endfor %}

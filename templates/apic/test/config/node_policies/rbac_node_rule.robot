@@ -10,14 +10,14 @@ Resource        ../../apic_common.resource
 
 Verify RBAC Node Rule {{ node.id }}
     ${r}=   GET On Session   apic   /api/mo/uni/rbacdb/rbacnoderule-{{ node.id }}.json   params=rsp-subtree=full
-    Set Suite Variable   ${r}
-    Should Be Equal Value Json String   ${r.json()}    $..aaaRbacNodeRule.attributes.nodeId   {{ node.id }}
+    Set Suite Variable   $r   ${r.json()}
+    Should Be Equal Value Json String   ${r}    $..aaaRbacNodeRule.attributes.nodeId   {{ node.id }}
 
 {% for sd in node.security_domains %}
 
 Verify RBAC Node Rule {{ node.id }} Security Domain {{ sd }}
     ${sd}=   Set Variable   $..aaaRbacNodeRule.children[?(@.aaaRbacPortRule.attributes.name=='{{ sd }}')]
-    Should Be Equal Value Json String   ${r.json()}    ${sd}..aaaRbacPortRule.attributes.domain   {{ sd }}
+    Should Be Equal Value Json String   ${r}    ${sd}..aaaRbacPortRule.attributes.domain   {{ sd }}
 
 {% endfor %}
 
