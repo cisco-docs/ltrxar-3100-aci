@@ -4,11 +4,8 @@
 
 # mypy: ignore-errors
 
-import json
-
-import requests
 from robot.api.deco import keyword
-import urllib3
+from robot.libraries.BuiltIn import BuiltIn
 
 __version__ = "0.2.0"
 
@@ -39,44 +36,18 @@ class Ndo(object):
     ROBOT_LIBRARY_VERSION = __version__
     ROBOT_LIBRARY_SCOPE = "GLOBAL"
 
-    def __init__(self, url: str, username: str, password: str, domain: str):
-        self.url = url
-        self.username = username
-        self.password = password
-        self.domain = domain
-        urllib3.disable_warnings()
-        self.session = requests.Session()
-        self.session.verify = False
-        self.session.headers["Content-Type"] = "application/json"
+    def __init__(self, session_name: str):
+        self.session_name = session_name
         self.lookup_cache = {}
-        self._login()
-
-    def _login(self):
-        """NDO login"""
-        credentials = {"userName": self.username, "userPasswd": self.password}
-        if self.domain:
-            credentials["domain"] = self.domain
-        json_credentials = json.dumps(credentials)
-        base_url = self.url + "/login"
-
-        resp = self.session.post(base_url, data=json_credentials)
-
-        if resp.status_code not in [200, 201]:
-            raise Exception(
-                "NDO login failed, status code: {}, response: {}.".format(
-                    resp.status_code, resp.text
-                )
-            )
-
-        token = json.loads(resp.text)["token"]
-        self.session.headers["Authorization"] = "Bearer " + token
+        self.builtin = BuiltIn()
 
     def _query_objs(self, path, key=None, api_version="v1", **kwargs):
         """Retrieve objects via REST GET and optionally filter by key"""
         found = []
-        base_url = self.url + "/mso/api/" + api_version + "/" + path
-        resp = self.session.get(base_url)
-        objs = json.loads(resp.text)
+        resp = self.builtin.run_keyword(
+            "Get On Session", self.session_name, "/mso/api/" + api_version + "/" + path
+        )
+        objs = resp.json()
 
         if objs == {}:
             return found

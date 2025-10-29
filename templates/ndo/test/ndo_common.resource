@@ -4,23 +4,49 @@ Library   RequestsLibrary
 Library   JSONLibrary
 Library   Collections
 Library   OperatingSystem
-Library   ./lib/Ndo.py   %{MSO_URL}   %{MSO_USERNAME}   %{MSO_PASSWORD}    %{MSO_DOMAIN=DefaultAuth}
+Library   DateTime
+Library   ./lib/Ndo.py   ndo
 
 *** Variables ***
 ${login_json}   {"userName" : "%{MSO_USERNAME}", "userPasswd" : "%{MSO_PASSWORD}", "domain" : "%{MSO_DOMAIN=DefaultAuth}"}
 ${state_path}   tests/state/
 
 *** Keywords ***
+Check NDO Token Timestamp
+    ${current_time}=   Get Current Date   result_format=epoch
+    ${token_timestamp}=   Get Parallel Value For Key   ndo_token_timestamp
+    ${expires}=   Evaluate   (${token_timestamp} - ${current_time}) <= 120
+    RETURN   ${expires}
+
+Verify NDO Token
+    ${token_expires}=   Check NDO Token Timestamp
+    IF   ${token_expires}
+        Acquire Lock   ndo_token_refresh
+        TRY
+            ${token_expires}=   Check NDO Token Timestamp
+            IF   ${token_expires}
+                Get NDO Token
+            END
+        EXCEPT
+            Fatal Error   NDO Token Refresh Failed
+        FINALLY
+            Release Lock   ndo_token_refresh
+        END
+    END
+
 Get NDO Token
     Create Session   login   %{MSO_URL}   headers={"Content-Type": "application/json"}
     ${log_level}=   Set Log Level   NONE
     ${response}=   Wait Until Keyword Succeeds   6x   10s   POST On Session   login   /login   data=${login_json}
     Set Log Level   ${log_level}
-    ${r_token}=   Get Value From Json   ${response.json()}   $..token
+    ${r_token}=   Get Value From Json   ${response.json()}   $..jwttoken
     Set Parallel Value For Key   ndo_token   ${r_token[0]}
+    ${token_timestamp}=   Evaluate   [cookie.expires for cookie in $response.cookies if cookie.name == 'AuthCookie'][0]
+    Set Parallel Value For Key   ndo_token_timestamp   ${token_timestamp}
 
 Login NDO
     Run Only Once   Get NDO Token
+    Verify NDO Token
     ${ndo_token}=   Get Parallel Value For Key   ndo_token
     Create Session   ndo   %{MSO_URL}   headers={"Content-Type": "application/json", "Authorization": "Bearer ${ndo_token}"}
     Set Global Variable   ${STATE_PATH}   ${state_path}

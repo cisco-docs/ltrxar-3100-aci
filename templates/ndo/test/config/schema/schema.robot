@@ -8,6 +8,7 @@ Resource        ../../ndo_common.resource
 {% for schema in ndo.schemas | default([]) %}
 
 Verify Schema {{ schema.name }}
+    {% if not loop.first %}    Login NDO{% endif %} 
     ${schema_id}=   NDO Lookup   schemas/list-identity   {{ schema.name }}
     ${r}=   GET On Session   ndo   /api/v1/schemas/${schema_id}
     Set Suite Variable   ${r}
