@@ -51,11 +51,43 @@ class Apic:
         """APIC POST"""
         base_url = self.url + url
         resp = self.session.post(base_url, data=data, cookies=self.cookie)
+
+        # Handle token timeout - retry once with fresh login
+        if resp.status_code in [401, 403]:
+            login_error = self.login()
+            if login_error:
+                return "APIC re-login failed after token timeout: {}".format(
+                    login_error
+                )
+            resp = self.session.post(base_url, data=data, cookies=self.cookie)
+
         if resp.status_code != 200:
             return "APIC POST failed, status code: {}, response: {}".format(
                 resp.status_code, resp.text
             )
         return ""
+
+    def get(self, url: str = "/api/mo/uni.json"):
+        """APIC GET"""
+        base_url = self.url + url
+        resp = self.session.get(base_url, cookies=self.cookie)
+
+        # Handle token timeout - retry once with fresh login
+        if resp.status_code in [401, 403]:
+            login_error = self.login()
+            if login_error:
+                raise Exception(
+                    "APIC re-login failed after token timeout: {}".format(login_error)
+                )
+            resp = self.session.get(base_url, cookies=self.cookie)
+
+        if resp.status_code != 200:
+            raise Exception(
+                "APIC GET failed, status code: {}, response: {}".format(
+                    resp.status_code, resp.text
+                )
+            )
+        return resp
 
     def logout(self) -> str:
         """APIC logout"""

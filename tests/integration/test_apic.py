@@ -33,10 +33,13 @@ APIC_TEST_TEMPLATES_PATH = "templates/apic/test/"
 PRIORITIZED_TEMPLATES = ["radius.j2"]
 
 
-def apic_deploy_config(apic_url, config_path):
+def apic_deploy_config(apic_url, config_path, version):
     """Deploy config via a set of json files"""
     username = os.getenv("ACI_USERNAME")
-    password = os.getenv("ACI_PASSWORD")
+    if version == "6.1":
+        password = os.getenv("ACI_PASSWORD_61")
+    else:
+        password = os.getenv("ACI_PASSWORD")
     if not username:
         return "APIC username must be specified with ACI_USERNAME environment variable."
     if not password:
@@ -61,11 +64,13 @@ def apic_deploy_config(apic_url, config_path):
     return None
 
 
-def apic_render_run_tests(apic_url, data_paths, output_path):
+def apic_render_run_tests(apic_url, data_paths, output_path, version):
     """Render APIC test suites and run them using nac-test"""
     error = render_templates(
         data_paths, output_path, APIC_TEST_TEMPLATES_PATH, filters_path=FILTERS_PATH
     )
+    if version == "6.1":
+        os.environ["ACI_PASSWORD"] = os.getenv("ACI_PASSWORD_61")
     if error:
         pytest.fail(error)
     os.environ["ACI_URL"] = apic_url
@@ -74,6 +79,107 @@ def apic_render_run_tests(apic_url, data_paths, output_path):
     except SystemExit as e:
         if e.code != 0:
             return "Robot testing failed."
+    return None
+
+
+def remove_multipod_config(apic):
+    r = apic.get(
+        url='/api/node/class/fabricNode.json?query-target-filter=eq(fabricNode.id, "2001")'
+    )
+    data = r.json()
+    timer = False
+    if data.get("totalCount", "0") != "0":
+        timer = True
+        payload = '{"fabricRsDecommissionNode":{"attributes":{"tDn":"topology/pod-2/node-2001","status":"created,modified","removeFromController":"true"},"children":[]}}'
+        r = apic.post(payload, url="/api/node/mo/uni/fabric/outofsvc.json")
+        if r:
+            return "Removing Node 2001 config failed."
+
+    r = apic.get(
+        url='/api/node/class/fabricNode.json?query-target-filter=eq(fabricNode.id, "301")'
+    )
+    data = r.json()
+    if data.get("totalCount", "0") != "0":
+        timer = True
+        payload = '{"fabricRsDecommissionNode":{"attributes":{"tDn":"topology/pod-1/node-301","status":"created,modified","removeFromController":"true"},"children":[]}}'
+        r = apic.post(payload, url="/api/node/mo/uni/fabric/outofsvc.json")
+        if r:
+            return "Removing Node 301 config failed."
+
+    r = apic.get(
+        url='/api/node/class/fabricNode.json?query-target-filter=eq(fabricNode.id, "302")'
+    )
+    data = r.json()
+    if data.get("totalCount", "0") != "0":
+        timer = True
+        payload = '{"fabricRsDecommissionNode":{"attributes":{"tDn":"topology/pod-1/node-302","status":"created,modified","removeFromController":"true"},"children":[]}}'
+        r = apic.post(payload, url="/api/node/mo/uni/fabric/outofsvc.json")
+        if r:
+            return "Removing Node 302 config failed."
+    if timer:
+        time.sleep(600)
+
+    r = apic.get(url="/api/mo/uni/controller/setuppol/setupp-2.json")
+    data = r.json()
+    timer = False
+    if data.get("totalCount", "0") != "0":
+        timer = True
+        payload = '{"fabricSetupP":{"attributes":{"dn":"uni/controller/setuppol/setupp-2","status":"deleted"},"children":[]}}'
+        r = apic.post(payload, url="/api/node/mo/uni/controller/setuppol/setupp-2.json")
+        if r:
+            return "Removing Pod 2 config failed."
+
+    if timer:
+        time.sleep(60)
+
+    r = apic.get(url="/api/mo/uni/tn-infra/out-IPN.json")
+    data = r.json()
+    if data.get("totalCount", "0") != "0":
+        payload = '{"l3extOut":{"attributes":{"dn":"uni/tn-infra/out-IPN","status":"deleted"},"children":[]}}'
+        r = apic.post(payload, url="/api/node/mo/uni/tn-infra/out-IPN.json")
+        if r:
+            return "Removing IPN config failed."
+
+    r = apic.get(url="/api/mo/uni/tn-infra/out-RL-L3OUT-BGP.json")
+    data = r.json()
+    if data.get("totalCount", "0") != "0":
+        payload = '{"l3extOut":{"attributes":{"dn":"uni/tn-infra/out-RL-L3OUT-BGP","status":"deleted"},"children":[]}}'
+        r = apic.post(payload, url="/api/node/mo/uni/tn-infra/out-RL-L3OUT-BGP.json")
+        if r:
+            return "Removing RL-L3OUT-BGP config failed."
+
+    r = apic.get(url="/api/mo/uni/tn-infra/out-RL-L3OUT-OSPF.json")
+    data = r.json()
+    if data.get("totalCount", "0") != "0":
+        payload = '{"l3extOut":{"attributes":{"dn":"uni/tn-infra/out-RL-L3OUT-OSPF","status":"deleted"},"children":[]}}'
+        r = apic.post(payload, url="/api/node/mo/uni/tn-infra/out-RL-L3OUT-OSPF.json")
+        if r:
+            return "Removing RL-L3OUT-OSPF config failed."
+
+
+def revert_snapshot_physical(apic_url, snapshot_name):
+    """Revert physical APIC snapshot"""
+    username = os.getenv("ACI_USERNAME")
+    password = os.getenv("ACI_PASSWORD_61")
+    if not username:
+        return "APIC username must be specified with ACI_USERNAME environment variable."
+    if not password:
+        return "APIC password must be specified with ACI_PASSWORD environment variable."
+    apic = Apic(apic_url, username, password)
+    r = apic.login()
+    if r:
+        return "APIC login failed: {}.".format(r)
+
+    remove_multipod_config(apic)
+
+    payload = (
+        '{"configImportP":{"attributes":{"dn":"uni/fabric/configimp-default","name":"default","snapshot":"true","adminSt":"triggered","fileName":"'
+        + snapshot_name
+        + '","importType":"replace","importMode":"atomic","rn":"configimp-default","status":"created,modified"},"children":[]}}'
+    )
+    r = apic.post(payload, url="/api/node/mo/uni/fabric/configimp-default.json")
+    if r:
+        return "Reverting to APIC snapshot failed."
     return None
 
 
@@ -96,10 +202,16 @@ def full_apic_test(data_paths, vm_name, snapshot_name, apic_url, version, tmpdir
         pytest.fail(error)
 
     # Revert ACI simulator snapshot
-    revert_snapshot(vm_name, snapshot_name)
+    if version != "6.1":
+        revert_snapshot(vm_name, snapshot_name)
+    else:
+        revert_snapshot_physical(apic_url, snapshot_name)
+
+    if version.startswith("6.1"):
+        time.sleep(60)
 
     # Configure ACI simulator
-    error = apic_deploy_config(apic_url, tmpdir.strpath)
+    error = apic_deploy_config(apic_url, tmpdir.strpath, version)
     if error:
         pytest.fail(error)
 
@@ -109,7 +221,7 @@ def full_apic_test(data_paths, vm_name, snapshot_name, apic_url, version, tmpdir
 
     # Run tests
     error = apic_render_run_tests(
-        apic_url, data_paths, os.path.join(tmpdir, "results/")
+        apic_url, data_paths, os.path.join(tmpdir, "results/"), version
     )
     shutil.copy(
         os.path.join(tmpdir, "results/", "log.html"), "apic_{}_log.html".format(version)
@@ -143,10 +255,18 @@ def full_apic_terraform_test(
     """Deploy config to ACI simulator using Terraform"""
 
     # Revert ACI simulator snapshot
-    revert_snapshot(vm_name, snapshot_name)
+    if version != "6.1":
+        revert_snapshot(vm_name, snapshot_name)
+    else:
+        revert_snapshot_physical(apic_url, snapshot_name)
+
+    if version.startswith("6.1"):
+        time.sleep(60)
 
     os.environ["ACI_URL"] = apic_url
     os.environ["ACI_RETRIES"] = "4"
+    if version.startswith("6.1"):
+        os.environ["ACI_PASSWORD"] = os.getenv("ACI_PASSWORD_61")
 
     try:
         r = subprocess.run(
@@ -182,7 +302,7 @@ def full_apic_terraform_test(
         # Run tests
         data_paths.append(Path(os.path.join(terraform_path, "defaults.yaml")))
         error = apic_render_run_tests(
-            apic_url, data_paths, os.path.join(tmpdir, "results/")
+            apic_url, data_paths, os.path.join(tmpdir, "results/"), version
         )
         shutil.copy(
             os.path.join(tmpdir, "results/", "log.html"),
@@ -204,7 +324,7 @@ def full_apic_terraform_test(
             pytest.fail(error)
 
         destroy_args = [terraform_binary, "destroy", "-auto-approve", "-no-color"]
-        if version.startswith("6.0"):
+        if version.startswith(("6.0", "6.1")):
             destroy_args.append("-parallelism=3")
         r = subprocess.run(
             destroy_args,
@@ -377,7 +497,7 @@ def full_apic_terraform_upgrade_test(
         # Run tests
         data_paths.append(Path(os.path.join(terraform_path, "defaults.yaml")))
         error = apic_render_run_tests(
-            apic_url, data_paths, os.path.join(tmpdir, "results/")
+            apic_url, data_paths, os.path.join(tmpdir, "results/"), version
         )
         shutil.copy(
             os.path.join(tmpdir, "results/", "log.html"),
@@ -485,9 +605,9 @@ def test_apic_60(data_paths, vm_name, snapshot_name, apic_url, version, tmpdir):
                 "tests/integration/fixtures/apic/standard_60/",
                 "defaults/",
             ],
-            "nac-ci-apic4-6.1.2g",
-            "Clean",
-            "https://10.50.202.104",
+            "nac-ci-apic4-6.1.4h",
+            "ce2_defaultOneTime-2025-10-28T15-26-59.tar.gz",
+            "https://10.48.168.221",
             "6.1",
         ),
     ],
@@ -593,7 +713,7 @@ def test_apic_terraform_60(
 @pytest.mark.apic_61
 @pytest.mark.terraform
 @pytest.mark.parametrize(
-    "data_paths, terraform_path, vm_name, snapshot_name, apic_url, version, terraform_binary",
+    "data_paths, terraform_path, vm_name, snapshot_name, apic_url, version",
     [
         (
             [
@@ -602,11 +722,10 @@ def test_apic_terraform_60(
                 "tests/integration/fixtures/apic/standard_60/",
             ],
             "tests/integration/fixtures/apic/terraform_61",
-            "nac-ci-apic4-6.1.2g",
-            "Clean",
-            "https://10.50.202.104",
+            "nac-ci-apic4-6.1.4h",
+            "ce2_defaultOneTime-2025-10-28T15-26-59.tar.gz",
+            "https://10.48.168.221",
             "6.1",
-            "tofu",
         ),
     ],
 )
@@ -618,7 +737,6 @@ def test_apic_terraform_61(
     apic_url,
     version,
     tmpdir,
-    terraform_binary,
 ):
     full_apic_terraform_test(
         data_paths,
@@ -628,7 +746,6 @@ def test_apic_terraform_61(
         apic_url,
         version,
         tmpdir,
-        terraform_binary=terraform_binary,
     )
 
 

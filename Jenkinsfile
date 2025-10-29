@@ -10,6 +10,7 @@ pipeline {
     environment {
         ACI_USERNAME = credentials('ACI_USERNAME')
         ACI_PASSWORD = credentials('ACI_PASSWORD')
+        ACI_PASSWORD_61 = credentials('ACI_PASSWORD_61')
         MSO_USERNAME = credentials('MSO_USERNAME')
         MSO_PASSWORD = credentials('MSO_PASSWORD')
         VMWARE_HOST = credentials('VMWARE_HOST')
@@ -86,6 +87,17 @@ pipeline {
                         always {
                             junit 'apic_6.0_xunit.xml'
                             archiveArtifacts 'apic_6.0_*.html, apic_6.0_*.xml'
+                        }
+                    }
+                }
+                stage('Test APIC 6.1') {
+                    steps {
+                        sh 'pytest -m "apic_61 and not terraform"'
+                    }
+                    post {
+                        always {
+                            junit 'apic_6.1_xunit.xml'
+                            archiveArtifacts 'apic_6.1_*.html, apic_6.1_*.xml'
                         }
                     }
                 }

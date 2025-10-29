@@ -298,7 +298,7 @@ apic:
         - name: AP_DPP1
           admin_state: true
           type: 2R3C
-          mode: packet
+          mode: bit
           sharing_mode: shared
           conform_mark_cos: 1
           conform_mark_dscp: 10
