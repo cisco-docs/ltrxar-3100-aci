@@ -82,11 +82,10 @@ ndo:
                       static_ports:
                         - vlan: 1001
                           pod: 1
-                        - type: vpc
+                          type: vpc
                           node_1: 101
                           node_2: 102
                           channel: VPC_IPG
-                      static_ports:
                         - vlan: 1001
                           pod: 1
                           node: 103

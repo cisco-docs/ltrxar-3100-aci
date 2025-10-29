@@ -15,7 +15,7 @@ ndo:
     - name: MSO1
       description: Description
       sites:
-        - APIC1
+        - name: APIC1
 ```
 
 Azure Tenant:
