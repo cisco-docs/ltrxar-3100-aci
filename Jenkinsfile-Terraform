@@ -73,9 +73,7 @@ pipeline {
                 }
                 stage('Test APIC 6.1 Terraform') {
                     steps {
-                        {
                             sh 'pytest -m "apic_61 and terraform"'
-                        }
                     }
                     post {
                         always {
