@@ -17,6 +17,9 @@ Verify Endpoint Security Group {{ esg_name }}
     Set Suite Variable   $r   ${r.json()}
     Should Be Equal Value Json String   ${r}   $..fvESg.attributes.name   {{ esg_name }}
     Should Be Equal Value Json String   ${r}   $..fvESg.attributes.descr   {{ esg.description | default() }}
+{% if esg.deployment_immediacy is defined %}
+    Should Be Equal Value Json String   ${r}   $..fvESg.attributes.instrImedcy   {{ esg.deployment_immediacy }}
+{% endif %}
     Should Be Equal Value Json String   ${r}   $..fvESg.attributes.pcEnfPref   {{ 'enforced' if esg.intra_esg_isolation | default(defaults.apic.tenants.application_profiles.endpoint_security_groups.intra_esg_isolation) else 'unenforced' }}
     Should Be Equal Value Json String   ${r}   $..fvESg.attributes.prefGrMemb   {{ 'include' if esg.preferred_group | default(defaults.apic.tenants.application_profiles.endpoint_security_groups.preferred_group) else 'exclude' }}
     Should Be Equal Value Json String   ${r}   $..fvESg.attributes.shutdown   {{ 'yes' if esg.shutdown | default(defaults.apic.tenants.application_profiles.endpoint_security_groups.shutdown) else 'no' }}

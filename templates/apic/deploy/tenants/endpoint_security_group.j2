@@ -28,6 +28,9 @@
                                     "descr": "{{ esg.description | default() }}",
                                     "dn": "uni/tn-{{ tenant.name }}/ap-{{ ap_name }}/esg-{{ esg_name }}",
                                     "name": "{{ esg_name }}",
+                                    {% if esg.deployment_immediacy is defined %}
+                                    "instrImedcy": "{{ esg.deployment_immediacy }}",
+                                    {% endif %}
                                     "pcEnfPref": "{{ 'enforced' if esg.intra_esg_isolation | default(defaults.apic.tenants.application_profiles.endpoint_security_groups.intra_esg_isolation) else 'unenforced' }}",
                                     "prefGrMemb": "{{ 'include' if esg.preferred_group | default(defaults.apic.tenants.application_profiles.endpoint_security_groups.preferred_group) else 'exclude' }}",
                                     "shutdown": "{{ 'yes' if esg.shutdown | default(defaults.apic.tenants.application_profiles.endpoint_security_groups.shutdown) else 'no' }}",

@@ -2385,6 +2385,7 @@ ten_ap_endpoint_security_groups:
   shutdown: bool(required=False)
   intra_esg_isolation: bool(required=False)
   preferred_group: bool(required=False)
+  deployment_immediacy: enum('immediate', 'lazy', required=False)
   contracts: include('ten_ap_endpoint_security_groups_contracts', required=False) # @flatten()
   tag_selectors: list(include('ten_ap_endpoint_security_groups_tag_selectors'), required=False) # @name(ESG Tag Selectors) @sheet_hidden()
   epg_selectors: list(include('ten_ap_endpoint_security_groups_epg_selectors'), required=False) # @name(ESG EPG Selectors) @sheet_hidden()
