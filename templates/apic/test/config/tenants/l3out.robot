@@ -455,11 +455,11 @@ Verify L3out {{ l3out_name }} Node Profile {{ l3out_np_name }} Interface Profile
 
     ${mon}=    Set Variable    $..l3extLIfP.children[?(@.l3extRsLIfPToNetflowMonitorPol.attributes.tnNetflowMonitorPolName=='{{ monitor_name }}')].l3extRsLIfPToNetflowMonitorPol
 
-    Should Be Equal Value Json String    ${r.json()}    ${mon}.attributes.tnNetflowMonitorPolName    {{ monitor_name }}
-    Should Be Equal Value Json String    ${r.json()}    ${mon}.attributes.fltType    {{ monitor.ip_filter_type | default(defaults.apic.tenants.l3outs.netflow_monitor_policies.ip_filter_type) }}
+    Should Be Equal Value Json String    ${r}    ${mon}.attributes.tnNetflowMonitorPolName    {{ monitor_name }}
+    Should Be Equal Value Json String    ${r}    ${mon}.attributes.fltType    {{ monitor.ip_filter_type | default(defaults.apic.tenants.l3outs.netflow_monitor_policies.ip_filter_type) }}
 
 {%- endfor %}
-{% endif %}	
+{% endif %}
 {% if l3out.bfd_multihop_node_policy is defined %}
 {% set bfd_multihop_node_policy_name = l3out.bfd_multihop_node_policy ~ defaults.apic.tenants.policies.bfd_multihop_node_policies.name_suffix %}
 
@@ -663,11 +663,11 @@ Verify L3out {{ l3out_name }} Node Profile {{ l3out_np_name }} Interface Profile
 {% if ip.netflow_monitor_policies is defined %}
 {%- for monitor in ip.netflow_monitor_policies %}
     {% set monitor_name = monitor.name ~ defaults.apic.tenants.policies.netflow_monitors.name_suffix %}
- 
+
     ${mon}=    Set Variable    ${ip}..l3extLIfP.children[?(@.l3extRsLIfPToNetflowMonitorPol.attributes.tnNetflowMonitorPolName=='{{ monitor_name }}')].l3extRsLIfPToNetflowMonitorPol
 
-    Should Be Equal Value Json String    ${r.json()}    ${mon}.attributes.tnNetflowMonitorPolName    {{ monitor_name }}
-    Should Be Equal Value Json String    ${r.json()}    ${mon}.attributes.fltType    {{ monitor.ip_filter_type | default(defaults.apic.tenants.l3outs.node_profiles.interface_profiles.netflow_monitor_policies.ip_filter_type) }}
+    Should Be Equal Value Json String    ${r}    ${mon}.attributes.tnNetflowMonitorPolName    {{ monitor_name }}
+    Should Be Equal Value Json String    ${r}    ${mon}.attributes.fltType    {{ monitor.ip_filter_type | default(defaults.apic.tenants.l3outs.node_profiles.interface_profiles.netflow_monitor_policies.ip_filter_type) }}
 {%- endfor %}
 {% endif %}
 

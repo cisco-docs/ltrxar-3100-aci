@@ -57,8 +57,8 @@ Verify Bridge Domain {{ bd_name }}
 
 Verify Bridge Domain {{ bd_name }} Netflow Monitor Policy {{ monitor_name }}
     ${mon}=    Set Variable    $..fvBD.children[?(@.fvRsBDToNetflowMonitorPol.attributes.tnNetflowMonitorPolName=='{{ monitor_name }}')].fvRsBDToNetflowMonitorPol
-    Should Be Equal Value Json String    ${r.json()}    ${mon}.attributes.tnNetflowMonitorPolName    {{ monitor_name }}
-    Should Be Equal Value Json String    ${r.json()}    ${mon}.attributes.fltType    {{ monitor.ip_filter_type | default(defaults.apic.tenants.bridge_domains.netflow_monitor_policies.ip_filter_type) }}
+    Should Be Equal Value Json String    ${r}    ${mon}.attributes.tnNetflowMonitorPolName    {{ monitor_name }}
+    Should Be Equal Value Json String    ${r}    ${mon}.attributes.fltType    {{ monitor.ip_filter_type | default(defaults.apic.tenants.bridge_domains.netflow_monitor_policies.ip_filter_type) }}
 {%- endfor %}
 {% endif %}
 
