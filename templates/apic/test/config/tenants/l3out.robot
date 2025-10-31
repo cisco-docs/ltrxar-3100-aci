@@ -95,6 +95,7 @@ Verify L3out {{ l3out_name }} Profiles
 {% set custom_qos_policy_name = l3out.custom_qos_policy ~ defaults.apic.tenants.policies.custom_qos.name_suffix %}
     Should Be Equal Value Json String   ${r}   $..l3extRsLIfPCustQosPol.attributes.tnQosCustomPolName   {{ custom_qos_policy_name }}
 {% endif %}
+
 {% if l3out.nd_interface_policy is defined %}
     {% set nd_interface_policy_name = l3out.nd_interface_policy ~ defaults.apic.tenants.policies.nd_interface_policies.name_suffix %}
     Should Be Equal Value Json String   ${r}   $..l3extRsNdIfPol.attributes.tnNdIfPolName   {{ nd_interface_policy_name }}
@@ -448,6 +449,17 @@ Verify L3out {{ l3out_name }} Node Profile {{ l3out_np_name }} Interface Profile
 
 {% endfor %}
 
+{% if l3out.netflow_monitor_policies is defined %}
+{%- for monitor in l3out.netflow_monitor_policies | default([]) %}
+    {% set monitor_name = monitor.name ~ defaults.apic.tenants.policies.netflow_monitors.name_suffix %}
+
+    ${mon}=    Set Variable    $..l3extLIfP.children[?(@.l3extRsLIfPToNetflowMonitorPol.attributes.tnNetflowMonitorPolName=='{{ monitor_name }}')].l3extRsLIfPToNetflowMonitorPol
+
+    Should Be Equal Value Json String    ${r.json()}    ${mon}.attributes.tnNetflowMonitorPolName    {{ monitor_name }}
+    Should Be Equal Value Json String    ${r.json()}    ${mon}.attributes.fltType    {{ monitor.ip_filter_type | default(defaults.apic.tenants.l3outs.netflow_monitor_policies.ip_filter_type) }}
+
+{%- endfor %}
+{% endif %}	
 {% if l3out.bfd_multihop_node_policy is defined %}
 {% set bfd_multihop_node_policy_name = l3out.bfd_multihop_node_policy ~ defaults.apic.tenants.policies.bfd_multihop_node_policies.name_suffix %}
 
@@ -647,6 +659,18 @@ Verify L3out {{ l3out_name }} Node Profile {{ l3out_np_name }} Interface Profile
     {% set custom_qos_policy_name = ip.custom_qos_policy ~ defaults.apic.tenants.policies.custom_qos.name_suffix %}
     Should Be Equal Value Json String   ${r}   ${ip}..l3extRsLIfPCustQosPol.attributes.tnQosCustomPolName   {{ custom_qos_policy_name }}
 {% endif %}
+
+{% if ip.netflow_monitor_policies is defined %}
+{%- for monitor in ip.netflow_monitor_policies %}
+    {% set monitor_name = monitor.name ~ defaults.apic.tenants.policies.netflow_monitors.name_suffix %}
+ 
+    ${mon}=    Set Variable    ${ip}..l3extLIfP.children[?(@.l3extRsLIfPToNetflowMonitorPol.attributes.tnNetflowMonitorPolName=='{{ monitor_name }}')].l3extRsLIfPToNetflowMonitorPol
+
+    Should Be Equal Value Json String    ${r.json()}    ${mon}.attributes.tnNetflowMonitorPolName    {{ monitor_name }}
+    Should Be Equal Value Json String    ${r.json()}    ${mon}.attributes.fltType    {{ monitor.ip_filter_type | default(defaults.apic.tenants.l3outs.node_profiles.interface_profiles.netflow_monitor_policies.ip_filter_type) }}
+{%- endfor %}
+{% endif %}
+
 {% if ip.nd_interface_policy is defined %}
     {% set nd_interface_policy_name = ip.nd_interface_policy ~ defaults.apic.tenants.policies.nd_interface_policies.name_suffix %}
     Should Be Equal Value Json String   ${r}   ${ip}..l3extRsNdIfPol.attributes.tnNdIfPolName   {{ nd_interface_policy_name }}

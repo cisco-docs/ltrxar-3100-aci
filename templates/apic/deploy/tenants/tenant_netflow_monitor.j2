@@ -1,0 +1,55 @@
+{# iterate_list apic.tenants name item[2] #}
+{% set tenant = ((apic | default()) | community.general.json_query('tenants[?name==`' ~ item[2] ~ '`]'))[0] %}
+{
+    "fvTenant":
+    {
+        "attributes": {
+            "dn": "uni/tn-{{ tenant.name }}",
+            "name": "{{ tenant.name }}"
+        },
+        "children": [
+            {%- set comma1 = joiner(",") %}
+            {%- for monitor in tenant.policies.netflow_monitors | default([]) %}{{ comma1() }}
+            {% set monitor_name = monitor.name ~ defaults.apic.tenants.policies.netflow_monitors.name_suffix %}
+            {
+                "netflowMonitorPol": {
+                    "attributes": {
+                        "annotation": "orchestrator:aac",
+                        "name": "{{ monitor_name }}",
+                        "descr": "{{ monitor.description | default() }}",
+                        "dn": "uni/tn-{{ tenant.name }}/monitorpol-{{ monitor_name }}",
+                        "childAction": "deleteNonPresent"
+                    },
+                    "children": [
+                        {%- set comma2 = joiner(",") %}
+                        {%- if monitor.flow_record is defined %}{{ comma2() }}
+                        {% set record_name = monitor.flow_record ~ defaults.apic.tenants.policies.netflow_records.name_suffix %}
+                        {
+                            "netflowRsMonitorToRecord": {
+                                "attributes": {
+                                    "annotation": "orchestrator:aac",
+                                    "tnNetflowRecordPolName": "{{ record_name }}"
+                                }
+                            }
+                        }
+                        {%- endif %}
+                        {%- for exporter in monitor.flow_exporters | default([]) %}{{ comma2() }}
+                        {% set exporter_name = exporter ~ defaults.apic.tenants.policies.netflow_exporters.name_suffix %}
+                        {
+                            "netflowRsMonitorToExporter": {
+                                "attributes": {
+                                    "annotation": "orchestrator:aac",
+                                    "tnNetflowExporterPolName": "{{ exporter_name }}"
+                                }
+                            }
+                        }
+                        {%- endfor %}
+                        
+                    ]
+                }
+            }
+            {%- endfor %}
+
+        ]
+    }
+}

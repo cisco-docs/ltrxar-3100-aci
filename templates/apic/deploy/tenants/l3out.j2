@@ -426,6 +426,21 @@
                                                     }
                                                 }
                                                 {%- endif %}
+                                                {%- if l3out.netflow_monitor_policies is defined %}{{ comma4() }}
+                                                {%- set comma5 = joiner(",") %}
+                                                {%- for monitor in l3out.netflow_monitor_policies | default([]) %}{{ comma5() }}                       
+                                                {% set monitor_name = monitor.name ~ defaults.apic.tenants.policies.netflow_monitors.name_suffix %}
+                                                {
+                                                    "l3extRsLIfPToNetflowMonitorPol": {
+                                                        "attributes": {
+                                                            "annotation": "orchestrator:aac",
+                                                            "fltType": "{{ monitor.ip_filter_type | default(defaults.apic.tenants.l3outs.netflow_monitor_policies.ip_filter_type) }}",
+                                                            "tnNetflowMonitorPolName": "{{ monitor_name }}"
+                                                        }
+                                                    }
+                                                }
+                                                {%- endfor %}
+                                                {%- endif %} 
                                                 {%- if l3out.nd_interface_policy is defined %}{{ comma4() }}
                                                 {% set nd_interface_policy_name = l3out.nd_interface_policy ~ defaults.apic.tenants.policies.nd_interface_policies.name_suffix %}
                                                 {
@@ -1236,6 +1251,21 @@
                                                     }
                                                 }
                                                 {%- endif %}
+                                                {%- if ip.netflow_monitor_policies is defined %}{{ comma4() }}
+                                                {%- set comma5 = joiner(",") %}
+                                                {%- for monitor in ip.netflow_monitor_policies %}{{ comma5() }}                       
+                                                {% set monitor_name = monitor.name ~ defaults.apic.tenants.policies.netflow_monitors.name_suffix %}
+                                                {
+                                                    "l3extRsLIfPToNetflowMonitorPol": {
+                                                        "attributes": {
+                                                            "annotation": "orchestrator:aac",
+                                                            "fltType": "{{ monitor.ip_filter_type | default(defaults.apic.tenants.l3outs.node_profiles.interface_profiles.netflow_monitor_policies.ip_filter_type) }}",
+                                                            "tnNetflowMonitorPolName": "{{ monitor_name }}"
+                                                        }
+                                                    }
+                                                }
+                                                {%- endfor %}
+                                                {%- endif %}                                                 
                                                 {%- if ip.nd_interface_policy is defined %}{{ comma4() }}
                                                 {% set nd_interface_policy_name = ip.nd_interface_policy ~ defaults.apic.tenants.policies.nd_interface_policies.name_suffix %}
                                                 {

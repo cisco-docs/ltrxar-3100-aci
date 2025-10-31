@@ -27,6 +27,11 @@ apic:
             - dhcp_relay_policy: DHCP-RELAY1
               dhcp_option_policy: DHCP-OPTION1
               scope: tenant
+          netflow_monitor_policies:
+            - name: MONITOR1
+              ip_filter_type: ipv4
+            - name: MONITOR2
+              ip_filter_type: ipv6
           nodes:
             - node_id: 101
               router_id: 5.5.5.5
@@ -48,6 +53,11 @@ apic:
                   dhcp_labels:
                     - dhcp_relay_policy: DHCP-RELAY1
                       dhcp_option_policy: DHCP-OPTION1
+                  netflow_monitor_policies:
+                    - name: MONITOR1
+                      ip_filter_type: ipv4
+                    - name: MONITOR2
+                      ip_filter_type: ipv6
         - name: L3OUT_FLOATING_SVI
           vrf: VRF1
           domain: ROUTED1

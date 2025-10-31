@@ -189,6 +189,9 @@ apic:
                     - dhcp_relay_policy: DHCP-RELAY1
                       dhcp_option_policy: DHCP-OPTION1
                       scope: tenant
+                  netflow_monitor_policies:
+                    - name: MONITOR1
+                      ip_filter_type: ipv4
                   interfaces:
                     - node_id: 101
                       port: 10
@@ -227,6 +230,9 @@ apic:
             - dhcp_relay_policy: DHCP-RELAY1
               dhcp_option_policy: DHCP-OPTION1
               scope: tenant
+          netflow_monitor_policies:
+            - name: MONITOR1
+              ip_filter_type: ipv4
           bgp:
             timer_policy: BGP_TIMER1
             as_path_policy: BGP_AS_PATH1

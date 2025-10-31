@@ -2133,6 +2133,7 @@ ten_bridge_domains:
   igmp_snooping_policy: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
   nd_interface_policy: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
   endpoint_retention_policy: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
+  netflow_monitor_policies: list(include('ten_netflow_monitor_policies'), required=False) # @name(Bridge Domain NetFlow Monitor Pol) @sheet_hidden()
   expected_state: include('ten_bridge_domain_expected_state', required=False) # @no_external_doc() @name(Bridge Domain Expected State) @sheet_hidden()
 
 ten_bridge_domain_subnets:
@@ -2570,6 +2571,7 @@ ten_l3outs:
   route_maps: list(include('ten_l3outs_route_maps'), required=False) # @name(L3out Route Maps) (To support multiple L3out Route Maps)
   bfd_multihop_node_policy: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
   bfd_multihop_auth: include('ten_l3outs_bfd_multihop_auth', required=False) # @name(L3out Node BFD Multihop Auth) @sheet_hidden()
+  netflow_monitor_policies: list(include('ten_netflow_monitor_policies'), required=False) # @name(L3out Netflow Monitor Policies) @sheet_hidden()
 
 ten_l3outs_bgp:
   name: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
@@ -2796,7 +2798,6 @@ ten_l3outs_node_profiles_nodes_static_routes_next_hops:
   ip_sla_policy: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
   track_list: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
 
-
 ten_l3outs_node_profiles_interface_profiles:
   name: regex('^[a-zA-Z0-9_.:-]{1,64}$')
   description: regex('^[a-zA-Z0-9\\\\!#$%()*,-./:;@ _{|}~?&+]{1,128}$', required=False)
@@ -2812,6 +2813,7 @@ ten_l3outs_node_profiles_interface_profiles:
   egress_data_plane_policing_policy: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
   interfaces: list(include('ten_l3outs_node_profiles_interface_profiles_interfaces'), required=False) # @name(L3out Interface Prof Interfaces) @ref_name(Interface) @key(node_id;port;module;channel;vlan) @sheet_hidden()
   dhcp_labels: list(include('ten_dhcp_labels'), required=False) # @name(L3out Int Prof DHCP Labels) @sheet_hidden()
+  netflow_monitor_policies: list(include('ten_netflow_monitor_policies'), required=False) # @name(L3out Interface Profile NetFlow Monitor Pol) @sheet_hidden()
 
 ten_l3outs_node_profiles_interface_profiles_ospf:
   ospf_interface_profile_name: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
@@ -2823,6 +2825,10 @@ ten_l3outs_node_profiles_interface_profiles_eigrp:
   interface_profile_name: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
   interface_policy: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
   keychain_policy: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
+
+ten_netflow_monitor_policies:
+  name: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
+  ip_filter_type: enum('ipv4', 'ipv6', 'ce', 'unspecified', required=False)
 
 ten_l3outs_node_profiles_interface_profiles_interfaces:
   description: regex('^[a-zA-Z0-9\\\\!#$%()*,-./:;@ _{|}~?&+]{1,128}$', required=False)
@@ -3225,6 +3231,9 @@ ten_policies:
   endpoint_mac_tags: list(include('ten_endpoint_mac_tags'), required=False) # @sheet_hidden()
   endpoint_ip_tags: list(include('ten_endpoint_ip_tags'), required=False) # @sheet_hidden()
   monitoring: include('ten_monitoring', required=False) # @name(Tenant Monitorings) @ref_name(Tenant Monitoring) @sheet_hidden()
+  netflow_exporters: list(include('ten_netflow_exporters'), required=False) # @name(Tenant NetFlow Exporters) @ref_name(Tenant NetFlow Exporter) @sheet_hidden()
+  netflow_monitors: list(include('ten_netflow_monitors'), required=False) # @name(Tenant NetFlow Monitors) @ref_name(Tenant NetFlow Monitor) @sheet_hidden()
+  netflow_records: list(include('ten_netflow_records'), required=False) # @name(Tenant NetFlow Records) @ref_name(Tenant NetFlow Record) @sheet_hidden()
   data_plane_policing_policies: list(include('ten_data_plane_policing_policies'), required=False) # @name(Tenant Data Plane Policing Pol) @sheet_hidden()
 
 ten_ospf_interface_policies:
@@ -4007,6 +4016,32 @@ ten_monitoring_fault_severity_policies_faults:
   target_severity: enum('warning', 'minor', 'major', 'critical', 'inherit', required=False)
   description: regex('^[a-zA-Z0-9\\\\!#$%()*,-./:;@ _{|}~?&+]{1,128}$', required=False)
 
+ten_netflow_exporters:
+  name: regex('^[a-zA-Z0-9_.:-]{1,64}$')
+  description: regex('^[a-zA-Z0-9\\\\!#$%()*,-./:;@ _{|}~?&+]{1,128}$', required=False)
+  source_type: enum('custom-src-ip', 'inband-mgmt-ip', 'oob-mgmt-ip', 'ptep', required=False)
+  source_ip: ip(required=False)
+  destination_port: int(min=1, max=65535, required=False)
+  destination_ip: ip()
+  dscp: any(enum('unspecified', 'CS0', 'CS1', 'AF11', 'AF12', 'AF13', 'CS2', 'AF21', 'AF22', 'AF23', 'CS3', 'AF31', 'AF32', 'AF33', 'CS4', 'AF41', 'AF42', 'AF43', 'CS5', 'VA', 'EF', 'CS6', 'CS7'), int(min=0, max=63), required=False)
+  epg_type: enum('epg', 'external_epg', required=False)
+  tenant: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
+  application_profile: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
+  endpoint_group: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
+  vrf: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
+  l3out: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
+  external_endpoint_group: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
+
+ten_netflow_monitors:
+  name: regex('^[a-zA-Z0-9_.:-]{1,64}$')
+  description: regex('^[a-zA-Z0-9\\\\!#$%()*,-./:;@ _{|}~?&+]{1,128}$', required=False)
+  flow_record: str(regex('^[a-zA-Z0-9_.:-]{1,64}$'), required=False)
+  flow_exporters: list(regex('^[a-zA-Z0-9_.:-]{1,64}$'), required=False) # @sheet_hidden()
+
+ten_netflow_records:
+  name: regex('^[a-zA-Z0-9_.:-]{1,64}$')
+  description: regex('^[a-zA-Z0-9\\\\!#$%()*,-./:;@ _{|}~?&+]{1,128}$', required=False)
+  match_parameters: list(enum('dst-ip', 'dst-ipv4', 'dst-ipv6', 'dst-mac', 'dst-port', 'ethertype', 'proto', 'src-ip', 'src-ipv4', 'src-ipv6', 'src-mac', 'src-port', 'tos', 'vlan', 'unspecified'), required=False) # @sheet_hidden()
 ap_monitoring:
   policies: list(include('ap_monitoring_policies'), required=False) # @name(Access Monitoring Policies) @ref_name(Access Monitoring Policy)
 

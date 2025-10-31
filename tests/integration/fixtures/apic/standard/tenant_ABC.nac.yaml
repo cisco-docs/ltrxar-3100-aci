@@ -144,6 +144,11 @@ apic:
             - dhcp_relay_policy: DHCP-RELAY1
               dhcp_option_policy: DHCP-OPTION1
               scope: tenant
+          netflow_monitor_policies:
+            - name: MONITOR1
+              ip_filter_type: ipv4
+            - name: MONITOR2
+              ip_filter_type: ipv6
           igmp_snooping_policy: IGMP_SNOOP1
           igmp_interface_policy: IGMP1
           expected_state:
@@ -364,6 +369,11 @@ apic:
                   qos_class: level3
                   custom_qos_policy: TEST_QOS_POLICY
                   nd_interface_policy: ND_INT1
+                  netflow_monitor_policies:
+                    - name: MONITOR1
+                      ip_filter_type: ipv4
+                    - name: MONITOR2
+                      ip_filter_type: ipv6
                   ingress_data_plane_policing_policy: TEN_DPP1
                   egress_data_plane_policing_policy: TEN_DPP2
                   interfaces:
@@ -1408,6 +1418,59 @@ apic:
                       target_severity: inherit
                       description: test
                     - fault_id: F0756
+        netflow_exporters:
+          - name: EXPORTER1
+            description: exporter 1
+            source_type: custom-src-ip
+            source_ip: 1.1.1.1/20
+            destination_port: 1234
+            destination_ip: 2.2.2.2
+            dscp: AF11
+            epg_type: epg
+            tenant: ABC
+            application_profile: AP1
+            endpoint_group: EPG1
+            vrf: VRF1
+          - name: EXPORTER2
+            source_type: oob-mgmt-ip
+            destination_port: 5555
+            destination_ip: 3.3.3.3
+            dscp: AF11
+            epg_type: external_epg
+            tenant: ABC
+            l3out: L3OUT1
+            external_endpoint_group: L3OUT1-EPG1
+            vrf: VRF1
+          - name: EXPORTER3
+            source_type: ptep
+            destination_port: 123
+            destination_ip: 1.2.3.4
+            dscp: AF41
+        netflow_monitors:
+          - name: MONITOR1
+            description: monitor 1
+            flow_record: RECORD1
+            flow_exporters:
+              - EXPORTER1
+              - EXPORTER2
+          - name: MONITOR2
+            flow_record: RECORD2
+            flow_exporters:
+              - EXPORTER2
+          - name: MONITOR3
+        netflow_records:
+          - name: RECORD1
+            description: record 1
+            match_parameters:
+              - dst-ip
+              - src-ip
+              - dst-port
+              - src-port
+          - name: RECORD2
+            match_parameters:
+              - ethertype
+              - dst-mac
+          - name: RECORD3
       services:
         l4l7_devices:
           - name: DEV1

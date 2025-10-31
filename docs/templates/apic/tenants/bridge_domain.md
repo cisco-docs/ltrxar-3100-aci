@@ -63,6 +63,9 @@ apic:
           vrf: VRF1
           nd_interface_policy: "ND_INTF_POL1"
           endpoint_retention_policy: ERP1
+          netflow_monitor_policies:
+            - name: MONITOR1 
+            - ip_filter_type: ipv4
           subnets:
             - ip: 1.1.1.1/24
               description: My Desc
