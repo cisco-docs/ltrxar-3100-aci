@@ -11,7 +11,7 @@ Example-1: This illustrates a configuration example for a Layer 2 bridge domain 
 
 The subnet configuration allows the fabric to manage IP addresses and ARP within the Layer 2 domain without providing routing or default gateway services.
 
-The VRF `Prod` in this example is defined in a stretched template `Site_AB` which is further detailed under the vrf section.
+The VRF `PROD` in this example is defined in a stretched template `Site_AB` which is further detailed under the vrf section.
 
 ```yaml
 ndo:

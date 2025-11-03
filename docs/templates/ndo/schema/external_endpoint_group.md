@@ -24,14 +24,14 @@ ndo:
                 template: TEMPLATE1
               subnets:
                 - prefix: 0.0.0.0/0
-                  import_route_control: 'yes'
-                  export_route_control: 'yes'
-                  shared_route_control: 'yes'
-                  import_security: 'yes'
-                  shared_security: 'yes'
-                  aggregate_import: 'yes'
-                  aggregate_export: 'yes'
-                  aggregate_shared: 'yes'
+                  import_route_control: true
+                  export_route_control: true
+                  shared_route_control: true
+                  import_security: true
+                  shared_security: true
+                  aggregate_import: true
+                  aggregate_export: true
+                  aggregate_shared: true
                 - prefix: 10.0.0.0/8
               contracts:
                 consumers:

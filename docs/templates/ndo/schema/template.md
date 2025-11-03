@@ -45,7 +45,7 @@ ndo:
             - fabric_site2
 ```
 
-Example-3: Automonous Site Template
+Example-3: Autonomous Site Template
 
 This configuration defines an autonomous schema template named `site3_app_template` within the `example_schema`. It is associated with the `tnt` tenant and is deployed to the `fabric_site3` site. This template is type `autonomous`, meaning it allows for provisioning objects (like EPGs, BDs, VRFs) to a site that is part of an independently operated ACI fabric i.e without intersite infra.
 

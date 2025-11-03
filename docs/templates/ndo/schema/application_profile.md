@@ -7,7 +7,7 @@ Location in GUI:
 
 ### Examples
 
-Example-1: The example below shows how an application profile named `Prod` is created under the schema/tenant `Azure` and the template Site_A. Note: The endpoint groups that belong to the application profile are explained in the endpoint group section.
+Example-1: The example below shows how an application profile named `Prod` is created under the schema/tenant `Azure` and the template `Site_A`. Note: The endpoint groups that belong to the application profile are explained in the endpoint group section.
 
 ```yaml
 ndo:

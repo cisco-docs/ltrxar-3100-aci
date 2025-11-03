@@ -26,7 +26,7 @@ ndo:
             - ip: 10.10.12.0/24
 ```
 
-full-example:
+Full-example:
 
 ```yaml
 ndo:

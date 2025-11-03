@@ -7,7 +7,7 @@ Location in GUI:
 
 ### Examples
 
-Example-1: Here is an example of an Endpoint Group(EPG) named `Database_VMM` under the `OnPrem` Tenant/Schema and the `Prod_VMM` application profile. Two contracts, `database_access_contract` and `web_traffic_contract` are provided and consumed to facilitate communication with other EPGs. The contracts are defined in the `Site_A` template. Further details on the contracts are explained in the contract section.
+Example-1: Here is an example of an Endpoint Group(EPG) named `Database_VMM` under the `OnPrem` Tenant/Schema and the `PROD_VMM` application profile. Two contracts, `database_access_contract` and `web_traffic_contract` are provided and consumed to facilitate communication with other EPGs. The contracts are defined in the `Site_A` template. Further details on the contracts are explained in the contract section.
 
 The subnets are defined with the scope set to `private`, and the no_default_gateway flag is set to `true`, indicating that the gateway is managed either at the Bridge Domain level or externally.
 
