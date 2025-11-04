@@ -41,7 +41,9 @@ Get NDO Token
     Set Log Level   ${log_level}
     ${r_token}=   Get Value From Json   ${response.json()}   $..jwttoken
     Set Parallel Value For Key   ndo_token   ${r_token[0]}
-    ${token_timestamp}=   Evaluate   [cookie.expires for cookie in $response.cookies if cookie.name == 'AuthCookie'][0]
+    ${token_creation_time}=   Get Current Date   result_format=epoch
+    ${token_refresh_timeout}=   Evaluate   int([value for value in $response.headers['Set-Cookie'].split(';') if 'Max-Age=' in value.strip()][0].split('=')[1])
+    ${token_timestamp}=   Evaluate   ${token_creation_time} + ${token_refresh_timeout}
     Set Parallel Value For Key   ndo_token_timestamp   ${token_timestamp}
 
 Login NDO

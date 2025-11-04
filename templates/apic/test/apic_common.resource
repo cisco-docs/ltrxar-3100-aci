@@ -4,12 +4,35 @@ Library   RequestsLibrary
 Library   JSONLibrary
 Library   Collections
 Library   OperatingSystem
+Library   DateTime
 
 *** Variables ***
 ${login_json}   {"aaaUser" : {"attributes" : {"name" : "%{ACI_USERNAME}", "pwd" : "%{ACI_PASSWORD}"}}}
 ${state_path}   tests/state/
 
 *** Keywords ***
+Check APIC Token Timestamp
+    ${current_time}=   Get Current Date   result_format=epoch
+    ${token_timestamp}=   Get Parallel Value For Key   apic_token_timestamp
+    ${expires}=   Evaluate   (${token_timestamp} - ${current_time}) <= 60
+    RETURN   ${expires}
+
+Verify APIC Token
+    ${token_expires}=   Check APIC Token Timestamp
+    IF   ${token_expires}
+        Acquire Lock   apic_token_refresh
+        TRY
+            ${token_expires}=   Check APIC Token Timestamp
+            IF   ${token_expires}
+                Get APIC Token
+            END
+        EXCEPT
+            Fatal Error   APIC Token Refresh Failed
+        FINALLY
+            Release Lock   apic_token_refresh
+        END
+    END
+
 Get APIC Token
     Create Session   login   %{ACI_URL}
     ${log_level}=   Set Log Level   NONE
@@ -17,9 +40,14 @@ Get APIC Token
     Set Log Level   ${log_level}
     ${r_token}=   Get Value From Json   ${response.json()}   $..token
     Set Parallel Value For Key   apic_token   ${r_token[0]}
+    ${token_creation_time}=   Get Current Date   result_format=epoch
+    ${token_refresh_timeout}=   Get Value From Json   ${response.json()}   $..refreshTimeoutSeconds
+    ${token_timestamp}=   Evaluate   ${token_creation_time} + ${token_refresh_timeout[0]}
+    Set Parallel Value For Key   apic_token_timestamp   ${token_timestamp}
 
 Login APIC
     Run Only Once   Get APIC Token
+    Verify APIC Token
     ${apic_token}=   Get Parallel Value For Key   apic_token
     Create Session   apic   %{ACI_URL}   headers={"Cookie": "APIC-cookie=${apic_token}"}
     Set Global Variable   ${STATE_PATH}   ${state_path}
