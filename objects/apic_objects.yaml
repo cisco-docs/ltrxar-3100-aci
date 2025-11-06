@@ -708,11 +708,24 @@ objects:
       - apic.fabric_policies.external_connectivity_policy
       - apic.pod_policies.pods.id
       - apic.pod_policies.pods.data_plane_tep
+  - name: Nutanix VMM Domain
+    template: ntnx_vmm_domain
+    folder: fabric_policies
+    aci_classes:
+      - vmmDomP
+    match_attribute: mode
+    match_attribute_value: "nutanix_pc"
+    test_types:
+      - config
+    paths:
+      - apic.fabric_policies.nutanix_vmm_domains
   - name: VMware VMM Domain
     template: vmw_vmm_domain
     folder: fabric_policies
     aci_classes:
       - vmmDomP
+    match_attribute: mode
+    match_attribute_value: "default"
     test_types:
       - config
       - health

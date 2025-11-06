@@ -82,6 +82,7 @@ fabric_policies:
   external_connectivity_policy: include('fp_external_connectivity_policy', required=False) # @name(External Connectivity Policy) @sheet_hidden()
   infra_dscp_translation_policy: include('fp_infra_dscp_translation_policy', required=False) # @name(Infra DSCP Translation Policy) @sheet_hidden()
   vmware_vmm_domains: list(include('fp_vmware_vmm_domains'), required=False) # @ref_name(VMware VMM Domain)
+  nutanix_vmm_domains: list(include('fp_nutanix_vmm_domains'), required=False) # @ref_name(Nutanix VMM Domain)
   aaa: include('fp_aaa', required=False)
   geolocation: include('fp_geolocation', required=False) # @sheet_hidden()
   remote_locations: list(include('fp_remote_locations'), required=False) # @ref_name(Remote Location)
@@ -587,6 +588,37 @@ fp_vmware_vmm_domains_expected_state:
   maximum_critical_faults: int(min=0, required=False)
   maximum_major_faults: int(min=0, required=False)
   maximum_minor_faults: int(min=0, required=False)
+
+fp_nutanix_vmm_domains:
+  name: regex('^[a-zA-Z0-9_.:-]{1,64}$')
+  access_mode: enum('read-only', 'read-write', required=False)
+  vlan_pool: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
+  allocation: enum('dynamic', 'static', required=False)
+  custom_vswitch_name: str(min=0, max=512, required=False)
+  controller_profile: include('fp_nutanix_vmm_domains_controller_profile', required=False)
+  security_domains: list(regex('^[a-zA-Z0-9_.:-]{1,64}$'), required=False) # @name(Nutanix VMM Domain Sec Domain) @sheet_hidden()
+  credential_policies: list(include('fp_nutanix_vmm_domains_credential_policies'), required=False) # @name(Nutanix VMM Dom Cred Policies)
+
+fp_nutanix_vmm_domains_controller_profile:
+  name: regex('^[a-zA-Z0-9_.:-]{1,64}$')
+  hostname_ip: any(regex('^[a-zA-Z0-9:][a-zA-Z0-9.:-]{0,254}$'), ip())
+  datacenter: str(min=1, max=512)
+  aos_version: enum('unknown', '6.5', '6.6', required=False)
+  credentials: regex('^[a-zA-Z0-9_.:-]{1,64}$')
+  statistics: bool(required=False)
+  cluster_controller: include('fp_nutanix_vmm_domains_cluster_controller', required=False)
+
+fp_nutanix_vmm_domains_cluster_controller:
+  name: regex('^[a-zA-Z0-9_.:-]{1,64}$')
+  hostname_ip: any(regex('^[a-zA-Z0-9:][a-zA-Z0-9.:-]{0,254}$'), ip())
+  cluster_name: regex('^[a-zA-Z0-9_.:-]{1,64}$')
+  credentials: regex('^[a-zA-Z0-9_.:-]{1,64}$')
+  port: int(min=0, max=65535, required=False)
+
+fp_nutanix_vmm_domains_credential_policies:
+  name: regex('^[a-zA-Z0-9_.:-]{1,64}$')
+  username: regex('[a-zA-Z0-9\\\\!#$%()*,-./:;@ _{|}~?&+]{1,128}$') # @sensitive()
+  password: str() # @sensitive()
 
 fp_aaa:
   remote_user_login_policy: enum('assign-default-role', 'no-login', required=False)
@@ -1182,6 +1214,7 @@ ap_aaep:
   physical_domains: list(regex('^[a-zA-Z0-9_.:-]{1,64}$'), required=False) # @name(AAEP Physical Domains) @ref_name(Physical Domain)
   routed_domains: list(regex('^[a-zA-Z0-9_.:-]{1,64}$'), required=False) # @name(AAEP Routed Domains) @ref_name(Routed Domain)
   vmware_vmm_domains: list(regex('^[a-zA-Z0-9_.:-]{1,64}$'), required=False) # @name(AAEP VMware VMM Domains) @ref_name(VMware VMM Domain) @sheet_hidden()
+  nutanix_vmm_domains: list(regex('^[a-zA-Z0-9_.:-]{1,64}$'), required=False)
   endpoint_groups: list(include('ap_aaep_endpoint_groups'), required=False) # @name(AAEP Endpoint Groups) @sheet_hidden()
   expected_state: include('ap_aaep_expected_state', required=False) # @no_external_doc() @name(AAEP Expected State) @sheet_hidden()
 
@@ -2178,6 +2211,7 @@ ten_ap_endpoint_groups:
   bridge_domain: regex('^[a-zA-Z0-9_.:-]{1,64}$')
   physical_domains: list(regex('^[a-zA-Z0-9_.:-]{1,64}$'), required=False) # @name(EPG Physical Domains) @ref_name(Physical Domain)
   vmware_vmm_domains: list(include('ten_ap_endpoint_groups_vmware_vmm_domains'), required=False) # @name(EPG VMware VMM Domains)
+  nutanix_vmm_domains: list(include('ten_ap_endpoint_groups_nutanix_vmm_domains'), required=False)
   static_ports: list(include('ten_ap_endpoint_groups_static_ports'), required=False) # @name(EPG Static Ports)
   static_leafs: list(include('ten_ap_endpoint_groups_static_leafs'), required=False) # @name(EPG Static Leafs) @sheet_hidden()
   static_endpoints: list(include('ten_ap_endpoint_groups_static_endpoints'), required=False) # @name(EPG Static Endpoints) @ref_name(Static Endpoint) @sheet_hidden()
@@ -2253,6 +2287,18 @@ ten_ap_endpoint_groups_vmware_vmm_domains:
   active_uplinks_order: regex('^(\d+(,\d+)*)?$', required=False)
   standby_uplinks: regex('^(\d+(,\d+)*)?$', required=False)
   custom_epg_name: regex('^.{1,80}$', required=False)
+
+ten_ap_endpoint_groups_nutanix_vmm_domains:
+  name: regex('^[a-zA-Z0-9_.:-]{1,64}$')
+  deployment_immediacy: enum('immediate', 'lazy', required=False)
+  vlan: int(min=1, max=4096, required=False)
+  ipam: include('ten_ap_endpoint_groups_nutanix_vmm_domains_ipam', required=False)
+  custom_epg_name: regex('^.{1,80}$', required=False)
+
+ten_ap_endpoint_groups_nutanix_vmm_domains_ipam:
+  gateway_address: ip()
+  dhcp_server_address_override: ip(required=False)
+  dhcp_address_pool: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
 
 ten_ap_endpoint_groups_subnets:
   description: regex('^[a-zA-Z0-9\\\\!#$%()*,-./:;@ _{|}~?&+]{1,128}$', required=False)

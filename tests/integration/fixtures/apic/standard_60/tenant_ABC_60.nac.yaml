@@ -94,6 +94,7 @@ apic:
                   bgp_peers:
                     - ip: 34.34.34.36
                       remote_as: 65010
+
       policies:
         set_rules:
           - name: SET3
@@ -123,3 +124,19 @@ apic:
             summary_only: false
             af_mcast: true
             af_ucast: true
+
+      application_profiles:
+        - name: AP1
+          endpoint_groups:
+            - name: EPG1
+              bridge_domain: BD1
+              nutanix_vmm_domains:
+                - name: ntnx_1
+                - name: ntnx_2
+                  vlan: 100
+                  deployment_immediacy: immediate
+                  ipam:
+                    gateway_address: 1.1.1.1/24
+                    dhcp_server_address_override: 1.1.1.4
+                    dhcp_address_pool: dhcp-addr-pool
+                  custom_epg_name: EPG1_custom

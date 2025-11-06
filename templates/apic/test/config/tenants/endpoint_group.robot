@@ -32,7 +32,7 @@ Verify Endpoint Group {{ epg_name }}
     Should Be Equal Value Json String   ${r}   $..fvAEPg.attributes.prio   {{ epg.qos_class | default(defaults.apic.tenants.application_profiles.endpoint_groups.qos_class) }}
 
 {% for vmm in epg.vmware_vmm_domains | default([]) %}
-{% set vmm_name = vmm.name ~ defaults.apic.tenants.application_profiles.endpoint_groups.vmware_vmm_domains.name_suffix %}
+{% set vmm_name = vmm.name ~ defaults.apic.fabric_policies.vmware_vmm_domains.name_suffix %}
 
 Verify Endpoint Group {{ epg_name }} VMM Domain {{ vmm_name }}
     ${conn}=   Set Variable   $..fvAEPg.children[?(@.fvRsDomAtt.attributes.tDn=='uni/vmmp-VMware/dom-{{ vmm_name }}')].fvRsDomAtt
@@ -67,6 +67,28 @@ Verify Endpoint Group {{ epg_name }} VMM Domain {{ vmm_name }}
 {% endif %}
 {% if vmm.elag is defined %}
     Should Be Equal Value Json String   ${r}   ${conn}.children..fvAEPgLagPolAtt.children..fvRsVmmVSwitchEnhancedLagPol.attributes.tDn   uni/vmmp-VMware/dom-{{ vmm_name }}/vswitchpolcont/enlacplagp-{{ vmm.elag }}
+{% endif %}
+{% endfor %}
+
+{% for vmm in epg.nutanix_vmm_domains | default([]) %}
+{% set vmm_name = vmm.name ~ defaults.apic.fabric_policies.nutanix_vmm_domains.name_suffix %}
+
+Verify Endpoint Group {{ epg_name }} VMM Domain {{ vmm_name }}
+    ${conn}=   Set Variable   $..fvAEPg.children[?(@.fvRsDomAtt.attributes.tDn=='uni/vmmp-Nutanix/dom-{{ vmm_name }}')].fvRsDomAtt
+{% if vmm.vlan is defined %}
+    Should Be Equal Value Json String   ${r}   ${conn}.attributes.encap   vlan-{{ vmm.vlan }}
+{% endif %}
+    Should Be Equal Value Json String   ${r}   ${conn}.attributes.instrImedcy   {{ vmm.deployment_immediacy  | default(defaults.apic.tenants.application_profiles.endpoint_groups.nutanix_vmm_domains.deployment_immediacy) }}
+    Should Be Equal Value Json String   ${r}   ${conn}.attributes.customEpgName   {{ vmm.custom_epg_name | default() }}
+{% if vmm.ipam.gateway_address is defined %}
+    Should Be Equal Value Json String   ${r}   ${conn}.attributes.ipamEnabled   yes
+    Should Be Equal Value Json String   ${r}   ${conn}.attributes.ipamGateway   {{ vmm.ipam.gateway_address }}
+{% endif %} 
+{% if vmm.ipam.dhcp_server_address_override is defined %}
+    Should Be Equal Value Json String   ${r}   ${conn}.attributes.ipamDhcpOverride   {{ vmm.ipam.dhcp_server_address_override }}
+{% endif %}
+{% if vmm.ipam.dhcp_address_pool is defined %}
+    Should Be Equal Value Json String   ${r}   ${conn}..fvRsAddrMgmtPool.attributes.tDn   uni/tn-{{ tenant.name }}/ipampool-{{ vmm.ipam.dhcp_address_pool }}
 {% endif %}
 {% endfor %}
 

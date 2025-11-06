@@ -44,6 +44,15 @@ Verify AAEP {{ aaep_name }} VMM Domain {{ domain_name }}
 
 {% endfor %}
 
+{% for dom in aaep.nutanix_vmm_domains | default([]) %}
+{% set domain_name = dom ~ defaults.apic.fabric_policies.nutanix_vmm_domains.name_suffix %}
+
+Verify AAEP {{ aaep_name }} VMM Domain {{ domain_name }}
+    ${domain}=   Set Variable   $..infraAttEntityP.children[?(@.infraRsDomP.attributes.tDn=='uni/vmmp-Nutanix/dom-{{ domain_name }}')]
+    Should Be Equal Value Json String   ${r}    ${domain}..infraRsDomP.attributes.tDn   uni/vmmp-Nutanix/dom-{{ domain_name }}
+
+{% endfor %}
+
 {% if aaep.endpoint_groups is defined %}
 {% for epg in aaep.endpoint_groups | default([]) %}
 {% set ap_name = epg.application_profile ~ defaults.apic.tenants.application_profiles.name_suffix %}

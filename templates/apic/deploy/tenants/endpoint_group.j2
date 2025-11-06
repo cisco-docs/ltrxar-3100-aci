@@ -64,7 +64,7 @@
                                     }
                                     {%- endfor %}
                                     {%- for vmm in epg.vmware_vmm_domains | default([]) %}{{ comma3() }}
-                                    {% set vmm_name = vmm.name ~ defaults.apic.tenants.application_profiles.endpoint_groups.vmware_vmm_domains.name_suffix %}
+                                    {% set vmm_name = vmm.name ~ defaults.apic.fabric_policies.vmware_vmm_domains.name_suffix %}
                                     {
                                         "fvRsDomAtt": {
                                             "attributes": {
@@ -135,6 +135,55 @@
                                                     }
                                                 }
                                                 {% endif %}
+                                            ]
+                                        }
+                                    }
+                                    {%- endfor %}
+                                    {%- for vmm in epg.nutanix_vmm_domains | default([]) %}{{ comma3() }}
+                                    {% set vmm_name = vmm.name ~ defaults.apic.fabric_policies.nutanix_vmm_domains.name_suffix %}
+                                    {
+                                        "fvRsDomAtt": {
+                                            "attributes": {
+                                                "annotation": "orchestrator:aac",
+                                                {% if vmm.vlan is defined %}
+                                                "encap": "vlan-{{ vmm.vlan }}",
+                                                {% else %}
+                                                "encap": "unknown",
+                                                {% endif %}
+                                                {% if vmm.ipam.gateway_address is defined %}
+                                                "ipamEnabled": "yes",
+                                                {% else %}
+                                                "ipamEnabled": "no",
+                                                {% endif %}
+                                                "ipamGateway": "{{ vmm.ipam.gateway_address | default(defaults.apic.tenants.application_profiles.endpoint_groups.nutanix_vmm_domains.ipam.gateway_address) }}",
+                                                "ipamDhcpOverride": "{{ vmm.ipam.dhcp_server_address_override | default(defaults.apic.tenants.application_profiles.endpoint_groups.nutanix_vmm_domains.ipam.dhcp_server_address_override) }}",
+                                                "encapMode": "auto",
+                                                "instrImedcy": "{{ vmm.deployment_immediacy  | default(defaults.apic.tenants.application_profiles.endpoint_groups.nutanix_vmm_domains.deployment_immediacy) }}",
+                                                "resImedcy": "pre-provision",
+                                                "customEpgName": "{{ vmm.custom_epg_name | default() }}",
+                                                "tDn": "uni/vmmp-Nutanix/dom-{{ vmm_name }}",
+                                                "childAction": "deleteNonPresent"
+                                            },
+                                            "children": [
+                                            {% if vmm.ipam.dhcp_address_pool is defined %}
+                                                {
+                                                    "fvAEPgAddrMgmtPoolAtt": {
+                                                        "attributes": {
+                                                            "annotation": "orchestrator:aac"
+                                                        },
+                                                        "children": [
+                                                            {
+                                                                "fvRsAddrMgmtPool": {
+                                                                    "attributes": {
+                                                                        "annotation": "orchestrator:aac",
+                                                                        "tDn": "uni/tn-{{ tenant.name }}/ipampool-{{ vmm.ipam.dhcp_address_pool }}"
+                                                                    }
+                                                                }
+                                                            }
+                                                        ]
+                                                    }
+                                                }
+                                            {% endif %}
                                             ]
                                         }
                                     }

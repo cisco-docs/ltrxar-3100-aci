@@ -54,3 +54,9 @@ apic:
         forwarding_scale_policy: MCAST-HEAVY
       - name: MAX_LPM
         forwarding_scale_policy: MAX-LPM
+
+    aaeps:
+      - name: AAEP1
+        nutanix_vmm_domains:
+          - ntnx_1
+          - ntnx_2
