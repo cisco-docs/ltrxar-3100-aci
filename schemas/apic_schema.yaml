@@ -99,7 +99,7 @@ fabric_policies:
   control_plane_mtu: include('fp_control_plane_mtu', required=False) # @name(Control Plane MTU) @sheet_hidden()
   macsec_parameters_policies: list(include('fp_macsec_parameters_policy'), required=False) # @name(Fabric Macsec Parameters) @ref_name(Fabric Macsec Parameters) @sheet_hidden()
   macsec_keychain_policies: list(include('fp_macsec_keychain_policy'), required=False) # @name(Fabric Macsec Keychains) @ref_name(Fabric Macsec Keychains) @sheet_hidden()
-  macsec_interfaces_policies: list(include('fp_macsec_interfaces_policy'), required=False) # @name(Fabric Macsec Interfaces Policies) @ref_name(Fabric Macsec Interfaces Policies) @sheet_hidden()
+  macsec_interfaces_policies: list(include('fp_macsec_interfaces_policy'), required=False) # @name(Fabric Macsec Int Policies) @ref_name(Fabric Macsec Interfaces Policies) @sheet_hidden()
 
 fp_atomic_counter:
   mode: enum('path', 'trail', required=False)
@@ -1116,7 +1116,7 @@ fp_macsec_parameters_policy:
 fp_macsec_keychain_policy:
   name: regex('^[a-zA-Z0-9_.:-]{1,64}$')
   description: regex('^[a-zA-Z0-9\\\\!#$%()*,-./:;@ _{|}~?&+]{1,128}$', required=False)
-  key_policies: list(include('fp_macsec_keychain_policy_key_policy'), required=False) # @sheet_hidden()
+  key_policies: list(include('fp_macsec_keychain_policy_key_policy'), required=False) # @name(Fabric Macsec Key Policies) @sheet_hidden()
 
 fp_macsec_keychain_policy_key_policy:
   name: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
@@ -1214,7 +1214,7 @@ ap_aaep:
   physical_domains: list(regex('^[a-zA-Z0-9_.:-]{1,64}$'), required=False) # @name(AAEP Physical Domains) @ref_name(Physical Domain)
   routed_domains: list(regex('^[a-zA-Z0-9_.:-]{1,64}$'), required=False) # @name(AAEP Routed Domains) @ref_name(Routed Domain)
   vmware_vmm_domains: list(regex('^[a-zA-Z0-9_.:-]{1,64}$'), required=False) # @name(AAEP VMware VMM Domains) @ref_name(VMware VMM Domain) @sheet_hidden()
-  nutanix_vmm_domains: list(regex('^[a-zA-Z0-9_.:-]{1,64}$'), required=False)
+  nutanix_vmm_domains: list(regex('^[a-zA-Z0-9_.:-]{1,64}$'), required=False) # @name(AAEP Nutanix VMM Domains) @ref_name(Nutanix VMM Domain) @sheet_hidden()
   endpoint_groups: list(include('ap_aaep_endpoint_groups'), required=False) # @name(AAEP Endpoint Groups) @sheet_hidden()
   expected_state: include('ap_aaep_expected_state', required=False) # @no_external_doc() @name(AAEP Expected State) @sheet_hidden()
 
@@ -2166,7 +2166,7 @@ ten_bridge_domains:
   igmp_snooping_policy: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
   nd_interface_policy: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
   endpoint_retention_policy: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
-  netflow_monitor_policies: list(include('ten_netflow_monitor_policies'), required=False) # @name(Bridge Domain NetFlow Monitor Pol) @sheet_hidden()
+  netflow_monitor_policies: list(include('ten_netflow_monitor_policies'), required=False) # @name(Bridge Domain NetFlow Mon Pol) @sheet_hidden()
   expected_state: include('ten_bridge_domain_expected_state', required=False) # @no_external_doc() @name(Bridge Domain Expected State) @sheet_hidden()
 
 ten_bridge_domain_subnets:
@@ -2211,7 +2211,7 @@ ten_ap_endpoint_groups:
   bridge_domain: regex('^[a-zA-Z0-9_.:-]{1,64}$')
   physical_domains: list(regex('^[a-zA-Z0-9_.:-]{1,64}$'), required=False) # @name(EPG Physical Domains) @ref_name(Physical Domain)
   vmware_vmm_domains: list(include('ten_ap_endpoint_groups_vmware_vmm_domains'), required=False) # @name(EPG VMware VMM Domains)
-  nutanix_vmm_domains: list(include('ten_ap_endpoint_groups_nutanix_vmm_domains'), required=False)
+  nutanix_vmm_domains: list(include('ten_ap_endpoint_groups_nutanix_vmm_domains'), required=False) # @name(EPG Nutanix VMM Domains)
   static_ports: list(include('ten_ap_endpoint_groups_static_ports'), required=False) # @name(EPG Static Ports)
   static_leafs: list(include('ten_ap_endpoint_groups_static_leafs'), required=False) # @name(EPG Static Leafs) @sheet_hidden()
   static_endpoints: list(include('ten_ap_endpoint_groups_static_endpoints'), required=False) # @name(EPG Static Endpoints) @ref_name(Static Endpoint) @sheet_hidden()
@@ -2616,7 +2616,7 @@ ten_l3outs:
   export_route_control_enforcement: bool(required=False)
   dhcp_labels: list(include('ten_dhcp_labels'), required=False) # @name(L3out DHCP Labels) @sheet_hidden()
   route_maps: list(include('ten_l3outs_route_maps'), required=False) # @name(L3out Route Maps) (To support multiple L3out Route Maps)
-  bfd_multihop_node_policy: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
+  bfd_multihop_node_policy: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False) # @name(L3out BFD Multihop Node Policy)
   bfd_multihop_auth: include('ten_l3outs_bfd_multihop_auth', required=False) # @name(L3out Node BFD Multihop Auth) @sheet_hidden()
   netflow_monitor_policies: list(include('ten_netflow_monitor_policies'), required=False) # @name(L3out Netflow Monitor Policies) @sheet_hidden()
 
@@ -2786,7 +2786,7 @@ ten_l3outs_node_profiles:
   nodes: list(include('ten_l3outs_node_profiles_nodes'), required=False) # @name(L3out Node Profile Nodes) @ref_name(Node) @key(node_id) @sheet_hidden()
   interface_profiles: list(include('ten_l3outs_node_profiles_interface_profiles'), required=False) # @name(L3out Interface Profiles) @ref_name(Interface Profile) @sheet_hidden()
   bfd_multihop_node_policy: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
-  bfd_multihop_auth: include('ten_l3outs_bfd_multihop_auth', required=False) # @name(L3out Node Profile BFD Multihop Auth) @sheet_hidden()
+  bfd_multihop_auth: include('ten_l3outs_bfd_multihop_auth', required=False) # @name(L3out NP BFD Multihop Auth) @sheet_hidden()
 
 ten_l3outs_node_profiles_bgp_peers:
   ip: ip()
@@ -2860,7 +2860,7 @@ ten_l3outs_node_profiles_interface_profiles:
   egress_data_plane_policing_policy: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
   interfaces: list(include('ten_l3outs_node_profiles_interface_profiles_interfaces'), required=False) # @name(L3out Interface Prof Interfaces) @ref_name(Interface) @key(node_id;port;module;channel;vlan) @sheet_hidden()
   dhcp_labels: list(include('ten_dhcp_labels'), required=False) # @name(L3out Int Prof DHCP Labels) @sheet_hidden()
-  netflow_monitor_policies: list(include('ten_netflow_monitor_policies'), required=False) # @name(L3out Interface Profile NetFlow Monitor Pol) @sheet_hidden()
+  netflow_monitor_policies: list(include('ten_netflow_monitor_policies'), required=False) # @name(L3out Int Prof NetFlow Mon Pol) @sheet_hidden()
 
 ten_l3outs_node_profiles_interface_profiles_ospf:
   ospf_interface_profile_name: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
@@ -4082,13 +4082,14 @@ ten_netflow_exporters:
 ten_netflow_monitors:
   name: regex('^[a-zA-Z0-9_.:-]{1,64}$')
   description: regex('^[a-zA-Z0-9\\\\!#$%()*,-./:;@ _{|}~?&+]{1,128}$', required=False)
-  flow_record: str(regex('^[a-zA-Z0-9_.:-]{1,64}$'), required=False)
-  flow_exporters: list(regex('^[a-zA-Z0-9_.:-]{1,64}$'), required=False) # @sheet_hidden()
+  flow_record: str(regex('^[a-zA-Z0-9_.:-]{1,64}$'), required=False) # @name(Tenant NetFlow Mon Flow Record)
+  flow_exporters: list(regex('^[a-zA-Z0-9_.:-]{1,64}$'), required=False) # @name(Tenant NetFlow Mon Exporters) @sheet_hidden()
 
 ten_netflow_records:
   name: regex('^[a-zA-Z0-9_.:-]{1,64}$')
   description: regex('^[a-zA-Z0-9\\\\!#$%()*,-./:;@ _{|}~?&+]{1,128}$', required=False)
-  match_parameters: list(enum('dst-ip', 'dst-ipv4', 'dst-ipv6', 'dst-mac', 'dst-port', 'ethertype', 'proto', 'src-ip', 'src-ipv4', 'src-ipv6', 'src-mac', 'src-port', 'tos', 'vlan', 'unspecified'), required=False) # @sheet_hidden()
+  match_parameters: list(enum('dst-ip', 'dst-ipv4', 'dst-ipv6', 'dst-mac', 'dst-port', 'ethertype', 'proto', 'src-ip', 'src-ipv4', 'src-ipv6', 'src-mac', 'src-port', 'tos', 'vlan', 'unspecified'), required=False) # @name(Tenant NetFlow Match Params) @sheet_hidden()
+
 ap_monitoring:
   policies: list(include('ap_monitoring_policies'), required=False) # @name(Access Monitoring Policies) @ref_name(Access Monitoring Policy)
 
