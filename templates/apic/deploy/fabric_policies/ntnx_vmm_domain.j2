@@ -30,7 +30,7 @@
                     "children": [
                         {%- set comma2 = joiner(",") %}
                         {%- for sd in vmm.security_domains | default([]) %}{{ comma2() }}
-                        { 
+                        {
                             "aaaDomainRef": {
                                 "attributes": {
                                     "annotation": "orchestrator:aac",
@@ -113,7 +113,7 @@
                                                         {
                                                             "annotation": "orchestrator:aac",
                                                             {% set ctrl_policy_name = vmm.controller_profile.cluster_controller.credentials ~ defaults.apic.fabric_policies.nutanix_vmm_domains.credential_policies.name_suffix %}
-                                                            "tDn": "uni/vmmp-Nutanix/dom-{{ cluster_controller_name }}/usracc-{{ ctrl_policy_name }}"
+                                                            "tDn": "uni/vmmp-Nutanix/dom-{{ vmm_name }}/usracc-{{ ctrl_policy_name }}"
                                                         }
                                                     }
                                                 }

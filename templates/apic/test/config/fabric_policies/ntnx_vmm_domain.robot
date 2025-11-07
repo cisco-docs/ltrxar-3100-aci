@@ -54,7 +54,7 @@ Verify Nutanix VMM Domain {{ vmm_name }} Cluster Controller {{ cluster_controlle
     Should Be Equal Value Json String   ${r}    ${cp}..vmmClusterCtrlrP.attributes.port   {{ vmm.controller_profile.cluster_controller.port | default(defaults.apic.fabric_policies.nutanix_vmm_domains.controller_profile.cluster_controller.port) }}
     Should Be Equal Value Json String   ${r}    ${cp}..vmmClusterCtrlrP.attributes.rootContName   {{ vmm.controller_profile.cluster_controller.cluster_name }}
 {% set ctrl_policy_name = vmm.controller_profile.cluster_controller.credentials ~ defaults.apic.fabric_policies.nutanix_vmm_domains.credential_policies.name_suffix %}
-    Should Be Equal Value Json String   ${r}    ${cp}..vmmRsClusterAcc.attributes.tDn   uni/vmmp-Nutanix/dom-{{ cluster_controller_name }}/usracc-{{ ctrl_policy_name }}
+    Should Be Equal Value Json String   ${r}    ${cp}..vmmRsClusterAcc.attributes.tDn   uni/vmmp-Nutanix/dom-{{ vmm_name }}/usracc-{{ ctrl_policy_name }}
 {% endif %}
 {% endif %}
 {% endfor %}
