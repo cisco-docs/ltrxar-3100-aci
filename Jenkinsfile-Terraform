@@ -73,7 +73,9 @@ pipeline {
                 }
                 stage('Test APIC 6.1 Terraform') {
                     steps {
+                        lock(resource: 'nac-ci-vapic1-6.1.4h') {
                             sh 'pytest -m "apic_61 and terraform"'
+                        }
                     }
                     post {
                         always {

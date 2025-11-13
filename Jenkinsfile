@@ -91,11 +91,10 @@ pipeline {
                     }
                 }
                 stage('Test APIC 6.1') {
-                    when {
-                        branch 'master'
-                    }
                     steps {
-                        sh 'pytest -m "apic_61 and not terraform"'
+                        lock(resource: 'nac-ci-vapic1-6.1.4h') {
+                            sh 'pytest -m "apic_61 and not terraform"'
+                        }
                     }
                     post {
                         always {
