@@ -14,24 +14,24 @@ Resource        ../../../apic_common.resource
 Verify ND Interface Policy {{ policy_name }}
     ${r}=   GET On Session   apic   /api/mo/uni/tn-{{ tenant.name }}/ndifpol-{{ policy_name }}.json
     Set Suite Variable   $r   ${r.json()}
-    Should Be Equal Value Json String   ${r}   $..ndIfPol.attributes.name   {{ policy_name }}
-    Should Be Equal Value Json String   ${r}   $..ndIfPol.attributes.descr   {{ nd_intf_pol.description | default() }}
-    Should Be Equal Value Json String   ${r}   $..ndIfPol.attributes.ctrl   {{ state | default() }}
-    Should Be Equal Value Json String   ${r}   $..ndIfPol.attributes.hopLimit   {{ nd_intf_pol.hop_limit | default(defaults.apic.tenants.policies.nd_interface_policies.hop_limit) }}
-    Should Be Equal Value Json String   ${r}   $..ndIfPol.attributes.nsIntvl   {{ nd_intf_pol.ns_tx_interval | default(defaults.apic.tenants.policies.nd_interface_policies.ns_tx_interval) }}
-    Should Be Equal Value Json String   ${r}   $..ndIfPol.attributes.mtu   {{ nd_intf_pol.mtu | default(defaults.apic.tenants.policies.nd_interface_policies.mtu) }}
-    Should Be Equal Value Json String   ${r}   $..ndIfPol.attributes.nsRetries   {{ nd_intf_pol.retransmit_retry_count | default(defaults.apic.tenants.policies.nd_interface_policies.retransmit_retry_count) }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].ndIfPol.attributes.name   {{ policy_name }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].ndIfPol.attributes.descr   {{ nd_intf_pol.description | default() }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].ndIfPol.attributes.ctrl   {{ state | default() }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].ndIfPol.attributes.hopLimit   {{ nd_intf_pol.hop_limit | default(defaults.apic.tenants.policies.nd_interface_policies.hop_limit) }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].ndIfPol.attributes.nsIntvl   {{ nd_intf_pol.ns_tx_interval | default(defaults.apic.tenants.policies.nd_interface_policies.ns_tx_interval) }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].ndIfPol.attributes.mtu   {{ nd_intf_pol.mtu | default(defaults.apic.tenants.policies.nd_interface_policies.mtu) }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].ndIfPol.attributes.nsRetries   {{ nd_intf_pol.retransmit_retry_count | default(defaults.apic.tenants.policies.nd_interface_policies.retransmit_retry_count) }}
 {% if nd_intf_pol.nud_retransmit_base is defined %}
-    Should Be Equal Value Json String   ${r}   $..ndIfPol.attributes.nudRetryBase   {{ nd_intf_pol.nud_retransmit_base }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].ndIfPol.attributes.nudRetryBase   {{ nd_intf_pol.nud_retransmit_base }}
 {% endif %}
 {% if nd_intf_pol.nud_retransmit_interval is defined %}
-    Should Be Equal Value Json String   ${r}   $..ndIfPol.attributes.nudRetryInterval   {{ nd_intf_pol.nud_retransmit_interval }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].ndIfPol.attributes.nudRetryInterval   {{ nd_intf_pol.nud_retransmit_interval }}
 {% endif %}
 {% if nd_intf_pol.nud_retransmit_count is defined %}
-    Should Be Equal Value Json String   ${r}   $..ndIfPol.attributes.nudRetryMaxAttempts   {{ nd_intf_pol.nud_retransmit_count }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].ndIfPol.attributes.nudRetryMaxAttempts   {{ nd_intf_pol.nud_retransmit_count }}
 {% endif %}
-    Should Be Equal Value Json String   ${r}   $..ndIfPol.attributes.raIntvl   {{ nd_intf_pol.route_advertise_interval | default(defaults.apic.tenants.policies.nd_interface_policies.route_advertise_interval) }}
-    Should Be Equal Value Json String   ${r}   $..ndIfPol.attributes.raLifetime   {{ nd_intf_pol.router_lifetime | default(defaults.apic.tenants.policies.nd_interface_policies.router_lifetime) }}
-    Should Be Equal Value Json String   ${r}   $..ndIfPol.attributes.reachableTime   {{ nd_intf_pol.reachable_time | default(defaults.apic.tenants.policies.nd_interface_policies.reachable_time) }}
-    Should Be Equal Value Json String   ${r}   $..ndIfPol.attributes.retransTimer   {{ nd_intf_pol.retransmit_timer | default(defaults.apic.tenants.policies.nd_interface_policies.retransmit_timer) }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].ndIfPol.attributes.raIntvl   {{ nd_intf_pol.route_advertise_interval | default(defaults.apic.tenants.policies.nd_interface_policies.route_advertise_interval) }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].ndIfPol.attributes.raLifetime   {{ nd_intf_pol.router_lifetime | default(defaults.apic.tenants.policies.nd_interface_policies.router_lifetime) }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].ndIfPol.attributes.reachableTime   {{ nd_intf_pol.reachable_time | default(defaults.apic.tenants.policies.nd_interface_policies.reachable_time) }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].ndIfPol.attributes.retransTimer   {{ nd_intf_pol.retransmit_timer | default(defaults.apic.tenants.policies.nd_interface_policies.retransmit_timer) }}
 {% endfor %}

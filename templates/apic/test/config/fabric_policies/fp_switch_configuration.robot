@@ -14,14 +14,14 @@ Resource        ../../apic_common.resource
 Verify Fabric Switch Configuration Leaf {{ node.id }} Policy Group
     ${r}=   GET On Session   apic   /api/mo/uni/fabric/nodeconfnode-{{ node.id }}.json
     Set Suite Variable   $r   ${r.json()}
-    Should Be Equal Value Json String   ${r}    $..fabricNodeConfig.attributes.assocGrp   uni/fabric/funcprof/lenodepgrp-{{ policy_group_name }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].fabricNodeConfig.attributes.assocGrp   uni/fabric/funcprof/lenodepgrp-{{ policy_group_name }}
 
 {% elif node.role == "spine" %}
 {% set policy_group_name = node.fabric_policy_group ~ defaults.apic.fabric_policies.spine_switch_policy_groups.name_suffix %}
 Verify Fabric Switch Configuration Spine {{ node.id }} Policy Group
     ${r}=   GET On Session   apic   /api/mo/uni/fabric/nodeconfnode-{{ node.id }}.json
     Set Suite Variable   $r   ${r.json()}
-    Should Be Equal Value Json String   ${r}    $..fabricNodeConfig.attributes.assocGrp   uni/fabric/funcprof/spnodepgrp-{{ policy_group_name }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].fabricNodeConfig.attributes.assocGrp   uni/fabric/funcprof/spnodepgrp-{{ policy_group_name }}
 
 {% endif %}
 

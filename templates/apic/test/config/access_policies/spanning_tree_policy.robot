@@ -14,7 +14,7 @@ Resource        ../../apic_common.resource
 Verify Spanning Tree Interface Policy {{spanning_tree_policy_name }}
     ${r}=   GET On Session   apic   /api/mo/uni/infra/ifPol-{{spanning_tree_policy_name }}.json
     Set Suite Variable   $r   ${r.json()}
-    Should Be Equal Value Json String   ${r}    $..stpIfPol.attributes.name   {{ spanning_tree_policy_name }}
-    Should Be Equal Value Json String   ${r}    $..stpIfPol.attributes.ctrl   {{ ctrl | join(',') }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].stpIfPol.attributes.name   {{ spanning_tree_policy_name }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].stpIfPol.attributes.ctrl   {{ ctrl | join(',') }}
 
 {% endfor %}

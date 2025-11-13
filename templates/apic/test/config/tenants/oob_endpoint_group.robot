@@ -17,21 +17,21 @@ Resource        ../../../apic_common.resource
 Verify OOB Endpoint Group {{ epg_name }}
     ${r}=   GET On Session   apic   /api/mo/uni/tn-mgmt/mgmtp-default/oob-{{ epg_name }}.json   params=rsp-subtree=full
     Set Suite Variable   $r   ${r.json()}
-    Should Be Equal Value Json String   ${r}   $..mgmtOoB.attributes.name   {{ epg_name }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].mgmtOoB.attributes.name   {{ epg_name }}
 
 {% for oob_contract in epg.oob_contracts.providers | default([]) %}
 {% set oob_contract_name = oob_contract ~ defaults.apic.tenants.oob_contracts.name_suffix %}
 
 Verify OOB Endpoint Group {{ epg_name }} Contract Provider {{ oob_contract_name }}
-    ${con}=   Set Variable   $..mgmtOoB.children[?(@.mgmtRsOoBProv.attributes.tnVzOOBBrCPName=="{{ oob_contract_name }}")]
-    Should Be Equal Value Json String   ${r}   ${con}.mgmtRsOoBProv.attributes.tnVzOOBBrCPName   {{ oob_contract_name }}
+    ${con}=   Set Variable   imdata[0].mgmtOoB.children[?mgmtRsOoBProv.attributes.tnVzOOBBrCPName=='{{ oob_contract_name }}'] | [0]
+    Should Be Equal JMESPath Json   ${r}   ${con}.mgmtRsOoBProv.attributes.tnVzOOBBrCPName   {{ oob_contract_name }}
 
 {% endfor %}
 
 {% for prefix in epg.static_routes | default([]) %}
 Verify Out-of-Band Endpoint Group {{ epg_name }} Static Route {{ prefix }}
-    ${con}=   Set Variable   $..mgmtInB.children[?(@.mgmtStaticRoute.attributes.prefix=='{{ prefix }}')]
-    Should Be Equal Value Json String   ${r}   ${con}..mgmtStaticRoute.attributes.prefix   {{ prefix }}
+    ${con}=   Set Variable   imdata[0].mgmtOoB.children[?mgmtStaticRoute.attributes.prefix=='{{ prefix }}'] | [0]
+    Should Be Equal JMESPath Json   ${r}   ${con}.mgmtStaticRoute.attributes.prefix   {{ prefix }}
 {% endfor %}
 
 {% endfor %}

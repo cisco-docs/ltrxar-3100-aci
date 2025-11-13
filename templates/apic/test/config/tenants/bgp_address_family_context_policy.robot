@@ -15,16 +15,16 @@ Resource        ../../../apic_common.resource
 Verify BGP Address Family Context Policy {{ bafc_name }}
     ${r}=   GET On Session   apic   /api/mo/uni/tn-{{ tenant.name }}/bgpCtxAfP-{{ bafc_name }}.json
     Set Suite Variable   $r   ${r.json()}
-    Should Be Equal Value Json String   ${r}   $..bgpCtxAfPol.attributes.name   {{ bafc_name }}
-    Should Be Equal Value Json String   ${r}   $..bgpCtxAfPol.attributes.descr   {{ bafc.description | default() }}
-    Should Be Equal Value Json String   ${r}   $..bgpCtxAfPol.attributes.ctrl   {{ enable_host_route_leak }}
-    Should Be Equal Value Json String   ${r}   $..bgpCtxAfPol.attributes.eDist   {{ bafc.ebgp_distance | default(defaults.apic.tenants.policies.bgp_address_family_context_policies.ebgp_distance) }}
-    Should Be Equal Value Json String   ${r}   $..bgpCtxAfPol.attributes.iDist   {{ bafc.ibgp_distance | default(defaults.apic.tenants.policies.bgp_address_family_context_policies.ibgp_distance) }}
-    Should Be Equal Value Json String   ${r}   $..bgpCtxAfPol.attributes.localDist   {{ bafc.local_distance | default(defaults.apic.tenants.policies.bgp_address_family_context_policies.local_distance) }}
-    Should Be Equal Value Json String   ${r}   $..bgpCtxAfPol.attributes.maxEcmp   {{ bafc.ebgp_max_ecmp | default(defaults.apic.tenants.policies.bgp_address_family_context_policies.ebgp_max_ecmp) }}
-    Should Be Equal Value Json String   ${r}   $..bgpCtxAfPol.attributes.maxEcmpIbgp   {{ bafc.ibgp_max_ecmp | default(defaults.apic.tenants.policies.bgp_address_family_context_policies.ibgp_max_ecmp) }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].bgpCtxAfPol.attributes.name   {{ bafc_name }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].bgpCtxAfPol.attributes.descr   {{ bafc.description | default() }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].bgpCtxAfPol.attributes.ctrl   {{ enable_host_route_leak }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].bgpCtxAfPol.attributes.eDist   {{ bafc.ebgp_distance | default(defaults.apic.tenants.policies.bgp_address_family_context_policies.ebgp_distance) }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].bgpCtxAfPol.attributes.iDist   {{ bafc.ibgp_distance | default(defaults.apic.tenants.policies.bgp_address_family_context_policies.ibgp_distance) }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].bgpCtxAfPol.attributes.localDist   {{ bafc.local_distance | default(defaults.apic.tenants.policies.bgp_address_family_context_policies.local_distance) }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].bgpCtxAfPol.attributes.maxEcmp   {{ bafc.ebgp_max_ecmp | default(defaults.apic.tenants.policies.bgp_address_family_context_policies.ebgp_max_ecmp) }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].bgpCtxAfPol.attributes.maxEcmpIbgp   {{ bafc.ibgp_max_ecmp | default(defaults.apic.tenants.policies.bgp_address_family_context_policies.ibgp_max_ecmp) }}
 {% if bafc.local_max_ecmp is defined %}
-    Should Be Equal Value Json String   ${r}   $..bgpCtxAfPol.attributes.maxLocalEcmp   {{ bafc.local_max_ecmp }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].bgpCtxAfPol.attributes.maxLocalEcmp   {{ bafc.local_max_ecmp }}
 {% endif %}
 
 {% endfor %}

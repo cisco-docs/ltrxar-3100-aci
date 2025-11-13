@@ -8,4 +8,4 @@ Resource        ../../apic_common.resource
 Verify ACI COOP Policy
     ${r}=   GET On Session   apic   /api/mo/uni/fabric/pol-default.json
     Set Suite Variable   $r   ${r.json()}
-    Should Be Equal Value Json String   ${r}    $..coopPol.attributes.type   {{ apic.fabric_policies.coop_group_policy | default(defaults.apic.fabric_policies.coop_group_policy) }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].coopPol.attributes.type   {{ apic.fabric_policies.coop_group_policy | default(defaults.apic.fabric_policies.coop_group_policy) }}

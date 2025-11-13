@@ -8,4 +8,4 @@ Resource        ../../apic_common.resource
 Verify ISIS Policy
     ${r}=   GET On Session   apic   /api/mo/uni/fabric/isisDomP-default.json
     Set Suite Variable   $r   ${r.json()}
-    Should Be Equal Value Json String   ${r}    $..isisDomPol.attributes.redistribMetric   {{ apic.fabric_policies.fabric_isis_redistribute_metric | default(defaults.apic.fabric_policies.fabric_isis_redistribute_metric) }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].isisDomPol.attributes.redistribMetric   {{ apic.fabric_policies.fabric_isis_redistribute_metric | default(defaults.apic.fabric_policies.fabric_isis_redistribute_metric) }}

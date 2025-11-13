@@ -23,32 +23,32 @@ Resource        ../../../apic_common.resource
 Verify Access Leaf Interface Profile {{ leaf_interface_profile_name }} Selector {{ leaf_interface_selector_name }}
     ${r}=   GET On Session   apic   /api/mo/uni/infra/accportprof-{{ leaf_interface_profile_name }}/hports-{{ leaf_interface_selector_name }}-typ-range.json   params=rsp-subtree=full
     Set Suite Variable   $r   ${r.json()}
-    Should Be Equal Value Json String   ${r}    $..infraHPortS.attributes.name   {{ leaf_interface_selector_name }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraHPortS.attributes.name   {{ leaf_interface_selector_name }}
 {% if apic.interface_selector_description | default(defaults.apic.interface_selector_description) is true %}
-    Should Be Equal Value Json String   ${r}    $..infraHPortS.attributes.descr   {{ int.description | default() }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraHPortS.attributes.descr   {{ int.description | default() }}
 {% endif %}
 {% if int.fex_id is defined %}
 {% set fex_profile_name = (_node.id ~ ":" ~ _node.name~ ":" ~ int.fex_id) | regex_replace("^(?P<id>.+):(?P<name>.+):(?P<fex>.+)$", (apic.access_policies.fex_profile_name | default(defaults.apic.access_policies.fex_profile_name))) %}
-    Should Be Equal Value Json String   ${r}    $..infraRsAccBaseGrp.attributes.fexId   {{ int.fex_id }}
-    Should Be Equal Value Json String   ${r}    $..infraRsAccBaseGrp.attributes.tDn   uni/infra/fexprof-{{ fex_profile_name }}/fexbundle-{{ fex_profile_name }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraHPortS.children[?infraRsAccBaseGrp] | [0].infraRsAccBaseGrp.attributes.fexId   {{ int.fex_id }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraHPortS.children[?infraRsAccBaseGrp] | [0].infraRsAccBaseGrp.attributes.tDn   uni/infra/fexprof-{{ fex_profile_name }}/fexbundle-{{ fex_profile_name }}
 {% elif int.policy_group is defined %}
 {% set query = "leaf_interface_policy_groups[?name=='" ~ int.policy_group ~ "'].type[]" %}
 {% set type = (apic.access_policies | community.general.json_query(query)) %}
 {% set policy_group_name = int.policy_group ~ defaults.apic.access_policies.leaf_interface_policy_groups.name_suffix %}
 {% if type[0] in ["pc", "vpc"] %}
-    Should Be Equal Value Json String   ${r}    $..infraRsAccBaseGrp.attributes.tDn   uni/infra/funcprof/accbundle-{{ policy_group_name }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraHPortS.children[?infraRsAccBaseGrp] | [0].infraRsAccBaseGrp.attributes.tDn   uni/infra/funcprof/accbundle-{{ policy_group_name }}
 {% elif type[0] == "breakout" %}
-    Should Be Equal Value Json String   ${r}    $..infraRsAccBaseGrp.attributes.tDn   uni/infra/funcprof/brkoutportgrp-{{ policy_group_name }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraHPortS.children[?infraRsAccBaseGrp] | [0].infraRsAccBaseGrp.attributes.tDn   uni/infra/funcprof/brkoutportgrp-{{ policy_group_name }}
 {% else %}
-    Should Be Equal Value Json String   ${r}    $..infraRsAccBaseGrp.attributes.tDn   uni/infra/funcprof/accportgrp-{{ policy_group_name }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraHPortS.children[?infraRsAccBaseGrp] | [0].infraRsAccBaseGrp.attributes.tDn   uni/infra/funcprof/accportgrp-{{ policy_group_name }}
 {% endif %}
 {% endif %}
-    Should Be Equal Value Json String   ${r}    $..infraPortBlk.attributes.descr   {{ int.description | default() }}
-    Should Be Equal Value Json String   ${r}    $..infraPortBlk.attributes.fromCard   {{ module }}
-    Should Be Equal Value Json String   ${r}    $..infraPortBlk.attributes.fromPort   {{ int.port }}
-    Should Be Equal Value Json String   ${r}    $..infraPortBlk.attributes.name   {{ module }}-{{ int.port }}
-    Should Be Equal Value Json String   ${r}    $..infraPortBlk.attributes.toCard   {{ module }}
-    Should Be Equal Value Json String   ${r}    $..infraPortBlk.attributes.toPort   {{ int.port }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraHPortS.children[?infraPortBlk] | [0].infraPortBlk.attributes.descr   {{ int.description | default() }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraHPortS.children[?infraPortBlk] | [0].infraPortBlk.attributes.fromCard   {{ module }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraHPortS.children[?infraPortBlk] | [0].infraPortBlk.attributes.fromPort   {{ int.port }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraHPortS.children[?infraPortBlk] | [0].infraPortBlk.attributes.name   {{ module }}-{{ int.port }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraHPortS.children[?infraPortBlk] | [0].infraPortBlk.attributes.toCard   {{ module }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraHPortS.children[?infraPortBlk] | [0].infraPortBlk.attributes.toPort   {{ int.port }}
 
 {% for sub in int.sub_ports | default([]) %}
 {% set module = sub.module | default(defaults.apic.interface_policies.nodes.interfaces.module) %}
@@ -56,34 +56,34 @@ Verify Access Leaf Interface Profile {{ leaf_interface_profile_name }} Selector 
 Verify Access Leaf Interface Profile {{ leaf_interface_profile_name }} Selector {{ leaf_interface_selector_sub_port_name }}
     ${r}=   GET On Session   apic   /api/mo/uni/infra/accportprof-{{ leaf_interface_profile_name }}/hports-{{ leaf_interface_selector_sub_port_name }}-typ-range.json   params=rsp-subtree=full
     Set Suite Variable   $r   ${r.json()}
-    Should Be Equal Value Json String   ${r}    $..infraHPortS.attributes.name   {{ leaf_interface_selector_sub_port_name }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraHPortS.attributes.name   {{ leaf_interface_selector_sub_port_name }}
 {% if apic.interface_selector_description | default(defaults.apic.interface_selector_description) is true %}
-    Should Be Equal Value Json String   ${r}    $..infraHPortS.attributes.descr   {{ sub.description | default() }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraHPortS.attributes.descr   {{ sub.description | default() }}
 {% endif %}
 {% if sub.fex_id is defined %}
 {% set fex_profile_name = (_node.id ~ ":" ~ _node.name~ ":" ~ sub.fex_id) | regex_replace("^(?P<id>.+):(?P<name>.+):(?P<fex>.+)$", (apic.access_policies.fex_profile_name | default(defaults.apic.access_policies.fex_profile_name))) %}
-    Should Be Equal Value Json String   ${r}    $..infraRsAccBaseGrp.attributes.fexId   {{ sub.fex_id }}
-    Should Be Equal Value Json String   ${r}    $..infraRsAccBaseGrp.attributes.tDn   uni/infra/fexprof-{{ fex_profile_name }}/fexbundle-{{ fex_profile_name }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraHPortS.children[?infraRsAccBaseGrp] | [0].infraRsAccBaseGrp.attributes.fexId   {{ sub.fex_id }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraHPortS.children[?infraRsAccBaseGrp] | [0].infraRsAccBaseGrp.attributes.tDn   uni/infra/fexprof-{{ fex_profile_name }}/fexbundle-{{ fex_profile_name }}
 {% elif sub.policy_group is defined %}
 {% set query = "leaf_interface_policy_groups[?name=='" ~ sub.policy_group ~ "'].type[]" %}
 {% set type = (apic.access_policies | community.general.json_query(query)) %}
 {% set policy_group_name = sub.policy_group ~ defaults.apic.access_policies.leaf_interface_policy_groups.name_suffix %}
 {% if type[0] in ["pc", "vpc"] %}
-    Should Be Equal Value Json String   ${r}    $..infraRsAccBaseGrp.attributes.tDn   uni/infra/funcprof/accbundle-{{ policy_group_name }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraHPortS.children[?infraRsAccBaseGrp] | [0].infraRsAccBaseGrp.attributes.tDn   uni/infra/funcprof/accbundle-{{ policy_group_name }}
 {% elif type[0] == "breakout" %}
-    Should Be Equal Value Json String   ${r}    $..infraRsAccBaseGrp.attributes.tDn   uni/infra/funcprof/brkoutportgrp-{{ policy_group_name }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraHPortS.children[?infraRsAccBaseGrp] | [0].infraRsAccBaseGrp.attributes.tDn   uni/infra/funcprof/brkoutportgrp-{{ policy_group_name }}
 {% else %}
-    Should Be Equal Value Json String   ${r}    $..infraRsAccBaseGrp.attributes.tDn   uni/infra/funcprof/accportgrp-{{ policy_group_name }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraHPortS.children[?infraRsAccBaseGrp] | [0].infraRsAccBaseGrp.attributes.tDn   uni/infra/funcprof/accportgrp-{{ policy_group_name }}
 {% endif %}
 {% endif %}
-    Should Be Equal Value Json String   ${r}    $..infraSubPortBlk.attributes.descr   {{ sub.description | default() }}
-    Should Be Equal Value Json String   ${r}    $..infraSubPortBlk.attributes.fromCard   {{ module }}
-    Should Be Equal Value Json String   ${r}    $..infraSubPortBlk.attributes.fromPort   {{ int.port }}
-    Should Be Equal Value Json String   ${r}    $..infraSubPortBlk.attributes.name   {{ module }}-{{int.port}}-{{ sub.port }}
-    Should Be Equal Value Json String   ${r}    $..infraSubPortBlk.attributes.toCard   {{ module }}
-    Should Be Equal Value Json String   ${r}    $..infraSubPortBlk.attributes.toPort   {{ int.port }}
-    Should Be Equal Value Json String   ${r}    $..infraSubPortBlk.attributes.fromSubPort   {{ sub.port }}
-    Should Be Equal Value Json String   ${r}    $..infraSubPortBlk.attributes.toSubPort   {{ sub.port }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraHPortS.children[?infraSubPortBlk] | [0].infraSubPortBlk.attributes.descr   {{ sub.description | default() }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraHPortS.children[?infraSubPortBlk] | [0].infraSubPortBlk.attributes.fromCard   {{ module }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraHPortS.children[?infraSubPortBlk] | [0].infraSubPortBlk.attributes.fromPort   {{ int.port }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraHPortS.children[?infraSubPortBlk] | [0].infraSubPortBlk.attributes.name   {{ module }}-{{int.port}}-{{ sub.port }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraHPortS.children[?infraSubPortBlk] | [0].infraSubPortBlk.attributes.toCard   {{ module }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraHPortS.children[?infraSubPortBlk] | [0].infraSubPortBlk.attributes.toPort   {{ int.port }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraHPortS.children[?infraSubPortBlk] | [0].infraSubPortBlk.attributes.fromSubPort   {{ sub.port }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraHPortS.children[?infraSubPortBlk] | [0].infraSubPortBlk.attributes.toSubPort   {{ sub.port }}
 
 {% endfor %}
 

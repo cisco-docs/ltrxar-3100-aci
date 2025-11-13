@@ -13,7 +13,7 @@ Resource        ../../../apic_common.resource
 Verify Imported L4L7 Device {{ imported_dev_name }}
     ${r}=   GET On Session   apic   /api/mo/uni/tn-{{ tenant.name }}/lDevIf-[uni/tn-{{ dev.tenant }}/lDevVip-{{ imported_dev_name }}].json
     Set Suite Variable   $r   ${r.json()}
-    Should Be Equal Value Json String   ${r}   $..vnsLDevIf.attributes.ldev   uni/tn-{{ dev.tenant }}/lDevVip-{{ imported_dev_name }}
-    Should Be Equal Value Json String   ${r}   $..vnsLDevIf.attributes.description   {{ dev.description | default() }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].vnsLDevIf.attributes.ldev   uni/tn-{{ dev.tenant }}/lDevVip-{{ imported_dev_name }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].vnsLDevIf.attributes.description   {{ dev.description | default() }}
 
 {% endfor %}

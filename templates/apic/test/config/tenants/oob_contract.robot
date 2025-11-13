@@ -13,24 +13,24 @@ Resource        ../../../apic_common.resource
 Verify OOB Contract {{ contract_name }}
     ${r}=   GET On Session   apic   /api/mo/uni/tn-{{ tenant.name }}/oobbrc-{{ contract_name }}.json   params=rsp-subtree=full
     Set Suite Variable   $r   ${r.json()}
-    Should Be Equal Value Json String   ${r}   $..vzOOBBrCP.attributes.name   {{ contract_name }}
-    Should Be Equal Value Json String   ${r}   $..vzOOBBrCP.attributes.nameAlias   {{ contract.alias | default() }}
-    Should Be Equal Value Json String   ${r}   $..vzOOBBrCP.attributes.descr   {{ contract.description | default() }}
-    Should Be Equal Value Json String   ${r}   $..vzOOBBrCP.attributes.scope   {{ contract.scope | default(defaults.apic.tenants.oob_contracts.scope) }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].vzOOBBrCP.attributes.name   {{ contract_name }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].vzOOBBrCP.attributes.nameAlias   {{ contract.alias | default() }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].vzOOBBrCP.attributes.descr   {{ contract.description | default() }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].vzOOBBrCP.attributes.scope   {{ contract.scope | default(defaults.apic.tenants.oob_contracts.scope) }}
 
 {% for subject in contract.subjects | default([]) %}
 {% set subject_name = subject.name ~ defaults.apic.tenants.oob_contracts.subjects.name_suffix %}
 
 Verify OOB Contract {{ contract_name }} Subject {{ subject_name }}
-    ${subject}=   Set Variable   $..vzOOBBrCP.children[?(@.vzSubj.attributes.name=='{{ subject_name }}')]
-    Should Be Equal Value Json String   ${r}   ${subject}..vzSubj.attributes.name   {{ subject_name }}
+    ${subject}=   Set Variable   imdata[0].vzOOBBrCP.children[?vzSubj.attributes.name=='{{ subject_name }}'] | [0]
+    Should Be Equal JMESPath Json   ${r}   ${subject}.vzSubj.attributes.name   {{ subject_name }}
 
 {% for filter in subject.filters | default([]) %}
 {% set filter_name = filter.filter ~ defaults.apic.tenants.filters.name_suffix %}
 
 Verify OOB Contract {{ contract_name }} Subject {{ subject_name }} Filter {{ filter_name }}
-    ${filter}=   Set Variable   $..vzOOBBrCP.children[?(@.vzSubj.attributes.name=='{{ subject_name }}')].vzSubj.children[?(@.vzRsSubjFiltAtt.attributes.tnVzFilterName=='{{ filter_name }}')]
-    Should Be Equal Value Json String   ${r}   ${filter}..vzRsSubjFiltAtt.attributes.tnVzFilterName   {{ filter_name }}
+    ${filter}=   Set Variable   imdata[0].vzOOBBrCP.children[?vzSubj.attributes.name=='{{ subject_name }}'] | [0].vzSubj.children[?vzRsSubjFiltAtt.attributes.tnVzFilterName=='{{ filter_name }}'] | [0]
+    Should Be Equal JMESPath Json   ${r}   ${filter}.vzRsSubjFiltAtt.attributes.tnVzFilterName   {{ filter_name }}
 
 {% endfor %}
 

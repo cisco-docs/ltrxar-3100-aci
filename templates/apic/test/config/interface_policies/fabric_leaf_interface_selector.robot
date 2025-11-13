@@ -23,22 +23,22 @@ Resource        ../../../apic_common.resource
 Verify Fabric Leaf Interface Profile {{ leaf_interface_profile_name }} Selector {{ leaf_interface_selector_name }}
     ${r}=   GET On Session   apic   /api/mo/uni/fabric/leportp-{{ leaf_interface_profile_name }}/lefabports-{{ leaf_interface_selector_name }}-typ-range.json   params=rsp-subtree=full
     Set Suite Variable   $r   ${r.json()}
-    Should Be Equal Value Json String   ${r}    $..fabricLFPortS.attributes.name   {{ leaf_interface_selector_name }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].fabricLFPortS.attributes.name   {{ leaf_interface_selector_name }}
 {% if apic.interface_selector_description | default(defaults.apic.interface_selector_description) is true %}
-    Should Be Equal Value Json String   ${r}    $..fabricLFPortS.attributes.descr   {{ int.description | default() }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].fabricLFPortS.attributes.descr   {{ int.description | default() }}
 {% endif %}
 {% if int.policy_group is defined %}
 {% set query = "leaf_interface_policy_groups[?name=='" ~ int.policy_group ~ "'].type[]" %}
 {% set type = (apic.fabric_policies | community.general.json_query(query)) %}
 {% set policy_group_name = int.policy_group ~ defaults.apic.fabric_policies.leaf_interface_policy_groups.name_suffix %}
-    Should Be Equal Value Json String   ${r}    $..fabricRsLePortPGrp.attributes.tDn   uni/fabric/funcprof/leportgrp-{{ policy_group_name }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].fabricSubPortBlk.children[?fabricRsLePortPGrp] | [0].fabricRsLePortPGrp.attributes.tDn   uni/fabric/funcprof/leportgrp-{{ policy_group_name }}
 {% endif %}
-    Should Be Equal Value Json String   ${r}    $..fabricPortBlk.attributes.descr   {{ int.description | default() }}
-    Should Be Equal Value Json String   ${r}    $..fabricPortBlk.attributes.fromCard   {{ module }}
-    Should Be Equal Value Json String   ${r}    $..fabricPortBlk.attributes.fromPort   {{ int.port }}
-    Should Be Equal Value Json String   ${r}    $..fabricPortBlk.attributes.name   {{ module }}-{{ int.port }}
-    Should Be Equal Value Json String   ${r}    $..fabricPortBlk.attributes.toCard   {{ module }}
-    Should Be Equal Value Json String   ${r}    $..fabricPortBlk.attributes.toPort   {{ int.port }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].fabricPortBlk.attributes.descr   {{ int.description | default() }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].fabricPortBlk.attributes.fromCard   {{ module }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].fabricPortBlk.attributes.fromPort   {{ int.port }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].fabricPortBlk.attributes.name   {{ module }}-{{ int.port }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].fabricPortBlk.attributes.toCard   {{ module }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].fabricPortBlk.attributes.toPort   {{ int.port }}
 
 {% for sub in int.sub_ports | default([]) %}
 {% set module = sub.module | default(defaults.apic.interface_policies.nodes.interfaces.module) %}
@@ -46,24 +46,24 @@ Verify Fabric Leaf Interface Profile {{ leaf_interface_profile_name }} Selector 
 Verify Fabric Leaf Interface Profile {{ leaf_interface_profile_name }} Selector {{ leaf_interface_selector_sub_port_name }}
     ${r}=   GET On Session   apic   /api/mo/uni/fabric/leportp-{{ leaf_interface_profile_name }}/lefabports-{{ leaf_interface_selector_sub_port_name }}-typ-range.json   params=rsp-subtree=full
     Set Suite Variable   $r   ${r.json()}
-    Should Be Equal Value Json String   ${r}    $..fabricLFPortS.attributes.name   {{ leaf_interface_selector_sub_port_name }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].fabricLFPortS.attributes.name   {{ leaf_interface_selector_sub_port_name }}
 {% if apic.interface_selector_description | default(defaults.apic.interface_selector_description) is true %}
-    Should Be Equal Value Json String   ${r}    $..fabricLFPortS.attributes.descr   {{ sub.description | default() }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].fabricLFPortS.attributes.descr   {{ sub.description | default() }}
 {% endif %}
 {% if sub.policy_group is defined %}
 {% set query = "leaf_interface_policy_groups[?name=='" ~ sub.policy_group ~ "'].type[]" %}
 {% set type = (apic.fabric_policies | community.general.json_query(query)) %}
 {% set policy_group_name = sub.policy_group ~ defaults.apic.fabric_policies.leaf_interface_policy_groups.name_suffix %}
-    Should Be Equal Value Json String   ${r}    $..fabricRsLePortPGrp.attributes.tDn   uni/fabric/funcprof/leportgrp-{{ policy_group_name }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].fabricSubPortBlk.children[?fabricRsLePortPGrp] | [0].fabricRsLePortPGrp.attributes.tDn   uni/fabric/funcprof/leportgrp-{{ policy_group_name }}
 {% endif %}
-    Should Be Equal Value Json String   ${r}    $..fabricSubPortBlk.attributes.descr   {{ sub.description | default() }}
-    Should Be Equal Value Json String   ${r}    $..fabricSubPortBlk.attributes.fromCard   {{ module }}
-    Should Be Equal Value Json String   ${r}    $..fabricSubPortBlk.attributes.fromPort   {{ int.port }}
-    Should Be Equal Value Json String   ${r}    $..fabricSubPortBlk.attributes.name   {{ module }}-{{int.port}}-{{ sub.port }}
-    Should Be Equal Value Json String   ${r}    $..fabricSubPortBlk.attributes.toCard   {{ module }}
-    Should Be Equal Value Json String   ${r}    $..fabricSubPortBlk.attributes.toPort   {{ int.port }}
-    Should Be Equal Value Json String   ${r}    $..fabricSubPortBlk.attributes.fromSubPort   {{ sub.port }}
-    Should Be Equal Value Json String   ${r}    $..fabricSubPortBlk.attributes.toSubPort   {{ sub.port }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].fabricSubPortBlk.attributes.descr   {{ sub.description | default() }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].fabricSubPortBlk.attributes.fromCard   {{ module }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].fabricSubPortBlk.attributes.fromPort   {{ int.port }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].fabricSubPortBlk.attributes.name   {{ module }}-{{int.port}}-{{ sub.port }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].fabricSubPortBlk.attributes.toCard   {{ module }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].fabricSubPortBlk.attributes.toPort   {{ int.port }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].fabricSubPortBlk.attributes.fromSubPort   {{ sub.port }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].fabricSubPortBlk.attributes.toSubPort   {{ sub.port }}
 
 {% endfor %}
 

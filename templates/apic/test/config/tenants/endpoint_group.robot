@@ -20,53 +20,53 @@ Resource        ../../../apic_common.resource
 
 Verify Endpoint Group {{ epg_name }}
     ${r}=   GET On Session   apic   /api/mo/uni/tn-{{ tenant.name }}/ap-{{ ap_name }}/epg-{{ epg_name }}.json   params=rsp-subtree=full
-    Set Suite Variable   $r   ${r.json()}
-    Should Be Equal Value Json String   ${r}   $..fvAEPg.attributes.name   {{ epg_name }}
-    Should Be Equal Value Json String   ${r}   $..fvAEPg.attributes.descr   {{ epg.description | default() }}
-    Should Be Equal Value Json String   ${r}   $..fvAEPg.attributes.nameAlias   {{ epg.alias | default() }}
-    Should Be Equal Value Json String   ${r}   $..fvAEPg.attributes.floodOnEncap   {{ 'enabled' if epg.flood_in_encap | default(defaults.apic.tenants.application_profiles.endpoint_groups.flood_in_encap) else 'disabled' }}
-    Should Be Equal Value Json String   ${r}   $..fvAEPg.attributes.pcEnfPref   {{ 'enforced' if epg.intra_epg_isolation | default(defaults.apic.tenants.application_profiles.endpoint_groups.intra_epg_isolation) else 'unenforced' }}
-    Should Be Equal Value Json String   ${r}   $..fvAEPg.attributes.fwdCtrl  {{ 'proxy-arp' if epg.proxy_arp | default(defaults.apic.tenants.application_profiles.endpoint_groups.proxy_arp) else '' }}
-    Should Be Equal Value Json String   ${r}   $..fvAEPg.attributes.prefGrMemb   {{ 'include' if epg.preferred_group | default(defaults.apic.tenants.application_profiles.endpoint_groups.preferred_group) else 'exclude' }}
-    Should Be Equal Value Json String   ${r}   $..fvRsBd.attributes.tnFvBDName   {{ bd_name }}
-    Should Be Equal Value Json String   ${r}   $..fvAEPg.attributes.prio   {{ epg.qos_class | default(defaults.apic.tenants.application_profiles.endpoint_groups.qos_class) }}
+    Set Suite Variable   ${r}    ${r.json()}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].fvAEPg.attributes.name   {{ epg_name }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].fvAEPg.attributes.descr   {{ epg.description | default() }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].fvAEPg.attributes.nameAlias   {{ epg.alias | default() }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].fvAEPg.attributes.floodOnEncap   {{ 'enabled' if epg.flood_in_encap | default(defaults.apic.tenants.application_profiles.endpoint_groups.flood_in_encap) else 'disabled' }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].fvAEPg.attributes.pcEnfPref   {{ 'enforced' if epg.intra_epg_isolation | default(defaults.apic.tenants.application_profiles.endpoint_groups.intra_epg_isolation) else 'unenforced' }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].fvAEPg.attributes.fwdCtrl  {{ 'proxy-arp' if epg.proxy_arp | default(defaults.apic.tenants.application_profiles.endpoint_groups.proxy_arp) else '' }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].fvAEPg.attributes.prefGrMemb   {{ 'include' if epg.preferred_group | default(defaults.apic.tenants.application_profiles.endpoint_groups.preferred_group) else 'exclude' }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].fvAEPg.children[?fvRsBd] | [0].fvRsBd.attributes.tnFvBDName   {{ bd_name }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].fvAEPg.attributes.prio   {{ epg.qos_class | default(defaults.apic.tenants.application_profiles.endpoint_groups.qos_class) }}
 
 {% for vmm in epg.vmware_vmm_domains | default([]) %}
 {% set vmm_name = vmm.name ~ defaults.apic.fabric_policies.vmware_vmm_domains.name_suffix %}
 
 Verify Endpoint Group {{ epg_name }} VMM Domain {{ vmm_name }}
-    ${conn}=   Set Variable   $..fvAEPg.children[?(@.fvRsDomAtt.attributes.tDn=='uni/vmmp-VMware/dom-{{ vmm_name }}')].fvRsDomAtt
+    ${conn}=   Set Variable   imdata[0].fvAEPg.children[?fvRsDomAtt.attributes.tDn=='uni/vmmp-VMware/dom-{{ vmm_name }}'] | [0]
 {% if vmm.u_segmentation | default(defaults.apic.tenants.application_profiles.endpoint_groups.vmware_vmm_domains.u_segmentation) %}{% set useg = 'useg' %}{% else %}{% set useg = 'encap' %}{% endif %}
-    Should Be Equal Value Json String   ${r}   ${conn}.attributes.classPref   {{ useg }}
-    Should Be Equal Value Json String   ${r}   ${conn}.attributes.delimiter   \{{ vmm.delimiter | default(defaults.apic.tenants.application_profiles.endpoint_groups.vmware_vmm_domains.delimiter) }}
+    Should Be Equal JMESPath Json   ${r}   ${conn}.fvRsDomAtt.attributes.classPref   {{ useg }}
+    Should Be Equal JMESPath Json   ${r}   ${conn}.fvRsDomAtt.attributes.delimiter   \{{ vmm.delimiter | default(defaults.apic.tenants.application_profiles.endpoint_groups.vmware_vmm_domains.delimiter) }}
 {% if vmm.primary_vlan is defined %}
-    Should Be Equal Value Json String   ${r}   ${conn}.attributes.encap   vlan-{{ vmm.secondary_vlan }}
+    Should Be Equal JMESPath Json   ${r}   ${conn}.fvRsDomAtt.attributes.encap   vlan-{{ vmm.secondary_vlan }}
 {% elif vmm.vlan is defined %}
-    Should Be Equal Value Json String   ${r}   ${conn}.attributes.encap   vlan-{{ vmm.vlan }}
+    Should Be Equal JMESPath Json   ${r}   ${conn}.fvRsDomAtt.attributes.encap   vlan-{{ vmm.vlan }}
 {% else %}
-    Should Be Equal Value Json String   ${r}   ${conn}.attributes.encap   unknown
+    Should Be Equal JMESPath Json   ${r}   ${conn}.fvRsDomAtt.attributes.encap   unknown
 {% endif %}
-    Should Be Equal Value Json String   ${r}   ${conn}.attributes.encapMode   auto
-    Should Be Equal Value Json String   ${r}   ${conn}.attributes.instrImedcy   {{ vmm.deployment_immediacy  | default(defaults.apic.tenants.application_profiles.endpoint_groups.vmware_vmm_domains.deployment_immediacy) }}
-    Should Be Equal Value Json String   ${r}   ${conn}.attributes.netflowPref   {{ 'enabled' if vmm.netflow | default(defaults.apic.tenants.application_profiles.endpoint_groups.vmware_vmm_domains.netflow) else 'disabled' }}
+    Should Be Equal JMESPath Json   ${r}   ${conn}.fvRsDomAtt.attributes.encapMode   auto
+    Should Be Equal JMESPath Json   ${r}   ${conn}.fvRsDomAtt.attributes.instrImedcy   {{ vmm.deployment_immediacy  | default(defaults.apic.tenants.application_profiles.endpoint_groups.vmware_vmm_domains.deployment_immediacy) }}
+    Should Be Equal JMESPath Json   ${r}   ${conn}.fvRsDomAtt.attributes.netflowPref   {{ 'enabled' if vmm.netflow | default(defaults.apic.tenants.application_profiles.endpoint_groups.vmware_vmm_domains.netflow) else 'disabled' }}
 {% if vmm.primary_vlan is defined %}
-    Should Be Equal Value Json String   ${r}   ${conn}.attributes.primaryEncap   vlan-{{ vmm.primary_vlan }}
+    Should Be Equal JMESPath Json   ${r}   ${conn}.fvRsDomAtt.attributes.primaryEncap   vlan-{{ vmm.primary_vlan }}
 {% else %}
-    Should Be Equal Value Json String   ${r}   ${conn}.attributes.primaryEncap   unknown
+    Should Be Equal JMESPath Json   ${r}   ${conn}.fvRsDomAtt.attributes.primaryEncap   unknown
 {% endif %}
-    Should Be Equal Value Json String   ${r}   ${conn}.attributes.resImedcy   {{ vmm.resolution_immediacy | default(defaults.apic.tenants.application_profiles.endpoint_groups.vmware_vmm_domains.resolution_immediacy) }}
-    Should Be Equal Value Json String   ${r}   ${conn}.attributes.switchingMode   native
-    Should Be Equal Value Json String   ${r}   ${conn}.attributes.customEpgName   {{ vmm.custom_epg_name | default() }}
+    Should Be Equal JMESPath Json   ${r}   ${conn}.fvRsDomAtt.attributes.resImedcy   {{ vmm.resolution_immediacy | default(defaults.apic.tenants.application_profiles.endpoint_groups.vmware_vmm_domains.resolution_immediacy) }}
+    Should Be Equal JMESPath Json   ${r}   ${conn}.fvRsDomAtt.attributes.switchingMode   native
+    Should Be Equal JMESPath Json   ${r}   ${conn}.fvRsDomAtt.attributes.customEpgName   {{ vmm.custom_epg_name | default() }}
 
-    Should Be Equal Value Json String   ${r}   ${conn}.children..vmmSecP.attributes.allowPromiscuous   {{ vmm.allow_promiscuous | default(defaults.apic.tenants.application_profiles.endpoint_groups.vmware_vmm_domains.allow_promiscuous) }}
-    Should Be Equal Value Json String   ${r}   ${conn}.children..vmmSecP.attributes.forgedTransmits   {{ vmm.forged_transmits | default(defaults.apic.tenants.application_profiles.endpoint_groups.vmware_vmm_domains.forged_transmits) }}
-    Should Be Equal Value Json String   ${r}   ${conn}.children..vmmSecP.attributes.macChanges   {{ vmm.mac_changes | default(defaults.apic.tenants.application_profiles.endpoint_groups.vmware_vmm_domains.mac_changes) }}
+    Should Be Equal JMESPath Json   ${r}   ${conn}.fvRsDomAtt.children[?vmmSecP] | [0].vmmSecP.attributes.allowPromiscuous   {{ vmm.allow_promiscuous | default(defaults.apic.tenants.application_profiles.endpoint_groups.vmware_vmm_domains.allow_promiscuous) }}
+    Should Be Equal JMESPath Json   ${r}   ${conn}.fvRsDomAtt.children[?vmmSecP] | [0].vmmSecP.attributes.forgedTransmits   {{ vmm.forged_transmits | default(defaults.apic.tenants.application_profiles.endpoint_groups.vmware_vmm_domains.forged_transmits) }}
+    Should Be Equal JMESPath Json   ${r}   ${conn}.fvRsDomAtt.children[?vmmSecP] | [0].vmmSecP.attributes.macChanges   {{ vmm.mac_changes | default(defaults.apic.tenants.application_profiles.endpoint_groups.vmware_vmm_domains.mac_changes) }}
 {% if vmm.active_uplinks_order is defined or vmm.standby_uplinks is defined %}
-    Should Be Equal Value Json String   ${r}   ${conn}.children..fvUplinkOrderCont.attributes.active   {{ vmm.active_uplinks_order | default() }}
-    Should Be Equal Value Json String   ${r}   ${conn}.children..fvUplinkOrderCont.attributes.standby   {{ vmm.standby_uplinks | default() }}
+    Should Be Equal JMESPath Json   ${r}   ${conn}.fvRsDomAtt.children[?fvUplinkOrderCont] | [0].fvUplinkOrderCont.attributes.active   {{ vmm.active_uplinks_order | default() }}
+    Should Be Equal JMESPath Json   ${r}   ${conn}.fvRsDomAtt.children[?fvUplinkOrderCont] | [0].fvUplinkOrderCont.attributes.standby   {{ vmm.standby_uplinks | default() }}
 {% endif %}
 {% if vmm.elag is defined %}
-    Should Be Equal Value Json String   ${r}   ${conn}.children..fvAEPgLagPolAtt.children..fvRsVmmVSwitchEnhancedLagPol.attributes.tDn   uni/vmmp-VMware/dom-{{ vmm_name }}/vswitchpolcont/enlacplagp-{{ vmm.elag }}
+    Should Be Equal JMESPath Json   ${r}   ${conn}.fvRsDomAtt.children[?fvAEPgLagPolAtt] | [0].fvAEPgLagPolAtt.children[?fvRsVmmVSwitchEnhancedLagPol] | [0].fvRsVmmVSwitchEnhancedLagPol.attributes.tDn   uni/vmmp-VMware/dom-{{ vmm_name }}/vswitchpolcont/enlacplagp-{{ vmm.elag }}
 {% endif %}
 {% endfor %}
 
@@ -74,21 +74,21 @@ Verify Endpoint Group {{ epg_name }} VMM Domain {{ vmm_name }}
 {% set vmm_name = vmm.name ~ defaults.apic.fabric_policies.nutanix_vmm_domains.name_suffix %}
 
 Verify Endpoint Group {{ epg_name }} VMM Domain {{ vmm_name }}
-    ${conn}=   Set Variable   $..fvAEPg.children[?(@.fvRsDomAtt.attributes.tDn=='uni/vmmp-Nutanix/dom-{{ vmm_name }}')].fvRsDomAtt
+    ${conn}=   Set Variable   imdata[0].fvAEPg.children[?fvRsDomAtt.attributes.tDn=='uni/vmmp-Nutanix/dom-{{ vmm_name }}'] | [0].fvRsDomAtt
 {% if vmm.vlan is defined %}
-    Should Be Equal Value Json String   ${r}   ${conn}.attributes.encap   vlan-{{ vmm.vlan }}
+    Should Be Equal JMESPath Json   ${r}   ${conn}.attributes.encap   vlan-{{ vmm.vlan }}
 {% endif %}
-    Should Be Equal Value Json String   ${r}   ${conn}.attributes.instrImedcy   {{ vmm.deployment_immediacy  | default(defaults.apic.tenants.application_profiles.endpoint_groups.nutanix_vmm_domains.deployment_immediacy) }}
-    Should Be Equal Value Json String   ${r}   ${conn}.attributes.customEpgName   {{ vmm.custom_epg_name | default() }}
+    Should Be Equal JMESPath Json   ${r}   ${conn}.attributes.instrImedcy   {{ vmm.deployment_immediacy  | default(defaults.apic.tenants.application_profiles.endpoint_groups.nutanix_vmm_domains.deployment_immediacy) }}
+    Should Be Equal JMESPath Json   ${r}   ${conn}.attributes.customEpgName   {{ vmm.custom_epg_name | default() }}
 {% if vmm.ipam.gateway_address is defined %}
-    Should Be Equal Value Json String   ${r}   ${conn}.attributes.ipamEnabled   yes
-    Should Be Equal Value Json String   ${r}   ${conn}.attributes.ipamGateway   {{ vmm.ipam.gateway_address }}
-{% endif %} 
+    Should Be Equal JMESPath Json   ${r}   ${conn}.attributes.ipamEnabled   yes
+    Should Be Equal JMESPath Json   ${r}   ${conn}.attributes.ipamGateway   {{ vmm.ipam.gateway_address }}
+{% endif %}
 {% if vmm.ipam.dhcp_server_address_override is defined %}
-    Should Be Equal Value Json String   ${r}   ${conn}.attributes.ipamDhcpOverride   {{ vmm.ipam.dhcp_server_address_override }}
+    Should Be Equal JMESPath Json   ${r}   ${conn}.attributes.ipamDhcpOverride   {{ vmm.ipam.dhcp_server_address_override }}
 {% endif %}
 {% if vmm.ipam.dhcp_address_pool is defined %}
-    Should Be Equal Value Json String   ${r}   ${conn}..fvRsAddrMgmtPool.attributes.tDn   uni/tn-{{ tenant.name }}/ipampool-{{ vmm.ipam.dhcp_address_pool }}
+    Should Be Equal JMESPath Json   ${r}   ${conn}.children[?fvAEPgAddrMgmtPoolAtt] | [0].fvAEPgAddrMgmtPoolAtt.children[?fvRsAddrMgmtPool] | [0].fvRsAddrMgmtPool.attributes.tDn   uni/tn-{{ tenant.name }}/ipampool-{{ vmm.ipam.dhcp_address_pool }}
 {% endif %}
 {% endfor %}
 
@@ -160,19 +160,19 @@ Verify Endpoint Group {{ epg_name }} VMM Domain {{ vmm_name }}
         {% endif %}
     {% endif %}
 Verify Endpoint Group {{ epg_name }} Static Ports {{ sp_tdn }}
-    ${sp}=   Set Variable   $..fvAEPg.children[?(@.fvRsPathAtt.attributes.tDn=='{{ sp_tdn }}')].fvRsPathAtt
-    Should Be Equal Value Json String   ${r}   ${sp}.attributes.encap   vlan-{{ sp.vlan }}
-    Should Be Equal Value Json String   ${r}   ${sp}.attributes.descr   {{ sp.description | default() }}
-    Should Be Equal Value Json String   ${r}   ${sp}.attributes.instrImedcy   {{ sp.deployment_immediacy | default(defaults.apic.tenants.application_profiles.endpoint_groups.static_ports.deployment_immediacy) }}
-    Should Be Equal Value Json String   ${r}   ${sp}.attributes.mode   {{ sp.mode | default(defaults.apic.tenants.application_profiles.endpoint_groups.static_ports.mode) }}
-    Should Be Equal Value Json String   ${r}   ${sp}.attributes.tDn   {{ sp_tdn }}
+    ${sp}=   Set Variable   imdata[0].fvAEPg.children[?fvRsPathAtt.attributes.tDn=='{{ sp_tdn }}'] | [0]
+    Should Be Equal JMESPath Json   ${r}   ${sp}.fvRsPathAtt.attributes.encap   vlan-{{ sp.vlan }}
+    Should Be Equal JMESPath Json   ${r}   ${sp}.fvRsPathAtt.attributes.descr   {{ sp.description | default() }}
+    Should Be Equal JMESPath Json   ${r}   ${sp}.fvRsPathAtt.attributes.instrImedcy   {{ sp.deployment_immediacy | default(defaults.apic.tenants.application_profiles.endpoint_groups.static_ports.deployment_immediacy) }}
+    Should Be Equal JMESPath Json   ${r}   ${sp}.fvRsPathAtt.attributes.mode   {{ sp.mode | default(defaults.apic.tenants.application_profiles.endpoint_groups.static_ports.mode) }}
+    Should Be Equal JMESPath Json   ${r}   ${sp}.fvRsPathAtt.attributes.tDn   {{ sp_tdn }}
 {% if sp.primary_vlan is defined %}
-    Should Be Equal Value Json String   ${r}   ${sp}.attributes.primaryEncap   vlan-{{ sp.primary_vlan }}
+    Should Be Equal JMESPath Json   ${r}   ${sp}.fvRsPathAtt.attributes.primaryEncap   vlan-{{ sp.primary_vlan }}
 {% endif %}
 {% if sp.ptp is defined %}
-    Should Be Equal Value Json String   ${r}   ${sp}.children..ptpEpgCfg.attributes.ptpMode   {{ sp.ptp.mode | default(defaults.apic.tenants.application_profiles.endpoint_groups.static_ports.ptp.mode) }}
-    Should Be Equal Value Json String   ${r}   ${sp}.children..ptpEpgCfg.attributes.srcIp   {{ sp.ptp.source_ip | default(defaults.apic.tenants.application_profiles.endpoint_groups.static_ports.ptp.source_ip) }}
-    Should Be Equal Value Json String   ${r}   ${sp}.children..ptpEpgCfg.attributes.profileName   {{ sp.ptp.profile | default(defaults.apic.tenants.application_profiles.endpoint_groups.static_ports.ptp.profile) }}
+    Should Be Equal JMESPath Json   ${r}   ${sp}.fvRsPathAtt.children[?ptpEpgCfg] | [0].ptpEpgCfg.attributes.ptpMode   {{ sp.ptp.mode | default(defaults.apic.tenants.application_profiles.endpoint_groups.static_ports.ptp.mode) }}
+    Should Be Equal JMESPath Json   ${r}   ${sp}.fvRsPathAtt.children[?ptpEpgCfg] | [0].ptpEpgCfg.attributes.srcIp   {{ sp.ptp.source_ip | default(defaults.apic.tenants.application_profiles.endpoint_groups.static_ports.ptp.source_ip) }}
+    Should Be Equal JMESPath Json   ${r}   ${sp}.fvRsPathAtt.children[?ptpEpgCfg] | [0].ptpEpgCfg.attributes.profileName   {{ sp.ptp.profile | default(defaults.apic.tenants.application_profiles.endpoint_groups.static_ports.ptp.profile) }}
 {% endif %}
 {% endfor %}
 
@@ -181,11 +181,11 @@ Verify Endpoint Group {{ epg_name }} Static Ports {{ sp_tdn }}
 {% set pod = sl.pod_id | default(((apic.node_policies | default()) | community.general.json_query(query))[0] | default('1')) %}
 
 Verify Endpoint Group {{ epg_name }} Static Leaf {{ sl.node_id }}
-    ${sl}=   Set Variable   $..fvAEPg.children[?(@.fvRsNodeAtt.attributes.tDn=='topology/pod-{{ pod }}/node-{{ sl.node_id }}')].fvRsNodeAtt
-    Should Be Equal Value Json String   ${r}   ${sl}.attributes.encap   vlan-{{ sl.vlan }}
-    Should Be Equal Value Json String   ${r}   ${sl}.attributes.instrImedcy   {{ sl.deployment_immediacy | default(defaults.apic.tenants.application_profiles.endpoint_groups.static_leafs.deployment_immediacy) }}
-    Should Be Equal Value Json String   ${r}   ${sl}.attributes.mode   {{ sl.mode | default(defaults.apic.tenants.application_profiles.endpoint_groups.static_leafs.mode) }}
-    Should Be Equal Value Json String   ${r}   ${sl}.attributes.tDn   topology/pod-{{ pod }}/node-{{ sl.node_id }}
+    ${sl}=   Set Variable   imdata[0].fvAEPg.children[?fvRsNodeAtt.attributes.tDn=='topology/pod-{{ pod }}/node-{{ sl.node_id }}'] | [0]
+    Should Be Equal JMESPath Json   ${r}   ${sl}.fvRsNodeAtt.attributes.encap   vlan-{{ sl.vlan }}
+    Should Be Equal JMESPath Json   ${r}   ${sl}.fvRsNodeAtt.attributes.instrImedcy   {{ sl.deployment_immediacy | default(defaults.apic.tenants.application_profiles.endpoint_groups.static_leafs.deployment_immediacy) }}
+    Should Be Equal JMESPath Json   ${r}   ${sl}.fvRsNodeAtt.attributes.mode   {{ sl.mode | default(defaults.apic.tenants.application_profiles.endpoint_groups.static_leafs.mode) }}
+    Should Be Equal JMESPath Json   ${r}   ${sl}.fvRsNodeAtt.attributes.tDn   topology/pod-{{ pod }}/node-{{ sl.node_id }}
 
 {% endfor %}
 
@@ -193,24 +193,24 @@ Verify Endpoint Group {{ epg_name }} Static Leaf {{ sl.node_id }}
 {% set static_endpoint_rn = 'stcep-' ~ st_ep.mac + '-type-' ~ st_ep.type %}
 
 Verify Endpoint Group {{ epg_name }} Static Endpoint {{ st_ep.mac }}
-    ${con}=   Set Variable   $..fvAEPg.children[?(@.fvStCEp.attributes.rn=='{{ static_endpoint_rn }}')].fvStCEp
+    ${con}=   Set Variable   imdata[0].fvAEPg.children[?fvStCEp.attributes.rn=='{{ static_endpoint_rn }}'] | [0]
     {% if st_ep.type != "vep" %}
-    Should Be Equal Value Json String   ${r}   ${con}.attributes.encap   vlan-{{ st_ep.vlan }}
+    Should Be Equal JMESPath Json   ${r}   ${con}.fvStCEp.attributes.encap   vlan-{{ st_ep.vlan }}
     {% else %}
-    Should Be Equal Value Json String   ${r}   ${con}.attributes.encap   unknown
+    Should Be Equal JMESPath Json   ${r}   ${con}.fvStCEp.attributes.encap   unknown
     {% endif %}
-    Should Be Equal Value Json String   ${r}   ${con}.attributes.ip   {{ st_ep.ip | default(defaults.apic.tenants.application_profiles.endpoint_groups.static_endpoints.ip)}}
-    Should Be Equal Value Json String   ${r}   ${con}.attributes.mac   {{ st_ep.mac }}
+    Should Be Equal JMESPath Json   ${r}   ${con}.fvStCEp.attributes.ip   {{ st_ep.ip | default(defaults.apic.tenants.application_profiles.endpoint_groups.static_endpoints.ip)}}
+    Should Be Equal JMESPath Json   ${r}   ${con}.fvStCEp.attributes.mac   {{ st_ep.mac }}
     {% if st_ep.name is defined %}
-    Should Be Equal Value Json String   ${r}   ${con}.attributes.name   {{ st_ep.name ~ defaults.apic.tenants.application_profiles.endpoint_groups.static_endpoints.name_suffix }}
+    Should Be Equal JMESPath Json   ${r}   ${con}.fvStCEp.attributes.name   {{ st_ep.name ~ defaults.apic.tenants.application_profiles.endpoint_groups.static_endpoints.name_suffix }}
     {% endif %}
-    Should Be Equal Value Json String   ${r}   ${con}.attributes.nameAlias   {{ st_ep.alias | default() }}
-    Should Be Equal Value Json String   ${r}   ${con}.attributes.type   {{ st_ep.type }}
+    Should Be Equal JMESPath Json   ${r}   ${con}.fvStCEp.attributes.nameAlias   {{ st_ep.alias | default() }}
+    Should Be Equal JMESPath Json   ${r}   ${con}.fvStCEp.attributes.type   {{ st_ep.type }}
     {% if st_ep.type != "vep" %}
     {% if st_ep.node_id is defined and st_ep.channel is not defined %}
     {% set query = "nodes[?id==`" ~ st_ep.node_id ~ "`].pod" %}
     {% set pod = st_ep.pod_id | default(((apic.node_policies | default()) | community.general.json_query(query))[0] | default('1')) %}
-    Should Be Equal Value Json String   ${r}   ${con}.children..fvRsStCEpToPathEp.attributes.tDn   topology/pod-{{ pod }}/paths-{{ st_ep.node_id }}/pathep-[eth{{ st_ep.module | default(defaults.apic.tenants.application_profiles.endpoint_groups.static_ports.module) }}/{{ st_ep.port }}]
+    Should Be Equal JMESPath Json   ${r}   ${con}.fvStCEp.children[?fvRsStCEpToPathEp] | [0].fvRsStCEpToPathEp.attributes.tDn   topology/pod-{{ pod }}/paths-{{ st_ep.node_id }}/pathep-[eth{{ st_ep.module | default(defaults.apic.tenants.application_profiles.endpoint_groups.static_ports.module) }}/{{ st_ep.port }}]
     {% else %}
     {% set policy_group_name = st_ep.channel ~ defaults.apic.access_policies.leaf_interface_policy_groups.name_suffix %}
     {% set query = "leaf_interface_policy_groups[?name==`" ~ st_ep.channel ~ "`].type" %}
@@ -231,31 +231,31 @@ Verify Endpoint Group {{ epg_name }} Static Endpoint {{ st_ep.mac }}
     {% set node2 = (apic.interface_policies | default() | community.general.json_query(query))[1] %}
     {% if node2 < node %}{% set node_tmp = node %}{% set node = node2 %}{% set node2 = node_tmp %}{% endif %}
     {% endif %}
-    Should Be Equal Value Json String   ${r}   ${con}.children..fvRsStCEpToPathEp.attributes.tDn   topology/pod-{{ pod }}/protpaths-{{ node }}-{{ node2 }}/pathep-[{{ policy_group_name }}]
+    Should Be Equal JMESPath Json   ${r}   ${con}.fvStCEp.children[?fvRsStCEpToPathEp] | [0].fvRsStCEpToPathEp.attributes.tDn   topology/pod-{{ pod }}/protpaths-{{ node }}-{{ node2 }}/pathep-[{{ policy_group_name }}]
     {% else %}
-    Should Be Equal Value Json String   ${r}   ${con}.children..fvRsStCEpToPathEp.attributes.tDn   topology/pod-{{ pod }}/paths-{{ node }}/pathep-[{{ policy_group_name }}]
+    Should Be Equal JMESPath Json   ${r}   ${con}.fvStCEp.children[?fvRsStCEpToPathEp] | [0].fvRsStCEpToPathEp.attributes.tDn   topology/pod-{{ pod }}/paths-{{ node }}/pathep-[{{ policy_group_name }}]
     {% endif %}
     {% endif %}
     {% endif %}
 {% for ip in st_ep.additional_ips | default([]) %}
-    ${ip}=   Set Variable   ${con}.children[?(@.fvStIp.attributes.addr=='{{ ip }}')].fvStIp
-    Should Be Equal Value Json String   ${r}   ${ip}.attributes.addr   {{ ip }}
+    ${ip}=   Set Variable   ${con}.fvStCEp.children[?fvStIp.attributes.addr=='{{ ip }}'] | [0]
+    Should Be Equal JMESPath Json   ${r}   ${ip}.fvStIp.attributes.addr   {{ ip }}
 {% endfor %}
 {% endfor %}
 
 {% for master in epg.contracts.masters | default([]) %}
     {% set app_profile_name = (master.application_profile | default(ap_name)) %}
 Verify EPG Contract Master 'uni/tn-{{ tenant.name }}/ap-{{ app_profile_name }}/epg-{{ master.endpoint_group }}'
-    ${con_master}=   Set Variable   $..fvAEPg.children[?(@.fvRsSecInherited.attributes.tDn=='uni/tn-{{ tenant.name }}/ap-{{ app_profile_name }}/epg-{{ master.endpoint_group }}')]
-    Should Not Be Empty   ${con_master}..fvRsSecInherited.attributes.tDn
+    ${con_master}=   Set Variable   imdata[0].fvAEPg.children[?fvRsSecInherited.attributes.tDn=='uni/tn-{{ tenant.name }}/ap-{{ app_profile_name }}/epg-{{ master.endpoint_group }}'] | [0]
+    Should Not Be Empty   ${con_master}.fvRsSecInherited.attributes.tDn
 {% endfor %}
 
 {% for contract in epg.contracts.providers | default([]) %}
 {% set contract_name = contract ~ defaults.apic.tenants.contracts.name_suffix %}
 
 Verify Endpoint Group {{ epg_name }} Contract Provider {{ contract_name }}
-    ${con}=   Set Variable   $..fvAEPg.children[?(@.fvRsProv.attributes.tnVzBrCPName=='{{ contract_name }}')]
-    Should Be Equal Value Json String   ${r}   ${con}..fvRsProv.attributes.tnVzBrCPName   {{ contract_name }}
+    ${con}=   Set Variable   imdata[0].fvAEPg.children[?fvRsProv.attributes.tnVzBrCPName=='{{ contract_name }}'] | [0]
+    Should Be Equal JMESPath Json   ${r}   ${con}.fvRsProv.attributes.tnVzBrCPName   {{ contract_name }}
 
 {% endfor %}
 
@@ -263,8 +263,8 @@ Verify Endpoint Group {{ epg_name }} Contract Provider {{ contract_name }}
 {% set contract_name = contract ~ defaults.apic.tenants.contracts.name_suffix %}
 
 Verify Endpoint Group {{ epg_name }} Contract Consumers {{ contract_name }}
-    ${con}=   Set Variable   $..fvAEPg.children[?(@.fvRsCons.attributes.tnVzBrCPName=='{{ contract_name }}')]
-    Should Be Equal Value Json String   ${r}   ${con}..fvRsCons.attributes.tnVzBrCPName   {{ contract_name }}
+    ${con}=   Set Variable   imdata[0].fvAEPg.children[?fvRsCons.attributes.tnVzBrCPName=='{{ contract_name }}'] | [0]
+    Should Be Equal JMESPath Json   ${r}   ${con}.fvRsCons.attributes.tnVzBrCPName   {{ contract_name }}
 
 {% endfor %}
 
@@ -272,8 +272,8 @@ Verify Endpoint Group {{ epg_name }} Contract Consumers {{ contract_name }}
 {% set contract_name = contract ~ defaults.apic.tenants.imported_contracts.name_suffix %}
 
 Verify Endpoint Group {{ epg_name }} Imported Contract {{ contract_name }}
-    ${con}=   Set Variable   $..fvAEPg.children[?(@.fvRsConsIf.attributes.tnVzCPIfName=='{{ contract_name }}')]
-    Should Be Equal Value Json String   ${r}   ${con}..fvRsConsIf.attributes.tnVzCPIfName   {{ contract_name }}
+    ${con}=   Set Variable   imdata[0].fvAEPg.children[?fvRsConsIf.attributes.tnVzCPIfName=='{{ contract_name }}'] | [0]
+    Should Be Equal JMESPath Json   ${r}   ${con}.fvRsConsIf.attributes.tnVzCPIfName   {{ contract_name }}
 
 {% endfor %}
 
@@ -281,8 +281,8 @@ Verify Endpoint Group {{ epg_name }} Imported Contract {{ contract_name }}
 {% set contract_name = contract ~ defaults.apic.tenants.contracts.name_suffix %}
 
 Verify Endpoint Group {{ epg_name }} Intra-EPG Contract {{ contract_name }}
-    ${con}=   Set Variable   $..fvAEPg.children[?(@.fvRsIntraEpg.attributes.tnVzBrCPName=='{{ contract_name }}')]
-    Should Be Equal Value Json String   ${r}   ${con}..fvRsIntraEpg.attributes.tnVzBrCPName   {{ contract_name }}
+    ${con}=   Set Variable   imdata[0].fvAEPg.children[?fvRsIntraEpg.attributes.tnVzBrCPName=='{{ contract_name }}'] | [0]
+    Should Be Equal JMESPath Json   ${r}   ${con}.fvRsIntraEpg.attributes.tnVzBrCPName   {{ contract_name }}
 
 {% endfor %}
 
@@ -290,8 +290,8 @@ Verify Endpoint Group {{ epg_name }} Intra-EPG Contract {{ contract_name }}
 {% set domain_name = pd ~ defaults.apic.access_policies.physical_domains.name_suffix %}
 
 Verify Endpoint Group {{ epg_name }} Physical Domain {{ domain_name }}
-    ${conn}=   Set Variable   $..fvAEPg.children[?(@.fvRsDomAtt.attributes.tDn=='uni/phys-{{ domain_name }}')].fvRsDomAtt
-    Should Be Equal Value Json String   ${r}   ${conn}.attributes.tDn   uni/phys-{{ domain_name }}
+    ${conn}=   Set Variable   imdata[0].fvAEPg.children[?fvRsDomAtt.attributes.tDn=='uni/phys-{{ domain_name }}'] | [0]
+    Should Be Equal JMESPath Json   ${r}   ${conn}.fvRsDomAtt.attributes.tDn   uni/phys-{{ domain_name }}
 
 {% endfor %}
 
@@ -304,41 +304,41 @@ Verify Endpoint Group {{ epg_name }} Physical Domain {{ domain_name }}
 {% if subnet.no_default_gateway | default(defaults.apic.tenants.application_profiles.endpoint_groups.subnets.no_default_gateway) %}{% set ctrl = ctrl + [("no-default-gateway")] %}{% endif %}
 {% if subnet.igmp_querier | default(defaults.apic.tenants.application_profiles.endpoint_groups.subnets.igmp_querier) %}{% set ctrl = ctrl + [("querier")] %}{% endif %}
 Verify Endpoint Group {{ epg_name }} Subnet {{ subnet.ip }}
-    ${subnet}=   Set Variable   $..fvAEPg.children[?(@.fvSubnet.attributes.ip=='{{ subnet.ip }}')]
-    Should Be Equal Value Json String   ${r}   ${subnet}..fvSubnet.attributes.ip   {{ subnet.ip }}
-    Should Be Equal Value Json String   ${r}   ${subnet}..fvSubnet.attributes.ctrl   {{ ctrl | join(',') }}
-    Should Be Equal Value Json String   ${r}   ${subnet}..fvSubnet.attributes.descr   {{ subnet.description | default() }}
-    Should Be Equal Value Json String   ${r}   ${subnet}..fvSubnet.attributes.scope   {{ scope | join(',') }}
-    Should Be Equal Value Json String   ${r}   ${subnet}..fvSubnet.attributes.virtual   {{ 'yes' if subnet.virtual | default(defaults.apic.tenants.application_profiles.endpoint_groups.subnets.virtual) else 'no' }}
+    ${subnet}=   Set Variable   imdata[0].fvAEPg.children[?fvSubnet.attributes.ip=='{{ subnet.ip }}'] | [0]
+    Should Be Equal JMESPath Json   ${r}   ${subnet}.fvSubnet.attributes.ip   {{ subnet.ip }}
+    Should Be Equal JMESPath Json   ${r}   ${subnet}.fvSubnet.attributes.ctrl   {{ ctrl | join(',') }}
+    Should Be Equal JMESPath Json   ${r}   ${subnet}.fvSubnet.attributes.descr   {{ subnet.description | default() }}
+    Should Be Equal JMESPath Json   ${r}   ${subnet}.fvSubnet.attributes.scope   {{ scope | join(',') }}
+    Should Be Equal JMESPath Json   ${r}   ${subnet}.fvSubnet.attributes.virtual   {{ 'yes' if subnet.virtual | default(defaults.apic.tenants.application_profiles.endpoint_groups.subnets.virtual) else 'no' }}
 {% if subnet.ip_dataplane_learning is defined %}
-    Should Be Equal Value Json String   ${r}   ${subnet}..fvSubnet.attributes.ipDPLearning   {{ 'enabled' if subnet.ip_dataplane_learning else 'disabled' }}
+    Should Be Equal JMESPath Json   ${r}   ${subnet}.fvSubnet.attributes.ipDPLearning   {{ 'enabled' if subnet.ip_dataplane_learning else 'disabled' }}
 {% endif %}
 {% if subnet.next_hop_ip is defined %}
-    Should Be Equal Value Json String   ${r}   ${subnet}..ipNexthopEpP.attributes.nhAddr   {{ subnet.next_hop_ip }}
+    Should Be Equal JMESPath Json   ${r}   ${subnet}.fvSubnet.children[?fvEpReachability] | [0].fvEpReachability.children[?ipNexthopEpP] | [0].ipNexthopEpP.attributes.nhAddr   {{ subnet.next_hop_ip }}
 {% elif subnet.anycast_mac is defined %}
-    Should Be Equal Value Json String   ${r}   ${subnet}..fvEpAnycast.attributes.mac   {{ subnet.anycast_mac }}
+    Should Be Equal JMESPath Json   ${r}   ${subnet}.fvSubnet.children[?fvEpAnycast] | [0].fvEpAnycast.attributes.mac   {{ subnet.anycast_mac }}
 {% elif subnet.nlb_mode is defined %}
-    Should Be Equal Value Json String   ${r}   ${subnet}..fvEpNlb.attributes.group   {{ subnet.nlb_group | default(defaults.apic.tenants.application_profiles.endpoint_groups.subnets.nlb_group) }}
-    Should Be Equal Value Json String   ${r}   ${subnet}..fvEpNlb.attributes.mac   {{ subnet.nlb_mac | default(defaults.apic.tenants.application_profiles.endpoint_groups.subnets.nlb_mac) }}
-    Should Be Equal Value Json String   ${r}   ${subnet}..fvEpNlb.attributes.mode   {{ get_nlb_mode(subnet.nlb_mode) }}
+    Should Be Equal JMESPath Json   ${r}   ${subnet}.fvSubnet.children[?fvEpNlb] | [0].fvEpNlb.attributes.group   {{ subnet.nlb_group | default(defaults.apic.tenants.application_profiles.endpoint_groups.subnets.nlb_group) }}
+    Should Be Equal JMESPath Json   ${r}   ${subnet}.fvSubnet.children[?fvEpNlb] | [0].fvEpNlb.attributes.mac   {{ subnet.nlb_mac | default(defaults.apic.tenants.application_profiles.endpoint_groups.subnets.nlb_mac) }}
+    Should Be Equal JMESPath Json   ${r}   ${subnet}.fvSubnet.children[?fvEpNlb] | [0].fvEpNlb.attributes.mode   {{ get_nlb_mode(subnet.nlb_mode) }}
 {% endif %}
 {% if subnet.nd_ra_prefix_policy is defined %}
 {% set nd_ra_prefix_policy_name = subnet.nd_ra_prefix_policy ~ defaults.apic.tenants.policies.nd_ra_prefix_policies.name_suffix %}
-    Should Be Equal Value Json String   ${r}   ${subnet}..fvSubnet.children..fvRsNdPfxPol.attributes.tnNdPfxPolName   {{ nd_ra_prefix_policy_name }}
+    Should Be Equal JMESPath Json   ${r}   ${subnet}.fvSubnet.children[?fvRsNdPfxPol] | [0].fvRsNdPfxPol.attributes.tnNdPfxPolName   {{ nd_ra_prefix_policy_name }}
 {% endif %}
 
 {% for pool in subnet.ip_pools | default([]) %}
 {% set pool_name = pool.name ~ defaults.apic.tenants.application_profiles.endpoint_groups.subnets.ip_pools.name_suffix %}
 Verify Endpoint Group {{ epg_name }} Subnet {{ subnet.ip }} IP Address Pool {{ pool_name }}
-    ${subnet}=   Set Variable   $..fvAEPg.children[?(@.fvSubnet.attributes.ip=='{{ subnet.ip }}')].fvSubnet
-    ${pool}=   Set Variable   ${subnet}.children[?(@.fvCepNetCfgPol.attributes.name=='{{ pool_name }}')]
-    Should Be Equal Value Json String   ${r}   ${pool}..fvCepNetCfgPol.attributes.name   {{ pool_name }}
-    Should Be Equal Value Json String   ${r}   ${pool}..fvCepNetCfgPol.attributes.startIp   {{ pool.start_ip | default(defaults.apic.tenants.application_profiles.endpoint_groups.subnets.ip_pools.start_ip) }}
-    Should Be Equal Value Json String   ${r}   ${pool}..fvCepNetCfgPol.attributes.endIp   {{ pool.end_ip | default(defaults.apic.tenants.application_profiles.endpoint_groups.subnets.ip_pools.end_ip) }}
-    Should Be Equal Value Json String   ${r}   ${pool}..fvCepNetCfgPol.attributes.dnsSearchSuffix   {{ pool.dns_search_suffix | default() }}
-    Should Be Equal Value Json String   ${r}   ${pool}..fvCepNetCfgPol.attributes.dnsServers   {{ pool.dns_server | default() }}
-    Should Be Equal Value Json String   ${r}   ${pool}..fvCepNetCfgPol.attributes.dnsSuffix   {{ pool.dns_suffix | default() }}
-    Should Be Equal Value Json String   ${r}   ${pool}..fvCepNetCfgPol.attributes.winsServers   {{ pool.wins_server | default() }}
+    ${subnet}=   Set Variable   imdata[0].fvAEPg.children[?fvSubnet.attributes.ip=='{{ subnet.ip }}'] | [0].fvSubnet
+    ${pool}=   Set Variable   ${subnet}.children[?fvCepNetCfgPol.attributes.name=='{{ pool_name }}'] | [0]
+    Should Be Equal JMESPath Json   ${r}   ${pool}.fvCepNetCfgPol.attributes.name   {{ pool_name }}
+    Should Be Equal JMESPath Json   ${r}   ${pool}.fvCepNetCfgPol.attributes.startIp   {{ pool.start_ip | default(defaults.apic.tenants.application_profiles.endpoint_groups.subnets.ip_pools.start_ip) }}
+    Should Be Equal JMESPath Json   ${r}   ${pool}.fvCepNetCfgPol.attributes.endIp   {{ pool.end_ip | default(defaults.apic.tenants.application_profiles.endpoint_groups.subnets.ip_pools.end_ip) }}
+    Should Be Equal JMESPath Json   ${r}   ${pool}.fvCepNetCfgPol.attributes.dnsSearchSuffix   {{ pool.dns_search_suffix | default() }}
+    Should Be Equal JMESPath Json   ${r}   ${pool}.fvCepNetCfgPol.attributes.dnsServers   {{ pool.dns_server | default() }}
+    Should Be Equal JMESPath Json   ${r}   ${pool}.fvCepNetCfgPol.attributes.dnsSuffix   {{ pool.dns_suffix | default() }}
+    Should Be Equal JMESPath Json   ${r}   ${pool}.fvCepNetCfgPol.attributes.winsServers   {{ pool.wins_server | default() }}
 
 {% endfor %}
 
@@ -347,15 +347,15 @@ Verify Endpoint Group {{ epg_name }} Subnet {{ subnet.ip }} IP Address Pool {{ p
 {% if epg.custom_qos_policy is defined %}
 {% set custom_qos_policy_name = epg.custom_qos_policy ~ defaults.apic.tenants.policies.custom_qos.name_suffix %}
 Verify Endpoint Group {{ epg_name }} Custom QoS Policy
-    Should Be Equal Value Json String   ${r}   $..fvRsCustQosPol.attributes.tnQosCustomPolName   {{ custom_qos_policy_name }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].fvAEPg.children[?fvRsCustQosPol] | [0].fvRsCustQosPol.attributes.tnQosCustomPolName   {{ custom_qos_policy_name }}
 {% endif %}
 
 {% if epg.tags is defined %}
 Verify Endpoint Group {{ epg_name }} Tags
 {% for tag in epg.tags | default([]) %}
 
-    ${tag}=   Set Variable   $..fvAEPg.children[?(@.tagInst.attributes.name=='{{ tag }}')]
-    Should Be Equal Value Json String   ${r}   ${tag}..attributes.name   {{ tag }}
+    ${tag}=   Set Variable   imdata[0].fvAEPg.children[?tagInst.attributes.name=='{{ tag }}'] | [0]
+    Should Be Equal JMESPath Json   ${r}   ${tag}.tagInst.attributes.name   {{ tag }}
 
 {% endfor %}
 
@@ -363,20 +363,20 @@ Verify Endpoint Group {{ epg_name }} Tags
 
 {% for vip in epg.l4l7_virtual_ips | default([]) %}
 Verify Endpoint Group {{ epg_name }} L4-L7 Virtual IP {{ vip.ip }}
-    ${vip}=   Set Variable   $..fvAEPg.children[?(@.fvVip.attributes.addr=='{{ vip.ip }}')].fvVip
-    Should Be Equal Value Json String   ${r}   ${vip}.attributes.addr   {{ vip.ip }}
-    Should Be Equal Value Json String   ${r}   ${vip}.attributes.descr   {{ vip. description | default() }}
+    ${vip}=   Set Variable   imdata[0].fvAEPg.children[?fvVip.attributes.addr=='{{ vip.ip }}'] | [0]
+    Should Be Equal JMESPath Json   ${r}   ${vip}.fvVip.attributes.addr   {{ vip.ip }}
+    Should Be Equal JMESPath Json   ${r}   ${vip}.fvVip.attributes.descr   {{ vip. description | default() }}
 
 {% endfor %}
 
 {% for pool in epg.l4l7_address_pools | default([]) %}
 Verify Endpoint Group {{ epg_name }} L4-L7 IP Address Pool {{ pool.name }}
-    ${pool}=   Set Variable   $..fvAEPg.children[?(@.vnsAddrInst.attributes.name=='{{ pool.name }}')].vnsAddrInst
-    Should Be Equal Value Json String   ${r}   ${pool}.attributes.name   {{ pool.name }}
-    Should Be Equal Value Json String   ${r}   ${pool}.attributes.addr   {{ pool.gateway_address }}
+    ${pool}=   Set Variable   imdata[0].fvAEPg.children[?vnsAddrInst.attributes.name=='{{ pool.name }}'] | [0]
+    Should Be Equal JMESPath Json   ${r}   ${pool}.vnsAddrInst.attributes.name   {{ pool.name }}
+    Should Be Equal JMESPath Json   ${r}   ${pool}.vnsAddrInst.attributes.addr   {{ pool.gateway_address }}
 {% if pool.from is defined and pool.to is defined %}
-    Should Be Equal Value Json String   ${r}   ${pool}..fvnsUcastAddrBlk.attributes.from   {{ pool.from }}
-    Should Be Equal Value Json String   ${r}   ${pool}..fvnsUcastAddrBlk.attributes.to   {{ pool.to }}
+    Should Be Equal JMESPath Json   ${r}   ${pool}.vnsAddrInst.children[?fvnsUcastAddrBlk] | [0].fvnsUcastAddrBlk.attributes.from   {{ pool.from }}
+    Should Be Equal JMESPath Json   ${r}   ${pool}.vnsAddrInst.children[?fvnsUcastAddrBlk] | [0].fvnsUcastAddrBlk.attributes.to   {{ pool.to }}
 {% endif %}
 
 {% endfor %}
@@ -384,13 +384,13 @@ Verify Endpoint Group {{ epg_name }} L4-L7 IP Address Pool {{ pool.name }}
 {% if epg.trust_control_policy is defined %}
 {% set trust_control_policy_name = epg.trust_control_policy ~ defaults.apic.tenants.policies.trust_control_policies.name_suffix %}
 Verify Endpoint Group {{ epg_name }} Trust Control Policy {{ trust_control_policy_name }}
-    Should Be Equal Value Json String   ${r}   $..fvRsTrustCtrl.attributes.tnFhsTrustCtrlPolName   {{ trust_control_policy_name }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].fvAEPg.children[?fvRsTrustCtrl] | [0].fvRsTrustCtrl.attributes.tnFhsTrustCtrlPolName   {{ trust_control_policy_name }}
 {% endif %}
 
 {% if epg.data_plane_policing_policy is defined %}
 {% set dpp_name = epg.data_plane_policing_policy ~ defaults.apic.tenants.policies.data_plane_policing_policies.name_suffix %}
 Verify Endpoint Group {{ epg_name }} Data Plane Policing Policy
-    Should Be Equal Value Json String   ${r}   $..fvRsDppPol.attributes.tnQosDppPolName   {{ dpp_name }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].fvAEPg.children[?fvRsDppPol] | [0].fvRsDppPol.attributes.tnQosDppPolName   {{ dpp_name }}
 {% endif %}
 
 {% endfor %}

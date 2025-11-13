@@ -23,14 +23,14 @@ Verify Fabric Leaf Interface Node {{ _node.id }} Port {{ module }}/{{ int.port }
     Set Suite Variable   $r   ${r.json()}
 {% if int.policy_group is defined %}
 {% set policy_group_name = int.policy_group ~ defaults.apic.fabric_policies.leaf_interface_policy_groups.name_suffix %}
-    Should Be Equal Value Json String   ${r}    $..attributes.assocGrp   uni/fabric/funcprof/leportgrp-{{ policy_group_name }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].fabricPortConfig.attributes.assocGrp   uni/fabric/funcprof/leportgrp-{{ policy_group_name }}
 {% endif %}
-    Should Be Equal Value Json String   ${r}    $..attributes.card   {{ module }}
-    Should Be Equal Value Json String   ${r}    $..attributes.description   {{ int.description | default() }}
-    Should Be Equal Value Json String   ${r}    $..attributes.node   {{ _node.id }}
-    Should Be Equal Value Json String   ${r}    $..attributes.port   {{ int.port }}
-    Should Be Equal Value Json String   ${r}    $..attributes.role   {{ _node.role }}
-    Should Be Equal Value Json String   ${r}    $..attributes.shutdown   {{ 'yes' if int.shutdown | default(defaults.apic.interface_policies.nodes.interfaces.shutdown) else 'no' }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].fabricPortConfig.attributes.card   {{ module }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].fabricPortConfig.attributes.description   {{ int.description | default() }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].fabricPortConfig.attributes.node   {{ _node.id }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].fabricPortConfig.attributes.port   {{ int.port }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].fabricPortConfig.attributes.role   {{ _node.role }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].fabricPortConfig.attributes.shutdown   {{ 'yes' if int.shutdown | default(defaults.apic.interface_policies.nodes.interfaces.shutdown) else 'no' }}
 
 {% for sub in int.sub_ports | default([]) %}
 
@@ -39,15 +39,15 @@ Verify Fabric Leaf Interface Node {{ _node.id }} Port {{ module }}/{{ int.port }
     Set Suite Variable   $r   ${r.json()}
 {% if sub.policy_group is defined %}
 {% set policy_group_name = sub.policy_group ~ defaults.apic.fabric_policies.leaf_interface_policy_groups.name_suffix %}
-    Should Be Equal Value Json String   ${r}    $..attributes.assocGrp   uni/fabric/funcprof/leportgrp-{{ policy_group_name }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].fabricPortConfig.attributes.assocGrp   uni/fabric/funcprof/leportgrp-{{ policy_group_name }}
 {% endif %}
-    Should Be Equal Value Json String   ${r}    $..attributes.card   {{ module }}
-    Should Be Equal Value Json String   ${r}    $..attributes.description   {{ sub.description | default() }}
-    Should Be Equal Value Json String   ${r}    $..attributes.node   {{ _node.id }}
-    Should Be Equal Value Json String   ${r}    $..attributes.port   {{ int.port }}
-    Should Be Equal Value Json String   ${r}    $..attributes.subPort   {{ sub.port }}
-    Should Be Equal Value Json String   ${r}    $..attributes.role   {{ _node.role }}
-    Should Be Equal Value Json String   ${r}    $..attributes.shutdown   {{ 'yes' if sub.shutdown | default(defaults.apic.interface_policies.nodes.interfaces.sub_ports.shutdown) else 'no' }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].fabricPortConfig.attributes.card   {{ module }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].fabricPortConfig.attributes.description   {{ sub.description | default() }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].fabricPortConfig.attributes.node   {{ _node.id }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].fabricPortConfig.attributes.port   {{ int.port }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].fabricPortConfig.attributes.subPort   {{ sub.port }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].fabricPortConfig.attributes.role   {{ _node.role }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].fabricPortConfig.attributes.shutdown   {{ 'yes' if sub.shutdown | default(defaults.apic.interface_policies.nodes.interfaces.sub_ports.shutdown) else 'no' }}
 
 {% endfor %}
 {% endif %}
@@ -73,14 +73,14 @@ Verify Access Spine Interface Node {{ _node.id }} Port {{ module }}/{{ int.port 
     Set Suite Variable   $r   ${r.json()}
 {% if int.policy_group is defined %}
 {% set policy_group_name = int.policy_group ~ defaults.apic.access_policies.spine_interface_policy_groups.name_suffix %}
-    Should Be Equal Value Json String   ${r}    $..attributes.assocGrp   uni/infra/funcprof/spaccportgrp-{{ policy_group_name }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraPortConfig.attributes.assocGrp   uni/infra/funcprof/spaccportgrp-{{ policy_group_name }}
 {% endif %}
-    Should Be Equal Value Json String   ${r}    $..attributes.card   {{ module }}
-    Should Be Equal Value Json String   ${r}    $..attributes.description   {{ int.description | default() }}
-    Should Be Equal Value Json String   ${r}    $..attributes.node   {{ _node.id }}
-    Should Be Equal Value Json String   ${r}    $..attributes.port   {{ int.port }}
-    Should Be Equal Value Json String   ${r}    $..attributes.role   {{ _node.role }}
-    Should Be Equal Value Json String   ${r}    $..attributes.shutdown   {{ 'yes' if int.shutdown | default(defaults.apic.interface_policies.nodes.interfaces.shutdown) else 'no' }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraPortConfig.attributes.card   {{ module }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraPortConfig.attributes.description   {{ int.description | default() }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraPortConfig.attributes.node   {{ _node.id }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraPortConfig.attributes.port   {{ int.port }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraPortConfig.attributes.role   {{ _node.role }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraPortConfig.attributes.shutdown   {{ 'yes' if int.shutdown | default(defaults.apic.interface_policies.nodes.interfaces.shutdown) else 'no' }}
 
 {% endif %}
 {% endfor %}

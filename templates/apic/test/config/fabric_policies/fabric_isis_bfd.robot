@@ -8,4 +8,4 @@ Resource        ../../apic_common.resource
 Verify Fabric ISIS BFD
     ${r}=   GET On Session   apic   /api/mo/uni/fabric/l3IfP-default.json
     Set Suite Variable   $r   ${r.json()}
-    Should Be Equal Value Json String   ${r}    $..l3IfPol.attributes.bfdIsis   {{ 'enabled' if apic.fabric_policies.fabric_isis_bfd | default(defaults.apic.fabric_policies.fabric_isis_bfd) else 'disabled' }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].l3IfPol.attributes.bfdIsis   {{ 'enabled' if apic.fabric_policies.fabric_isis_bfd | default(defaults.apic.fabric_policies.fabric_isis_bfd) else 'disabled' }}

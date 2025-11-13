@@ -11,22 +11,22 @@ Resource        ../../apic_common.resource
 Verify Spine Interface Policy Group {{ policy_group_name }}
     ${r}=   GET On Session   apic   /api/mo/uni/infra/funcprof/spaccportgrp-{{ policy_group_name }}.json   params=rsp-subtree=full
     Set Suite Variable   $r   ${r.json()}
-    Should Be Equal Value Json String   ${r}    $..infraSpAccPortGrp.attributes.name   {{ policy_group_name }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraSpAccPortGrp.attributes.name   {{ policy_group_name }}
 {% if pg.link_level_policy is defined %}
 {% set link_level_policy_name = pg.link_level_policy ~ defaults.apic.access_policies.interface_policies.link_level_policies.name_suffix %}
-    Should Be Equal Value Json String   ${r}    $..infraRsHIfPol.attributes.tnFabricHIfPolName   {{ link_level_policy_name }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraSpAccPortGrp.children[?infraRsHIfPol] | [0].infraRsHIfPol.attributes.tnFabricHIfPolName   {{ link_level_policy_name }}
 {% endif %}
 {% if pg.cdp_policy is defined %}
 {% set cdp_policy_name = pg.cdp_policy ~ defaults.apic.access_policies.interface_policies.cdp_policies.name_suffix %}
-    Should Be Equal Value Json String   ${r}    $..infraRsCdpIfPol.attributes.tnCdpIfPolName   {{ cdp_policy_name }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraSpAccPortGrp.children[?infraRsCdpIfPol] | [0].infraRsCdpIfPol.attributes.tnCdpIfPolName   {{ cdp_policy_name }}
 {% endif %}
 {% if pg.aaep is defined %}
 {% set aaep_name = pg.aaep ~ defaults.apic.access_policies.aaeps.name_suffix %}
-    Should Be Equal Value Json String   ${r}    $..infraRsAttEntP.attributes.tDn   uni/infra/attentp-{{ aaep_name }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraSpAccPortGrp.children[?infraRsAttEntP] | [0].infraRsAttEntP.attributes.tDn   uni/infra/attentp-{{ aaep_name }}
 {% endif %}
 {% if pg.macsec_interface_policy is defined %}
 {% set macsec_policy_name = pg.macsec_interface_policy ~ defaults.apic.access_policies.interface_policies.macsec_interfaces_policies.name_suffix %}
-    Should Be Equal Value Json String   ${r}    $..infraRsMacsecIfPol.attributes.tDn   uni/infra/macsecifp-{{ macsec_policy_name }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraSpAccPortGrp.children[?infraRsMacsecIfPol] | [0].infraRsMacsecIfPol.attributes.tDn   uni/infra/macsecifp-{{ macsec_policy_name }}
 {% endif %}
 
 {% endfor %}

@@ -8,4 +8,4 @@ Resource        ../../apic_common.resource
 Verify APIC Connectivity Preference
     ${r}=   GET On Session   apic   /api/mo/uni/fabric/connectivityPrefs.json
     Set Suite Variable   $r   ${r.json()}
-    Should Be Equal Value Json String   ${r}    $..mgmtConnectivityPrefs.attributes.interfacePref   {{ apic.fabric_policies.apic_conn_pref | default(defaults.apic.fabric_policies.apic_conn_pref) }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].mgmtConnectivityPrefs.attributes.interfacePref   {{ apic.fabric_policies.apic_conn_pref | default(defaults.apic.fabric_policies.apic_conn_pref) }}

@@ -5,6 +5,7 @@ Library   JSONLibrary
 Library   Collections
 Library   OperatingSystem
 Library   DateTime
+Library   ./JMESPath.py
 
 *** Variables ***
 ${login_json}   {"aaaUser" : {"attributes" : {"name" : "%{ACI_USERNAME}", "pwd" : "%{ACI_PASSWORD}"}}}
@@ -61,3 +62,18 @@ Should Be Equal Value Json List
     [Arguments]    ${json}    ${json_path}   ${value}=${None}
     ${r_value}=   Get Value From Json   ${json}   ${json_path}
     Run Keyword If   "${value}" != "${None}"   Lists Should Be Equal   ${r_value}   ${value}   ignore_order=True
+
+Should Be Equal JMESPath Json
+    [Arguments]    ${json}    ${jmespath}   ${value}=${EMPTY}
+    ${r_value}=   Json Search String   ${json}   ${jmespath}
+    Run Keyword If   $value   Should Be Equal As Strings   ${r_value}   ${value}
+
+Should Be Equal JMESPath Json List
+    [Arguments]    ${json}    ${jmespath}   ${value}=${None}
+    ${r_value}=   Json Search List   ${json}   ${jmespath}
+    Run Keyword If   $value is not None    Lists Should Be Equal   ${r_value}   ${value}   ignore_order=True
+
+Should Not Be Empty JMESPath Json
+    [Arguments]    ${json}    ${jmespath}
+    ${r_value}=   Json Search List   ${json}   ${jmespath}
+    Should Not Be Empty   ${r_value}   msg=JMESPath query returned empty result: ${jmespath}

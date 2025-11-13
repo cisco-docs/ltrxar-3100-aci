@@ -13,8 +13,8 @@ Resource        ../../../apic_common.resource
 Verify Route Tag Policy {{ route_tag_name }}
     ${r}=   GET On Session   apic   /api/node/mo/uni/tn-{{ tenant.name }}/rttag-{{ route_tag_name }}.json   params=rsp-subtree=full
     Set Suite Variable   $r   ${r.json()}
-    Should Be Equal Value Json String   ${r}   $..l3extRouteTagPol.attributes.name   {{ route_tag_name }}
-    Should Be Equal Value Json String   ${r}   $..l3extRouteTagPol.attributes.descr   {{ route_map.description | default() }}
-    Should Be Equal Value Json String   ${r}   $..l3extRouteTagPol.attributes.tag   {{ route_tag.tag | default(defaults.apic.tenants.policies.route_tag_policies.tag) }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].l3extRouteTagPol.attributes.name   {{ route_tag_name }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].l3extRouteTagPol.attributes.descr   {{ route_map.description | default() }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].l3extRouteTagPol.attributes.tag   {{ route_tag.tag | default(defaults.apic.tenants.policies.route_tag_policies.tag) }}
 
 {% endfor %}

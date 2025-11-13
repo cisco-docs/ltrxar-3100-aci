@@ -27,26 +27,26 @@ Verify Access Leaf Interface Node {{ _node.id }} Port {{ module }}/{{ int.port }
 {% set type = (apic.access_policies | community.general.json_query(query)) %}
 {% set policy_group_name = int.policy_group ~ defaults.apic.access_policies.leaf_interface_policy_groups.name_suffix %}
 {% if type[0] in ["pc", "vpc"] %}
-    Should Be Equal Value Json String   ${r}    $..attributes.assocGrp   uni/infra/funcprof/accbundle-{{ policy_group_name }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraPortConfig.attributes.assocGrp   uni/infra/funcprof/accbundle-{{ policy_group_name }}
 {% if int.port_channel_member_policy is defined %}
 {% set pc_member_policy_name = int.port_channel_member_policy ~ defaults.apic.access_policies.interface_policies.port_channel_member_policies.name_suffix %}
-    Should Be Equal Value Json String   ${r}    $..attributes.pcMember   {{ pc_member_policy_name }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraPortConfig.attributes.pcMember   {{ pc_member_policy_name }}
 {% endif %}
 {% else %}
-    Should Be Equal Value Json String   ${r}    $..attributes.assocGrp   uni/infra/funcprof/accportgrp-{{ policy_group_name }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraPortConfig.attributes.assocGrp   uni/infra/funcprof/accportgrp-{{ policy_group_name }}
 {% endif %}
 {% elif int.fex_id is defined %}
-    Should Be Equal Value Json String   ${r}    $..attributes.connectedFex   {{ int.fex_id }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraPortConfig.attributes.connectedFex   {{ int.fex_id }}
 {% endif %}
 {% elif int.breakout is defined %}
-    Should Be Equal Value Json String   ${r}    $..attributes.brkoutMap   {{ int.breakout }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraPortConfig.attributes.brkoutMap   {{ int.breakout }}
 {% endif %}
-    Should Be Equal Value Json String   ${r}    $..attributes.card   {{ module }}
-    Should Be Equal Value Json String   ${r}    $..attributes.description   {{ int.description | default() }}
-    Should Be Equal Value Json String   ${r}    $..attributes.node   {{ _node.id }}
-    Should Be Equal Value Json String   ${r}    $..attributes.port   {{ int.port }}
-    Should Be Equal Value Json String   ${r}    $..attributes.role   {{ _node.role }}
-    Should Be Equal Value Json String   ${r}    $..attributes.shutdown   {{ 'yes' if int.shutdown | default(defaults.apic.interface_policies.nodes.interfaces.shutdown) else 'no' }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraPortConfig.attributes.card   {{ module }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraPortConfig.attributes.description   {{ int.description | default() }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraPortConfig.attributes.node   {{ _node.id }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraPortConfig.attributes.port   {{ int.port }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraPortConfig.attributes.role   {{ _node.role }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraPortConfig.attributes.shutdown   {{ 'yes' if int.shutdown | default(defaults.apic.interface_policies.nodes.interfaces.shutdown) else 'no' }}
 
 {% for sub in int.sub_ports | default([]) %}
 
@@ -58,24 +58,24 @@ Verify Access Leaf Interface Node {{ _node.id }} Port {{ module }}/{{ int.port }
 {% set type = (apic.access_policies | community.general.json_query(query)) %}
 {% set policy_group_name = sub.policy_group ~ defaults.apic.access_policies.leaf_interface_policy_groups.name_suffix %}
 {% if type[0] in ["pc", "vpc"] %}
-    Should Be Equal Value Json String   ${r}    $..attributes.assocGrp   uni/infra/funcprof/accbundle-{{ policy_group_name }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraPortConfig.attributes.assocGrp   uni/infra/funcprof/accbundle-{{ policy_group_name }}
 {% if int.port_channel_member_policy is defined %}
 {% set pc_member_policy_name = int.port_channel_member_policy ~ defaults.apic.access_policies.interface_policies.port_channel_member_policies.name_suffix %}
-    Should Be Equal Value Json String   ${r}    $..attributes.pcMember   {{ pc_member_policy_name }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraPortConfig.attributes.pcMember   {{ pc_member_policy_name }}
 {% endif %}
 {% else %}
-    Should Be Equal Value Json String   ${r}    $..attributes.assocGrp   uni/infra/funcprof/accportgrp-{{ policy_group_name }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraPortConfig.attributes.assocGrp   uni/infra/funcprof/accportgrp-{{ policy_group_name }}
 {% endif %}
 {% elif int.fex_id is defined %}
-    Should Be Equal Value Json String   ${r}    $..attributes.connectedFex   {{ sub.fex_id }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraPortConfig.attributes.connectedFex   {{ sub.fex_id }}
 {% endif %}
-    Should Be Equal Value Json String   ${r}    $..attributes.card   {{ module }}
-    Should Be Equal Value Json String   ${r}    $..attributes.description   {{ sub.description | default() }}
-    Should Be Equal Value Json String   ${r}    $..attributes.node   {{ _node.id }}
-    Should Be Equal Value Json String   ${r}    $..attributes.port   {{ int.port }}
-    Should Be Equal Value Json String   ${r}    $..attributes.subPort   {{ sub.port }}
-    Should Be Equal Value Json String   ${r}    $..attributes.role   {{ _node.role }}
-    Should Be Equal Value Json String   ${r}    $..attributes.shutdown   {{ 'yes' if sub.shutdown | default(defaults.apic.interface_policies.nodes.interfaces.sub_ports.shutdown) else 'no' }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraPortConfig.attributes.card   {{ module }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraPortConfig.attributes.description   {{ sub.description | default() }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraPortConfig.attributes.node   {{ _node.id }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraPortConfig.attributes.port   {{ int.port }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraPortConfig.attributes.subPort   {{ sub.port }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraPortConfig.attributes.role   {{ _node.role }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraPortConfig.attributes.shutdown   {{ 'yes' if sub.shutdown | default(defaults.apic.interface_policies.nodes.interfaces.sub_ports.shutdown) else 'no' }}
 
 {% endfor %}
 {% endif %}
@@ -93,22 +93,22 @@ Verify Fex {{ fex.id }} Access Interface Port {{ module }}/{{ int.port }}
 {% set type = (apic.access_policies | community.general.json_query(query)) %}
 {% set policy_group_name = int.policy_group ~ defaults.apic.access_policies.leaf_interface_policy_groups.name_suffix %}
 {% if type[0] in ["pc", "vpc"] %}
-    Should Be Equal Value Json String   ${r}    $..attributes.assocGrp   uni/infra/funcprof/accbundle-{{ policy_group_name }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraPortConfig.attributes.assocGrp   uni/infra/funcprof/accbundle-{{ policy_group_name }}
 {% if int.port_channel_member_policy is defined %}
 {% set pc_member_policy_name = int.port_channel_member_policy ~ defaults.apic.access_policies.interface_policies.port_channel_member_policies.name_suffix %}
-    Should Be Equal Value Json String   ${r}    $..attributes.pcMember   {{ pc_member_policy_name }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraPortConfig.attributes.pcMember   {{ pc_member_policy_name }}
 {% endif %}
 {% else %}
-    Should Be Equal Value Json String   ${r}    $..attributes.assocGrp   uni/infra/funcprof/accportgrp-{{ policy_group_name }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraPortConfig.attributes.assocGrp   uni/infra/funcprof/accportgrp-{{ policy_group_name }}
 {% endif %}
 {% endif %}
-    Should Be Equal Value Json String   ${r}    $..attributes.card   {{ fex.id }}
-    Should Be Equal Value Json String   ${r}    $..attributes.description   {{ int.description | default() }}
-    Should Be Equal Value Json String   ${r}    $..attributes.node   {{ _node.id }}
-    Should Be Equal Value Json String   ${r}    $..attributes.port   {{ module }}
-    Should Be Equal Value Json String   ${r}    $..attributes.subPort   {{ int.port }}
-    Should Be Equal Value Json String   ${r}    $..attributes.role   {{ _node.role }}
-    Should Be Equal Value Json String   ${r}    $..attributes.shutdown   {{ 'yes' if int.shutdown | default(defaults.apic.interface_policies.nodes.fexes.interfaces.shutdown) else 'no' }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraPortConfig.attributes.card   {{ fex.id }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraPortConfig.attributes.description   {{ int.description | default() }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraPortConfig.attributes.node   {{ _node.id }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraPortConfig.attributes.port   {{ module }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraPortConfig.attributes.subPort   {{ int.port }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraPortConfig.attributes.role   {{ _node.role }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraPortConfig.attributes.shutdown   {{ 'yes' if int.shutdown | default(defaults.apic.interface_policies.nodes.fexes.interfaces.shutdown) else 'no' }}
 
 {% endfor %}
 {% endfor %}
@@ -133,14 +133,14 @@ Verify Access Spine Interface Node {{ _node.id }} Port {{ module }}/{{ int.port 
     Set Suite Variable   $r   ${r.json()}
 {% if int.policy_group is defined %}
 {% set policy_group_name = int.policy_group ~ defaults.apic.access_policies.spine_interface_policy_groups.name_suffix %}
-    Should Be Equal Value Json String   ${r}    $..attributes.assocGrp   uni/infra/funcprof/spaccportgrp-{{ policy_group_name }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraPortConfig.attributes.assocGrp   uni/infra/funcprof/spaccportgrp-{{ policy_group_name }}
 {% endif %}
-    Should Be Equal Value Json String   ${r}    $..attributes.card   {{ module }}
-    Should Be Equal Value Json String   ${r}    $..attributes.description   {{ int.description | default() }}
-    Should Be Equal Value Json String   ${r}    $..attributes.node   {{ _node.id }}
-    Should Be Equal Value Json String   ${r}    $..attributes.port   {{ int.port }}
-    Should Be Equal Value Json String   ${r}    $..attributes.role   {{ _node.role }}
-    Should Be Equal Value Json String   ${r}    $..attributes.shutdown   {{ 'yes' if int.shutdown | default(defaults.apic.interface_policies.nodes.interfaces.shutdown) else 'no' }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraPortConfig.attributes.card   {{ module }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraPortConfig.attributes.description   {{ int.description | default() }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraPortConfig.attributes.node   {{ _node.id }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraPortConfig.attributes.port   {{ int.port }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraPortConfig.attributes.role   {{ _node.role }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraPortConfig.attributes.shutdown   {{ 'yes' if int.shutdown | default(defaults.apic.interface_policies.nodes.interfaces.shutdown) else 'no' }}
 
 {% endif %}
 {% endfor %}

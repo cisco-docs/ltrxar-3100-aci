@@ -14,14 +14,14 @@ Resource        ../../apic_common.resource
 Verify Access Switch Configuration Leaf {{ node.id }} Policy Group
     ${r}=   GET On Session   apic   /api/mo/uni/infra/nodeconfnode-{{ node.id }}.json
     Set Suite Variable   $r   ${r.json()}
-    Should Be Equal Value Json String   ${r}    $..infraNodeConfig.attributes.assocGrp   uni/infra/funcprof/accnodepgrp-{{ policy_group_name }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraNodeConfig.attributes.assocGrp   uni/infra/funcprof/accnodepgrp-{{ policy_group_name }}
 
 {% elif node.role == "spine" %}
 {% set policy_group_name = node.access_policy_group ~ defaults.apic.access_policies.spine_switch_policy_groups.name_suffix %}
 Verify Access Switch Configuration Spine {{ node.id }} Policy Group
     ${r}=   GET On Session   apic   /api/mo/uni/infra/nodeconfnode-{{ node.id }}.json
     Set Suite Variable   $r   ${r.json()}
-    Should Be Equal Value Json String   ${r}    $..infraNodeConfig.attributes.assocGrp   uni/infra/funcprof/spaccnodepgrp-{{ policy_group_name }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraNodeConfig.attributes.assocGrp   uni/infra/funcprof/spaccnodepgrp-{{ policy_group_name }}
 
 {% endif %}
 

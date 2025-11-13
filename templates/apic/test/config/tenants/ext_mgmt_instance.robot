@@ -13,13 +13,13 @@ Resource        ../../../apic_common.resource
 Verify External Management Instance {{ ext_name }}
     ${r}=   GET On Session   apic   /api/mo/uni/tn-mgmt/extmgmt-default/instp-{{ ext_name }}.json   params=rsp-subtree=full
     Set Suite Variable   $r   ${r.json()}
-    Should Be Equal Value Json String   ${r}   $..mgmtInstP.attributes.name   {{ ext_name }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].mgmtInstP.attributes.name   {{ ext_name }}
 
 {% for subnet in ext.subnets | default([]) %}
 
 Verify External Management Instance {{ ext_name }} Subnet {{ subnet }}
-    ${subnet}=   Set Variable   $..mgmtInstP.children[?(@.mgmtSubnet.attributes.ip=='{{ subnet }}')]
-    Should Be Equal Value Json String   ${r}   ${subnet}..mgmtSubnet.attributes.ip   {{ subnet }}
+    ${subnet}=   Set Variable   imdata[0].mgmtInstP.children[?mgmtSubnet.attributes.ip=='{{ subnet }}'] | [0]
+    Should Be Equal JMESPath Json   ${r}   ${subnet}.mgmtSubnet.attributes.ip   {{ subnet }}
 
 {% endfor %}
 
@@ -27,8 +27,8 @@ Verify External Management Instance {{ ext_name }} Subnet {{ subnet }}
 {% set contract_name = contract ~ defaults.apic.tenants.oob_contracts.name_suffix %}
 
 Verify External Management Instance {{ ext_name }} Consumed OOB Contract {{ contract_name }}
-    ${con}=   Set Variable   $..mgmtInstP.children[?(@.mgmtRsOoBCons.attributes.tnVzOOBBrCPName=='{{ contract_name }}')]
-    Should Be Equal Value Json String   ${r}   ${con}..mgmtRsOoBCons.attributes.tnVzOOBBrCPName   {{ contract_name }}
+    ${con}=   Set Variable   imdata[0].mgmtInstP.children[?mgmtRsOoBCons.attributes.tnVzOOBBrCPName=='{{ contract_name }}'] | [0]
+    Should Be Equal JMESPath Json   ${r}   ${con}.mgmtRsOoBCons.attributes.tnVzOOBBrCPName   {{ contract_name }}
 
 {% endfor %}
 

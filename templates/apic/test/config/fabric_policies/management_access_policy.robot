@@ -12,12 +12,12 @@ Resource        ../../apic_common.resource
 Verify Management Access Policy {{ policy.name }}
     ${r}=   GET On Session   apic   /api/node/mo/uni/fabric/comm-{{ management_access_policy_name }}.json   params=rsp-subtree=full
     Set Suite Variable   $r   ${r.json()}
-    Should Be Equal Value Json String   ${r}    $..commPol.attributes.name   {{ management_access_policy_name }}
-    Should Be Equal Value Json String   ${r}    $..commPol.attributes.descr   {{ policy.description | default() }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].commPol.attributes.name   {{ management_access_policy_name }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].commPol.attributes.descr   {{ policy.description | default() }}
 
 Verify Management Access Policy {{ policy.name }} Telnet
-    Should Be Equal Value Json String   ${r}    $..commPol.children..commTelnet.attributes.adminSt   {{ 'enabled' if policy.telnet.admin_state | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.telnet.admin_state) else 'disabled' }}
-    Should Be Equal Value Json String   ${r}    $..commPol.children..commTelnet.attributes.port   {{ policy.telnet.port | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.telnet.port) }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].commPol.children[?commTelnet] | [0].commTelnet.attributes.adminSt   {{ 'enabled' if policy.telnet.admin_state | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.telnet.admin_state) else 'disabled' }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].commPol.children[?commTelnet] | [0].commTelnet.attributes.port   {{ policy.telnet.port | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.telnet.port) }}
 
 {% set ssl_ciphers = [] %}
 {% if policy.ssh.aes128_ctr | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.ssh.aes128_ctr) %}{% set ssl_ciphers = ssl_ciphers + [("aes128-ctr")] %}{% endif %}
@@ -44,13 +44,13 @@ Verify Management Access Policy {{ policy.name }} Telnet
 {% if policy.ssh.hmac_sha2_512 | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.ssh.hmac_sha2_512) %}{% set ssh_macs = ssh_macs + [("hmac-sha2-512")] %}{% endif %}
 
 Verify Management Access Policy {{ policy.name }} SSH
-    Should Be Equal Value Json String   ${r}    $..commPol.children..commSsh.attributes.adminSt   {{ 'enabled' if policy.ssh.admin_state | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.ssh.admin_state) else 'disabled' }}
-    Should Be Equal Value Json String   ${r}    $..commPol.children..commSsh.attributes.port   {{ policy.ssh.port | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.ssh.port) }}
-    Should Be Equal Value Json String   ${r}    $..commPol.children..commSsh.attributes.passwordAuth   {{ 'enabled' if policy.ssh.password_auth | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.ssh.password_auth) else 'disabled' }}
-    Should Be Equal Value Json String   ${r}    $..commPol.children..commSsh.attributes.sshCiphers   {{ ssl_ciphers | join(',') }}
-    Should Be Equal Value Json String   ${r}    $..commPol.children..commSsh.attributes.sshMacs   {{ ssh_macs | join(',') }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].commPol.children[?commSsh] | [0].commSsh.attributes.adminSt   {{ 'enabled' if policy.ssh.admin_state | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.ssh.admin_state) else 'disabled' }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].commPol.children[?commSsh] | [0].commSsh.attributes.port   {{ policy.ssh.port | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.ssh.port) }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].commPol.children[?commSsh] | [0].commSsh.attributes.passwordAuth   {{ 'enabled' if policy.ssh.password_auth | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.ssh.password_auth) else 'disabled' }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].commPol.children[?commSsh] | [0].commSsh.attributes.sshCiphers   {{ ssl_ciphers | join(',') }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].commPol.children[?commSsh] | [0].commSsh.attributes.sshMacs   {{ ssh_macs | join(',') }}
 {% if ssh_kexalgos %}
-    Should Be Equal Value Json String   ${r}    $..commPol.children..commSsh.attributes.kexAlgos   {{ ssh_kexalgos | join(',') }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].commPol.children[?commSsh] | [0].commSsh.attributes.kexAlgos   {{ ssh_kexalgos | join(',') }}
 {% endif %}
 
 {% set ssl_protocols = [] %}
@@ -60,17 +60,17 @@ Verify Management Access Policy {{ policy.name }} SSH
 {% if policy.https.tlsv1_3 | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.https.tlsv1_3) %}{% set ssl_protocols = ssl_protocols + [("TLSv1.3")] %}{% endif %}
 
 Verify Management Access Policy {{ policy.name }} HTTPS
-    Should Be Equal Value Json String   ${r}    $..commPol.children..commHttps.attributes.adminSt   {{ 'enabled' if policy.https.admin_state | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.https.admin_state) else 'disabled' }}
-    Should Be Equal Value Json String   ${r}    $..commPol.children..commHttps.attributes.clientCertAuthState   {{ 'enabled' if policy.https.client_cert_auth_state | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.https.client_cert_auth_state) else 'disabled' }}
-    Should Be Equal Value Json String   ${r}    $..commPol.children..commHttps.attributes.dhParam   {{ policy.https.dh | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.https.dh) }}
-    Should Be Equal Value Json String   ${r}    $..commPol.children..commHttps.attributes.port   {{ policy.https.port | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.https.port) }}
-    Should Be Equal Value Json String   ${r}    $..commPol.children..commHttps.attributes.sslProtocols   {{ ssl_protocols | join(',') }}
-    Should Be Equal Value Json String   ${r}    $..commPol.children..commHttps.children..commRsKeyRing.attributes.tnPkiKeyRingName   {{ policy.https.key_ring | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.https.key_ring) }}
-    Should Be Equal Value Json String   ${r}    $..commPol.children..commHttps.attributes.accessControlAllowOrigins   {{ policy.allow_origins | default() }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].commPol.children[?commHttps] | [0].commHttps.attributes.adminSt   {{ 'enabled' if policy.https.admin_state | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.https.admin_state) else 'disabled' }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].commPol.children[?commHttps] | [0].commHttps.attributes.clientCertAuthState   {{ 'enabled' if policy.https.client_cert_auth_state | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.https.client_cert_auth_state) else 'disabled' }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].commPol.children[?commHttps] | [0].commHttps.attributes.dhParam   {{ policy.https.dh | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.https.dh) }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].commPol.children[?commHttps] | [0].commHttps.attributes.port   {{ policy.https.port | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.https.port) }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].commPol.children[?commHttps] | [0].commHttps.attributes.sslProtocols   {{ ssl_protocols | join(',') }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].commPol.children[?commHttps] | [0].commHttps.children[?commRsKeyRing] | [0].commRsKeyRing.attributes.tnPkiKeyRingName   {{ policy.https.key_ring | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.https.key_ring) }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].commPol.children[?commHttps] | [0].commHttps.attributes.accessControlAllowOrigins   {{ policy.allow_origins | default() }}
 
 Verify Management Access Policy {{ policy.name }} HTTP
-    Should Be Equal Value Json String   ${r}    $..commPol.children..commHttp.attributes.adminSt   {{ 'enabled' if policy.http.admin_state | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.http.admin_state) else 'disabled' }}
-    Should Be Equal Value Json String   ${r}    $..commPol.children..commHttp.attributes.port   {{ policy.http.port | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.http.port) }}
-    Should Be Equal Value Json String   ${r}    $..commPol.children..commHttps.attributes.accessControlAllowOrigins   {{ policy.allow_origins | default() }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].commPol.children[?commHttp] | [0].commHttp.attributes.adminSt   {{ 'enabled' if policy.http.admin_state | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.http.admin_state) else 'disabled' }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].commPol.children[?commHttp] | [0].commHttp.attributes.port   {{ policy.http.port | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.http.port) }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].commPol.children[?commHttps] | [0].commHttps.attributes.accessControlAllowOrigins   {{ policy.allow_origins | default() }}
 
 {% endfor %}

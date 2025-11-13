@@ -11,7 +11,7 @@ Resource        ../../apic_common.resource
 Verify MCP Interface Policy {{ mcp_policy_name }}
     ${r}=   GET On Session   apic   /api/mo/uni/infra/mcpIfP-{{ mcp_policy_name }}.json
     Set Suite Variable   $r   ${r.json()}
-    Should Be Equal Value Json String   ${r}    $..mcpIfPol.attributes.name   {{ mcp_policy_name }}
-    Should Be Equal Value Json String   ${r}    $..mcpIfPol.attributes.adminSt   {{ 'enabled' if policy.admin_state else 'disabled' }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].mcpIfPol.attributes.name   {{ mcp_policy_name }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].mcpIfPol.attributes.adminSt   {{ 'enabled' if policy.admin_state else 'disabled' }}
 
 {% endfor %}

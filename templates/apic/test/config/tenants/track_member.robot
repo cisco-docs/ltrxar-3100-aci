@@ -14,15 +14,15 @@ Resource        ../../../apic_common.resource
 Verify Track Member {{ member.name }}
     ${r}=   GET On Session   apic   /api/mo/uni/tn-{{ tenant.name }}/trackmember-{{ member_name }}.json    params=rsp-subtree=full
     Set Suite Variable   $r   ${r.json()}
-    Should Be Equal Value Json String   ${r}   $..fvTrackMember.attributes.name   {{ member_name }}
-    Should Be Equal Value Json String   ${r}   $..fvTrackMember.attributes.descr   {{ member.description | default() }}
-    Should Be Equal Value Json String   ${r}   $..fvTrackMember.attributes.dstIpAddr   {{ member.destination_ip }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].fvTrackMember.attributes.name   {{ member_name }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].fvTrackMember.attributes.descr   {{ member.description | default() }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].fvTrackMember.attributes.dstIpAddr   {{ member.destination_ip }}
 {% if member.scope_type == "l3out" %}
-    Should Be Equal Value Json String   ${r}   $..fvTrackMember.attributes.scopeDn   uni/tn-{{ tenant.name }}/out-{{ member.scope }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].fvTrackMember.attributes.scopeDn   uni/tn-{{ tenant.name }}/out-{{ member.scope }}
 {% elif member.scope_type == "bd" %}
-    Should Be Equal Value Json String   ${r}   $..fvTrackMember.attributes.scopeDn   uni/tn-{{ tenant.name }}/BD-{{ member.scope }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].fvTrackMember.attributes.scopeDn   uni/tn-{{ tenant.name }}/BD-{{ member.scope }}
 {% endif %}
-    Should Be Equal Value Json String   ${r}   $..fvRsIpslaMonPol.attributes.tDn   uni/tn-{{ tenant.name }}/ipslaMonitoringPol-{{ ip_sla_name }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].fvTrackMember.children[?fvRsIpslaMonPol] | [0].fvRsIpslaMonPol.attributes.tDn   uni/tn-{{ tenant.name }}/ipslaMonitoringPol-{{ ip_sla_name }}
 
 {% endfor %}
 
@@ -43,10 +43,10 @@ Verify Track Member {{ member.name }}
 Verify Track Member for for L3out {{ l3out_name }} Node {{ node.node_id }} Static Route {{ sr.prefix }} Next Hop {{ nh.ip }}
     ${r}=   GET On Session   apic   /api/mo/uni/tn-{{ tenant.name }}/trackmember-{{ member_name }}.json    params=rsp-subtree=full
     Set Suite Variable   $r   ${r.json()}
-    Should Be Equal Value Json String   ${r}   $..fvTrackMember.attributes.name  {{ member_name }}
-    Should Be Equal Value Json String   ${r}   $..fvTrackMember.attributes.dstIpAddr   {{ nh.ip }}
-    Should Be Equal Value Json String   ${r}   $..fvTrackMember.attributes.scopeDn   uni/tn-{{ tenant.name }}/out-{{ l3out_name }}
-    Should Be Equal Value Json String   ${r}   $..fvRsIpslaMonPol.attributes.tDn   uni/tn-{{ tenant.name }}/ipslaMonitoringPol-{{ ip_sla_name }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].fvTrackMember.attributes.name  {{ member_name }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].fvTrackMember.attributes.dstIpAddr   {{ nh.ip }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].fvTrackMember.attributes.scopeDn   uni/tn-{{ tenant.name }}/out-{{ l3out_name }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].fvTrackMember.children[?fvRsIpslaMonPol] | [0].fvRsIpslaMonPol.attributes.tDn   uni/tn-{{ tenant.name }}/ipslaMonitoringPol-{{ ip_sla_name }}
 {% endif %}
 {% endfor %}
 {% endfor %}
@@ -66,10 +66,10 @@ Verify Track Member for for L3out {{ l3out_name }} Node {{ node.node_id }} Stati
 Verify Track Member for L3out {{ l3out_name }} Node {{ node.node_id }} Static Route {{ sr.prefix }} Next Hop {{ nh.ip }}
     ${r}=   GET On Session   apic   /api/mo/uni/tn-{{ tenant.name }}/trackmember-{{ member_name }}.json    params=rsp-subtree=full
     Set Suite Variable   $r   ${r.json()}
-    Should Be Equal Value Json String   ${r}   $..fvTrackMember.attributes.name  {{ member_name }}
-    Should Be Equal Value Json String   ${r}   $..fvTrackMember.attributes.dstIpAddr   {{ nh.ip }}
-    Should Be Equal Value Json String   ${r}   $..fvTrackMember.attributes.scopeDn   uni/tn-{{ tenant.name }}/out-{{ l3out_name }}
-    Should Be Equal Value Json String   ${r}   $..fvRsIpslaMonPol.attributes.tDn   uni/tn-{{ tenant.name }}/ipslaMonitoringPol-{{ ip_sla_name }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].fvTrackMember.attributes.name  {{ member_name }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].fvTrackMember.attributes.dstIpAddr   {{ nh.ip }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].fvTrackMember.attributes.scopeDn   uni/tn-{{ tenant.name }}/out-{{ l3out_name }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].fvTrackMember.children[?fvRsIpslaMonPol] | [0].fvRsIpslaMonPol.attributes.tDn   uni/tn-{{ tenant.name }}/ipslaMonitoringPol-{{ ip_sla_name }}
 {% endif %}
 {% endfor %}
 {% endfor %}

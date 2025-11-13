@@ -17,8 +17,8 @@ Resource        ../../apic_common.resource
 Verify Access FEX Interface Profile {{ fex_profile_name }}
     ${r}=   GET On Session   apic   /api/mo/uni/infra/fexprof-{{ fex_profile_name }}.json   params=rsp-subtree=full
     Set Suite Variable   $r   ${r.json()}
-    Should Be Equal Value Json String   ${r}    $..infraFexP.attributes.name   {{ fex_profile_name }}
-    Should Be Equal Value Json String   ${r}    $..infraFexBndlGrp.attributes.name   {{ fex_profile_name }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraFexP.attributes.name   {{ fex_profile_name }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraFexP.children[?infraFexBndlGrp] | [0].infraFexBndlGrp.attributes.name   {{ fex_profile_name }}
 
 {% endfor %}
 {% endif %}
@@ -31,23 +31,23 @@ Verify Access FEX Interface Profile {{ fex_profile_name }}
 Verify Access FEX Interface Profile {{ fex_interface_profile_name }}
     ${r}=   GET On Session   apic   /api/mo/uni/infra/fexprof-{{ fex_interface_profile_name }}.json   params=rsp-subtree=full
     Set Suite Variable   $r   ${r.json()}
-    Should Be Equal Value Json String   ${r}    $..infraFexP.attributes.name   {{ fex_interface_profile_name }}
-    Should Be Equal Value Json String   ${r}    $..infraFexBndlGrp.attributes.name   {{ fex_interface_profile_name }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraFexP.attributes.name   {{ fex_interface_profile_name }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraFexP.children[?infraFexBndlGrp] | [0].infraFexBndlGrp.attributes.name   {{ fex_interface_profile_name }}
 
 {% for sel in prof.selectors | default([]) %}
 {% set fex_interface_selector_name = sel.name ~ defaults.apic.access_policies.fex_interface_profiles.selectors.name_suffix %}
 
 Verify Access FEX Interface Profile {{ fex_interface_profile_name }} Selector {{ fex_interface_selector_name }}
-    ${sel}=   Set Variable   $..infraFexP.children[?(@.infraHPortS.attributes.name=='{{ fex_interface_selector_name }}')]
-    Should Be Equal Value Json String   ${r}    ${sel}..infraHPortS.attributes.name   {{ fex_interface_selector_name }}
+    ${sel}=   Set Variable   imdata[0].infraFexP.children[?infraHPortS.attributes.name=='{{ fex_interface_selector_name }}'] | [0]
+    Should Be Equal JMESPath Json   ${r}    ${sel}.infraHPortS.attributes.name   {{ fex_interface_selector_name }}
 {% if sel.policy_group is defined %}
 {% set query = "leaf_interface_policy_groups[?name=='" ~ sel.policy_group ~ "'].type[]" %}
 {% set type = (apic.access_policies | community.general.json_query(query)) %}
 {% set policy_group_name = sel.policy_group ~ defaults.apic.access_policies.leaf_interface_policy_groups.name_suffix %}
 {% if type[0] in ["pc", "vpc"] %}
-    Should Be Equal Value Json String   ${r}    ${sel}..infraRsAccBaseGrp.attributes.tDn   uni/infra/funcprof/accbundle-{{ policy_group_name }}
+    Should Be Equal JMESPath Json   ${r}    ${sel}.infraHPortS.children[?infraRsAccBaseGrp] | [0].infraRsAccBaseGrp.attributes.tDn   uni/infra/funcprof/accbundle-{{ policy_group_name }}
 {% else %}
-    Should Be Equal Value Json String   ${r}    ${sel}..infraRsAccBaseGrp.attributes.tDn   uni/infra/funcprof/accportgrp-{{ policy_group_name }}
+    Should Be Equal JMESPath Json   ${r}    ${sel}.infraHPortS.children[?infraRsAccBaseGrp] | [0].infraRsAccBaseGrp.attributes.tDn   uni/infra/funcprof/accportgrp-{{ policy_group_name }}
 {% endif %}
 {% endif %}
 
@@ -55,12 +55,12 @@ Verify Access FEX Interface Profile {{ fex_interface_profile_name }} Selector {{
 {% set block_name = blk.name ~ defaults.apic.access_policies.fex_interface_profiles.selectors.port_blocks.name_suffix %}
 
 Verify Access FEX Interface Profile {{ fex_interface_profile_name }} Selector {{ fex_interface_selector_name }} Port Block {{ block_name }}
-    ${blk}=   Set Variable   $..infraFexP.children[?(@.infraHPortS.attributes.name=='{{ fex_interface_selector_name }}')].infraHPortS.children[?(@.infraPortBlk.attributes.name=='{{ block_name }}')]
-    Should Be Equal Value Json String   ${r}    ${blk}..infraPortBlk.attributes.name   {{ block_name }}
-    Should Be Equal Value Json String   ${r}    ${blk}..infraPortBlk.attributes.fromCard   {{ blk.from_module | default(defaults.apic.access_policies.fex_interface_profiles.selectors.port_blocks.from_module) }}
-    Should Be Equal Value Json String   ${r}    ${blk}..infraPortBlk.attributes.fromPort   {{ blk.from_port }}
-    Should Be Equal Value Json String   ${r}    ${blk}..infraPortBlk.attributes.toCard   {{ blk.to_module | default(blk.from_module | default(defaults.apic.access_policies.fex_interface_profiles.selectors.port_blocks.from_module)) }}
-    Should Be Equal Value Json String   ${r}    ${blk}..infraPortBlk.attributes.toPort   {{ blk.to_port | default(blk.from_port) }}
+    ${blk}=   Set Variable   imdata[0].infraFexP.children[?infraHPortS.attributes.name=='{{ fex_interface_selector_name }}'] | [0].infraHPortS.children[?infraPortBlk.attributes.name=='{{ block_name }}'] | [0]
+    Should Be Equal JMESPath Json   ${r}    ${blk}.infraPortBlk.attributes.name   {{ block_name }}
+    Should Be Equal JMESPath Json   ${r}    ${blk}.infraPortBlk.attributes.fromCard   {{ blk.from_module | default(defaults.apic.access_policies.fex_interface_profiles.selectors.port_blocks.from_module) }}
+    Should Be Equal JMESPath Json   ${r}    ${blk}.infraPortBlk.attributes.fromPort   {{ blk.from_port }}
+    Should Be Equal JMESPath Json   ${r}    ${blk}.infraPortBlk.attributes.toCard   {{ blk.to_module | default(blk.from_module | default(defaults.apic.access_policies.fex_interface_profiles.selectors.port_blocks.from_module)) }}
+    Should Be Equal JMESPath Json   ${r}    ${blk}.infraPortBlk.attributes.toPort   {{ blk.to_port | default(blk.from_port) }}
 
 {% endfor %}
 {% endfor %}

@@ -15,7 +15,7 @@ Resource        ../../apic_common.resource
 Verify PSU Policy {{ policy_name }}
     ${r}=   GET On Session   apic   /api/mo/uni/fabric/psuInstP-{{ policy_name }}.json
     Set Suite Variable   $r   ${r.json()}
-    Should Be Equal Value Json String   ${r}    $..psuInstPol.attributes.name   {{ policy_name }}
-    Should Be Equal Value Json String   ${r}    $..psuInstPol.attributes.adminRdnM   {{ admin_state }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].psuInstPol.attributes.name   {{ policy_name }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].psuInstPol.attributes.adminRdnM   {{ admin_state }}
 
 {% endfor %}

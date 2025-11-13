@@ -14,9 +14,9 @@ Resource        ../../../apic_common.resource
 Verify Inband Endpoint Group {{ epg_name }}
     ${r}=   GET On Session   apic   /api/mo/uni/tn-mgmt/mgmtp-default/inb-{{ epg_name }}.json   params=rsp-subtree=full
     Set Suite Variable   $r   ${r.json()}
-    Should Be Equal Value Json String   ${r}   $..mgmtInB.attributes.name   {{ epg_name }}
-    Should Be Equal Value Json String   ${r}   $..mgmtInB.attributes.encap   vlan-{{ epg.vlan }}
-    Should Be Equal Value Json String   ${r}   $..mgmtRsMgmtBD.attributes.tnFvBDName   {{ bd_name }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].mgmtInB.attributes.name   {{ epg_name }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].mgmtInB.attributes.encap   vlan-{{ epg.vlan }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].mgmtInB.children[?mgmtRsMgmtBD] | [0].mgmtRsMgmtBD.attributes.tnFvBDName   {{ bd_name }}
 
 {%- set comma2 = joiner(",") %}
 {%- for subnet in epg.subnets | default([]) %}{{ comma2() }}
@@ -25,9 +25,9 @@ Verify Inband Endpoint Group {{ epg_name }}
 {% if subnet.shared | default(defaults.apic.tenants.inb_endpoint_groups.subnets.shared) %}{% set scope = scope + [("shared")] %}{% endif %}
 
 Verify Endpoint Group {{ epg_name }} Subnet {{ subnet.ip }}
-    ${subnet}=   Set Variable   $..mgmtInB.children[?(@.fvSubnet.attributes.ip=='{{ subnet.ip }}')]
-    Should Be Equal Value Json String   ${r}   ${subnet}..fvSubnet.attributes.ip   {{ subnet.ip }}
-    Should Be Equal Value Json String   ${r}   ${subnet}..fvSubnet.attributes.scope   {{ scope | join(',') }}
+    ${subnet}=   Set Variable   imdata[0].mgmtInB.children[?fvSubnet.attributes.ip=='{{ subnet.ip }}'] | [0]
+    Should Be Equal JMESPath Json   ${r}   ${subnet}.fvSubnet.attributes.ip   {{ subnet.ip }}
+    Should Be Equal JMESPath Json   ${r}   ${subnet}.fvSubnet.attributes.scope   {{ scope | join(',') }}
 
 {% endfor %}
 
@@ -35,8 +35,8 @@ Verify Endpoint Group {{ epg_name }} Subnet {{ subnet.ip }}
 {% set contract_name = contract ~ defaults.apic.tenants.contracts.name_suffix %}
 
 Verify Inband Endpoint Group {{ epg_name }} Contract Provider {{ contract_name }}
-    ${con}=   Set Variable   $..mgmtInB.children[?(@.fvRsProv.attributes.tnVzBrCPName=='{{ contract_name }}')]
-    Should Be Equal Value Json String   ${r}   ${con}..fvRsProv.attributes.tnVzBrCPName   {{ contract_name }}
+    ${con}=   Set Variable   imdata[0].mgmtInB.children[?fvRsProv.attributes.tnVzBrCPName=='{{ contract_name }}'] | [0]
+    Should Be Equal JMESPath Json   ${r}   ${con}.fvRsProv.attributes.tnVzBrCPName   {{ contract_name }}
 
 {% endfor %}
 
@@ -44,8 +44,8 @@ Verify Inband Endpoint Group {{ epg_name }} Contract Provider {{ contract_name }
 {% set contract_name = contract ~ defaults.apic.tenants.contracts.name_suffix %}
 
 Verify Inband Endpoint Group {{ epg_name }} Contract consumers {{ contract_name }}
-    ${con}=   Set Variable   $..mgmtInB.children[?(@.fvRsCons.attributes.tnVzBrCPName=='{{ contract_name }}')]
-    Should Be Equal Value Json String   ${r}   ${con}..fvRsCons.attributes.tnVzBrCPName   {{ contract_name }}
+    ${con}=   Set Variable   imdata[0].mgmtInB.children[?fvRsCons.attributes.tnVzBrCPName=='{{ contract_name }}'] | [0]
+    Should Be Equal JMESPath Json   ${r}   ${con}.fvRsCons.attributes.tnVzBrCPName   {{ contract_name }}
 
 {% endfor %}
 
@@ -53,15 +53,15 @@ Verify Inband Endpoint Group {{ epg_name }} Contract consumers {{ contract_name 
 {% set contract_name = contract ~ defaults.apic.tenants.imported_contracts.name_suffix %}
 
 Verify Inband Endpoint Group {{ epg_name }} Imported Contract {{ contract_name }}
-    ${con}=   Set Variable   $..mgmtInB.children[?(@.fvRsConsIf.attributes.tnVzCPIfName=='{{ contract_name }}')]
-    Should Be Equal Value Json String   ${r}   ${con}..fvRsConsIf.attributes.tnVzCPIfName   {{ contract_name }}
+    ${con}=   Set Variable   imdata[0].mgmtInB.children[?fvRsConsIf.attributes.tnVzCPIfName=='{{ contract_name }}'] | [0]
+    Should Be Equal JMESPath Json   ${r}   ${con}.fvRsConsIf.attributes.tnVzCPIfName   {{ contract_name }}
 
 {% endfor %}
 
 {% for prefix in epg.static_routes | default([]) %}
 Verify Inband Endpoint Group {{ epg_name }} Static Route {{ prefix }}
-    ${con}=   Set Variable   $..mgmtInB.children[?(@.mgmtStaticRoute.attributes.prefix=='{{ prefix }}')]
-    Should Be Equal Value Json String   ${r}   ${con}..mgmtStaticRoute.attributes.prefix   {{ prefix }}
+    ${con}=   Set Variable   imdata[0].mgmtInB.children[?mgmtStaticRoute.attributes.prefix=='{{ prefix }}'] | [0]
+    Should Be Equal JMESPath Json   ${r}   ${con}.mgmtStaticRoute.attributes.prefix   {{ prefix }}
 {% endfor %}
 
 {% endfor %}

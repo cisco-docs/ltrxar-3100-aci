@@ -11,10 +11,10 @@ Resource        ../../apic_common.resource
 Verify Netflow VMM Exporter {{ exporter_name }}
     ${r}=   GET On Session   apic   /api/mo/uni/infra/vmmexporterpol-{{ exporter_name }}.json   params=rsp-subtree=full
     Set Suite Variable   $r   ${r.json()}
-    Should Be Equal Value Json String   ${r}    $..netflowVmmExporterPol.attributes.name    {{ exporter_name }}
-    Should Be Equal Value Json String   ${r}    $..netflowVmmExporterPol.attributes.descr   {{ exporter.description | default() }}
-    Should Be Equal Value Json String   ${r}    $..netflowVmmExporterPol.attributes.dstAddr   {{ exporter.destination_ip }}
-    Should Be Equal Value Json String   ${r}    $..netflowVmmExporterPol.attributes.dstPort   {{ exporter.destination_port }}
-    Should Be Equal Value Json String   ${r}    $..netflowVmmExporterPol.attributes.srcAddr   {{ exporter.source_ip | default(defaults.apic.access_policies.interface_policies.netflow_vmm_exporters.source_ip) }}
-    Should Be Equal Value Json String   ${r}    $..netflowVmmExporterPol.attributes.ver   v9
+    Should Be Equal JMESPath Json   ${r}    imdata[0].netflowVmmExporterPol.attributes.name    {{ exporter_name }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].netflowVmmExporterPol.attributes.descr   {{ exporter.description | default() }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].netflowVmmExporterPol.attributes.dstAddr   {{ exporter.destination_ip }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].netflowVmmExporterPol.attributes.dstPort   {{ exporter.destination_port }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].netflowVmmExporterPol.attributes.srcAddr   {{ exporter.source_ip | default(defaults.apic.access_policies.interface_policies.netflow_vmm_exporters.source_ip) }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].netflowVmmExporterPol.attributes.ver   v9
 {% endfor %}

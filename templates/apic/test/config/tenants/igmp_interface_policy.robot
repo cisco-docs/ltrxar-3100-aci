@@ -25,32 +25,32 @@ Resource        ../../../apic_common.resource
 Verify IGMP Interface Policy {{ igmp_pol_name }}
     ${r}=   GET On Session   apic   /api/mo/uni/tn-{{ tenant.name }}/igmpIfPol-{{ igmp_pol_name }}.json   params=rsp-subtree=full
     Set Suite Variable   $r   ${r.json()}
-    Should Be Equal Value Json String   ${r}   $..igmpIfPol.attributes.name   {{ igmp_pol_name }}
-    Should Be Equal Value Json String   ${r}   $..igmpIfPol.attributes.descr   {{ igmp_pol.description | default()}}
-    Should Be Equal Value Json String   ${r}   $..igmpIfPol.attributes.grpTimeout   {{ igmp_pol.grp_timeout | default(defaults.apic.tenants.policies.igmp_interface_policies.grp_timeout) }}
-    Should Be Equal Value Json String   ${r}   $..igmpIfPol.attributes.ifCtrl   {{ ctrl | join(',') }}
-    Should Be Equal Value Json String   ${r}   $..igmpIfPol.attributes.lastMbrCnt   {{ igmp_pol.last_member_count | default(defaults.apic.tenants.policies.igmp_interface_policies.last_member_count) }}
-    Should Be Equal Value Json String   ${r}   $..igmpIfPol.attributes.lastMbrRespTime   {{ igmp_pol.last_member_response_time | default(defaults.apic.tenants.policies.igmp_interface_policies.last_member_response_time) }}
-    Should Be Equal Value Json String   ${r}   $..igmpIfPol.attributes.querierTimeout   {{ igmp_pol.querier_timeout | default(defaults.apic.tenants.policies.igmp_interface_policies.querier_timeout) }}
-    Should Be Equal Value Json String   ${r}   $..igmpIfPol.attributes.queryIntvl   {{ igmp_pol.query_interval | default(defaults.apic.tenants.policies.igmp_interface_policies.query_interval) }}
-    Should Be Equal Value Json String   ${r}   $..igmpIfPol.attributes.robustFac   {{ igmp_pol.robustness_variable | default(defaults.apic.tenants.policies.igmp_interface_policies.robustness_variable) }}
-    Should Be Equal Value Json String   ${r}   $..igmpIfPol.attributes.rspIntvl   {{ igmp_pol.query_response_interval | default(defaults.apic.tenants.policies.igmp_interface_policies.query_response_interval) }}
-    Should Be Equal Value Json String   ${r}   $..igmpIfPol.attributes.startQueryCnt   {{ igmp_pol.startup_query_count | default(defaults.apic.tenants.policies.igmp_interface_policies.startup_query_count) }}
-    Should Be Equal Value Json String   ${r}   $..igmpIfPol.attributes.startQueryIntvl   {{ igmp_pol.startup_query_interval | default(defaults.apic.tenants.policies.igmp_interface_policies.startup_query_interval) }}
-    Should Be Equal Value Json String   ${r}   $..igmpIfPol.attributes.ver   {{ igmp_pol.version | default(defaults.apic.tenants.policies.igmp_interface_policies.version) }}
-    Should Be Equal Value Json String   ${r}   $..igmpIfPol.children..igmpStateLPol.attributes.max   {{ max_entry(igmp_pol.max_mcast_entries | default(defaults.apic.tenants.policies.igmp_interface_policies.max_mcast_entries)) }}
-    Should Be Equal Value Json String   ${r}   $..igmpIfPol.children..igmpStateLPol.attributes.rsvd   {{ reserved_entry(igmp_pol.reserved_mcast_entries | default(defaults.apic.tenants.policies.igmp_interface_policies.reserved_mcast_entries)) }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].igmpIfPol.attributes.name   {{ igmp_pol_name }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].igmpIfPol.attributes.descr   {{ igmp_pol.description | default()}}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].igmpIfPol.attributes.grpTimeout   {{ igmp_pol.grp_timeout | default(defaults.apic.tenants.policies.igmp_interface_policies.grp_timeout) }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].igmpIfPol.attributes.ifCtrl   {{ ctrl | join(',') }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].igmpIfPol.attributes.lastMbrCnt   {{ igmp_pol.last_member_count | default(defaults.apic.tenants.policies.igmp_interface_policies.last_member_count) }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].igmpIfPol.attributes.lastMbrRespTime   {{ igmp_pol.last_member_response_time | default(defaults.apic.tenants.policies.igmp_interface_policies.last_member_response_time) }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].igmpIfPol.attributes.querierTimeout   {{ igmp_pol.querier_timeout | default(defaults.apic.tenants.policies.igmp_interface_policies.querier_timeout) }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].igmpIfPol.attributes.queryIntvl   {{ igmp_pol.query_interval | default(defaults.apic.tenants.policies.igmp_interface_policies.query_interval) }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].igmpIfPol.attributes.robustFac   {{ igmp_pol.robustness_variable | default(defaults.apic.tenants.policies.igmp_interface_policies.robustness_variable) }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].igmpIfPol.attributes.rspIntvl   {{ igmp_pol.query_response_interval | default(defaults.apic.tenants.policies.igmp_interface_policies.query_response_interval) }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].igmpIfPol.attributes.startQueryCnt   {{ igmp_pol.startup_query_count | default(defaults.apic.tenants.policies.igmp_interface_policies.startup_query_count) }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].igmpIfPol.attributes.startQueryIntvl   {{ igmp_pol.startup_query_interval | default(defaults.apic.tenants.policies.igmp_interface_policies.startup_query_interval) }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].igmpIfPol.attributes.ver   {{ igmp_pol.version | default(defaults.apic.tenants.policies.igmp_interface_policies.version) }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].igmpIfPol.children[?igmpStateLPol] | [0].igmpStateLPol.attributes.max   {{ max_entry(igmp_pol.max_mcast_entries | default(defaults.apic.tenants.policies.igmp_interface_policies.max_mcast_entries)) }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].igmpIfPol.children[?igmpStateLPol] | [0].igmpStateLPol.attributes.rsvd   {{ reserved_entry(igmp_pol.reserved_mcast_entries | default(defaults.apic.tenants.policies.igmp_interface_policies.reserved_mcast_entries)) }}
 {% if igmp_pol.state_limit_multicast_route_map is defined %}
 {% set state_limit_rm_name = igmp_pol.state_limit_multicast_route_map ~ defaults.apic.tenants.policies.multicast_route_maps.name_suffix %}
-    Should Be Equal Value Json String   ${r}   $..igmpIfPol.children..igmpStateLPol.children..rtdmcRsFilterToRtMapPol.attributes.tDn   uni/tn-{{ tenant.name }}/rtmap-{{ state_limit_rm_name }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].igmpIfPol.children[?igmpStateLPol] | [0].igmpStateLPol.children[?rtdmcRsFilterToRtMapPol] | [0].rtdmcRsFilterToRtMapPol.attributes.tDn   uni/tn-{{ tenant.name }}/rtmap-{{ state_limit_rm_name }}
 {% endif %}
 {% if igmp_pol.report_policy_multicast_route_map is defined %}
 {% set report_policy_rm_name = igmp_pol.report_policy_multicast_route_map ~ defaults.apic.tenants.policies.multicast_route_maps.name_suffix %}
-    Should Be Equal Value Json String   ${r}   $..igmpIfPol.children..igmpStRepPol.children..rtdmcRsFilterToRtMapPol.attributes.tDn   uni/tn-{{ tenant.name }}/rtmap-{{ report_policy_rm_name }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].igmpIfPol.children[?igmpStRepPol] | [0].igmpStRepPol.children[?rtdmcRsFilterToRtMapPol] | [0].rtdmcRsFilterToRtMapPol.attributes.tDn   uni/tn-{{ tenant.name }}/rtmap-{{ report_policy_rm_name }}
 {% endif %}
 {% if igmp_pol.static_report_multicast_route_map is defined %}
 {% set static_report_rm_name = igmp_pol.static_report_multicast_route_map ~ defaults.apic.tenants.policies.multicast_route_maps.name_suffix %}
-    Should Be Equal Value Json String   ${r}   $..igmpIfPol.children..igmpRepPol.children..rtdmcRsFilterToRtMapPol.attributes.tDn   uni/tn-{{ tenant.name }}/rtmap-{{ static_report_rm_name }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].igmpIfPol.children[?igmpRepPol] | [0].igmpRepPol.children[?rtdmcRsFilterToRtMapPol] | [0].rtdmcRsFilterToRtMapPol.attributes.tDn   uni/tn-{{ tenant.name }}/rtmap-{{ static_report_rm_name }}
 {% endif %}
 
 {% endfor %}

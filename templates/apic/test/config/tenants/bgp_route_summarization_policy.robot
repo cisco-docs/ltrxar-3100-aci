@@ -19,10 +19,10 @@ Resource        ../../../apic_common.resource
 Verify BGP Route Summarization Policy {{ policy_name }}
     ${r}=   GET On Session   apic   /api/mo/uni/tn-{{ tenant.name }}/bgprtsum-{{ policy_name }}.json
     Set Suite Variable   $r   ${r.json()}
-    Should Be Equal Value Json String   ${r}   $..bgpRtSummPol.attributes.name   {{ policy_name }}
-    Should Be Equal Value Json String   ${r}   $..bgpRtSummPol.attributes.descr   {{ brs.description | default() }}
-    Should Be Equal Value Json String   ${r}   $..bgpRtSummPol.attributes.ctrl   {{ ctrl | join(',') }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].bgpRtSummPol.attributes.name   {{ policy_name }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].bgpRtSummPol.attributes.descr   {{ brs.description | default() }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].bgpRtSummPol.attributes.ctrl   {{ ctrl | join(',') }}
 {% if addrTCtrl | join(',') != "af-ucast" %}
-    Should Be Equal Value Json String   ${r}   $..bgpRtSummPol.attributes.addrTCtrl   {{ addrTCtrl | join(',') }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].bgpRtSummPol.attributes.addrTCtrl   {{ addrTCtrl | join(',') }}
 {% endif %}
 {% endfor %}

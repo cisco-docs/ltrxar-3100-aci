@@ -11,18 +11,18 @@ Resource        ../../apic_common.resource
 Verify AAEP {{ aaep_name }}
     ${r}=   GET On Session   apic   /api/mo/uni/infra/attentp-{{ aaep_name }}.json   params=rsp-subtree=full
     Set Suite Variable   $r   ${r.json()}
-    Should Be Equal Value Json String   ${r}    $..infraAttEntityP.attributes.name   {{ aaep_name }}
-    Should Be Equal Value Json String   ${r}    $..infraAttEntityP.attributes.descr   {{ aaep.description | default() }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraAttEntityP.attributes.name   {{ aaep_name }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraAttEntityP.attributes.descr   {{ aaep.description | default() }}
 {% if aaep.infra_vlan | default(defaults.apic.access_policies.aaeps.infra_vlan) %}
-    Should Be Equal Value Json String   ${r}    $..infraProvAcc..infraRsFuncToEpg.attributes.encap   vlan-{{ apic.access_policies.infra_vlan }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraAttEntityP.children[?infraProvAcc] | [0].infraProvAcc.children[?infraRsFuncToEpg] | [0].infraRsFuncToEpg.attributes.encap   vlan-{{ apic.access_policies.infra_vlan }}
 {% endif %}
 
 {% for dom in aaep.physical_domains | default([]) %}
 {% set domain_name = dom ~ defaults.apic.access_policies.physical_domains.name_suffix %}
 
 Verify AAEP {{ aaep_name }} Physical Domain {{ domain_name }}
-    ${domain}=   Set Variable   $..infraAttEntityP.children[?(@.infraRsDomP.attributes.tDn=='uni/phys-{{ domain_name }}')]
-    Should Be Equal Value Json String   ${r}    ${domain}..infraRsDomP.attributes.tDn   uni/phys-{{ domain_name }}
+    ${domain}=   Set Variable   imdata[0].infraAttEntityP.children[?infraRsDomP.attributes.tDn=='uni/phys-{{ domain_name }}'] | [0]
+    Should Be Equal JMESPath Json   ${r}    ${domain}.infraRsDomP.attributes.tDn   uni/phys-{{ domain_name }}
 
 {% endfor %}
 
@@ -30,8 +30,8 @@ Verify AAEP {{ aaep_name }} Physical Domain {{ domain_name }}
 {% set domain_name = dom ~ defaults.apic.access_policies.routed_domains.name_suffix %}
 
 Verify AAEP {{ aaep_name }} Routed Domain {{ domain_name }}
-    ${domain}=   Set Variable   $..infraAttEntityP.children[?(@.infraRsDomP.attributes.tDn=='uni/l3dom-{{ domain_name }}')]
-    Should Be Equal Value Json String   ${r}    ${domain}..infraRsDomP.attributes.tDn   uni/l3dom-{{ domain_name }}
+    ${domain}=   Set Variable   imdata[0].infraAttEntityP.children[?infraRsDomP.attributes.tDn=='uni/l3dom-{{ domain_name }}'] | [0]
+    Should Be Equal JMESPath Json   ${r}    ${domain}.infraRsDomP.attributes.tDn   uni/l3dom-{{ domain_name }}
 
 {% endfor %}
 
@@ -39,8 +39,8 @@ Verify AAEP {{ aaep_name }} Routed Domain {{ domain_name }}
 {% set domain_name = dom ~ defaults.apic.fabric_policies.vmware_vmm_domains.name_suffix %}
 
 Verify AAEP {{ aaep_name }} VMM Domain {{ domain_name }}
-    ${domain}=   Set Variable   $..infraAttEntityP.children[?(@.infraRsDomP.attributes.tDn=='uni/vmmp-VMware/dom-{{ domain_name }}')]
-    Should Be Equal Value Json String   ${r}    ${domain}..infraRsDomP.attributes.tDn   uni/vmmp-VMware/dom-{{ domain_name }}
+    ${domain}=   Set Variable   imdata[0].infraAttEntityP.children[?infraRsDomP.attributes.tDn=='uni/vmmp-VMware/dom-{{ domain_name }}'] | [0]
+    Should Be Equal JMESPath Json   ${r}    ${domain}.infraRsDomP.attributes.tDn   uni/vmmp-VMware/dom-{{ domain_name }}
 
 {% endfor %}
 
@@ -48,8 +48,8 @@ Verify AAEP {{ aaep_name }} VMM Domain {{ domain_name }}
 {% set domain_name = dom ~ defaults.apic.fabric_policies.nutanix_vmm_domains.name_suffix %}
 
 Verify AAEP {{ aaep_name }} VMM Domain {{ domain_name }}
-    ${domain}=   Set Variable   $..infraAttEntityP.children[?(@.infraRsDomP.attributes.tDn=='uni/vmmp-Nutanix/dom-{{ domain_name }}')]
-    Should Be Equal Value Json String   ${r}    ${domain}..infraRsDomP.attributes.tDn   uni/vmmp-Nutanix/dom-{{ domain_name }}
+    ${domain}=   Set Variable   imdata[0].infraAttEntityP.children[?infraRsDomP.attributes.tDn=='uni/vmmp-Nutanix/dom-{{ domain_name }}'] | [0]
+    Should Be Equal JMESPath Json   ${r}    ${domain}.infraRsDomP.attributes.tDn   uni/vmmp-Nutanix/dom-{{ domain_name }}
 
 {% endfor %}
 
@@ -59,20 +59,20 @@ Verify AAEP {{ aaep_name }} VMM Domain {{ domain_name }}
 {% set epg_name = epg.endpoint_group ~ defaults.apic.tenants.application_profiles.endpoint_groups.name_suffix %}
 
 Verify AAEP {{ aaep_name }} Endpoint Group {{ epg_name }} Tenant {{ epg.tenant }} AP {{ ap_name }}
-    ${epg}=   Set Variable   $..infraGeneric.children[?(@.infraRsFuncToEpg.attributes.tDn=='uni/tn-{{ epg.tenant }}/ap-{{ ap_name }}/epg-{{ epg_name }}')]
+    ${epg}=   Set Variable   imdata[0].infraAttEntityP.children[?infraGeneric] | [0].infraGeneric.children[?infraRsFuncToEpg.attributes.tDn=='uni/tn-{{ epg.tenant }}/ap-{{ ap_name }}/epg-{{ epg_name }}'] | [0]
 {% if epg.primary_vlan is defined %}
-    Should Be Equal Value Json String   ${r}    ${epg}..infraRsFuncToEpg.attributes.encap   vlan-{{ epg.secondary_vlan }}
+    Should Be Equal JMESPath Json   ${r}    ${epg}.infraRsFuncToEpg.attributes.encap   vlan-{{ epg.secondary_vlan }}
 {% else %}
-    Should Be Equal Value Json String   ${r}    ${epg}..infraRsFuncToEpg.attributes.encap   vlan-{{ epg.vlan }}
+    Should Be Equal JMESPath Json   ${r}    ${epg}.infraRsFuncToEpg.attributes.encap   vlan-{{ epg.vlan }}
 {% endif %}
 {% if epg.primary_vlan is defined %}
-    Should Be Equal Value Json String   ${r}    ${epg}..infraRsFuncToEpg.attributes.primaryEncap   vlan-{{ epg.primary_vlan }}
+    Should Be Equal JMESPath Json   ${r}    ${epg}.infraRsFuncToEpg.attributes.primaryEncap   vlan-{{ epg.primary_vlan }}
 {% else %}
-    Should Be Equal Value Json String   ${r}    ${epg}..infraRsFuncToEpg.attributes.primaryEncap   unknown
+    Should Be Equal JMESPath Json   ${r}    ${epg}.infraRsFuncToEpg.attributes.primaryEncap   unknown
 {% endif %}
-    Should Be Equal Value Json String   ${r}    ${epg}..infraRsFuncToEpg.attributes.instrImedcy   {{ epg.deployment_immediacy | default(defaults.apic.access_policies.aaeps.endpoint_groups.deployment_immediacy) }}
-    Should Be Equal Value Json String   ${r}    ${epg}..infraRsFuncToEpg.attributes.mode   {{ epg.mode | default(defaults.apic.access_policies.aaeps.endpoint_groups.mode) }}
-    Should Be Equal Value Json String   ${r}    ${epg}..infraRsFuncToEpg.attributes.tDn   uni/tn-{{ epg.tenant }}/ap-{{ ap_name }}/epg-{{ epg_name }}
+    Should Be Equal JMESPath Json   ${r}    ${epg}.infraRsFuncToEpg.attributes.instrImedcy   {{ epg.deployment_immediacy | default(defaults.apic.access_policies.aaeps.endpoint_groups.deployment_immediacy) }}
+    Should Be Equal JMESPath Json   ${r}    ${epg}.infraRsFuncToEpg.attributes.mode   {{ epg.mode | default(defaults.apic.access_policies.aaeps.endpoint_groups.mode) }}
+    Should Be Equal JMESPath Json   ${r}    ${epg}.infraRsFuncToEpg.attributes.tDn   uni/tn-{{ epg.tenant }}/ap-{{ ap_name }}/epg-{{ epg_name }}
 
 {% endfor %}
 {% endif %}

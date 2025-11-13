@@ -8,4 +8,4 @@ Resource        ../../apic_common.resource
 Verify Healt Score Acknowledged Faults
     ${r}=   GET On Session   apic   /api/mo/uni/fabric/hsPols/hseval.json
     Set Suite Variable   $r   ${r.json()}
-    Should Be Equal Value Json String   ${r}    $..healthEvalP.attributes.ignoreAckedFaults   {{ 'yes' if apic.fabric_policies.ignore_acked_faults | default(defaults.apic.fabric_policies.ignore_acked_faults) else 'no' }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].healthEvalP.attributes.ignoreAckedFaults   {{ 'yes' if apic.fabric_policies.ignore_acked_faults | default(defaults.apic.fabric_policies.ignore_acked_faults) else 'no' }}

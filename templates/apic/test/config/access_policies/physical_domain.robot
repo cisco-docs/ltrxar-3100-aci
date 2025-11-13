@@ -11,17 +11,17 @@ Resource        ../../apic_common.resource
 Verify Physical Domain {{ domain_name }}
     ${r}=   GET On Session   apic   /api/mo/uni/phys-{{ domain_name }}.json   params=rsp-subtree=full
     Set Suite Variable   $r   ${r.json()}
-    Should Be Equal Value Json String   ${r}    $..physDomP.attributes.name   {{ domain_name }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].physDomP.attributes.name   {{ domain_name }}
     {% set vlan_pool_name = domain.vlan_pool ~ defaults.apic.access_policies.vlan_pools.name_suffix %}
     {% set query = "vlan_pools[?name==`" ~ vlan_pool_name ~ "`].allocation[]" %}
     {% set allocation = (apic.access_policies | community.general.json_query(query))[0] | default(defaults.apic.access_policies.physical_domains.allocation) %}
-    Should Be Equal Value Json String   ${r}    $..infraRsVlanNs.attributes.tDn   uni/infra/vlanns-[{{ vlan_pool_name }}]-{{ allocation }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].physDomP.children[?infraRsVlanNs] | [0].infraRsVlanNs.attributes.tDn   uni/infra/vlanns-[{{ vlan_pool_name }}]-{{ allocation }}
 
 Verify Physical Domain {{ domain_name }} Security Domains
     ${r}=   GET On Session   apic   /api/mo/uni/phys-{{ domain.name }}.json    params=query-target=children&target-subtree-class=aaaDomainRef
     Set Suite Variable   $r   ${r.json()}
 {% for sd in domain.security_domains | default([]) %}
-    Should Be Equal Value Json String   ${r}   $..imdata[?(@.aaaDomainRef.attributes.name=='{{ sd }}')].aaaDomainRef.attributes.name   {{ sd }}
+    Should Be Equal JMESPath Json   ${r}   imdata[?aaaDomainRef.attributes.name=='{{ sd }}'] | [0].aaaDomainRef.attributes.name   {{ sd }}
 {% endfor %}
 
 {% endfor %}

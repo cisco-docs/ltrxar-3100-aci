@@ -418,6 +418,7 @@ pubhub/
 
 # Pabot
 .pabotsuitenames
+ordering.txt
 
 # Test logs
 apic_*.html
@@ -425,5 +426,18 @@ ndo_*.html
 apic_*.xml
 ndo_*.xml
 
+log.html
+report.html
+output.xml
+
+# common output directories
+output/
+output-*/
+
 # json schema
 schemas/schema.json
+
+# for nac-test-utils coverage tests
+.coverage-backup/
+coverage_manifest.json
+coverage_missing.txt

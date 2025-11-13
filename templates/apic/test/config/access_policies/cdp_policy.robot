@@ -11,7 +11,7 @@ Resource        ../../apic_common.resource
 Verify CDP Interface Policy {{ cdp_policy_name }}
     ${r}=   GET On Session   apic   /api/mo/uni/infra/cdpIfP-{{ cdp_policy_name }}.json
     Set Suite Variable   $r   ${r.json()}
-    Should Be Equal Value Json String   ${r}    $..cdpIfPol.attributes.name   {{ cdp_policy_name }}
-    Should Be Equal Value Json String   ${r}    $..cdpIfPol.attributes.adminSt   {{ 'enabled' if policy.admin_state else 'disabled' }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].cdpIfPol.attributes.name   {{ cdp_policy_name }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].cdpIfPol.attributes.adminSt   {{ 'enabled' if policy.admin_state else 'disabled' }}
 
 {% endfor %}

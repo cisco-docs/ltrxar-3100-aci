@@ -11,10 +11,10 @@ Resource        ../../apic_common.resource
 Verify vPC Switch Policy {{vpc_policy_name }}
     ${r}=   GET On Session   apic   /api/mo/uni/fabric/vpcInst-{{vpc_policy_name }}.json
     Set Suite Variable   $r   ${r.json()}
-    Should Be Equal Value Json String   ${r}    $..vpcInstPol.attributes.name   {{ vpc_policy_name }}
-    Should Be Equal Value Json String   ${r}    $..vpcInstPol.attributes.deadIntvl   {{ policy.peer_dead_interval | default(defaults.apic.access_policies.switch_policies.vpc_policies.peer_dead_interval) }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].vpcInstPol.attributes.name   {{ vpc_policy_name }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].vpcInstPol.attributes.deadIntvl   {{ policy.peer_dead_interval | default(defaults.apic.access_policies.switch_policies.vpc_policies.peer_dead_interval) }}
     {% if policy.delay_restore_timer is defined %}
-    Should Be Equal Value Json String   ${r}    $..vpcInstPol.attributes.delayRestoreTmr   {{ policy.delay_restore_timer }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].vpcInstPol.attributes.delayRestoreTmr   {{ policy.delay_restore_timer }}
     {% endif %}
 
 {% endfor %}

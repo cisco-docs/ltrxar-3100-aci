@@ -14,9 +14,9 @@ Verify Port Interface Type
 {% if full_node.role == "leaf" %}
 {% for interface in node.interfaces | default([]) %}
 {% if interface.type is defined %}
-    ${port}=   Set Variable   $..infraPortDirecPol.children[?(@.infraRsPortDirection.attributes.tDn=='topology/pod-{{ full_node.pod | default(defaults.apic.node_policies.nodes.pod) }}/paths-{{ node.id }}/pathep-[eth{{ interface.module | default(defaults.apic.interface_policies.nodes.interfaces.module) }}/{{ interface.port }}]')].infraRsPortDirection
-    Should Be Equal Value Json String   ${r}    ${port}.attributes.tDn   topology/pod-{{ full_node.pod | default(defaults.apic.node_policies.nodes.pod) }}/paths-{{ node.id }}/pathep-[eth{{ interface.module | default(defaults.apic.interface_policies.nodes.interfaces.module) }}/{{ interface.port }}]
-    Should Be Equal Value Json String   ${r}    ${port}.attributes.direc   {{ 'UpLink' if interface.type == "uplink" else 'DownLink' }}
+    ${port}=   Set Variable   imdata[0].infraPortDirecPol.children[?infraRsPortDirection.attributes.tDn=='topology/pod-{{ full_node.pod | default(defaults.apic.node_policies.nodes.pod) }}/paths-{{ node.id }}/pathep-[eth{{ interface.module | default(defaults.apic.interface_policies.nodes.interfaces.module) }}/{{ interface.port }}]'] | [0].infraRsPortDirection
+    Should Be Equal JMESPath Json   ${r}    ${port}.attributes.tDn   topology/pod-{{ full_node.pod | default(defaults.apic.node_policies.nodes.pod) }}/paths-{{ node.id }}/pathep-[eth{{ interface.module | default(defaults.apic.interface_policies.nodes.interfaces.module) }}/{{ interface.port }}]
+    Should Be Equal JMESPath Json   ${r}    ${port}.attributes.direc   {{ 'UpLink' if interface.type == "uplink" else 'DownLink' }}
 
 
 {% endif %}

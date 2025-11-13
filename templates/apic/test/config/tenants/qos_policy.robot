@@ -13,30 +13,30 @@ Resource        ../../../apic_common.resource
 Verify QoS Policy {{ policy_name }}
     ${r}=   GET On Session   apic   /api/mo/uni/tn-{{ tenant.name }}/qoscustom-{{ policy_name }}.json
     Set Suite Variable   $r   ${r.json()}
-    Should Be Equal Value Json String   ${r}   $..qosCustomPol.attributes.name   {{ policy_name }}
-    Should Be Equal Value Json String   ${r}   $..qosCustomPol.attributes.descr   {{ qos_policy.description | default() }}
-    Should Be Equal Value Json String   ${r}   $..qosCustomPol.attributes.nameAlias   {{ qos_policy.alias | default() }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].qosCustomPol.attributes.name   {{ policy_name }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].qosCustomPol.attributes.descr   {{ qos_policy.description | default() }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].qosCustomPol.attributes.nameAlias   {{ qos_policy.alias | default() }}
 
 {% for pm in qos_policy.dscp_priority_maps | default([]) %}
 Verify QoS Policy DSCP Priority Map {{ pm.dscp_from }} - {{ pm.dscp_to }}
     ${r}=   GET On Session   apic   /api/mo/uni/tn-{{ tenant.name }}/qoscustom-{{ policy_name }}/dcsp-{{ pm.dscp_from }}-{{ pm.dscp_to }}.json
     Set Suite Variable   $r   ${r.json()}
-    Should Be Equal Value Json String   ${r}   $..qosDscpClass.attributes.from   {{ pm.dscp_from }}
-    Should Be Equal Value Json String   ${r}   $..qosDscpClass.attributes.to   {{ pm.dscp_to }}
-    Should Be Equal Value Json String   ${r}   $..qosDscpClass.attributes.prio   {{ pm.priority | default(defaults.apic.tenants.policies.qos.dscp_priority_maps.priority) }}
-    Should Be Equal Value Json String   ${r}   $..qosDscpClass.attributes.target   {{ pm.dscp_target | default(defaults.apic.tenants.policies.qos.dscp_priority_maps.dscp_target) }}
-    Should Be Equal Value Json String   ${r}   $..qosDscpClass.attributes.targetCos   {{ pm.cos_target | default(defaults.apic.tenants.policies.qos.dscp_priority_maps.cos_target) }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].qosDscpClass.attributes.from   {{ pm.dscp_from }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].qosDscpClass.attributes.to   {{ pm.dscp_to }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].qosDscpClass.attributes.prio   {{ pm.priority | default(defaults.apic.tenants.policies.qos.dscp_priority_maps.priority) }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].qosDscpClass.attributes.target   {{ pm.dscp_target | default(defaults.apic.tenants.policies.qos.dscp_priority_maps.dscp_target) }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].qosDscpClass.attributes.targetCos   {{ pm.cos_target | default(defaults.apic.tenants.policies.qos.dscp_priority_maps.cos_target) }}
 {% endfor %}
 
 {% for d1p in qos_policy.dot1p_classifiers | default([]) %}
 Verify QoS Dot1P Classifier {{ d1p.dot1p_from }} - {{ d1p.dot1p_to }}
     ${r}=   GET On Session   apic   /api/mo/uni/tn-{{ tenant.name }}/qoscustom-{{ policy_name }}/dot1P-{{ d1p.dot1p_from }}-{{ d1p.dot1p_to }}.json
     Set Suite Variable   $r   ${r.json()}
-    Should Be Equal Value Json String   ${r}   $..qosDot1PClass.attributes.from   {{ d1p.dot1p_from }}
-    Should Be Equal Value Json String   ${r}   $..qosDot1PClass.attributes.to   {{ d1p.dot1p_to }}
-    Should Be Equal Value Json String   ${r}   $..qosDot1PClass.attributes.prio   {{ d1p.priority | default(defaults.apic.tenants.policies.qos.dot1p_classifiers.priority) }}
-    Should Be Equal Value Json String   ${r}   $..qosDot1PClass.attributes.target   {{ d1p.dscp_target | default(defaults.apic.tenants.policies.qos.dot1p_classifiers.dscp_target) }}
-    Should Be Equal Value Json String   ${r}   $..qosDot1PClass.attributes.targetCos   {{ d1p.cos_target | default(defaults.apic.tenants.policies.qos.dot1p_classifiers.cos_target) }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].qosDot1PClass.attributes.from   {{ d1p.dot1p_from }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].qosDot1PClass.attributes.to   {{ d1p.dot1p_to }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].qosDot1PClass.attributes.prio   {{ d1p.priority | default(defaults.apic.tenants.policies.qos.dot1p_classifiers.priority) }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].qosDot1PClass.attributes.target   {{ d1p.dscp_target | default(defaults.apic.tenants.policies.qos.dot1p_classifiers.dscp_target) }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].qosDot1PClass.attributes.targetCos   {{ d1p.cos_target | default(defaults.apic.tenants.policies.qos.dot1p_classifiers.cos_target) }}
 {% endfor %}
 
 {% endfor %}

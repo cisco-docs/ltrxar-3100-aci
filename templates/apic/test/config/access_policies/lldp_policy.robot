@@ -11,10 +11,10 @@ Resource        ../../apic_common.resource
 Verify LLDP Interface Policy {{ lldp_policy_name }}
     ${r}=   GET On Session   apic   /api/mo/uni/infra/lldpIfP-{{ lldp_policy_name }}.json
     Set Suite Variable   $r   ${r.json()}
-    Should Be Equal Value Json String   ${r}    $..lldpIfPol.attributes.name   {{ lldp_policy_name }}
-    Should Be Equal Value Json String   ${r}    $..lldpIfPol.attributes.adminRxSt   {{ 'enabled' if policy.admin_rx_state else 'disabled' }}
-    Should Be Equal Value Json String   ${r}    $..lldpIfPol.attributes.adminTxSt   {{ 'enabled' if policy.admin_tx_state else 'disabled' }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].lldpIfPol.attributes.name   {{ lldp_policy_name }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].lldpIfPol.attributes.adminRxSt   {{ 'enabled' if policy.admin_rx_state else 'disabled' }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].lldpIfPol.attributes.adminTxSt   {{ 'enabled' if policy.admin_tx_state else 'disabled' }}
     {% if policy.dcbxp_version is defined %}
-    Should Be Equal Value Json String   ${r}    $..lldpIfPol.attributes.portDCBXPVer   {{ policy.dcbxp_version }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].lldpIfPol.attributes.portDCBXPVer   {{ policy.dcbxp_version }}
     {% endif %}
 {% endfor %}

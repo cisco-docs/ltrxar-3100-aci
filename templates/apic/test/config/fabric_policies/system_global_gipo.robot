@@ -8,4 +8,4 @@ Resource        ../../apic_common.resource
 Verify System Global GIPo
     ${r}=   GET On Session   apic   /api/mo/uni/infra/systemgipopol.json
     Set Suite Variable   $r   ${r.json()}
-    Should Be Equal Value Json String   ${r}    $..fmcastSystemGIPoPol.attributes.useConfiguredSystemGIPo   {{ 'enabled' if apic.fabric_policies.use_infra_gipo | default(defaults.apic.fabric_policies.use_infra_gipo) else 'disabled' }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].fmcastSystemGIPoPol.attributes.useConfiguredSystemGIPo   {{ 'enabled' if apic.fabric_policies.use_infra_gipo | default(defaults.apic.fabric_policies.use_infra_gipo) else 'disabled' }}

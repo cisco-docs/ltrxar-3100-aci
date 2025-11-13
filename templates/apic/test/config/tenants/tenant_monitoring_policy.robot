@@ -13,16 +13,16 @@ Resource        ../../../apic_common.resource
 Verify Monitoring Policy {{ policy_name }}
     ${r}=   GET On Session   apic   /api/mo/uni/tn-{{tenant.name}}/monepg-{{policy_name}}.json   params=rsp-subtree=full
     Set Suite Variable   $r   ${r.json()}
-    Should Be Equal Value Json String   ${r}    $..monEPGPol.attributes.name   {{ policy_name }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].monEPGPol.attributes.name   {{ policy_name }}
 
 {% for snmp in policy.snmp_traps | default([]) %}
 {% set snmp_policy_name = snmp.name ~ defaults.apic.tenants.policies.monitoring.policies.snmp_traps.name_suffix %}
 
 Verify Monitoring Policy {{ policy_name }} SNMP Policy {{ snmp_policy_name }}
-    ${mon}=   Set Variable    $..monEPGPol.children[?(@.snmpSrc.attributes.name=='{{ snmp_policy_name }}')]
-    Should Be Equal Value Json String   ${r}    ${mon}..snmpSrc.attributes.name  {{ snmp_policy_name }}
+    ${mon}=   Set Variable    imdata[0].monEPGPol.children[?snmpSrc.attributes.name=='{{ snmp_policy_name }}'] | [0]
+    Should Be Equal JMESPath Json   ${r}    ${mon}.snmpSrc.attributes.name  {{ snmp_policy_name }}
 {% if snmp.destination_group is defined %}
-    Should Be Equal Value Json String   ${r}    ${mon}..snmpSrc.children..snmpRsDestGroup.attributes.tDn   uni/fabric/snmpgroup-{{ snmp.destination_group ~ defaults.apic.fabric_policies.monitoring.snmp_traps.name_suffix }}
+    Should Be Equal JMESPath Json   ${r}    ${mon}.snmpSrc.children[?snmpRsDestGroup] | [0].snmpRsDestGroup.attributes.tDn   uni/fabric/snmpgroup-{{ snmp.destination_group ~ defaults.apic.fabric_policies.monitoring.snmp_traps.name_suffix }}
 {% endif %}
 {% endfor %}
 
@@ -36,26 +36,26 @@ Verify Monitoring Policy {{ policy_name }} SNMP Policy {{ snmp_policy_name }}
 {% if include == ['audit', 'events', 'faults', 'session'] %}{% set include = [("all")] + include %}{% endif %}
 
 Verify Monitoring Policy {{ policy_name }} Syslog Policy {{ syslog_policy_name }}
-    ${sysl}=   Set Variable    $..monEPGPol.children[?(@.syslogSrc.attributes.name=='{{ syslog_policy_name }}')]
-    Should Be Equal Value Json String   ${r}    ${sysl}..syslogSrc.attributes.name  {{ syslog_policy_name }}
-    Should Be Equal Value Json String   ${r}    ${sysl}..syslogSrc.attributes.incl   {{ include | join(',') }}
-    Should Be Equal Value Json String   ${r}    ${sysl}..syslogSrc.attributes.minSev   {{ syslog.minimum_severity | default(defaults.apic.tenants.policies.monitoring.policies.syslogs.minimum_severity) }}
+    ${sysl}=   Set Variable    imdata[0].monEPGPol.children[?syslogSrc.attributes.name=='{{ syslog_policy_name }}'] | [0]
+    Should Be Equal JMESPath Json   ${r}    ${sysl}.syslogSrc.attributes.name  {{ syslog_policy_name }}
+    Should Be Equal JMESPath Json   ${r}    ${sysl}.syslogSrc.attributes.incl   {{ include | join(',') }}
+    Should Be Equal JMESPath Json   ${r}    ${sysl}.syslogSrc.attributes.minSev   {{ syslog.minimum_severity | default(defaults.apic.tenants.policies.monitoring.policies.syslogs.minimum_severity) }}
 {% if syslog.destination_group is defined %}
-    Should Be Equal Value Json String   ${r}    ${sysl}..syslogSrc.children..syslogRsDestGroup.attributes.tDn   uni/fabric/slgroup-{{ syslog.destination_group ~ defaults.apic.fabric_policies.monitoring.syslogs.name_suffix }}
+    Should Be Equal JMESPath Json   ${r}    ${sysl}.syslogSrc.children[?syslogRsDestGroup] | [0].syslogRsDestGroup.attributes.tDn   uni/fabric/slgroup-{{ syslog.destination_group ~ defaults.apic.fabric_policies.monitoring.syslogs.name_suffix }}
 {% endif %}
 {% endfor %}
 
 {% for cl in policy.fault_severity_policies | default([]) %}
 Verify Monitoring Policy {{ policy_name }} Fault Severity Policy Class {{ cl.class }}
-    Should Be Equal Value Json String   ${r}    $..monEPGTarget.attributes.scope  {{ cl.class }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].monEPGPol.children[?monEPGTarget] | [0].monEPGTarget.attributes.scope  {{ cl.class }}
 
 {% for fault in cl.faults | default([]) %}
 Verify Monitoring Policy {{ policy_name }} Fault Severity Policy Class {{ cl.class }} Fault {{ fault.fault_id }}
-    ${sev}=   Set Variable    $..monEPGTarget.children[?(@.faultSevAsnP.attributes.code=='{{ fault.fault_id }}')]
-    Should Be Equal Value Json String   ${r}    ${sev}..faultSevAsnP.attributes.code  {{ fault.fault_id }}
-    Should Be Equal Value Json String   ${r}    ${sev}..faultSevAsnP.attributes.initial  {{ fault.initial_severity | default(defaults.apic.tenants.policies.monitoring.policies.fault_severity_policies.initial_severity) }}
-    Should Be Equal Value Json String   ${r}    ${sev}..faultSevAsnP.attributes.target  {{ fault.target_severity | default(defaults.apic.tenants.policies.monitoring.policies.fault_severity_policies.target_severity) }}
-    Should Be Equal Value Json String   ${r}    ${sev}..faultSevAsnP.attributes.descr  {{ fault.description | default() }}
+    ${sev}=   Set Variable    imdata[0].monEPGPol.children[?monEPGTarget] | [0].monEPGTarget.children[?faultSevAsnP.attributes.code=='{{ fault.fault_id }}'] | [0]
+    Should Be Equal JMESPath Json   ${r}    ${sev}.faultSevAsnP.attributes.code  {{ fault.fault_id }}
+    Should Be Equal JMESPath Json   ${r}    ${sev}.faultSevAsnP.attributes.initial  {{ fault.initial_severity | default(defaults.apic.tenants.policies.monitoring.policies.fault_severity_policies.initial_severity) }}
+    Should Be Equal JMESPath Json   ${r}    ${sev}.faultSevAsnP.attributes.target  {{ fault.target_severity | default(defaults.apic.tenants.policies.monitoring.policies.fault_severity_policies.target_severity) }}
+    Should Be Equal JMESPath Json   ${r}    ${sev}.faultSevAsnP.attributes.descr  {{ fault.description | default() }}
 
 {% endfor %}
 

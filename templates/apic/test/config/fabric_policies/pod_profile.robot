@@ -13,15 +13,15 @@ Resource        ../../apic_common.resource
 Verify Pod Profile {{ pod_profile_name }}
     ${r}=   GET On Session   apic   /api/mo/uni/fabric/podprof-{{ pod_profile_name }}.json   params=rsp-subtree=full
     Set Suite Variable   $r   ${r.json()}
-    Should Be Equal Value Json String   ${r}    $..fabricPodP.attributes.name   {{ pod_profile_name }}
-    Should Be Equal Value Json String   ${r}    $..fabricPodS.attributes.name   {{ pod_profile_pod_selector_name }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].fabricPodP.attributes.name   {{ pod_profile_name }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].fabricPodP.children[?fabricPodS.attributes.name=='{{ pod_profile_pod_selector_name }}'] | [0].fabricPodS.attributes.name   {{ pod_profile_pod_selector_name }}
 {% if pod.policy is defined %}
 {% set pod_policy_group_name = pod.policy ~ defaults.apic.fabric_policies.pod_policy_groups.name_suffix %}
-    Should Be Equal Value Json String   ${r}    $..fabricRsPodPGrp.attributes.tDn   uni/fabric/funcprof/podpgrp-{{ pod_policy_group_name }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].fabricPodP.children[?fabricPodS] | [0].fabricPodS.children[?fabricRsPodPGrp] | [0].fabricRsPodPGrp.attributes.tDn   uni/fabric/funcprof/podpgrp-{{ pod_policy_group_name }}
 {% endif %}
-    Should Be Equal Value Json String   ${r}    $..fabricPodBlk.attributes.name   {{ pod.id }}
-    Should Be Equal Value Json String   ${r}    $..fabricPodBlk.attributes.from_   {{ pod.id }}
-    Should Be Equal Value Json String   ${r}    $..fabricPodBlk.attributes.to_   {{ pod.id }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].fabricPodP.children[?fabricPodS] | [0].fabricPodS.children[?fabricPodBlk.attributes.name=='{{ pod.id }}'] | [0].fabricPodBlk.attributes.name   {{ pod.id }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].fabricPodP.children[?fabricPodS] | [0].fabricPodS.children[?fabricPodBlk.attributes.name=='{{ pod.id }}'] | [0].fabricPodBlk.attributes.from_   {{ pod.id }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].fabricPodP.children[?fabricPodS] | [0].fabricPodS.children[?fabricPodBlk.attributes.name=='{{ pod.id }}'] | [0].fabricPodBlk.attributes.to_   {{ pod.id }}
 
 {% endfor %}
 {% endif %}
@@ -32,32 +32,32 @@ Verify Pod Profile {{ pod_profile_name }}
 Verify Pod Profile {{ pod_profile_name }}
     ${r}=   GET On Session   apic   /api/mo/uni/fabric/podprof-{{ pod_profile_name }}.json   params=rsp-subtree=full
     Set Suite Variable   $r   ${r.json()}
-    Should Be Equal Value Json String   ${r}    $..fabricPodP.attributes.name   {{ pod_profile_name }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].fabricPodP.attributes.name   {{ pod_profile_name }}
 
 {% for sel in prof.selectors | default([]) %}
 {% set selector_name = sel.name ~ defaults.apic.fabric_policies.pod_profiles.selectors.name_suffix %}
 
 Verify Pod Profile {{ pod_profile_name }} Selector {{ selector_name }}
-    ${sel}=   Set Variable   $..fabricPodP.children[?(@.fabricPodS.attributes.name=='{{ selector_name }}')]
-    Should Be Equal Value Json String   ${r}    ${sel}..fabricPodS.attributes.name   {{ selector_name }}
+    ${sel}=   Set Variable   imdata[0].fabricPodP.children[?fabricPodS.attributes.name=='{{ selector_name }}'] | [0].fabricPodS
+    Should Be Equal JMESPath Json   ${r}    ${sel}.attributes.name   {{ selector_name }}
 {% if sel.type | default(defaults.apic.fabric_policies.pod_profiles.selectors.type) == "all" %}
-    Should Be Equal Value Json String   ${r}    ${sel}..fabricPodS.attributes.type   ALL
+    Should Be Equal JMESPath Json   ${r}    ${sel}.attributes.type   ALL
 {% else %}
-    Should Be Equal Value Json String   ${r}    ${sel}..fabricPodS.attributes.type   range
+    Should Be Equal JMESPath Json   ${r}    ${sel}.attributes.type   range
 {% endif %}
 {% if sel.policy is defined %}
 {% set pod_policy_group_name = sel.policy ~ defaults.apic.fabric_policies.pod_policy_groups.name_suffix %}
-    Should Be Equal Value Json String   ${r}    ${sel}..fabricRsPodPGrp.attributes.tDn   uni/fabric/funcprof/podpgrp-{{ pod_policy_group_name }}
+    Should Be Equal JMESPath Json   ${r}    ${sel}.children[?fabricRsPodPGrp] | [0].fabricRsPodPGrp.attributes.tDn   uni/fabric/funcprof/podpgrp-{{ pod_policy_group_name }}
 {% endif %}
 
 {% for blk in sel.pod_blocks | default([]) %}
 {% set pod_block_name = blk.name ~ defaults.apic.fabric_policies.pod_profiles.selectors.pod_blocks.name_suffix %}
 
 Verify Pod Profile {{ pod_profile_name }} Selector {{ selector_name }} Node Block {{ pod_block_name }}
-    ${blk}=   Set Variable   $..fabricPodP.children[?(@.fabricPodS.attributes.name=='{{ selector_name }}')].fabricPodS.children[?(@.fabricPodBlk.attributes.name=='{{ pod_block_name }}')]
-    Should Be Equal Value Json String   ${r}    ${blk}..fabricPodBlk.attributes.name   {{ pod_block_name }}
-    Should Be Equal Value Json String   ${r}    ${blk}..fabricPodBlk.attributes.from_   {{ blk.from }}
-    Should Be Equal Value Json String   ${r}    ${blk}..fabricPodBlk.attributes.to_   {{ blk.to | default(blk.from) }}
+    ${blk}=   Set Variable   imdata[0].fabricPodP.children[?fabricPodS.attributes.name=='{{ selector_name }}'] | [0].fabricPodS.children[?fabricPodBlk.attributes.name=='{{ pod_block_name }}'] | [0].fabricPodBlk
+    Should Be Equal JMESPath Json   ${r}    ${blk}.attributes.name   {{ pod_block_name }}
+    Should Be Equal JMESPath Json   ${r}    ${blk}.attributes.from_   {{ blk.from }}
+    Should Be Equal JMESPath Json   ${r}    ${blk}.attributes.to_   {{ blk.to | default(blk.from) }}
 
 {% endfor %}
 {% endfor %}

@@ -9,11 +9,11 @@ Resource        ../../apic_common.resource
 Verify Smart Licensing
     ${r}=   GET On Session   apic   /api/node/mo/uni/fabric/licensepol.json
     Set Suite Variable   $r   ${r.json()}
-    Should Be Equal Value Json String   ${r}    $..licenseLicPolicy.attributes.mode   {{ apic.fabric_policies.smart_licensing.mode | default(defaults.apic.fabric_policies.smart_licensing.mode) }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].licenseLicPolicy.attributes.mode   {{ apic.fabric_policies.smart_licensing.mode | default(defaults.apic.fabric_policies.smart_licensing.mode) }}
 {% if apic.fabric_policies.smart_licensing.mode == "proxy" %}
-    Should Be Equal Value Json String   ${r}    $..licenseLicPolicy.attributes.ipAddr   {{ apic.fabric_policies.smart_licensing.proxy.hostname_ip }}
-    Should Be Equal Value Json String   ${r}    $..licenseLicPolicy.attributes.port   {{ apic.fabric_policies.smart_licensing.proxy.port | default(defaults.apic.fabric_policies.smart_licensing.proxy.port) }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].licenseLicPolicy.attributes.ipAddr   {{ apic.fabric_policies.smart_licensing.proxy.hostname_ip }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].licenseLicPolicy.attributes.port   {{ apic.fabric_policies.smart_licensing.proxy.port | default(defaults.apic.fabric_policies.smart_licensing.proxy.port) }}
 {% elif apic.fabric_policies.smart_licensing.mode == "satellite" or apic.fabric_policies.smart_licensing.mode == "cslu" or apic.fabric_policies.smart_licensing.mode == "smart-transport-gateway" %}
-    Should Be Equal Value Json String   ${r}    $..licenseLicPolicy.attributes.url   {{ apic.fabric_policies.smart_licensing.url }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].licenseLicPolicy.attributes.url   {{ apic.fabric_policies.smart_licensing.url }}
 {% endif %}
 {% endif %}

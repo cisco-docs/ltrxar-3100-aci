@@ -11,11 +11,11 @@ Resource        ../../apic_common.resource
 Verify Inband Node Address ID {{ node.id }}
     ${r}=   GET On Session   apic   /api/mo/uni/tn-mgmt/mgmtp-default/inb-{{ apic.node_policies.inb_endpoint_group | default(defaults.apic.node_policies.inb_endpoint_group) }}/rsinBStNode-[topology/pod-{{ node.pod | default(defaults.apic.node_policies.nodes.pod) }}/node-{{ node.id }}].json
     Set Suite Variable   $r   ${r.json()}
-    Should Be Equal Value Json String   ${r}    $..mgmtRsInBStNode.attributes.addr   {{ node.inb_address | default() }}
-    Should Be Equal Value Json String   ${r}    $..mgmtRsInBStNode.attributes.gw   {{ node.inb_gateway | default() }}
-    Should Be Equal Value Json String   ${r}    $..mgmtRsInBStNode.attributes.v6Addr   {{ node.inb_v6_address | default() }}
-    Should Be Equal Value Json String   ${r}    $..mgmtRsInBStNode.attributes.v6Gw   {{ node.inb_v6_gateway | default() }}
-    Should Be Equal Value Json String   ${r}    $..mgmtRsInBStNode.attributes.tDn   topology/pod-{{ node.pod | default(defaults.apic.node_policies.nodes.pod) }}/node-{{ node.id }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].mgmtRsInBStNode.attributes.addr   {{ node.inb_address | default() }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].mgmtRsInBStNode.attributes.gw   {{ node.inb_gateway | default() }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].mgmtRsInBStNode.attributes.v6Addr   {{ node.inb_v6_address | default() }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].mgmtRsInBStNode.attributes.v6Gw   {{ node.inb_v6_gateway | default() }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].mgmtRsInBStNode.attributes.tDn   topology/pod-{{ node.pod | default(defaults.apic.node_policies.nodes.pod) }}/node-{{ node.id }}
 
 {% endif %}
 {% endfor %}

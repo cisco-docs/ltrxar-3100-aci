@@ -13,15 +13,15 @@ Resource        ../../../apic_common.resource
 Verify Endpoint IP Tag {{ tag.ip }}
     ${r}=   GET On Session   apic   /api/mo/uni/tn-{{ tenant.name }}/eptags/epiptag-[{{ tag.ip }}]-{{ vrf_name }}.json   params=rsp-subtree=full
     Set Suite Variable   $r   ${r.json()}
-    Should Be Equal Value Json String   ${r}   $..fvEpIpTag.attributes.ip   {{ tag.ip }}
-    Should Be Equal Value Json String   ${r}   $..fvEpIpTag.attributes.ctxName   {{ vrf_name }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].fvEpIpTag.attributes.ip   {{ tag.ip }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].fvEpIpTag.attributes.ctxName   {{ vrf_name }}
 
 {% for kv in tag.tags | default([]) %}
 
 Verify Endpoint IP Tag {{ tag.ip }} Key {{ kv.key }} Value {{ kv.value }}
-    ${con}=   Set Variable   $..fvEpIpTag.children[?(@.tagTag.attributes.key=='{{ kv.key }}')]
-    Should Be Equal Value Json String   ${r}   ${con}..tagTag.attributes.key   {{ kv.key }}
-    Should Be Equal Value Json String   ${r}   ${con}..tagTag.attributes.value   {{ kv.value }}
+    ${con}=   Set Variable   imdata[0].fvEpIpTag.children[?tagTag.attributes.key=='{{ kv.key }}'] | [0]
+    Should Be Equal JMESPath Json   ${r}   ${con}.tagTag.attributes.key   {{ kv.key }}
+    Should Be Equal JMESPath Json   ${r}   ${con}.tagTag.attributes.value   {{ kv.value }}
 
 {% endfor %}
 

@@ -14,7 +14,7 @@ Resource        ../../../apic_common.resource
 Verify Imported Contract {{ imported_con_name }}
     ${r}=   GET On Session   apic   /api/mo/uni/tn-{{ tenant.name }}/cif-{{ imported_con_name }}.json   params=rsp-subtree=full
     Set Suite Variable   $r   ${r.json()}
-    Should Be Equal Value Json String   ${r}   $..vzCPIf.attributes.name   {{ imported_con_name }}
-    Should Be Equal Value Json String   ${r}   $..vzCPIf.children..vzRsIf.attributes.tDn   uni/tn-{{ con.tenant }}/brc-{{ con_name }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].vzCPIf.attributes.name   {{ imported_con_name }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].vzCPIf.children[?vzRsIf] | [0].vzRsIf.attributes.tDn   uni/tn-{{ con.tenant }}/brc-{{ con_name }}
 
 {% endfor %}

@@ -16,29 +16,29 @@ Resource        ../../apic_common.resource
 Verify Access Spine Switch Profile {{ spine_switch_profile_name }}
     ${r}=   GET On Session   apic   /api/mo/uni/infra/spprof-{{ spine_switch_profile_name }}.json   params=rsp-subtree=full
     Set Suite Variable   $r   ${r.json()}
-    Should Be Equal Value Json String   ${r}    $..infraSpineP.attributes.name   {{ spine_switch_profile_name }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraSpineP.attributes.name   {{ spine_switch_profile_name }}
 
 Verify Access Spine Switch Profile {{ spine_switch_profile_name }} Selector
-    ${selector}=   Set Variable   $..infraSpineP.children[?(@.infraSpineS.attributes.name=='{{ spine_switch_selector_name }}')].infraSpineS
-    Should Be Equal Value Json String   ${r}    ${selector}.attributes.name   {{ spine_switch_selector_name }}
+    ${selector}=   Set Variable   imdata[0].infraSpineP.children[?infraSpineS.attributes.name=='{{ spine_switch_selector_name }}'] | [0].infraSpineS
+    Should Be Equal JMESPath Json   ${r}    ${selector}.attributes.name   {{ spine_switch_selector_name }}
 
 {% if node.access_policy_group is defined %}
 {% set policy_group_name = node.access_policy_group ~ defaults.apic.access_policies.spine_switch_policy_groups.name_suffix %}
 Verify Access Spine Switch Profile {{ spine_switch_profile_name }} Policy
-    ${selector}=   Set Variable   $..infraSpineP.children[?(@.infraSpineS.attributes.name=='{{ spine_switch_selector_name }}')].infraSpineS
-    Should Be Equal Value Json String   ${r}    ${selector}..infraRsSpineAccNodePGrp.attributes.tDn   uni/infra/funcprof/spaccnodepgrp-{{ policy_group_name }}
+    ${selector}=   Set Variable   imdata[0].infraSpineP.children[?infraSpineS.attributes.name=='{{ spine_switch_selector_name }}'] | [0].infraSpineS
+    Should Be Equal JMESPath Json   ${r}    ${selector}.children[?infraRsSpineAccNodePGrp] | [0].infraRsSpineAccNodePGrp.attributes.tDn   uni/infra/funcprof/spaccnodepgrp-{{ policy_group_name }}
 {% endif %}
 
 Verify Access Spine Switch Profile {{ spine_switch_profile_name }} Node Block
-    ${selector}=   Set Variable   $..infraSpineP.children[?(@.infraSpineS.attributes.name=='{{ spine_switch_selector_name }}')].infraSpineS
-    ${block}=   Set Variable   ${selector}.children[?(@.infraNodeBlk.attributes.name=='{{ node.id }}')].infraNodeBlk
-    Should Be Equal Value Json String   ${r}    ${block}.attributes.from_   {{ node.id }}
-    Should Be Equal Value Json String   ${r}    ${block}.attributes.name   {{ node.id }}
-    Should Be Equal Value Json String   ${r}    ${block}.attributes.to_   {{ node.id }}
+    ${selector}=   Set Variable   imdata[0].infraSpineP.children[?infraSpineS.attributes.name=='{{ spine_switch_selector_name }}'] | [0].infraSpineS
+    ${block}=   Set Variable   ${selector}.children[?infraNodeBlk.attributes.name=='{{ node.id }}'] | [0].infraNodeBlk
+    Should Be Equal JMESPath Json   ${r}    ${block}.attributes.from_   {{ node.id }}
+    Should Be Equal JMESPath Json   ${r}    ${block}.attributes.name   {{ node.id }}
+    Should Be Equal JMESPath Json   ${r}    ${block}.attributes.to_   {{ node.id }}
 
 Verify Access Spine Switch Profile {{ spine_switch_profile_name }} Interface Profile
-    ${profile}=   Set Variable   $..infraSpineP.children[?(@.infraRsSpAccPortP.attributes.tDn=='uni/infra/spaccportprof-{{ spine_interface_profile_name }}')].infraRsSpAccPortP
-    Should Be Equal Value Json String   ${r}    ${profile}.attributes.tDn   uni/infra/spaccportprof-{{ spine_interface_profile_name }}
+    ${profile}=   Set Variable   imdata[0].infraSpineP.children[?infraRsSpAccPortP.attributes.tDn=='uni/infra/spaccportprof-{{ spine_interface_profile_name }}'] | [0].infraRsSpAccPortP
+    Should Be Equal JMESPath Json   ${r}    ${profile}.attributes.tDn   uni/infra/spaccportprof-{{ spine_interface_profile_name }}
 
 {% endif %}
 {% endfor %}
@@ -50,31 +50,31 @@ Verify Access Spine Switch Profile {{ spine_switch_profile_name }} Interface Pro
 Verify Access Spine Switch Profile {{ spine_switch_profile_name }}
     ${r}=   GET On Session   apic   /api/mo/uni/infra/spprof-{{ spine_switch_profile_name }}.json   params=rsp-subtree=full
     Set Suite Variable   $r   ${r.json()}
-    Should Be Equal Value Json String   ${r}    $..infraSpineP.attributes.name   {{ spine_switch_profile_name }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraSpineP.attributes.name   {{ spine_switch_profile_name }}
 
 {% for sel in prof.selectors | default([]) %}
 {% set spine_switch_selector_name = sel.name ~ defaults.apic.access_policies.spine_switch_profiles.selectors.name_suffix %}
 
 Verify Access Spine Switch Profile {{ spine_switch_profile_name }} Selector {{ spine_switch_selector_name }}
-    ${selector}=   Set Variable   $..infraSpineP.children[?(@.infraSpineS.attributes.name=='{{ spine_switch_selector_name }}')].infraSpineS
-    Should Be Equal Value Json String   ${r}    ${selector}.attributes.name   {{ spine_switch_selector_name }}
+    ${selector}=   Set Variable   imdata[0].infraSpineP.children[?infraSpineS.attributes.name=='{{ spine_switch_selector_name }}'] | [0].infraSpineS
+    Should Be Equal JMESPath Json   ${r}    ${selector}.attributes.name   {{ spine_switch_selector_name }}
 
 {% if sel.policy is defined %}
 {% set policy_group_name = sel.policy ~ defaults.apic.access_policies.spine_switch_policy_groups.name_suffix %}
 Verify Access Spine Switch Profile {{ spine_switch_profile_name }} Selector {{ spine_switch_selector_name }} Policy
-    ${selector}=   Set Variable   $..infraSpineP.children[?(@.infraSpineS.attributes.name=='{{ spine_switch_selector_name }}')].infraSpineS
-    Should Be Equal Value Json String   ${r}    ${selector}..infraRsSpineAccNodePGrp.attributes.tDn   uni/infra/funcprof/spaccnodepgrp-{{ policy_group_name }}
+    ${selector}=   Set Variable   imdata[0].infraSpineP.children[?infraSpineS.attributes.name=='{{ spine_switch_selector_name }}'] | [0].infraSpineS
+    Should Be Equal JMESPath Json   ${r}    ${selector}.children[?infraRsSpineAccNodePGrp] | [0].infraRsSpineAccNodePGrp.attributes.tDn   uni/infra/funcprof/spaccnodepgrp-{{ policy_group_name }}
 {% endif %}
 
 {% for blk in sel.node_blocks | default([]) %}
 {% set block_name = blk.name ~ defaults.apic.access_policies.spine_switch_profiles.selectors.node_blocks.name_suffix %}
 
 Verify Access Spine Switch Profile {{ spine_switch_profile_name }} Selector {{ spine_switch_selector_name }} Node Block {{ block_name }}
-    ${selector}=   Set Variable   $..infraSpineP.children[?(@.infraSpineS.attributes.name=='{{ spine_switch_selector_name }}')].infraSpineS
-    ${block}=   Set Variable   ${selector}.children[?(@.infraNodeBlk.attributes.name=='{{ block_name }}')].infraNodeBlk
-    Should Be Equal Value Json String   ${r}    ${block}.attributes.from_   {{ blk.from }}
-    Should Be Equal Value Json String   ${r}    ${block}.attributes.name   {{ block_name }}
-    Should Be Equal Value Json String   ${r}    ${block}.attributes.to_   {{ blk.to | default(blk.from) }}
+    ${selector}=   Set Variable   imdata[0].infraSpineP.children[?infraSpineS.attributes.name=='{{ spine_switch_selector_name }}'] | [0].infraSpineS
+    ${block}=   Set Variable   ${selector}.children[?infraNodeBlk.attributes.name=='{{ block_name }}'] | [0].infraNodeBlk
+    Should Be Equal JMESPath Json   ${r}    ${block}.attributes.from_   {{ blk.from }}
+    Should Be Equal JMESPath Json   ${r}    ${block}.attributes.name   {{ block_name }}
+    Should Be Equal JMESPath Json   ${r}    ${block}.attributes.to_   {{ blk.to | default(blk.from) }}
 
 {% endfor %}
 {% endfor %}
@@ -83,8 +83,8 @@ Verify Access Spine Switch Profile {{ spine_switch_profile_name }} Selector {{ s
 {% set spine_interface_profile_name = intp ~ defaults.apic.access_policies.spine_interface_profiles.name_suffix %}
 
 Verify Access Spine Switch Profile {{ spine_switch_profile_name }} Interface Profile
-    ${profile}=   Set Variable   $..infraSpineP.children[?(@.infraRsSpAccPortP.attributes.tDn=='uni/infra/spaccportprof-{{ spine_interface_profile_name }}')].infraRsSpAccPortP
-    Should Be Equal Value Json String   ${r}    ${profile}.attributes.tDn   uni/infra/spaccportprof-{{ spine_interface_profile_name }}
+    ${profile}=   Set Variable   imdata[0].infraSpineP.children[?infraRsSpAccPortP.attributes.tDn=='uni/infra/spaccportprof-{{ spine_interface_profile_name }}'] | [0].infraRsSpAccPortP
+    Should Be Equal JMESPath Json   ${r}    ${profile}.attributes.tDn   uni/infra/spaccportprof-{{ spine_interface_profile_name }}
 
 {% endfor %}
 {% endfor %}

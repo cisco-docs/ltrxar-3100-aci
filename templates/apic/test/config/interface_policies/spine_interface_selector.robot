@@ -22,16 +22,16 @@ Resource        ../../../apic_common.resource
 Verify Access Spine Interface Profile {{ spine_interface_profile_name }} Selector {{ spine_interface_selector_name }}
     ${r}=   GET On Session   apic   /api/mo/uni/infra/spaccportprof-{{ spine_interface_profile_name }}/shports-{{ spine_interface_selector_name }}-typ-range.json   params=rsp-subtree=full
     Set Suite Variable   $r   ${r.json()}
-    Should Be Equal Value Json String   ${r}    $..infraSHPortS.attributes.name   {{ spine_interface_selector_name }}
-    Should Be Equal Value Json String   ${r}    $..infraPortBlk.attributes.descr   {{ int.description | default() }}
-    Should Be Equal Value Json String   ${r}    $..infraPortBlk.attributes.fromCard   {{ module }}
-    Should Be Equal Value Json String   ${r}    $..infraPortBlk.attributes.fromPort   {{ int.port }}
-    Should Be Equal Value Json String   ${r}    $..infraPortBlk.attributes.name   {{ module }}-{{ int.port }}
-    Should Be Equal Value Json String   ${r}    $..infraPortBlk.attributes.toCard   {{ module }}
-    Should Be Equal Value Json String   ${r}    $..infraPortBlk.attributes.toPort   {{ int.port }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraSHPortS.attributes.name   {{ spine_interface_selector_name }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraSHPortS.children[?infraPortBlk] | [0].infraPortBlk.attributes.descr   {{ int.description | default() }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraSHPortS.children[?infraPortBlk] | [0].infraPortBlk.attributes.fromCard   {{ module }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraSHPortS.children[?infraPortBlk] | [0].infraPortBlk.attributes.fromPort   {{ int.port }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraSHPortS.children[?infraPortBlk] | [0].infraPortBlk.attributes.name   {{ module }}-{{ int.port }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraSHPortS.children[?infraPortBlk] | [0].infraPortBlk.attributes.toCard   {{ module }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraSHPortS.children[?infraPortBlk] | [0].infraPortBlk.attributes.toPort   {{ int.port }}
 {% if int.policy_group is defined %}
 {% set policy_group_name = int.policy_group ~ defaults.apic.access_policies.spine_interface_policy_groups.name_suffix %}
-    Should Be Equal Value Json String   ${r}    $..infraRsSpAccGrp.attributes.tDn   uni/infra/funcprof/spaccportgrp-{{ policy_group_name }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraSHPortS.children[?infraRsSpAccGrp] | [0].infraRsSpAccGrp.attributes.tDn   uni/infra/funcprof/spaccportgrp-{{ policy_group_name }}
 {% endif %}
 
 {% endif %}

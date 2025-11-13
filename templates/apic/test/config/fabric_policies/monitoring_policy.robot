@@ -11,8 +11,8 @@ Resource        ../../apic_common.resource
 Verify Monitoring Policy SNMP Trap Policy {{ snmp_policy_name }}
     ${r}=   GET On Session   apic   /api/mo/uni/fabric/moncommon/snmpsrc-{{ snmp_policy_name }}.json   params=rsp-subtree=full
     Set Suite Variable   $r   ${r.json()}
-    Should Be Equal Value Json String   ${r}    $..snmpSrc.attributes.name   {{ snmp_policy_name }}
-    Should Be Equal Value Json String   ${r}    $..snmpRsDestGroup.attributes.tDn   uni/fabric/snmpgroup-{{ snmp_policy_name }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].snmpSrc.attributes.name   {{ snmp_policy_name }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].snmpSrc.children[?snmpRsDestGroup] | [0].snmpRsDestGroup.attributes.tDn   uni/fabric/snmpgroup-{{ snmp_policy_name }}
 
 {% endfor %}
 
@@ -28,9 +28,9 @@ Verify Monitoring Policy SNMP Trap Policy {{ snmp_policy_name }}
 Verify Monitoring Policy Syslog Policy {{ syslog_policy_name }}
     ${r}=   GET On Session   apic   /api/mo/uni/fabric/moncommon/slsrc-{{ syslog_policy_name }}.json   params=rsp-subtree=full
     Set Suite Variable   $r   ${r.json()}
-    Should Be Equal Value Json String   ${r}    $..syslogSrc.attributes.name   {{ syslog_policy_name }}
-    Should Be Equal Value Json String   ${r}    $..syslogSrc.attributes.incl   {{ include | join(',') }}
-    Should Be Equal Value Json String   ${r}    $..syslogSrc.attributes.minSev   {{ syslog.minimum_severity | default(defaults.apic.fabric_policies.monitoring.syslogs.minimum_severity) }}
-    Should Be Equal Value Json String   ${r}    $..syslogRsDestGroup.attributes.tDn   uni/fabric/slgroup-{{ syslog_policy_name }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].syslogSrc.attributes.name   {{ syslog_policy_name }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].syslogSrc.attributes.incl   {{ include | join(',') }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].syslogSrc.attributes.minSev   {{ syslog.minimum_severity | default(defaults.apic.fabric_policies.monitoring.syslogs.minimum_severity) }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].syslogSrc.children[?syslogRsDestGroup] | [0].syslogRsDestGroup.attributes.tDn   uni/fabric/slgroup-{{ syslog_policy_name }}
 
 {% endfor %}

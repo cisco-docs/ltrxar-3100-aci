@@ -13,18 +13,18 @@ Resource        ../../../apic_common.resource
 Verify Multicast Route Map Policy {{ policy_name }}
     ${r}=   GET On Session   apic   /api/node/mo/uni/tn-{{ tenant.name }}/rtmap-{{ policy_name }}.json   params=rsp-subtree=full
     Set Suite Variable   $r   ${r.json()}
-    Should Be Equal Value Json String   ${r}   $..pimRouteMapPol.attributes.name   {{ policy_name }}
-    Should Be Equal Value Json String   ${r}   $..pimRouteMapPol.attributes.descr   {{ mrm.description | default("") }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].pimRouteMapPol.attributes.name   {{ policy_name }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].pimRouteMapPol.attributes.descr   {{ mrm.description | default("") }}
 
 {% for route_map_entry in policy.entries | default([]) %}
 
 Verify Multicast Route Map Policy {{ policy_name }} entry {{ route_map_entry.order }}
-    ${entry}=   Set Variable   $..pimRouteMapPol.children[?(@.pimRouteMapEntry.attributes.order=='{{ route_map_entry.order }}')]
-    Should Be Equal Value Json String   ${r}    ${entry}..attributes.order    {{ route_map_entry.order }}
-    Should Be Equal Value Json String   ${r}    ${entry}..attributes.src    {{ route_map_entry.source_ip  | default(defaults.apic.tenants.policies.multicast_route_maps.entries.source_ip) }}
-    Should Be Equal Value Json String   ${r}    ${entry}..attributes.grp    {{ route_map_entry.group_ip | default(defaults.apic.tenants.policies.multicast_route_maps.entries.group_ip) }}
-    Should Be Equal Value Json String   ${r}    ${entry}..attributes.rp    {{ route_map_entry.rp_ip | default(defaults.apic.tenants.policies.multicast_route_maps.entries.rp_ip) }}
-    Should Be Equal Value Json String   ${r}    ${entry}..attributes.action    {{ route_map_entry.action | default(defaults.apic.tenants.policies.multicast_route_maps.entries.action) }}
+    ${entry}=   Set Variable   imdata[0].pimRouteMapPol.children[?pimRouteMapEntry.attributes.order=='{{ route_map_entry.order }}'] | [0].pimRouteMapEntry
+    Should Be Equal JMESPath Json   ${r}    ${entry}.attributes.order    {{ route_map_entry.order }}
+    Should Be Equal JMESPath Json   ${r}    ${entry}.attributes.src    {{ route_map_entry.source_ip  | default(defaults.apic.tenants.policies.multicast_route_maps.entries.source_ip) }}
+    Should Be Equal JMESPath Json   ${r}    ${entry}.attributes.grp    {{ route_map_entry.group_ip | default(defaults.apic.tenants.policies.multicast_route_maps.entries.group_ip) }}
+    Should Be Equal JMESPath Json   ${r}    ${entry}.attributes.rp    {{ route_map_entry.rp_ip | default(defaults.apic.tenants.policies.multicast_route_maps.entries.rp_ip) }}
+    Should Be Equal JMESPath Json   ${r}    ${entry}.attributes.action    {{ route_map_entry.action | default(defaults.apic.tenants.policies.multicast_route_maps.entries.action) }}
 {% endfor %}
 
 {% endfor %}

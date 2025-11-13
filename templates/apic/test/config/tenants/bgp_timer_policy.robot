@@ -13,12 +13,12 @@ Resource        ../../../apic_common.resource
 Verify BGP Timer Policy {{ bgp_timer_name }}
     ${r}=   GET On Session   apic   /api/mo/uni/tn-{{ tenant.name }}/bgpCtxP-{{ bgp_timer_name }}.json
     Set Suite Variable   $r   ${r.json()}
-    Should Be Equal Value Json String   ${r}   $..bgpCtxPol.attributes.name   {{ bgp_timer_name }}
-    Should Be Equal Value Json String   ${r}   $..bgpCtxPol.attributes.descr   {{ bt.description | default() }}
-    Should Be Equal Value Json String   ${r}   $..bgpCtxPol.attributes.grCtrl   {{ 'helper' if bt.graceful_restart_helper | default(defaults.apic.tenants.policies.bgp_timer_policies.graceful_restart_helper) }}
-    Should Be Equal Value Json String   ${r}   $..bgpCtxPol.attributes.holdIntvl   {{ bt.hold_interval | default(defaults.apic.tenants.policies.bgp_timer_policies.hold_interval) }}
-    Should Be Equal Value Json String   ${r}   $..bgpCtxPol.attributes.kaIntvl   {{ bt.keepalive_interval | default(defaults.apic.tenants.policies.bgp_timer_policies.keepalive_interval) }}
-    Should Be Equal Value Json String   ${r}   $..bgpCtxPol.attributes.maxAsLimit   {{ bt.maximum_as_limit | default(defaults.apic.tenants.policies.bgp_timer_policies.maximum_as_limit) }}
-    Should Be Equal Value Json String   ${r}   $..bgpCtxPol.attributes.staleIntvl  {{ 'default' if bt.stale_interval | default(defaults.apic.tenants.policies.bgp_timer_policies.stale_interval) == 300 else bt.stale_interval | default(defaults.apic.tenants.policies.bgp_timer_policies.stale_interval) }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].bgpCtxPol.attributes.name   {{ bgp_timer_name }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].bgpCtxPol.attributes.descr   {{ bt.description | default() }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].bgpCtxPol.attributes.grCtrl   {{ 'helper' if bt.graceful_restart_helper | default(defaults.apic.tenants.policies.bgp_timer_policies.graceful_restart_helper) }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].bgpCtxPol.attributes.holdIntvl   {{ bt.hold_interval | default(defaults.apic.tenants.policies.bgp_timer_policies.hold_interval) }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].bgpCtxPol.attributes.kaIntvl   {{ bt.keepalive_interval | default(defaults.apic.tenants.policies.bgp_timer_policies.keepalive_interval) }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].bgpCtxPol.attributes.maxAsLimit   {{ bt.maximum_as_limit | default(defaults.apic.tenants.policies.bgp_timer_policies.maximum_as_limit) }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].bgpCtxPol.attributes.staleIntvl  {{ 'default' if bt.stale_interval | default(defaults.apic.tenants.policies.bgp_timer_policies.stale_interval) == 300 else bt.stale_interval | default(defaults.apic.tenants.policies.bgp_timer_policies.stale_interval) }}
 
 {% endfor %}

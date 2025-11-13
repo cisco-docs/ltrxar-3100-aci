@@ -16,29 +16,29 @@ Resource        ../../apic_common.resource
 Verify Fabric Spine Switch Profile {{ spine_switch_profile_name }}
     ${r}=   GET On Session   apic   /api/mo/uni/fabric/spprof-{{ spine_switch_profile_name }}.json   params=rsp-subtree=full
     Set Suite Variable   $r   ${r.json()}
-    Should Be Equal Value Json String   ${r}    $..fabricSpineP.attributes.name   {{ spine_switch_profile_name }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].fabricSpineP.attributes.name   {{ spine_switch_profile_name }}
 
 Verify Fabric Spine Switch Profile {{ spine_switch_profile_name }} Selector
-   ${selector}=   Set Variable   $..fabricSpineP.children[?(@.fabricSpineS.attributes.name=='{{ spine_switch_selector_name }}')].fabricSpineS
-    Should Be Equal Value Json String   ${r}    ${selector}.attributes.name   {{ spine_switch_selector_name }}
+   ${selector}=   Set Variable   imdata[0].fabricSpineP.children[?fabricSpineS.attributes.name=='{{ spine_switch_selector_name }}'] | [0].fabricSpineS
+    Should Be Equal JMESPath Json   ${r}    ${selector}.attributes.name   {{ spine_switch_selector_name }}
 
 {% if node.fabric_policy_group is defined %}
 {% set policy_group_name = node.fabric_policy_group ~ defaults.apic.fabric_policies.spine_switch_policy_groups.name_suffix %}
 Verify Fabric Spine Switch Profile {{ spine_switch_profile_name }} Policy
-    ${selector}=   Set Variable   $..fabricSpineP.children[?(@.fabricSpineS.attributes.name=='{{ spine_switch_selector_name }}')].fabricSpineS
-    Should Be Equal Value Json String   ${r}    ${selector}.children..fabricRsSpNodePGrp.attributes.tDn   uni/fabric/funcprof/spnodepgrp-{{ policy_group_name }}
+    ${selector}=   Set Variable   imdata[0].fabricSpineP.children[?fabricSpineS.attributes.name=='{{ spine_switch_selector_name }}'] | [0].fabricSpineS
+    Should Be Equal JMESPath Json   ${r}   ${selector}.children[?fabricRsSpNodePGrp] | [0].fabricRsSpNodePGrp.attributes.tDn   uni/fabric/funcprof/spnodepgrp-{{ policy_group_name }}
 {% endif %}
 
 Verify Fabric Spine Switch Profile {{ spine_switch_profile_name }} Node Block
-    ${selector}=   Set Variable   $..fabricSpineP.children[?(@.fabricSpineS.attributes.name=='{{ spine_switch_selector_name }}')].fabricSpineS
-    ${block}=   Set Variable   ${selector}.children[?(@.fabricNodeBlk.attributes.name=='{{ node.id }}')].fabricNodeBlk
-    Should Be Equal Value Json String   ${r}    ${block}.attributes.from_   {{ node.id }}
-    Should Be Equal Value Json String   ${r}    ${block}.attributes.name   {{ node.id }}
-    Should Be Equal Value Json String   ${r}    ${block}.attributes.to_   {{ node.id }}
+    ${selector}=   Set Variable   imdata[0].fabricSpineP.children[?fabricSpineS.attributes.name=='{{ spine_switch_selector_name }}'] | [0].fabricSpineS
+    ${block}=   Set Variable   ${selector}.children[?fabricNodeBlk.attributes.name=='{{ node.id }}'] | [0].fabricNodeBlk
+    Should Be Equal JMESPath Json   ${r}    ${block}.attributes.from_   {{ node.id }}
+    Should Be Equal JMESPath Json   ${r}    ${block}.attributes.name   {{ node.id }}
+    Should Be Equal JMESPath Json   ${r}    ${block}.attributes.to_   {{ node.id }}
 
 Verify Fabric Spine Switch Profile {{ spine_switch_profile_name }} Interface Profile
-    ${profile}=   Set Variable   $..fabricSpineP.children[?(@.fabricRsSpPortP.attributes.tDn=='uni/fabric/spportp-{{ spine_interface_profile_name }}')].fabricRsSpPortP
-    Should Be Equal Value Json String   ${r}    ${profile}.attributes.tDn   uni/fabric/spportp-{{ spine_interface_profile_name }}
+    ${profile}=   Set Variable   imdata[0].fabricSpineP.children[?fabricRsSpPortP.attributes.tDn=='uni/fabric/spportp-{{ spine_interface_profile_name }}'] | [0].fabricRsSpPortP
+    Should Be Equal JMESPath Json   ${r}    ${profile}.attributes.tDn   uni/fabric/spportp-{{ spine_interface_profile_name }}
 
 {% endif %}
 {% endfor %}
@@ -50,20 +50,20 @@ Verify Fabric Spine Switch Profile {{ spine_switch_profile_name }} Interface Pro
 Verify Fabric Spine Switch Profile {{ spine_switch_profile_name }}
     ${r}=   GET On Session   apic   /api/mo/uni/fabric/spprof-{{ spine_switch_profile_name }}.json   params=rsp-subtree=full
     Set Suite Variable   $r   ${r.json()}
-    Should Be Equal Value Json String   ${r}    $..fabricSpineP.attributes.name   {{ spine_switch_profile_name }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].fabricSpineP.attributes.name   {{ spine_switch_profile_name }}
 
 {% for sel in prof.selectors | default([]) %}
 {% set spine_switch_selector_name = sel.name ~ defaults.apic.fabric_policies.spine_switch_profiles.selectors.name_suffix %}
 
 Verify Fabric Spine Switch Profile {{ spine_switch_profile_name }} Selector {{ spine_switch_selector_name }}
-    ${selector}=   Set Variable   $..fabricSpineP.children[?(@.fabricSpineS.attributes.name=='{{ spine_switch_selector_name }}')].fabricSpineS
-    Should Be Equal Value Json String   ${r}    ${selector}.attributes.name   {{ spine_switch_selector_name }}
+    ${selector}=   Set Variable   imdata[0].fabricSpineP.children[?fabricSpineS.attributes.name=='{{ spine_switch_selector_name }}'] | [0].fabricSpineS
+    Should Be Equal JMESPath Json   ${r}    ${selector}.attributes.name   {{ spine_switch_selector_name }}
 
 {% if sel.policy is defined %}
 {% set policy_group_name = sel.policy ~ defaults.apic.fabric_policies.spine_switch_policy_groups.name_suffix %}
 Verify Fabric Spine Switch Profile {{ spine_switch_profile_name }} Selector {{ spine_switch_selector_name }} Policy
-    ${selector}=   Set Variable   $..fabricSpineP.children[?(@.fabricSpineS.attributes.name=='{{ spine_switch_selector_name }}')].fabricSpineS
-    Should Be Equal Value Json String   ${r}     ${selector}.children..fabricRsSpNodePGrp.attributes.tDn   uni/fabric/funcprof/spnodepgrp-{{ policy_group_name }}
+    ${selector}=   Set Variable   imdata[0].fabricSpineP.children[?fabricSpineS.attributes.name=='{{ spine_switch_selector_name }}'] | [0].fabricSpineS
+    Should Be Equal JMESPath Json   ${r}   ${selector}.children[?fabricRsSpNodePGrp] | [0].fabricRsSpNodePGrp.attributes.tDn   uni/fabric/funcprof/spnodepgrp-{{ policy_group_name }}
 
 {% endif %}
 
@@ -71,11 +71,11 @@ Verify Fabric Spine Switch Profile {{ spine_switch_profile_name }} Selector {{ s
 {% set block_name = blk.name ~ defaults.apic.fabric_policies.spine_switch_profiles.selectors.node_blocks.name_suffix %}
 
 Verify Fabric Spine Switch Profile {{ spine_switch_profile_name }} Selector {{ spine_switch_selector_name }} Node Block {{ block_name }}
-    ${selector}=   Set Variable   $..fabricSpineP.children[?(@.fabricSpineS.attributes.name=='{{ spine_switch_selector_name }}')].fabricSpineS
-    ${block}=   Set Variable   ${selector}.children[?(@.fabricNodeBlk.attributes.name=='{{ block_name }}')].fabricNodeBlk
-    Should Be Equal Value Json String   ${r}    ${block}.attributes.from_   {{ blk.from }}
-    Should Be Equal Value Json String   ${r}    ${block}.attributes.name   {{ block_name }}
-    Should Be Equal Value Json String   ${r}    ${block}.attributes.to_   {{ blk.to | default(blk.from) }}
+    ${selector}=   Set Variable   imdata[0].fabricSpineP.children[?fabricSpineS.attributes.name=='{{ spine_switch_selector_name }}'] | [0].fabricSpineS
+    ${block}=   Set Variable   ${selector}.children[?fabricNodeBlk.attributes.name=='{{ block_name }}'] | [0].fabricNodeBlk
+    Should Be Equal JMESPath Json   ${r}    ${block}.attributes.from_   {{ blk.from }}
+    Should Be Equal JMESPath Json   ${r}    ${block}.attributes.name   {{ block_name }}
+    Should Be Equal JMESPath Json   ${r}    ${block}.attributes.to_   {{ blk.to | default(blk.from) }}
 
 {% endfor %}
 
@@ -85,8 +85,8 @@ Verify Fabric Spine Switch Profile {{ spine_switch_profile_name }} Selector {{ s
 {% set spine_interface_profile_name = intp ~ defaults.apic.fabric_policies.spine_interface_profiles.name_suffix %}
 
 Verify Fabric Spine Switch Profile {{ spine_switch_profile_name }} Interface Profile
-    ${profile}=   Set Variable   $..fabricSpineP.children[?(@.fabricRsSpPortP.attributes.tDn=='uni/fabric/spportp-{{ spine_interface_profile_name }}')].fabricRsSpPortP
-    Should Be Equal Value Json String   ${r}    ${profile}.attributes.tDn   uni/fabric/spportp-{{ spine_interface_profile_name }}
+    ${profile}=   Set Variable   imdata[0].fabricSpineP.children[?fabricRsSpPortP.attributes.tDn=='uni/fabric/spportp-{{ spine_interface_profile_name }}'] | [0].fabricRsSpPortP
+    Should Be Equal JMESPath Json   ${r}    ${profile}.attributes.tDn   uni/fabric/spportp-{{ spine_interface_profile_name }}
 
 {% endfor %}
 

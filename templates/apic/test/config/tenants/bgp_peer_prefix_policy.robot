@@ -13,14 +13,14 @@ Resource        ../../../apic_common.resource
 Verify BGP Peer Prefix Policy {{ bgp_peer_prefix_name }}
     ${r}=   GET On Session   apic   /api/mo/uni/tn-{{ tenant.name }}/bgpPfxP-{{ bgp_peer_prefix_name }}.json
     Set Suite Variable   $r   ${r.json()}
-    Should Be Equal Value Json String   ${r}   $..bgpPeerPfxPol.attributes.name   {{ bgp_peer_prefix_name }}
-    Should Be Equal Value Json String   ${r}   $..bgpPeerPfxPol.attributes.descr   {{ bpp.description | default() }}
-    Should Be Equal Value Json String   ${r}   $..bgpPeerPfxPol.attributes.dn   uni/tn-{{ tenant.name }}/bgpPfxP-{{ bgp_peer_prefix_name }}
-    Should Be Equal Value Json String   ${r}   $..bgpPeerPfxPol.attributes.action   {{ bpp.action | default(defaults.apic.tenants.policies.bgp_peer_prefix_policies.action) }}
-    Should Be Equal Value Json String   ${r}   $..bgpPeerPfxPol.attributes.maxPfx   {{ bpp.max_prefixes | default(defaults.apic.tenants.policies.bgp_peer_prefix_policies.max_prefixes) }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].bgpPeerPfxPol.attributes.name   {{ bgp_peer_prefix_name }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].bgpPeerPfxPol.attributes.descr   {{ bpp.description | default() }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].bgpPeerPfxPol.attributes.dn   uni/tn-{{ tenant.name }}/bgpPfxP-{{ bgp_peer_prefix_name }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].bgpPeerPfxPol.attributes.action   {{ bpp.action | default(defaults.apic.tenants.policies.bgp_peer_prefix_policies.action) }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].bgpPeerPfxPol.attributes.maxPfx   {{ bpp.max_prefixes | default(defaults.apic.tenants.policies.bgp_peer_prefix_policies.max_prefixes) }}
 {% if bpp.action | default(defaults.apic.tenants.policies.bgp_peer_prefix_policies.action) == "restart" %}
-    Should Be Equal Value Json String   ${r}   $..bgpPeerPfxPol.attributes.restartTime   {{ bpp.restart_time | default(defaults.apic.tenants.policies.bgp_peer_prefix_policies.restart_time) }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].bgpPeerPfxPol.attributes.restartTime   {{ bpp.restart_time | default(defaults.apic.tenants.policies.bgp_peer_prefix_policies.restart_time) }}
 {% endif %}
-    Should Be Equal Value Json String   ${r}   $..bgpPeerPfxPol.attributes.thresh   {{ bpp.threshold | default(defaults.apic.tenants.policies.bgp_peer_prefix_policies.threshold) }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].bgpPeerPfxPol.attributes.thresh   {{ bpp.threshold | default(defaults.apic.tenants.policies.bgp_peer_prefix_policies.threshold) }}
 
 {% endfor %}

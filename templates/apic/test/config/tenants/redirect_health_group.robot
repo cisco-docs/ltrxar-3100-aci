@@ -13,6 +13,6 @@ Resource        ../../../apic_common.resource
 Verify Redirect Health Group {{ health_group_name }}
     ${r}=   GET On Session   apic   /api/mo/uni/tn-{{ tenant.name }}/svcCont/redirectHealthGroup-{{ health_group_name }}.json   params=rsp-subtree=full
     Set Suite Variable   $r   ${r.json()}
-    Should Be Equal Value Json String   ${r}   $..vnsRedirectHealthGroup.attributes.descr   {{ health_grp.description | default() }}
-    Should Be Equal Value Json String   ${r}   $..vnsRedirectHealthGroup.attributes.name   {{ health_group_name }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].vnsRedirectHealthGroup.attributes.descr   {{ health_grp.description | default() }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].vnsRedirectHealthGroup.attributes.name   {{ health_group_name }}
 {% endfor %}

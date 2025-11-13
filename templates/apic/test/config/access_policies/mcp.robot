@@ -8,10 +8,10 @@ Resource        ../../apic_common.resource
 Verify MCP Global Instance
     ${r}=   GET On Session   apic   /api/mo/uni/infra/mcpInstP-default.json
     Set Suite Variable   $r   ${r.json()}
-    Should Be Equal Value Json String   ${r}    $..mcpInstPol.attributes.adminSt   {{ 'enabled' if apic.access_policies.mcp.admin_state | default(defaults.apic.access_policies.mcp.admin_state) else 'disabled' }}
-    Should Be Equal Value Json String   ${r}    $..mcpInstPol.attributes.ctrl   {{ 'pdu-per-vlan' if apic.access_policies.mcp.per_vlan | default(defaults.apic.access_policies.mcp.per_vlan) else '' }}
-    Should Be Equal Value Json String   ${r}    $..mcpInstPol.attributes.initDelayTime   {{ apic.access_policies.mcp.initial_delay | default(defaults.apic.access_policies.mcp.initial_delay) }}
-    Should Be Equal Value Json String   ${r}    $..mcpInstPol.attributes.loopDetectMult   {{ apic.access_policies.mcp.loop_detection | default(defaults.apic.access_policies.mcp.loop_detection) }}
-    Should Be Equal Value Json String   ${r}    $..mcpInstPol.attributes.loopProtectAct   {{ 'port-disable' if apic.access_policies.mcp.action | default(defaults.apic.access_policies.mcp.action) else '' }}
-    Should Be Equal Value Json String   ${r}    $..mcpInstPol.attributes.txFreq   {{ apic.access_policies.mcp.frequency_sec | default(defaults.apic.access_policies.mcp.frequency_sec) }}
-    Should Be Equal Value Json String   ${r}    $..mcpInstPol.attributes.txFreqMsec   {{ apic.access_policies.mcp.frequency_msec | default(defaults.apic.access_policies.mcp.frequency_msec) }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].mcpInstPol.attributes.adminSt   {{ 'enabled' if apic.access_policies.mcp.admin_state | default(defaults.apic.access_policies.mcp.admin_state) else 'disabled' }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].mcpInstPol.attributes.ctrl   {{ 'pdu-per-vlan' if apic.access_policies.mcp.per_vlan | default(defaults.apic.access_policies.mcp.per_vlan) else '' }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].mcpInstPol.attributes.initDelayTime   {{ apic.access_policies.mcp.initial_delay | default(defaults.apic.access_policies.mcp.initial_delay) }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].mcpInstPol.attributes.loopDetectMult   {{ apic.access_policies.mcp.loop_detection | default(defaults.apic.access_policies.mcp.loop_detection) }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].mcpInstPol.attributes.loopProtectAct   {{ 'port-disable' if apic.access_policies.mcp.action | default(defaults.apic.access_policies.mcp.action) else '' }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].mcpInstPol.attributes.txFreq   {{ apic.access_policies.mcp.frequency_sec | default(defaults.apic.access_policies.mcp.frequency_sec) }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].mcpInstPol.attributes.txFreqMsec   {{ apic.access_policies.mcp.frequency_msec | default(defaults.apic.access_policies.mcp.frequency_msec) }}

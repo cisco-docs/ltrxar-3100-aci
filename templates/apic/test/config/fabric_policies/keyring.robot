@@ -11,11 +11,11 @@ Resource        ../../apic_common.resource
 Verify Keyring {{ keyring_name }}
     ${r}=   GET On Session   apic   api/node/mo/uni/userext/pkiext/keyring-{{ keyring_name }}.json
     Set Suite Variable   $r   ${r.json()}
-    Should Be Equal Value Json String   ${r}    $..pkiKeyRing.attributes.name  {{ keyring_name }}
-    Should Be Equal Value Json String   ${r}    $..pkiKeyRing.attributes.descr  {{ keyring.description | default() }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].pkiKeyRing.attributes.name  {{ keyring_name }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].pkiKeyRing.attributes.descr  {{ keyring.description | default() }}
 {% if keyring.ca_certificate is defined %}
-    Should Be Equal Value Json String   ${r}    $..pkiKeyRing.attributes.tp  {{ keyring.ca_certificate }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].pkiKeyRing.attributes.tp  {{ keyring.ca_certificate }}
 {% endif %}
-    Should Be Equal Value Json String   ${r}    $..pkiKeyRing.attributes.modulus  {{ keyring.modulus | default(defaults.apic.fabric_policies.aaa.key_rings.modulus) }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].pkiKeyRing.attributes.modulus  {{ keyring.modulus | default(defaults.apic.fabric_policies.aaa.key_rings.modulus) }}
 
 {% endfor %}

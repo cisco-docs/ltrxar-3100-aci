@@ -13,20 +13,20 @@ Resource        ../../apic_common.resource
 Verify Pod Profile {{ pod_profile_name }} Faults
     ${r}=   GET On Session   apic   /api/mo/uni/fabric/podprof-{{ pod_profile_name }}/fltCnts.json
     Set Suite Variable   $r   ${r.json()}
-    ${critical}=   Get Value From Json   ${r}   $..faultCounts.attributes.crit
-    ${major}=   Get Value From Json   ${r}   $..faultCounts.attributes.maj
-    ${minor}=   Get Value From Json   ${r}   $..faultCounts.attributes.minor
+    ${critical}=   Json Search String   ${r}   imdata[0].faultCounts.attributes.crit
+    ${major}=   Json Search String   ${r}   imdata[0].faultCounts.attributes.maj
+    ${minor}=   Json Search String   ${r}   imdata[0].faultCounts.attributes.minor
 {% if pod.expected_state.maximum_critical_faults is defined %}
-    Run Keyword If   ${critical}[0] > {{ pod.expected_state.maximum_critical_faults }}   Run Keyword And Continue On Failure
-    ...   Fail  "{{ pod_profile_name }} has ${critical}[0] critical faults"
+    Run Keyword If   ${critical} > {{ pod.expected_state.maximum_critical_faults }}   Run Keyword And Continue On Failure
+    ...   Fail  "{{ pod_profile_name }} has ${critical} critical faults"
 {% endif %}
 {% if pod.expected_state.maximum_major_faults is defined %}
-    Run Keyword If   ${major}[0] > {{ pod.expected_state.maximum_major_faults }}   Run Keyword And Continue On Failure
-    ...   Fail  "{{ pod_profile_name }} has ${major}[0] major faults"
+    Run Keyword If   ${major} > {{ pod.expected_state.maximum_major_faults }}   Run Keyword And Continue On Failure
+    ...   Fail  "{{ pod_profile_name }} has ${major} major faults"
 {% endif %}
 {% if pod.expected_state.maximum_minor_faults is defined %}
-    Run Keyword If   ${minor}[0] > {{ pod.expected_state.maximum_minor_faults }}   Run Keyword And Continue On Failure
-    ...   Fail  "{{ pod_profile_name }} has ${minor}[0] minor faults"
+    Run Keyword If   ${minor} > {{ pod.expected_state.maximum_minor_faults }}   Run Keyword And Continue On Failure
+    ...   Fail  "{{ pod_profile_name }} has ${minor} minor faults"
 {% endif %}
 {% endif %}
 
@@ -35,10 +35,10 @@ Verify Pod Profile {{ pod_profile_name }} Faults Pre-Check
     [Tags]   pre-check
     ${r}=   GET On Session   apic   /api/mo/uni/fabric/podprof-{{ pod_profile_name }}/fltCnts.json
     Set Suite Variable   $r   ${r.json()}
-    ${critical}=   Get Value From Json   ${r}   $..faultCounts.attributes.crit
-    ${major}=   Get Value From Json   ${r}   $..faultCounts.attributes.maj
-    ${minor}=   Get Value From Json   ${r}   $..faultCounts.attributes.minor
-    &{json}=    Create Dictionary   critical=${critical}[0]   major=${major}[0]   minor=${minor}[0]
+    ${critical}=   Json Search String   ${r}   imdata[0].faultCounts.attributes.crit
+    ${major}=   Json Search String   ${r}   imdata[0].faultCounts.attributes.maj
+    ${minor}=   Json Search String   ${r}   imdata[0].faultCounts.attributes.minor
+    &{json}=    Create Dictionary   critical=${critical}   major=${major}   minor=${minor}
     Create Directory   ${STATE_PATH}
     evaluate   json.dump($json, open('${STATE_PATH}pod_profile_{{ pod_profile_name }}_faults.json', 'w'))   modules=json
 {% endif %}
@@ -48,16 +48,16 @@ Verify Pod Profile {{ pod_profile_name }} Faults Post-Check
     [Tags]   post-check
     ${r}=   GET On Session   apic   /api/mo/uni/fabric/podprof-{{ pod_profile_name }}/fltCnts.json
     Set Suite Variable   $r   ${r.json()}
-    ${critical}=   Get Value From Json   ${r}   $..faultCounts.attributes.crit
-    ${major}=   Get Value From Json   ${r}   $..faultCounts.attributes.maj
-    ${minor}=   Get Value From Json   ${r}   $..faultCounts.attributes.minor
+    ${critical}=   Json Search String   ${r}   imdata[0].faultCounts.attributes.crit
+    ${major}=   Json Search String   ${r}   imdata[0].faultCounts.attributes.maj
+    ${minor}=   Json Search String   ${r}   imdata[0].faultCounts.attributes.minor
     &{previous}=   evaluate   json.load(open('${STATE_PATH}pod_profile_{{ pod_profile_name }}_faults.json'))   modules=json
-    Run Keyword If   ${critical}[0] > ${previous["critical"]}   Run Keyword And Continue On Failure
-    ...   Fail  "Number of critical faults increased from ${previous["critical"]} to ${critical}[0]"
-    Run Keyword If   ${major}[0] > ${previous["major"]}   Run Keyword And Continue On Failure
-    ...   Fail  "Number of major faults increased from ${previous["major"]} to ${major}[0]"
-    Run Keyword If   ${minor}[0] > ${previous["minor"]}   Run Keyword And Continue On Failure
-    ...   Fail  "Number of minor faults increased from ${previous["minor"]} to ${minor}[0]"
+    Run Keyword If   ${critical} > ${previous["critical"]}   Run Keyword And Continue On Failure
+    ...   Fail  "Number of critical faults increased from ${previous["critical"]} to ${critical}"
+    Run Keyword If   ${major} > ${previous["major"]}   Run Keyword And Continue On Failure
+    ...   Fail  "Number of major faults increased from ${previous["major"]} to ${major}"
+    Run Keyword If   ${minor} > ${previous["minor"]}   Run Keyword And Continue On Failure
+    ...   Fail  "Number of minor faults increased from ${previous["minor"]} to ${minor}"
 {% endif %}
 
 {% endfor %}

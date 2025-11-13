@@ -9,8 +9,8 @@ Resource        ../../apic_common.resource
 Verify System Perfomance
     ${r}=   GET On Session   apic   /api/mo/uni/fabric/comm-default/apiResp.json
     Set Suite Variable   $r   ${r.json()}
-    Should Be Equal Value Json String   ${r}    $..commApiRespTime.attributes.enableCalculation   {{ 'enabled' if apic.fabric_policies.system_performance.admin_state | default(defaults.apic.fabric_policies.system_performance.admin_state) else 'disabled' }}
-    Should Be Equal Value Json String   ${r}    $..commApiRespTime.attributes.respTimeThreshold   {{ apic.fabric_policies.system_performance.response_threshold | default(defaults.apic.fabric_policies.system_performance.response_threshold) }}
-    Should Be Equal Value Json String   ${r}    $..commApiRespTime.attributes.topNRequests   {{ apic.fabric_policies.system_performance.top_slowest_requests | default(defaults.apic.fabric_policies.system_performance.top_slowest_requests) }}
-    Should Be Equal Value Json String   ${r}    $..commApiRespTime.attributes.calcWindow   {{ apic.fabric_policies.system_performance.calculation_window | default(defaults.apic.fabric_policies.system_performance.calculation_window ) }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].commApiRespTime.attributes.enableCalculation   {{ 'enabled' if apic.fabric_policies.system_performance.admin_state | default(defaults.apic.fabric_policies.system_performance.admin_state) else 'disabled' }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].commApiRespTime.attributes.respTimeThreshold   {{ apic.fabric_policies.system_performance.response_threshold | default(defaults.apic.fabric_policies.system_performance.response_threshold) }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].commApiRespTime.attributes.topNRequests   {{ apic.fabric_policies.system_performance.top_slowest_requests | default(defaults.apic.fabric_policies.system_performance.top_slowest_requests) }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].commApiRespTime.attributes.calcWindow   {{ apic.fabric_policies.system_performance.calculation_window | default(defaults.apic.fabric_policies.system_performance.calculation_window ) }}
 {% endif %}

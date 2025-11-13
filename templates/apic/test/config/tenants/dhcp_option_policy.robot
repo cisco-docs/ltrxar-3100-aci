@@ -13,17 +13,17 @@ Resource        ../../../apic_common.resource
 Verify DHCP Option Policy {{ policy_name }}
     ${r}=   GET On Session   apic   /api/node/mo/uni/tn-{{ tenant.name }}/dhcpoptpol-{{ policy_name }}.json   params=rsp-subtree=full
     Set Suite Variable   $r   ${r.json()}
-    Should Be Equal Value Json String   ${r}   $..dhcpOptionPol.attributes.name   {{ policy_name }}
-    Should Be Equal Value Json String   ${r}   $..dhcpOptionPol.attributes.descr  {{ policy.description | default() }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].dhcpOptionPol.attributes.name   {{ policy_name }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].dhcpOptionPol.attributes.descr  {{ policy.description | default() }}
 
 {% for option in policy.options | default([]) %}
 {% set option_name = option.name ~ defaults.apic.tenants.policies.dhcp_option_policies.options.name_suffix %}
 
 Verify DHCP Option Policy {{ policy_name }} Option {{ option_name }}
-    ${option}=   Set Variable   $..dhcpOptionPol.children[?(@.dhcpOption.attributes.name=='{{ option_name }}')]
-    Should Be Equal Value Json String   ${r}   ${option}..dhcpOption.attributes.name   {{ option_name }}
-    Should Be Equal Value Json String   ${r}   ${option}..dhcpOption.attributes.id   {{ option.id | default() }}
-    Should Be Equal Value Json String   ${r}   ${option}..dhcpOption.attributes.data   {{ option.data | default() }}
+    ${option}=   Set Variable   imdata[0].dhcpOptionPol.children[?dhcpOption.attributes.name=='{{ option_name }}'] | [0]
+    Should Be Equal JMESPath Json   ${r}   ${option}.dhcpOption.attributes.name   {{ option_name }}
+    Should Be Equal JMESPath Json   ${r}   ${option}.dhcpOption.attributes.id   {{ option.id | default() }}
+    Should Be Equal JMESPath Json   ${r}   ${option}.dhcpOption.attributes.data   {{ option.data | default() }}
 
 {% endfor %}
 

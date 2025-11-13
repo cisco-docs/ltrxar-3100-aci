@@ -19,27 +19,27 @@ Resource        ../../../apic_common.resource
 Verify Tenant {{ tenant.name }} Filter {{ filter_name }}
     ${r}=   GET On Session   apic   /api/mo/uni/tn-{{ tenant.name }}/flt-{{ filter_name }}.json   params=rsp-subtree=full
     Set Suite Variable   $r   ${r.json()}
-    Should Be Equal Value Json String   ${r}   $..vzFilter.attributes.name   {{ filter_name }}
-    Should Be Equal Value Json String   ${r}   $..vzFilter.attributes.nameAlias   {{ filter.alias  | default() }}
-    Should Be Equal Value Json String   ${r}   $..vzFilter.attributes.descr   {{ filter.description | default() }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].vzFilter.attributes.name   {{ filter_name }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].vzFilter.attributes.nameAlias   {{ filter.alias  | default() }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].vzFilter.attributes.descr   {{ filter.description | default() }}
 
 {% for entry in filter.entries | default([]) %}
 {% set entry_name = entry.name ~ defaults.apic.tenants.filters.entries.name_suffix %}
 
 Verify Tenant {{ tenant.name }} Filter {{ filter.name }} Entry {{ entry_name }}
-    ${filter_entry}=   Set Variable   $..vzFilter.children[?(@.vzEntry.attributes.name=='{{ entry_name }}')].vzEntry
-    Should Be Equal Value Json String   ${r}   ${filter_entry}.attributes.name   {{ entry_name }}
-    Should Be Equal Value Json String   ${r}   ${filter_entry}.attributes.nameAlias   {{ entry.alias | default() }}
-    Should Be Equal Value Json String   ${r}   ${filter_entry}.attributes.etherT   {{ entry.ethertype | default(defaults.apic.tenants.filters.entries.ethertype) }}
+    ${filter_entry}=   Set Variable   imdata[0].vzFilter.children[?vzEntry.attributes.name=='{{ entry_name }}'] | [0].vzEntry
+    Should Be Equal JMESPath Json   ${r}   ${filter_entry}.attributes.name   {{ entry_name }}
+    Should Be Equal JMESPath Json   ${r}   ${filter_entry}.attributes.nameAlias   {{ entry.alias | default() }}
+    Should Be Equal JMESPath Json   ${r}   ${filter_entry}.attributes.etherT   {{ entry.ethertype | default(defaults.apic.tenants.filters.entries.ethertype) }}
 {% if entry.ethertype | default(defaults.apic.tenants.filters.entries.ethertype) in ['ip', 'ipv4', 'ipv6'] %}
-    Should Be Equal Value Json String   ${r}   ${filter_entry}.attributes.prot   {{ entry.protocol | default(defaults.apic.tenants.filters.entries.protocol) }}
+    Should Be Equal JMESPath Json   ${r}   ${filter_entry}.attributes.prot   {{ entry.protocol | default(defaults.apic.tenants.filters.entries.protocol) }}
 {% if entry.protocol | default(defaults.apic.tenants.filters.entries.protocol) in ['tcp', 'udp'] %}
-    Should Be Equal Value Json String   ${r}   ${filter_entry}.attributes.sFromPort   {{ get_protocol_from_port(entry.source_from_port | default(defaults.apic.tenants.filters.entries.source_from_port)) }}
-    Should Be Equal Value Json String   ${r}   ${filter_entry}.attributes.sToPort   {{ get_protocol_from_port(entry.source_to_port| default(entry.source_from_port | default(defaults.apic.tenants.filters.entries.source_from_port))) }}
-    Should Be Equal Value Json String   ${r}   ${filter_entry}.attributes.dFromPort   {{ get_protocol_from_port(entry.destination_from_port | default(defaults.apic.tenants.filters.entries.destination_from_port)) }}
-    Should Be Equal Value Json String   ${r}   ${filter_entry}.attributes.dToPort   {{ get_protocol_from_port(entry.destination_to_port | default(entry.destination_from_port | default(defaults.apic.tenants.filters.entries.destination_from_port))) }}
+    Should Be Equal JMESPath Json   ${r}   ${filter_entry}.attributes.sFromPort   {{ get_protocol_from_port(entry.source_from_port | default(defaults.apic.tenants.filters.entries.source_from_port)) }}
+    Should Be Equal JMESPath Json   ${r}   ${filter_entry}.attributes.sToPort   {{ get_protocol_from_port(entry.source_to_port| default(entry.source_from_port | default(defaults.apic.tenants.filters.entries.source_from_port))) }}
+    Should Be Equal JMESPath Json   ${r}   ${filter_entry}.attributes.dFromPort   {{ get_protocol_from_port(entry.destination_from_port | default(defaults.apic.tenants.filters.entries.destination_from_port)) }}
+    Should Be Equal JMESPath Json   ${r}   ${filter_entry}.attributes.dToPort   {{ get_protocol_from_port(entry.destination_to_port | default(entry.destination_from_port | default(defaults.apic.tenants.filters.entries.destination_from_port))) }}
 {% if entry.protocol | default(defaults.apic.tenants.filters.entries.protocol) == 'tcp' %}
-    Should Be Equal Value Json String   ${r}   ${filter_entry}.attributes.stateful   {{ 'yes' if entry.stateful | default(defaults.apic.tenants.filters.entries.stateful) else 'no' }}
+    Should Be Equal JMESPath Json   ${r}   ${filter_entry}.attributes.stateful   {{ 'yes' if entry.stateful | default(defaults.apic.tenants.filters.entries.stateful) else 'no' }}
 {% endif %}
 {% endif %}
 {% endif %}

@@ -13,14 +13,14 @@ Resource        ../../../apic_common.resource
 Verify IGMP Snooping Policy {{ policy_name }} Faults
     ${r}=   GET On Session   apic   /api/mo/uni/tn-{{ tenant.name }}/snPol-{{ policy_name }}/fltCnts.json
     Set Suite Variable   $r   ${r.json()}
-    ${critical}=   Get Value From Json   ${r}   $..faultCounts.attributes.crit
-    ${major}=   Get Value From Json   ${r}   $..faultCounts.attributes.maj
-    ${minor}=   Get Value From Json   ${r}   $..faultCounts.attributes.minor
-    Run Keyword If   ${critical}[0] > 0   Run Keyword And Continue On Failure
-    ...   Fail  "{{ policy_name }} has ${critical}[0] critical faults"
-    Run Keyword If   ${major}[0] > 0   Run Keyword And Continue On Failure
-    ...   Fail  "{{ policy_name }} has ${major}[0] major faults"
-    Run Keyword If   ${minor}[0] > 0   Run Keyword And Continue On Failure
-    ...   Fail  "{{ policy_name }} has ${minor}[0] minor faults"
+    ${critical}=   Json Search String   ${r}   imdata[0].faultCounts.attributes.crit
+    ${major}=   Json Search String   ${r}   imdata[0].faultCounts.attributes.maj
+    ${minor}=   Json Search String   ${r}   imdata[0].faultCounts.attributes.minor
+    Run Keyword If   ${critical} > 0   Run Keyword And Continue On Failure
+    ...   Fail  "{{ policy_name }} has ${critical} critical faults"
+    Run Keyword If   ${major} > 0   Run Keyword And Continue On Failure
+    ...   Fail  "{{ policy_name }} has ${major} major faults"
+    Run Keyword If   ${minor} > 0   Run Keyword And Continue On Failure
+    ...   Fail  "{{ policy_name }} has ${minor} minor faults"
 
 {% endfor %}

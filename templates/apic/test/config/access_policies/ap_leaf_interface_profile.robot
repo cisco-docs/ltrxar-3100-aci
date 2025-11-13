@@ -14,7 +14,7 @@ Resource        ../../apic_common.resource
 Verify Access Leaf Interface Profile {{ leaf_interface_profile_name }}
     ${r}=   GET On Session   apic   /api/mo/uni/infra/accportprof-{{ leaf_interface_profile_name }}.json
     Set Suite Variable   $r   ${r.json()}
-    Should Be Equal Value Json String   ${r}    $..infraAccPortP.attributes.name   {{ leaf_interface_profile_name }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraAccPortP.attributes.name   {{ leaf_interface_profile_name }}
 
 {% endif %}
 {% endfor %}
@@ -26,30 +26,30 @@ Verify Access Leaf Interface Profile {{ leaf_interface_profile_name }}
 Verify Access Leaf Interface Profile {{ leaf_interface_profile_name }}
     ${r}=   GET On Session   apic   /api/mo/uni/infra/accportprof-{{ leaf_interface_profile_name }}.json   params=rsp-subtree=full
     Set Suite Variable   $r   ${r.json()}
-    Should Be Equal Value Json String   ${r}    $..infraAccPortP.attributes.name   {{ leaf_interface_profile_name }}
-    Should Be Equal Value Json String   ${r}    $..infraAccPortP.attributes.descr   {{ prof.description | default() }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraAccPortP.attributes.name   {{ leaf_interface_profile_name }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraAccPortP.attributes.descr   {{ prof.description | default() }}
 
 {% for sel in prof.selectors | default([]) %}
 {% set leaf_interface_selector_name = sel.name ~ defaults.apic.access_policies.leaf_interface_profiles.selectors.name_suffix %}
 
 Verify Access Leaf Interface Profile {{ leaf_interface_profile_name }} Selector {{ leaf_interface_selector_name }}
-    ${sel}=   Set Variable   $..infraAccPortP.children[?(@.infraHPortS.attributes.name=='{{ leaf_interface_selector_name }}')]
-    Should Be Equal Value Json String   ${r}    ${sel}..infraHPortS.attributes.name   {{ leaf_interface_selector_name }}
-    Should Be Equal Value Json String   ${r}    ${sel}..infraHPortS.attributes.descr   {{ sel.description | default() }}
+    ${sel}=   Set Variable   imdata[0].infraAccPortP.children[?infraHPortS.attributes.name=='{{ leaf_interface_selector_name }}'] | [0]
+    Should Be Equal JMESPath Json   ${r}    ${sel}.infraHPortS.attributes.name   {{ leaf_interface_selector_name }}
+    Should Be Equal JMESPath Json   ${r}    ${sel}.infraHPortS.attributes.descr   {{ sel.description | default() }}
 {% if sel.fex_id is defined %}
 {% set fex_profile_name = sel.fex_profile ~ defaults.apic.access_policies.fex_interface_profiles.name_suffix %}
-    Should Be Equal Value Json String   ${r}    ${sel}..infraRsAccBaseGrp.attributes.fexId   {{ sel.fex_id }}
-    Should Be Equal Value Json String   ${r}    ${sel}..infraRsAccBaseGrp.attributes.tDn   uni/infra/fexprof-{{ fex_profile_name }}/fexbundle-{{ fex_profile_name }}
+    Should Be Equal JMESPath Json   ${r}    ${sel}.infraHPortS.children[?infraRsAccBaseGrp] | [0].infraRsAccBaseGrp.attributes.fexId   {{ sel.fex_id }}
+    Should Be Equal JMESPath Json   ${r}    ${sel}.infraHPortS.children[?infraRsAccBaseGrp] | [0].infraRsAccBaseGrp.attributes.tDn   uni/infra/fexprof-{{ fex_profile_name }}/fexbundle-{{ fex_profile_name }}
 {% elif sel.policy_group is defined %}
 {% set query = "leaf_interface_policy_groups[?name=='" ~ sel.policy_group ~ "'].type[]" %}
 {% set type = (apic.access_policies | community.general.json_query(query)) %}
 {% set policy_group_name = sel.policy_group ~ defaults.apic.access_policies.leaf_interface_policy_groups.name_suffix %}
 {% if type[0] in ["pc", "vpc"] %}
-    Should Be Equal Value Json String   ${r}    ${sel}..infraRsAccBaseGrp.attributes.tDn   uni/infra/funcprof/accbundle-{{ policy_group_name }}
+    Should Be Equal JMESPath Json   ${r}    ${sel}.infraHPortS.children[?infraRsAccBaseGrp] | [0].infraRsAccBaseGrp.attributes.tDn   uni/infra/funcprof/accbundle-{{ policy_group_name }}
 {% elif type[0] == "breakout" %}
-    Should Be Equal Value Json String   ${r}    ${sel}..infraRsAccBaseGrp.attributes.tDn   uni/infra/funcprof/brkoutportgrp-{{ policy_group_name }}
+    Should Be Equal JMESPath Json   ${r}    ${sel}.infraHPortS.children[?infraRsAccBaseGrp] | [0].infraRsAccBaseGrp.attributes.tDn   uni/infra/funcprof/brkoutportgrp-{{ policy_group_name }}
 {% else %}
-    Should Be Equal Value Json String   ${r}    ${sel}..infraRsAccBaseGrp.attributes.tDn   uni/infra/funcprof/accportgrp-{{ policy_group_name }}
+    Should Be Equal JMESPath Json   ${r}    ${sel}.infraHPortS.children[?infraRsAccBaseGrp] | [0].infraRsAccBaseGrp.attributes.tDn   uni/infra/funcprof/accportgrp-{{ policy_group_name }}
 {% endif %}
 {% endif %}
 
@@ -57,12 +57,12 @@ Verify Access Leaf Interface Profile {{ leaf_interface_profile_name }} Selector 
 {% set block_name = blk.name ~ defaults.apic.access_policies.leaf_interface_profiles.selectors.port_blocks.name_suffix %}
 
 Verify Access Leaf Interface Profile {{ leaf_interface_profile_name }} Selector {{ leaf_interface_selector_name }} Port Block {{ block_name }}
-    ${blk}=   Set Variable   $..infraAccPortP.children[?(@.infraHPortS.attributes.name=='{{ leaf_interface_selector_name }}')].infraHPortS.children[?(@.infraPortBlk.attributes.name=='{{ block_name }}')]
-    Should Be Equal Value Json String   ${r}    ${blk}..infraPortBlk.attributes.name   {{ block_name }}
-    Should Be Equal Value Json String   ${r}    ${blk}..infraPortBlk.attributes.fromCard   {{ blk.from_module | default(defaults.apic.access_policies.leaf_interface_profiles.selectors.port_blocks.from_module) }}
-    Should Be Equal Value Json String   ${r}    ${blk}..infraPortBlk.attributes.fromPort   {{ blk.from_port }}
-    Should Be Equal Value Json String   ${r}    ${blk}..infraPortBlk.attributes.toCard   {{ blk.to_module | default(blk.from_module | default(defaults.apic.access_policies.leaf_interface_profiles.selectors.port_blocks.from_module)) }}
-    Should Be Equal Value Json String   ${r}    ${blk}..infraPortBlk.attributes.toPort   {{ blk.to_port | default(blk.from_port) }}
+    ${blk}=   Set Variable   imdata[0].infraAccPortP.children[?infraHPortS.attributes.name=='{{ leaf_interface_selector_name }}'] | [0].infraHPortS.children[?infraPortBlk.attributes.name=='{{ block_name }}'] | [0]
+    Should Be Equal JMESPath Json   ${r}    ${blk}.infraPortBlk.attributes.name   {{ block_name }}
+    Should Be Equal JMESPath Json   ${r}    ${blk}.infraPortBlk.attributes.fromCard   {{ blk.from_module | default(defaults.apic.access_policies.leaf_interface_profiles.selectors.port_blocks.from_module) }}
+    Should Be Equal JMESPath Json   ${r}    ${blk}.infraPortBlk.attributes.fromPort   {{ blk.from_port }}
+    Should Be Equal JMESPath Json   ${r}    ${blk}.infraPortBlk.attributes.toCard   {{ blk.to_module | default(blk.from_module | default(defaults.apic.access_policies.leaf_interface_profiles.selectors.port_blocks.from_module)) }}
+    Should Be Equal JMESPath Json   ${r}    ${blk}.infraPortBlk.attributes.toPort   {{ blk.to_port | default(blk.from_port) }}
 
 {% endfor %}
 
@@ -70,15 +70,15 @@ Verify Access Leaf Interface Profile {{ leaf_interface_profile_name }} Selector 
 {% set sub_block_name = sub_blk.name ~ defaults.apic.access_policies.leaf_interface_profiles.selectors.sub_port_blocks.name_suffix %}
 
 Verify Access Leaf Interface Profile {{ leaf_interface_profile_name }} Selector {{ leaf_interface_selector_name }} Sub-Port Block {{ sub_block_name }}
-    ${blk}=   Set Variable   $..infraAccPortP.children[?(@.infraHPortS.attributes.name=='{{ leaf_interface_selector_name }}')].infraHPortS.children[?(@.infraSubPortBlk.attributes.name=='{{ sub_block_name }}')]
-    Should Be Equal Value Json String   ${r}    ${blk}..infraSubPortBlk.attributes.descr   {{ sub_blk.description | default() }}
-    Should Be Equal Value Json String   ${r}    ${blk}..infraSubPortBlk.attributes.fromCard   {{ sub_blk.from_module | default(defaults.apic.access_policies.leaf_interface_profiles.selectors.sub_port_blocks.from_module) }}
-    Should Be Equal Value Json String   ${r}    ${blk}..infraSubPortBlk.attributes.fromPort   {{ sub_blk.from_port }}
-    Should Be Equal Value Json String   ${r}    ${blk}..infraSubPortBlk.attributes.name   {{ sub_block_name }}
-    Should Be Equal Value Json String   ${r}    ${blk}..infraSubPortBlk.attributes.toCard   {{ sub_blk.to_module | default(sub_blk.from_module | default(defaults.apic.access_policies.leaf_interface_profiles.selectors.sub_port_blocks.from_module)) }}
-    Should Be Equal Value Json String   ${r}    ${blk}..infraSubPortBlk.attributes.toPort   {{ sub_blk.to_port | default(sub_blk.from_port) }}
-    Should Be Equal Value Json String   ${r}    ${blk}..infraSubPortBlk.attributes.fromSubPort   {{ sub_blk.from_sub_port }}
-    Should Be Equal Value Json String   ${r}    ${blk}..infraSubPortBlk.attributes.toSubPort   {{ sub_blk.to_sub_port | default(sub_blk.from_sub_port) }}
+    ${blk}=   Set Variable   imdata[0].infraAccPortP.children[?infraHPortS.attributes.name=='{{ leaf_interface_selector_name }}'] | [0].infraHPortS.children[?infraSubPortBlk.attributes.name=='{{ sub_block_name }}'] | [0]
+    Should Be Equal JMESPath Json   ${r}    ${blk}.infraSubPortBlk.attributes.descr   {{ sub_blk.description | default() }}
+    Should Be Equal JMESPath Json   ${r}    ${blk}.infraSubPortBlk.attributes.fromCard   {{ sub_blk.from_module | default(defaults.apic.access_policies.leaf_interface_profiles.selectors.sub_port_blocks.from_module) }}
+    Should Be Equal JMESPath Json   ${r}    ${blk}.infraSubPortBlk.attributes.fromPort   {{ sub_blk.from_port }}
+    Should Be Equal JMESPath Json   ${r}    ${blk}.infraSubPortBlk.attributes.name   {{ sub_block_name }}
+    Should Be Equal JMESPath Json   ${r}    ${blk}.infraSubPortBlk.attributes.toCard   {{ sub_blk.to_module | default(sub_blk.from_module | default(defaults.apic.access_policies.leaf_interface_profiles.selectors.sub_port_blocks.from_module)) }}
+    Should Be Equal JMESPath Json   ${r}    ${blk}.infraSubPortBlk.attributes.toPort   {{ sub_blk.to_port | default(sub_blk.from_port) }}
+    Should Be Equal JMESPath Json   ${r}    ${blk}.infraSubPortBlk.attributes.fromSubPort   {{ sub_blk.from_sub_port }}
+    Should Be Equal JMESPath Json   ${r}    ${blk}.infraSubPortBlk.attributes.toSubPort   {{ sub_blk.to_sub_port | default(sub_blk.from_sub_port) }}
 
 {% endfor %}
 

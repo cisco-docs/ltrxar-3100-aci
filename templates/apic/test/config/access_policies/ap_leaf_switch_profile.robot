@@ -16,24 +16,24 @@ Resource        ../../apic_common.resource
 Verify Access Leaf Switch Profile {{ leaf_switch_profile_name }}
     ${r}=   GET On Session   apic   /api/mo/uni/infra/nprof-{{ leaf_switch_profile_name }}.json   params=rsp-subtree=full
     Set Suite Variable   $r   ${r.json()}
-    Should Be Equal Value Json String   ${r}    $..infraNodeP.attributes.name   {{ leaf_switch_profile_name }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraNodeP.attributes.name   {{ leaf_switch_profile_name }}
 
 Verify Access Leaf Switch Profile {{ leaf_switch_profile_name }} Selector
-    Should Be Equal Value Json String   ${r}    $..infraLeafS.attributes.name   {{ leaf_switch_selector_name }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraNodeP.children[?infraLeafS] | [0].infraLeafS.attributes.name   {{ leaf_switch_selector_name }}
 
 {% if node.access_policy_group is defined %}
 {% set policy_group_name = node.access_policy_group ~ defaults.apic.access_policies.leaf_switch_policy_groups.name_suffix %}
 Verify Access Leaf Switch Profile {{ leaf_switch_profile_name }} Policy
-    Should Be Equal Value Json String   ${r}    $..infraRsAccNodePGrp.attributes.tDn   uni/infra/funcprof/accnodepgrp-{{ policy_group_name }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraNodeP.children[?infraLeafS] | [0].infraLeafS.children[?infraRsAccNodePGrp] | [0].infraRsAccNodePGrp.attributes.tDn   uni/infra/funcprof/accnodepgrp-{{ policy_group_name }}
 {% endif %}
 
 Verify Access Leaf Switch Profile {{ leaf_switch_profile_name }} Node Block
-    Should Be Equal Value Json String   ${r}    $..infraNodeBlk.attributes.from_   {{ node.id }}
-    Should Be Equal Value Json String   ${r}    $..infraNodeBlk.attributes.name   {{ node.id }}
-    Should Be Equal Value Json String   ${r}    $..infraNodeBlk.attributes.to_   {{ node.id }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraNodeP.children[?infraLeafS] | [0].infraLeafS.children[?infraNodeBlk] | [0].infraNodeBlk.attributes.from_   {{ node.id }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraNodeP.children[?infraLeafS] | [0].infraLeafS.children[?infraNodeBlk] | [0].infraNodeBlk.attributes.name   {{ node.id }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraNodeP.children[?infraLeafS] | [0].infraLeafS.children[?infraNodeBlk] | [0].infraNodeBlk.attributes.to_   {{ node.id }}
 
 Verify Access Leaf Switch Profile {{ leaf_switch_profile_name }} Interface Profile
-    Should Be Equal Value Json String   ${r}    $..infraRsAccPortP.attributes.tDn   uni/infra/accportprof-{{ leaf_interface_profile_name }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraNodeP.children[?infraRsAccPortP] | [0].infraRsAccPortP.attributes.tDn   uni/infra/accportprof-{{ leaf_interface_profile_name }}
 
 {% endif %}
 {% endfor %}
@@ -45,30 +45,30 @@ Verify Access Leaf Switch Profile {{ leaf_switch_profile_name }} Interface Profi
 Verify Access Leaf Switch Profile {{ leaf_switch_profile_name }}
     ${r}=   GET On Session   apic   /api/mo/uni/infra/nprof-{{ leaf_switch_profile_name }}.json   params=rsp-subtree=full
     Set Suite Variable   $r   ${r.json()}
-    Should Be Equal Value Json String   ${r}    $..infraNodeP.attributes.name   {{ leaf_switch_profile_name }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraNodeP.attributes.name   {{ leaf_switch_profile_name }}
 
 {% for sel in prof.selectors | default([]) %}
 {% set leaf_switch_selector_name = sel.name ~ defaults.apic.access_policies.leaf_switch_profiles.selectors.name_suffix %}
 
 Verify Access Leaf Switch Profile {{ leaf_switch_profile_name }} Selector {{ leaf_switch_selector_name }}
-    ${sel}=   Set Variable   $..infraNodeP.children[?(@.infraLeafS.attributes.name=='{{ leaf_switch_selector_name }}')]
-    Should Be Equal Value Json String   ${r}    ${sel}..infraLeafS.attributes.name   {{ leaf_switch_selector_name }}
+    ${sel}=   Set Variable   imdata[0].infraNodeP.children[?infraLeafS.attributes.name=='{{ leaf_switch_selector_name }}'] | [0]
+    Should Be Equal JMESPath Json   ${r}    ${sel}.infraLeafS.attributes.name   {{ leaf_switch_selector_name }}
 
 {% if sel.policy is defined %}
 {% set policy_group_name = sel.policy ~ defaults.apic.access_policies.leaf_switch_policy_groups.name_suffix %}
 Verify Access Leaf Switch Profile {{ leaf_switch_profile_name }} Selector {{ leaf_switch_selector_name }} Policy
-    ${sel}=   Set Variable   $..infraNodeP.children[?(@.infraLeafS.attributes.name=='{{ leaf_switch_selector_name }}')]
-    Should Be Equal Value Json String   ${r}    ${sel}..infraRsAccNodePGrp.attributes.tDn   uni/infra/funcprof/accnodepgrp-{{ policy_group_name }}
+    ${sel}=   Set Variable   imdata[0].infraNodeP.children[?infraLeafS.attributes.name=='{{ leaf_switch_selector_name }}'] | [0]
+    Should Be Equal JMESPath Json   ${r}    ${sel}.infraLeafS.children[?infraRsAccNodePGrp] | [0].infraRsAccNodePGrp.attributes.tDn   uni/infra/funcprof/accnodepgrp-{{ policy_group_name }}
 {% endif %}
 
 {% for blk in sel.node_blocks | default([]) %}
 {% set block_name = blk.name ~ defaults.apic.access_policies.leaf_switch_profiles.selectors.node_blocks.name_suffix %}
 
 Verify Access Leaf Switch Profile {{ leaf_switch_profile_name }} Selector {{ leaf_switch_selector_name }} Node Block {{ block_name }}
-    ${block}=   Set Variable   $..infraNodeP.children[?(@.infraLeafS.attributes.name=='{{ leaf_switch_selector_name }}')].infraLeafS.children[?(@.infraNodeBlk.attributes.name=='{{ block_name }}')]
-    Should Be Equal Value Json String   ${r}    ${block}..infraNodeBlk.attributes.from_   {{ blk.from }}
-    Should Be Equal Value Json String   ${r}    ${block}..infraNodeBlk.attributes.name   {{ block_name }}
-    Should Be Equal Value Json String   ${r}    ${block}..infraNodeBlk.attributes.to_   {{ blk.to | default(blk.from) }}
+    ${block}=   Set Variable   imdata[0].infraNodeP.children[?infraLeafS.attributes.name=='{{ leaf_switch_selector_name }}'] | [0].infraLeafS.children[?infraNodeBlk.attributes.name=='{{ block_name }}'] | [0]
+    Should Be Equal JMESPath Json   ${r}    ${block}.infraNodeBlk.attributes.from_   {{ blk.from }}
+    Should Be Equal JMESPath Json   ${r}    ${block}.infraNodeBlk.attributes.name   {{ block_name }}
+    Should Be Equal JMESPath Json   ${r}    ${block}.infraNodeBlk.attributes.to_   {{ blk.to | default(blk.from) }}
 
 {% endfor %}
 {% endfor %}
@@ -77,8 +77,7 @@ Verify Access Leaf Switch Profile {{ leaf_switch_profile_name }} Selector {{ lea
 {% set leaf_interface_profile_name = intp ~ defaults.apic.access_policies.leaf_interface_profiles.name_suffix %}
 
 Verify Access Leaf Switch Profile {{ leaf_switch_profile_name }} Interface Profile {{ leaf_interface_profile_name }}
-    ${block}=   Get Value From Json    ${r}    $..infraNodeP.children[?(@.infraRsAccPortP.attributes.tDn=='uni/infra/accportprof-{{ leaf_interface_profile_name }}')]
-    Should Be Equal Value Json String   ${block}   $..infraRsAccPortP.attributes.tDn   uni/infra/accportprof-{{ leaf_interface_profile_name }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraNodeP.children[?infraRsAccPortP.attributes.tDn=='uni/infra/accportprof-{{ leaf_interface_profile_name }}'] | [0].infraRsAccPortP.attributes.tDn   uni/infra/accportprof-{{ leaf_interface_profile_name }}
 
 {% endfor %}
 {% endfor %}

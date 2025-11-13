@@ -11,13 +11,13 @@ Resource        ../../apic_common.resource
 Verify RBAC Node Rule {{ node.id }}
     ${r}=   GET On Session   apic   /api/mo/uni/rbacdb/rbacnoderule-{{ node.id }}.json   params=rsp-subtree=full
     Set Suite Variable   $r   ${r.json()}
-    Should Be Equal Value Json String   ${r}    $..aaaRbacNodeRule.attributes.nodeId   {{ node.id }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].aaaRbacNodeRule.attributes.nodeId   {{ node.id }}
 
 {% for sd in node.security_domains %}
 
 Verify RBAC Node Rule {{ node.id }} Security Domain {{ sd }}
-    ${sd}=   Set Variable   $..aaaRbacNodeRule.children[?(@.aaaRbacPortRule.attributes.name=='{{ sd }}')]
-    Should Be Equal Value Json String   ${r}    ${sd}..aaaRbacPortRule.attributes.domain   {{ sd }}
+    ${sd}=   Set Variable   imdata[0].aaaRbacNodeRule.children[?aaaRbacPortRule.attributes.name=='{{ sd }}'] | [0]
+    Should Be Equal JMESPath Json   ${r}    ${sd}.aaaRbacPortRule.attributes.domain   {{ sd }}
 
 {% endfor %}
 

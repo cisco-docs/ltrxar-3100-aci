@@ -11,8 +11,8 @@ Resource        ../../apic_common.resource
 Verify Netflow Record {{ record_name }}
     ${r}=   GET On Session   apic   /api/mo/uni/infra/recordpol-{{ record_name }}.json   params=rsp-subtree=full
     Set Suite Variable   $r   ${r.json()}
-    Should Be Equal Value Json String   ${r}    $..netflowRecordPol.attributes.name   {{ record_name }}
-    Should Be Equal Value Json String   ${r}    $..netflowRecordPol.attributes.descr   {{ record.description | default() }}
-    Should Be Equal Value Json String   ${r}    $..netflowRecordPol.attributes.match   {{ record.match_parameters | default() | sort() | join(',') }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].netflowRecordPol.attributes.name   {{ record_name }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].netflowRecordPol.attributes.descr   {{ record.description | default() }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].netflowRecordPol.attributes.match   {{ record.match_parameters | default() | sort() | join(',') }}
 
 {% endfor %}
