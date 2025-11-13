@@ -1,0 +1,28 @@
+{# iterate_list apic.tenants name item[2] #}
+{% set tenant = ((apic | default()) | community.general.json_query('tenants[?name==`' ~ item[2] ~ '`]'))[0] %}
+{
+    "fvTenant": {
+        "attributes": {
+            "dn": "uni/tn-{{ tenant.name }}",
+            "name": "{{ tenant.name }}"
+        },
+        "children": [
+            {%- set comma1 = joiner(",") %}
+            {%- for policy in tenant.policies.ospf_route_summarization_policies | default([]) %}
+            {%- set policy_name = policy.name ~ defaults.apic.tenants.policies.ospf_route_summarization_policies.name_suffix %}{{ comma1() }}
+            {
+                "ospfRtSummPol": {
+                    "attributes": {
+                        "annotation": "orchestrator:aac",
+                        "dn": "uni/tn-{{ tenant.name }}/ospfrtsumm-{{ policy_name }}",
+                        "name": "{{ policy_name }}",
+                        "descr": "{{ policy.description | default() }}",
+                        "cost": "{{ policy.cost | default(defaults.apic.tenants.policies.ospf_route_summarization_policies.cost) }}",
+                        "interAreaEnabled": "{{ 'yes' if policy.inter_area | default(defaults.apic.tenants.policies.ospf_route_summarization_policies.inter_area) else 'no' }}"
+                    }
+                }
+            }
+            {%- endfor %}
+        ]
+    }
+}

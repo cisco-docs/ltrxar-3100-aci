@@ -2150,35 +2150,44 @@
                                                 "scope": "{{ scope | join(',') }}",
                                                 "childAction": "deleteNonPresent"
                                             },
-                                            "children": [
-                                                {% if subnet.bgp_route_summarization | default(defaults.apic.tenants.l3outs.external_endpoint_groups.subnets.bgp_route_summarization)  %}
-                                                    {
-                                                        "l3extRsSubnetToRtSumm": {
-                                                            "attributes": {
-                                                                "annotation": "orchestrator:aac",
-                                                                "tDn": "{% if subnet.bgp_route_summarization_policy is defined %}uni/tn-{{ tenant.name }}/bgprtsum-{{ subnet.bgp_route_summarization_policy }}{% else %}uni/tn-common/bgprtsum-default{% endif %}"
-                                                            }
-                                                        }
-                                                    }
-                                                {% elif subnet.ospf_route_summarization | default(defaults.apic.tenants.l3outs.external_endpoint_groups.subnets.ospf_route_summarization) %}
+                                           "children": [
+                                                 {%- set comma5 = joiner(",") %}
+                                                {%- if subnet.bgp_route_summarization | default(defaults.apic.tenants.l3outs.external_endpoint_groups.subnets.bgp_route_summarization) %}{{ comma5() }}
                                                 {
                                                     "l3extRsSubnetToRtSumm": {
                                                         "attributes": {
-                                                            "annotation": "orchestrator:aac",
-                                                            "tDn": "uni/tn-common/ospfrtsumm-default"
+                                                            {%- if subnet.bgp_route_summarization_policy is defined %}
+                                                            "tDn": "uni/tn-{{ tenant.name }}/bgprtsum-{{ subnet.bgp_route_summarization_policy }}"
+                                                            {%- else %}
+                                                            "tDn": "uni/tn-common/bgprtsum-default"
+                                                            {%- endif %}
                                                         }
                                                     }
                                                 }
-                                                {% elif subnet.eigrp_route_summarization | default(defaults.apic.tenants.l3outs.external_endpoint_groups.subnets.eigrp_route_summarization) %}
+                                                {%- endif %}
+                                                {%- if subnet.ospf_route_summarization | default(defaults.apic.tenants.l3outs.external_endpoint_groups.subnets.ospf_route_summarization) %}{{ comma5() }}
                                                 {
                                                     "l3extRsSubnetToRtSumm": {
                                                         "attributes": {
-                                                            "annotation": "orchestrator:aac",
+                                                            {%- if subnet.ospf_route_summarization_policy is defined and subnet.ospf_route_summarization_policy != "" %}
+                                                            {%- set ospf_policy_name = subnet.ospf_route_summarization_policy ~ defaults.apic.tenants.policies.ospf_route_summarization_policies.name_suffix %}
+                                                            "tDn": "uni/tn-{{ tenant.name }}/ospfrtsumm-{{ ospf_policy_name }}"
+                                                            {%- else %}
+                                                            "tDn": "uni/tn-common/ospfrtsumm-default"
+                                                            {%- endif %}
+                                                        }
+                                                    }
+                                                }
+                                                {%- endif %}
+                                                {%- if subnet.eigrp_route_summarization | default(defaults.apic.tenants.l3outs.external_endpoint_groups.subnets.eigrp_route_summarization) %}{{ comma5() }}
+                                                {
+                                                    "l3extRsSubnetToRtSumm": {
+                                                        "attributes": {
                                                             "tDn": "uni/tn-{{ tenant.name }}/eigrprtsumm-eigrp_pol"
                                                         }
                                                     }
                                                 }
-                                                {% endif %}
+                                                {%- endif %}
                                                 {%- set comma4 = joiner(",") %}
                                                 {%- for route_control_profile in subnet.route_control_profiles | default([]) %}{{ comma4() }}
                                                 {% set route_control_profile_name = route_control_profile.name ~ defaults.apic.tenants.l3outs.external_endpoint_groups.subnets.route_control_profiles.name_suffix %}
@@ -2197,6 +2206,7 @@
                                         }
                                     }
                                     {%- endfor %}
+
                                     {%- for contract in epg.contracts.providers | default([]) %}{{ comma3() }}
                                     {% set contract_name = contract ~ defaults.apic.tenants.contracts.name_suffix %}
                                     {

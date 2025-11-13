@@ -1351,6 +1351,10 @@ defaults:
           priority: 1
           lsa_retransmit_interval: 5
           lsa_transmit_delay: 1
+        ospf_route_summarization_policies:
+          name_suffix: ""
+          cost: unspecified
+          inter_area: false
         eigrp_interface_policies:
           name_suffix: ""
           bfd: false

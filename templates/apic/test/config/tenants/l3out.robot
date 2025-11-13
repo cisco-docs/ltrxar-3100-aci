@@ -1159,12 +1159,17 @@ Verify L3out {{ l3out_name }} External EPG {{ eepg_name }} Subnet {{ subnet.pref
     Should Be Equal Value Json String   ${r}   ${subnet}..l3extSubnet.attributes.scope   {{ scope | join(',') }}
 {% if subnet.bgp_route_summarization | default(defaults.apic.tenants.l3outs.external_endpoint_groups.subnets.bgp_route_summarization) %}
     {% if subnet.bgp_route_summarization_policy is defined %}
-        Should Be Equal Value Json String   ${r}   ${subnet}..l3extRsSubnetToRtSumm.attributes.tDn   uni/tn-{{ tenant.name }}/bgprtsum-{{ subnet.bgp_route_summarization_policy }}
+    Should Be Equal Value Json String   ${r}   ${subnet}..l3extRsSubnetToRtSumm.attributes.tDn   uni/tn-{{ tenant.name }}/bgprtsum-{{ subnet.bgp_route_summarization_policy }}
     {% else %}
-        Should Be Equal Value Json String   ${r}   ${subnet}..l3extRsSubnetToRtSumm.attributes.tDn   uni/tn-common/bgprtsum-default
+    Should Be Equal Value Json String   ${r}   ${subnet}..l3extRsSubnetToRtSumm.attributes.tDn   uni/tn-common/bgprtsum-default
     {% endif %}
 {% elif subnet.ospf_route_summarization | default(defaults.apic.tenants.l3outs.external_endpoint_groups.subnets.ospf_route_summarization) %}
+    {% if subnet.ospf_route_summarization_policy is defined and subnet.ospf_route_summarization_policy != "" %}
+    {% set ospf_policy_name = subnet.ospf_route_summarization_policy ~ defaults.apic.tenants.policies.ospf_route_summarization_policies.name_suffix %}
+    Should Be Equal Value Json String   ${r}   ${subnet}..l3extRsSubnetToRtSumm.attributes.tDn   uni/tn-{{ tenant.name }}/ospfrtsumm-{{ ospf_policy_name }}
+    {% else %}
     Should Be Equal Value Json String   ${r}   ${subnet}..l3extRsSubnetToRtSumm.attributes.tDn   uni/tn-common/ospfrtsumm-default
+    {% endif %}
 {% elif subnet.eigrp_route_summarization | default(defaults.apic.tenants.l3outs.external_endpoint_groups.subnets.eigrp_route_summarization) %}
     Should Be Equal Value Json String   ${r}   ${subnet}..l3extRsSubnetToRtSumm.attributes.tDn   uni/tn-{{ tenant.name }}/eigrprtsumm-eigrp_pol
 {% endif %}

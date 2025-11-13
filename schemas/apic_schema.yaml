@@ -2980,6 +2980,7 @@ ten_l3outs_external_endpoint_groups_subnets:
   bgp_route_summarization: bool(required=False)
   bgp_route_summarization_policy: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
   ospf_route_summarization: bool(required=False)
+  ospf_route_summarization_policy: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
   eigrp_route_summarization: bool(required=False)
   route_control_profiles: list(include('ten_l3outs_external_endpoint_groups_subnets_route_control_profiles'), required=False) # @name(EEPG Subnet Route Control Prof)
 
@@ -3249,6 +3250,7 @@ ten_policies:
   eigrp_interface_policies: list(include('ten_eigrp_interface_policies'), required=False) # @sheet_hidden()
   ospf_timer_policies: list(include('ten_ospf_timer_policies'), required=False) # @sheet_hidden()
   bgp_route_summarization_policies: list(include('ten_bgp_route_summarization_policy'), required=False) # @name(BGP Route Sum Policies) @sheet_hidden()
+  ospf_route_summarization_policies: list(include('ten_ospf_route_summarization_policy'), required=False)
   bgp_timer_policies: list(include('ten_bgp_timer_policy'), required=False) # @sheet_hidden()
   bgp_peer_prefix_policies: list(include('ten_bgp_peer_prefix_policies'), required=False) # @sheet_hidden()
   bgp_best_path_policies: list(include('ten_bgp_best_path_policy'), required=False) # @sheet_hidden()
@@ -3335,6 +3337,7 @@ ten_ospf_timer_policies:
   router_id_lookup: bool(required=False)
   prefix_suppression: bool(required=False)
 
+
 ten_bgp_peer_prefix_policies:
   name: regex('^[a-zA-Z0-9_.:-]{1,64}$')
   description: regex('^[a-zA-Z0-9\\\\!#$%()*,-./:;@ _{|}~?&+]{1,128}$', required=False)
@@ -3350,6 +3353,12 @@ ten_bgp_route_summarization_policy:
   summary_only: bool(required=False)
   af_mcast: bool(required=False)
   af_ucast: bool(required=False)
+
+ten_ospf_route_summarization_policy:
+  name: regex('^[a-zA-Z0-9_.:-]{1,64}$')
+  description: regex('^[a-zA-Z0-9\\\\!#$%()*,-./:;@ _{|}~?&+]{1,128}$', required=False)
+  cost: any(int(min=1, max=16777215), enum('unspecified'), required=False)
+  inter_area: bool(required=False)
 
 ten_bgp_timer_policy:
   name: regex('^[a-zA-Z0-9_.:-]{1,64}$')

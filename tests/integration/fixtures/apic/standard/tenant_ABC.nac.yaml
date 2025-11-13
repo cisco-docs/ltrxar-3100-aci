@@ -305,11 +305,38 @@ apic:
                 maximum_critical_faults: 1000
                 maximum_major_faults: 1000
                 maximum_minor_faults: 1000
+            - name: OSPF_TEST_EPG
+              subnets:
+                - prefix: "192.168.100.0/24"
+                  export_route_control: true
+                  ospf_route_summarization: true
+
+                - prefix: "192.168.101.0/24"
+                  export_route_control: true
+                  ospf_route_summarization: false
+
+                - prefix: "0.0.0.0/0"
+                  export_route_control: true
+                  import_route_control: true
+                  import_security: true
+                  aggregate_export_route_control: true
+                  aggregate_import_route_control: true
+
+                - prefix: "192.168.102.0/24"
+                  export_route_control: true
+                  ospf_route_summarization: true
+                  ospf_route_summarization_policy: OSPF_SUM_MINIMAL
+
+                - prefix: "10.0.0.0/8"
+                  export_route_control: true
+                  import_security: true
+
           expected_state:
             minimum_health: 0
             maximum_critical_faults: 1000
             maximum_major_faults: 1000
             maximum_minor_faults: 1000
+
         - name: L3OUT2
           ndo_managed: true
           vrf: VRF1
@@ -525,6 +552,7 @@ apic:
                       svi: true
                       scope: vrf
                       ip: 14.14.14.1/24
+
       application_profiles:
         - name: AP1
           alias: AP1-ALIAS
@@ -983,6 +1011,19 @@ apic:
             lsa_retransmit_interval: 6
             lsa_transmit_delay: 2
           - name: OIP2
+        ospf_route_summarization_policies:
+          - name: OSPF_SUM_COMPLETE
+            description: "Complete OSPF route summarization policy"
+            cost: 100
+            inter_area: true
+
+          - name: OSPF_SUM_UNSPECIFIED
+            description: "OSPF policy with unspecified cost"
+            cost: unspecified
+            inter_area: false
+
+          - name: OSPF_SUM_MINIMAL
+            description: "Minimal OSPF route summarization policy"
         eigrp_interface_policies:
           - name: EIP1
             description: My Desc
