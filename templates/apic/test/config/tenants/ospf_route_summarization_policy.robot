@@ -16,6 +16,6 @@ Verify OSPF Route Summarization Policy {{ policy_name }}
     Should Be Equal JMESPath Json   ${r}   imdata[0].ospfRtSummPol.attributes.name   {{ policy_name }}
     Should Be Equal JMESPath Json   ${r}   imdata[0].ospfRtSummPol.attributes.descr   {{ policy.description | default() }}
     Should Be Equal JMESPath Json   ${r}   imdata[0].ospfRtSummPol.attributes.cost   {{ policy.cost | default(defaults.apic.tenants.policies.ospf_route_summarization_policies.cost) }}
-    Should Be Equal JMESPath Json   ${r}   imdata[0].ospfRtSummPol.attributes.interAreaEnabled   {{ 'yes' if policy.inter_area_enabled | default(defaults.apic.tenants.policies.ospf_route_summarization_policies.inter_area_enabled) else 'no' }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].ospfRtSummPol.attributes.interAreaEnabled   {{ 'yes' if policy.inter_area | default(defaults.apic.tenants.policies.ospf_route_summarization_policies.inter_area) else 'no' }}
 
 {% endfor %}
