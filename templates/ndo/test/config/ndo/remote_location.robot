@@ -12,13 +12,13 @@ Get Remote Locations
 {% for remote in ndo.remote_locations | default([]) %}
 
 Verify Remote Location {{ remote.name }}
-    ${remote}=   Set Variable   $..remoteLocations[?(@.name=='{{ remote.name }}')]
-    Should Be Equal Value Json String   ${r.json()}   ${remote}.name   {{ remote.name }}
-    Should Be Equal Value Json String   ${r.json()}   ${remote}.description   {{ remote.description | default() }}
-    Should Be Equal Value Json String   ${r.json()}   ${remote}.credential.hostname   {{ remote.hostname_ip }}
-    Should Be Equal Value Json Integer   ${r.json()}   ${remote}.credential.port   {{ remote.port | default(defaults.ndo.remote_locations.port) }}
-    Should Be Equal Value Json String   ${r.json()}   ${remote}.credential.remotePath   {{ remote.path | default(defaults.ndo.remote_locations.path) }}
-    Should Be Equal Value Json String   ${r.json()}   ${remote}.credential.protocolType   {{ remote.protocol | default(defaults.ndo.remote_locations.protocol) }}
-    Should Be Equal Value Json String   ${r.json()}   ${remote}.credential.authType   {{ remote.authentication | default(defaults.ndo.remote_locations.authentication) }}
+    ${remote}=   Set Variable   remoteLocations[?name=='{{ remote.name }}'] | [0]
+    Should Be Equal JMESPath Json   ${r.json()}   ${remote}.name   {{ remote.name }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${remote}.description   {{ remote.description | default() }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${remote}.credential.hostname   {{ remote.hostname_ip }}
+    Should Be Equal JMESPath Json Integer   ${r.json()}   ${remote}.credential.port   {{ remote.port | default(defaults.ndo.remote_locations.port) }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${remote}.credential.remotePath   {{ remote.path | default(defaults.ndo.remote_locations.path) }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${remote}.credential.protocolType   {{ remote.protocol | default(defaults.ndo.remote_locations.protocol) }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${remote}.credential.authType   {{ remote.authentication | default(defaults.ndo.remote_locations.authentication) }}
 
 {% endfor %}

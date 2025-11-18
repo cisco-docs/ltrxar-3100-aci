@@ -12,11 +12,11 @@ Get Sites
 {% for site in ndo.sites | default([]) %}
 
 Verify Site {{ site.name }}
-    ${site}=   Set Variable   $..sites[?(@.common.name=='{{ site.name }}')]
-    Should Be Equal Value Json String   ${r.json()}   ${site}.common.name   {{ site.name }}
+    ${site}=   Set Variable   sites[?common.name=='{{ site.name }}'] | [0]
+    Should Be Equal JMESPath Json   ${r.json()}   ${site}.common.name   {{ site.name }}
 {% for url in site.apic_urls | default([]) %}
-    Should Be Equal Value Json String   ${r.json()}   ${site}.common.urls[{{ loop.index - 1 }}]   {{ url }}   {{ url }}:443
+    Should Be Equal JMESPath Json   ${r.json()}   ${site}.common.urls[{{ loop.index - 1 }}]   {{ url }}   {{ url }}:443
 {% endfor %}
-    Should Be Equal Value Json String   ${r.json()}   ${site}.common.siteId   {{ site.id }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${site}.common.siteId   {{ site.id }}
 
 {% endfor %}

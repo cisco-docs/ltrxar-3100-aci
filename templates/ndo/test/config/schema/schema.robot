@@ -8,74 +8,74 @@ Resource        ../../ndo_common.resource
 {% for schema in ndo.schemas | default([]) %}
 
 Verify Schema {{ schema.name }}
-    {% if not loop.first %}    Login NDO{% endif %} 
+    {% if not loop.first %}    Login NDO{% endif %}
     ${schema_id}=   NDO Lookup   schemas/list-identity   {{ schema.name }}
     ${r}=   GET On Session   ndo   /api/v1/schemas/${schema_id}
     Set Suite Variable   ${r}
-    Should Be Equal Value Json String   ${r.json()}   $.displayName   {{ schema.name }}
+    Should Be Equal JMESPath Json   ${r.json()}   displayName   {{ schema.name }}
 
 {% for template in schema.templates | default([]) %}
 
 Verify Schema {{ schema.name }} Template {{ template.name }}
-    ${template}=   Set Variable   $.templates[?(@.name=='{{ template.name }}')]
-    Should Be Equal Value Json String   ${r.json()}   ${template}.name   {{ template.name }}
-    Should Be Equal Value Json String   ${r.json()}   ${template}.description   {{ template.description | default() }}
-    Should Be Equal Value Json String   ${r.json()}   ${template}.templateType   {{ 'non-stretched-template' if template.type | default(defaults.ndo.schemas.templates.type) == "autonomous" else 'stretched-template' }}
+    ${template}=   Set Variable   templates[?name=='{{ template.name }}'] | [0]
+    Should Be Equal JMESPath Json   ${r.json()}   ${template}.name   {{ template.name }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${template}.description   {{ template.description | default() }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${template}.templateType   {{ 'non-stretched-template' if template.type | default(defaults.ndo.schemas.templates.type) == "autonomous" else 'stretched-template' }}
 
 {% for ap in template.application_profiles | default([]) %}
 {% set ap_name = ap.name ~ defaults.ndo.schemas.templates.application_profiles.name_suffix %}
 
 Verify Schema {{ schema.name }} Template {{ template.name }} Application Profile {{ ap_name }}
-    ${ap}=   Set Variable   $.templates[?(@.name=='{{ template.name }}')].anps[?(@.name=='{{ ap_name }}')]
-    Should Be Equal Value Json String   ${r.json()}   ${ap}.name   {{ ap_name }}
-    Should Be Equal Value Json String   ${r.json()}   ${ap}.displayName   {{ ap_name }}
+    ${ap}=   Set Variable   templates[?name=='{{ template.name }}'] | [0].anps[?name=='{{ ap_name }}'] | [0]
+    Should Be Equal JMESPath Json   ${r.json()}   ${ap}.name   {{ ap_name }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${ap}.displayName   {{ ap_name }}
 
 {% for epg in ap.endpoint_groups | default([]) %}
 {% set epg_name = epg.name ~ defaults.ndo.schemas.templates.application_profiles.endpoint_groups.name_suffix %}
 
 Verify Schema {{ schema.name }} Template {{ template.name }} Application Profile {{ ap_name }} Endpoint Group {{ epg_name }}
-    ${epg}=   Set Variable   $.templates[?(@.name=='{{ template.name }}')].anps[?(@.name=='{{ ap_name }}')].epgs[?(@.name=='{{ epg_name }}')]
-    Should Be Equal Value Json String   ${r.json()}   ${epg}.name   {{ epg_name }}
-    Should Be Equal Value Json String   ${r.json()}   ${epg}.displayName   {{ epg_name }}
-    Should Be Equal Value Json String   ${r.json()}   ${epg}.description   {{ epg.description | default() }}
-    Should Be Equal Value Json Boolean   ${r.json()}   ${epg}.uSegEpg   {{ epg.useg | default(defaults.ndo.schemas.templates.application_profiles.endpoint_groups.useg) }}
-    Should Be Equal Value Json String   ${r.json()}   ${epg}.intraEpg   {{ 'enforced' if epg.intra_epg_isolation | default(defaults.ndo.schemas.templates.application_profiles.endpoint_groups.intra_epg_isolation) else 'unenforced' }}
-    Should Be Equal Value Json Boolean   ${r.json()}   ${epg}.proxyArp   {{  epg.proxy_arp | default(defaults.ndo.schemas.templates.application_profiles.endpoint_groups.proxy_arp) }}
-    Should Be Equal Value Json Boolean   ${r.json()}   ${epg}.preferredGroup   {{ epg.preferred_group | default(defaults.ndo.schemas.templates.application_profiles.endpoint_groups.preferred_group) }}
+    ${epg}=   Set Variable   templates[?name=='{{ template.name }}'] | [0].anps[?name=='{{ ap_name }}'] | [0].epgs[?name=='{{ epg_name }}'] | [0]
+    Should Be Equal JMESPath Json   ${r.json()}   ${epg}.name   {{ epg_name }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${epg}.displayName   {{ epg_name }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${epg}.description   {{ epg.description | default() }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${epg}.uSegEpg   {{ epg.useg | default(defaults.ndo.schemas.templates.application_profiles.endpoint_groups.useg) }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${epg}.intraEpg   {{ 'enforced' if epg.intra_epg_isolation | default(defaults.ndo.schemas.templates.application_profiles.endpoint_groups.intra_epg_isolation) else 'unenforced' }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${epg}.proxyArp   {{  epg.proxy_arp | default(defaults.ndo.schemas.templates.application_profiles.endpoint_groups.proxy_arp) }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${epg}.preferredGroup   {{ epg.preferred_group | default(defaults.ndo.schemas.templates.application_profiles.endpoint_groups.preferred_group) }}
 {% if epg.bridge_domain.name is defined %}
 {% set bd_name = epg.bridge_domain.name ~ defaults.ndo.schemas.templates.bridge_domains.name_suffix %}
     ${schema_id}=   NDO Lookup   schemas/list-identity   {{ epg.bridge_domain.schema | default(schema.name) }}
-    Should Be Equal Value Json String   ${r.json()}   ${epg}.bdRef   /schemas/${schema_id}/templates/{{ epg.bridge_domain.template | default(template.name) }}/bds/{{ bd_name }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${epg}.bdRef   /schemas/${schema_id}/templates/{{ epg.bridge_domain.template | default(template.name) }}/bds/{{ bd_name }}
 {% endif %}
 {% if epg.vrf.name is defined %}
 {% set vrf_name = epg.vrf.name ~ defaults.ndo.schemas.templates.vrfs.name_suffix %}
     ${schema_id}=   NDO Lookup   schemas/list-identity   {{ epg.vrf.schema | default(schema.name) }}
-    Should Be Equal Value Json String   ${r.json()}   ${epg}.vrfRef   /schemas/${schema_id}/templates/{{ epg.vrf.template | default(template.name) }}/vrfs/{{ vrf_name }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${epg}.vrfRef   /schemas/${schema_id}/templates/{{ epg.vrf.template | default(template.name) }}/vrfs/{{ vrf_name }}
 {% endif %}
 {% for contract in epg.contracts.consumers | default([]) %}
 {% set contract_name = contract.name ~ defaults.ndo.schemas.templates.contracts.name_suffix %}
     ${schema_id}=   NDO Lookup   schemas/list-identity   {{ contract.schema | default(schema.name) }}
-    ${con}=   Set Variable   $.templates[?(@.name=='{{ template.name }}')].anps[?(@.name=='{{ ap_name }}')].epgs[?(@.name=='{{ epg_name }}')].contractRelationships[?(@.relationshipType=='consumer')&(@.contractRef=='/schemas/${schema_id}/templates/{{ contract.template | default(template.name) }}/contracts/{{ contract_name }}')]
-    Should Be Equal Value Json String   ${r.json()}   ${con}.contractRef   /schemas/${schema_id}/templates/{{ contract.template | default(template.name) }}/contracts/{{ contract_name }}
-    Should Be Equal Value Json String   ${r.json()}   ${con}.relationshipType   consumer
+    ${con}=   Set Variable   templates[?name=='{{ template.name }}'] | [0].anps[?name=='{{ ap_name }}'] | [0].epgs[?name=='{{ epg_name }}'] | [0].contractRelationships[?relationshipType=='consumer' && contractRef=='/schemas/${schema_id}/templates/{{ contract.template | default(template.name) }}/contracts/{{ contract_name }}'] | [0]
+    Should Be Equal JMESPath Json   ${r.json()}   ${con}.contractRef   /schemas/${schema_id}/templates/{{ contract.template | default(template.name) }}/contracts/{{ contract_name }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${con}.relationshipType   consumer
 {% endfor %}
 {% for contract in epg.contracts.providers | default([]) %}
 {% set contract_name = contract.name ~ defaults.ndo.schemas.templates.contracts.name_suffix %}
     ${schema_id}=   NDO Lookup   schemas/list-identity   {{ contract.schema | default(schema.name) }}
-    ${con}=   Set Variable   $.templates[?(@.name=='{{ template.name }}')].anps[?(@.name=='{{ ap_name }}')].epgs[?(@.name=='{{ epg_name }}')].contractRelationships[?(@.relationshipType=='provider')&(@.contractRef=='/schemas/${schema_id}/templates/{{ contract.template | default(template.name) }}/contracts/{{ contract_name }}')]
-    Should Be Equal Value Json String   ${r.json()}   ${con}.contractRef   /schemas/${schema_id}/templates/{{ contract.template | default(template.name) }}/contracts/{{ contract_name }}
-    Should Be Equal Value Json String   ${r.json()}   ${con}.relationshipType   provider
+    ${con}=   Set Variable   templates[?name=='{{ template.name }}'] | [0].anps[?name=='{{ ap_name }}'] | [0].epgs[?name=='{{ epg_name }}'] | [0].contractRelationships[?relationshipType=='provider' && contractRef=='/schemas/${schema_id}/templates/{{ contract.template | default(template.name) }}/contracts/{{ contract_name }}'] | [0]
+    Should Be Equal JMESPath Json   ${r.json()}   ${con}.contractRef   /schemas/${schema_id}/templates/{{ contract.template | default(template.name) }}/contracts/{{ contract_name }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${con}.relationshipType   provider
 {% endfor %}
 
 {% for subnet in epg.subnets | default([]) %}
 
 Verify Schema {{ schema.name }} Template {{ template.name }} Application Profile {{ ap_name }} Endpoint Group {{ epg_name }} Subnet {{ subnet.ip }}
-    ${subnet}=   Set Variable   $.templates[?(@.name=='{{ template.name }}')].anps[?(@.name=='{{ ap_name }}')].epgs[?(@.name=='{{ epg_name }}')].subnets[?(@.ip=='{{ subnet.ip }}')]
-    Should Be Equal Value Json String   ${r.json()}   ${subnet}.ip   {{ subnet.ip }}
-    Should Be Equal Value Json String   ${r.json()}   ${subnet}.scope   {{ subnet.scope | default(defaults.ndo.schemas.templates.application_profiles.endpoint_groups.subnets.scope) }}
-    Should Be Equal Value Json Boolean   ${r.json()}   ${subnet}.shared   {{ subnet.shared | default(defaults.ndo.schemas.templates.application_profiles.endpoint_groups.subnets.shared) }}
-    Should Be Equal Value Json Boolean   ${r.json()}   ${subnet}.noDefaultGateway   {{ subnet.no_default_gateway | default(defaults.ndo.schemas.templates.application_profiles.endpoint_groups.subnets.no_default_gateway) }}
-    Should Be Equal Value Json Boolean   ${r.json()}   ${subnet}.primary   {{ subnet.primary | default(defaults.ndo.schemas.templates.application_profiles.endpoint_groups.subnets.primary) }}
+    ${subnet}=   Set Variable   templates[?name=='{{ template.name }}'] | [0].anps[?name=='{{ ap_name }}'] | [0].epgs[?name=='{{ epg_name }}'] | [0].subnets[?ip=='{{ subnet.ip }}'] | [0]
+    Should Be Equal JMESPath Json   ${r.json()}   ${subnet}.ip   {{ subnet.ip }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${subnet}.scope   {{ subnet.scope | default(defaults.ndo.schemas.templates.application_profiles.endpoint_groups.subnets.scope) }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${subnet}.shared   {{ subnet.shared | default(defaults.ndo.schemas.templates.application_profiles.endpoint_groups.subnets.shared) }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${subnet}.noDefaultGateway   {{ subnet.no_default_gateway | default(defaults.ndo.schemas.templates.application_profiles.endpoint_groups.subnets.no_default_gateway) }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${subnet}.primary   {{ subnet.primary | default(defaults.ndo.schemas.templates.application_profiles.endpoint_groups.subnets.primary) }}
 {% endfor %}
 
 {% for site in epg.sites | default([]) %}
@@ -83,8 +83,8 @@ Verify Schema {{ schema.name }} Template {{ template.name }} Application Profile
 Verify Schema {{ schema.name }} Template {{ template.name }} Application Profile {{ ap_name }} Endpoint Group {{ epg_name }} Site {{ site.name }}
     ${schema_id}=   NDO Lookup   schemas/list-identity   {{ schema.name }}
     ${site_id}=   NDO Lookup   sites   {{ site.name }}
-    ${epg}=   Set Variable   $.sites[?(@.siteId=='${site_id}')&(@.templateName=='{{ template.name }}')].anps[?(@.anpRef=='/schemas/${schema_id}/templates/{{ template.name }}/anps/{{ ap_name }}')].epgs[?(@.epgRef=='/schemas/${schema_id}/templates/{{ template.name }}/anps/{{ ap_name }}/epgs/{{ epg_name }}')]
-    Should Be Equal Value Json String   ${r.json()}   ${epg}.epgRef   /schemas/${schema_id}/templates/{{ template.name }}/anps/{{ ap_name }}/epgs/{{ epg_name }}
+    ${epg}=   Set Variable   sites[?siteId=='${site_id}' && templateName=='{{ template.name }}'] | [0].anps[?anpRef=='/schemas/${schema_id}/templates/{{ template.name }}/anps/{{ ap_name }}'] | [0].epgs[?epgRef=='/schemas/${schema_id}/templates/{{ template.name }}/anps/{{ ap_name }}/epgs/{{ epg_name }}'] | [0]
+    Should Be Equal JMESPath Json   ${r.json()}   ${epg}.epgRef   /schemas/${schema_id}/templates/{{ template.name }}/anps/{{ ap_name }}/epgs/{{ epg_name }}
 
 {% for pd in site.physical_domains | default([]) %}
 {% set domain_name = pd.name ~ defaults.ndo.schemas.templates.application_profiles.endpoint_groups.physical_domain_name_suffix %}
@@ -92,11 +92,11 @@ Verify Schema {{ schema.name }} Template {{ template.name }} Application Profile
 Verify Schema {{ schema.name }} Template {{ template.name }} Application Profile {{ ap_name }} Endpoint Group {{ epg_name }} Site {{ site.name }} Physical Domain {{ domain_name }}
     ${schema_id}=   NDO Lookup   schemas/list-identity   {{ schema.name }}
     ${site_id}=   NDO Lookup   sites   {{ site.name }}
-    ${pd}=   Set Variable   $.sites[?(@.siteId=='${site_id}')&(@.templateName=='{{ template.name }}')].anps[?(@.anpRef=='/schemas/${schema_id}/templates/{{ template.name }}/anps/{{ ap_name }}')].epgs[?(@.epgRef=='/schemas/${schema_id}/templates/{{ template.name }}/anps/{{ ap_name }}/epgs/{{ epg_name }}')].domainAssociations[?(@.dn=='uni/phys-{{ domain_name }}')]
-    Should Be Equal Value Json String   ${r.json()}   ${pd}.dn   uni/phys-{{ domain_name }}
-    Should Be Equal Value Json String   ${r.json()}   ${pd}.domainType   physicalDomain
-    Should Be Equal Value Json String   ${r.json()}   ${pd}.deployImmediacy   {{ pd.deployment_immediacy | default(defaults.ndo.schemas.templates.application_profiles.endpoint_groups.sites.physical_domains.deployment_immediacy) }}
-    Should Be Equal Value Json String   ${r.json()}   ${pd}.resolutionImmediacy   {{ pd.resolution_immediacy | default(defaults.ndo.schemas.templates.application_profiles.endpoint_groups.sites.physical_domains.resolution_immediacy) }}
+    ${pd}=   Set Variable   sites[?siteId=='${site_id}' && templateName=='{{ template.name }}'] | [0].anps[?anpRef=='/schemas/${schema_id}/templates/{{ template.name }}/anps/{{ ap_name }}'] | [0].epgs[?epgRef=='/schemas/${schema_id}/templates/{{ template.name }}/anps/{{ ap_name }}/epgs/{{ epg_name }}'] | [0].domainAssociations[?dn=='uni/phys-{{ domain_name }}'] | [0]
+    Should Be Equal JMESPath Json   ${r.json()}   ${pd}.dn   uni/phys-{{ domain_name }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${pd}.domainType   physicalDomain
+    Should Be Equal JMESPath Json   ${r.json()}   ${pd}.deployImmediacy   {{ pd.deployment_immediacy | default(defaults.ndo.schemas.templates.application_profiles.endpoint_groups.sites.physical_domains.deployment_immediacy) }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${pd}.resolutionImmediacy   {{ pd.resolution_immediacy | default(defaults.ndo.schemas.templates.application_profiles.endpoint_groups.sites.physical_domains.resolution_immediacy) }}
 {% endfor %}
 
 {% for vmm in site.vmware_vmm_domains | default([]) %}
@@ -105,29 +105,29 @@ Verify Schema {{ schema.name }} Template {{ template.name }} Application Profile
 Verify Schema {{ schema.name }} Template {{ template.name }} Application Profile {{ ap_name }} Endpoint Group {{ epg_name }} Site {{ site.name }} VMM Domain {{ domain_name }}
     ${schema_id}=   NDO Lookup   schemas/list-identity   {{ schema.name }}
     ${site_id}=   NDO Lookup   sites   {{ site.name }}
-    ${vmm}=   Set Variable   $.sites[?(@.siteId=='${site_id}')&(@.templateName=='{{ template.name }}')].anps[?(@.anpRef=='/schemas/${schema_id}/templates/{{ template.name }}/anps/{{ ap_name }}')].epgs[?(@.epgRef=='/schemas/${schema_id}/templates/{{ template.name }}/anps/{{ ap_name }}/epgs/{{ epg_name }}')].domainAssociations[?(@.dn=='uni/vmmp-VMware/dom-{{ domain_name }}')]
-    Should Be Equal Value Json String   ${r.json()}   ${vmm}.dn   uni/vmmp-VMware/dom-{{ domain_name }}
-    Should Be Equal Value Json String   ${r.json()}   ${vmm}.domainType   vmmDomain
-    Should Be Equal Value Json String   ${r.json()}   ${vmm}.deployImmediacy   {{ vmm.deployment_immediacy | default(defaults.ndo.schemas.templates.application_profiles.endpoint_groups.sites.vmware_vmm_domains.deployment_immediacy) }}
-    Should Be Equal Value Json String   ${r.json()}   ${vmm}.resolutionImmediacy   {{ vmm.resolution_immediacy | default(defaults.ndo.schemas.templates.application_profiles.endpoint_groups.sites.vmware_vmm_domains.resolution_immediacy) }}
-    Should Be Equal Value Json String   ${r.json()}   ${vmm}.vlanEncapMode   {{ vmm.vlan_mode | default(defaults.ndo.schemas.templates.application_profiles.endpoint_groups.sites.vmware_vmm_domains.vlan_mode) }}
-    Should Be Equal Value Json String   ${r.json()}   ${vmm}.switchType   default
-    Should Be Equal Value Json String   ${r.json()}   ${vmm}.switchingMode   native
+    ${vmm}=   Set Variable   sites[?siteId=='${site_id}' && templateName=='{{ template.name }}'] | [0].anps[?anpRef=='/schemas/${schema_id}/templates/{{ template.name }}/anps/{{ ap_name }}'] | [0].epgs[?epgRef=='/schemas/${schema_id}/templates/{{ template.name }}/anps/{{ ap_name }}/epgs/{{ epg_name }}'] | [0].domainAssociations[?dn=='uni/vmmp-VMware/dom-{{ domain_name }}'] | [0]
+    Should Be Equal JMESPath Json   ${r.json()}   ${vmm}.dn   uni/vmmp-VMware/dom-{{ domain_name }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${vmm}.domainType   vmmDomain
+    Should Be Equal JMESPath Json   ${r.json()}   ${vmm}.deployImmediacy   {{ vmm.deployment_immediacy | default(defaults.ndo.schemas.templates.application_profiles.endpoint_groups.sites.vmware_vmm_domains.deployment_immediacy) }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${vmm}.resolutionImmediacy   {{ vmm.resolution_immediacy | default(defaults.ndo.schemas.templates.application_profiles.endpoint_groups.sites.vmware_vmm_domains.resolution_immediacy) }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${vmm}.vlanEncapMode   {{ vmm.vlan_mode | default(defaults.ndo.schemas.templates.application_profiles.endpoint_groups.sites.vmware_vmm_domains.vlan_mode) }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${vmm}.switchType   default
+    Should Be Equal JMESPath Json   ${r.json()}   ${vmm}.switchingMode   native
 {% if vmm.vlan_mode | default(defaults.ndo.schemas.templates.application_profiles.endpoint_groups.sites.vmware_vmm_domains.vlan_mode) == 'static' %}
-    Should Be Equal Value Json String   ${r.json()}   ${vmm}.portEncapVlan.vlan   {{ vmm.vlan }}
-    Should Be Equal Value Json String   ${r.json()}   ${vmm}.portEncapVlan.vlanType   vlan
+    Should Be Equal JMESPath Json   ${r.json()}   ${vmm}.portEncapVlan.vlan   {{ vmm.vlan }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${vmm}.portEncapVlan.vlanType   vlan
 {% endif %}
 {% if vmm.custom_epg_name is defined %}
-    Should Be Equal Value Json String   ${r.json()}   ${vmm}.customEpgName   {{ vmm.custom_epg_name }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${vmm}.customEpgName   {{ vmm.custom_epg_name }}
 {% endif %}
 {% if vmm.u_segmentation | default(defaults.ndo.schemas.templates.application_profiles.endpoint_groups.sites.vmware_vmm_domains.u_segmentation) %}
-    Should Be Equal Value Json Boolean   ${r.json()}   ${vmm}.allowMicroSegmentation   True
+    Should Be Equal JMESPath Json   ${r.json()}   ${vmm}.allowMicroSegmentation   True
 {% if vmm.vlan_mode | default(defaults.ndo.schemas.templates.application_profiles.endpoint_groups.sites.vmware_vmm_domains.vlan_mode) == 'static' %}
-    Should Be Equal Value Json String   ${r.json()}   ${vmm}.microSegVlan.vlan   {{ vmm.useg_vlan }}
-    Should Be Equal Value Json String   ${r.json()}   ${vmm}.microSegVlan.vlanType   vlan
+    Should Be Equal JMESPath Json   ${r.json()}   ${vmm}.microSegVlan.vlan   {{ vmm.useg_vlan }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${vmm}.microSegVlan.vlanType   vlan
 {% endif %}
 {% else %}
-    Should Be Equal Value Json String   ${r.json()}   ${vmm}.allowMicroSegmentation   False
+    Should Be Equal JMESPath Json   ${r.json()}   ${vmm}.allowMicroSegmentation   False
 {% endif %}
 {% endfor %}
 
@@ -158,14 +158,14 @@ Verify Schema {{ schema.name }} Template {{ template.name }} Application Profile
 Verify Schema {{ schema.name }} Template {{ template.name }} Application Profile {{ ap_name }} Endpoint Group {{ epg_name }} Site {{ site.name }} Static Port '{{ path | replace("topology/", "") }}'
     ${schema_id}=   NDO Lookup   schemas/list-identity   {{ schema.name }}
     ${site_id}=   NDO Lookup   sites   {{ site.name }}
-    ${sp}=   Set Variable   $.sites[?(@.siteId=='${site_id}')&(@.templateName=='{{ template.name }}')].anps[?(@.anpRef=='/schemas/${schema_id}/templates/{{ template.name }}/anps/{{ ap_name }}')].epgs[?(@.epgRef=='/schemas/${schema_id}/templates/{{ template.name }}/anps/{{ ap_name }}/epgs/{{ epg_name }}')].staticPorts[?(@.path=='{{ path }}')]
-    Should Be Equal Value Json String   ${r.json()}   ${sp}.type   {{ type }}
-    Should Be Equal Value Json String   ${r.json()}   ${sp}.path   {{ path }}
-    Should Be Equal Value Json String   ${r.json()}   ${sp}.portEncapVlan   {{ sp.vlan }}
-    Should Be Equal Value Json String   ${r.json()}   ${sp}.deploymentImmediacy   {{ sp.deployment_immediacy | default(defaults.ndo.schemas.templates.application_profiles.endpoint_groups.sites.static_ports.deployment_immediacy) }}
-    Should Be Equal Value Json String   ${r.json()}   ${sp}.mode   {{ sp.mode | default(defaults.ndo.schemas.templates.application_profiles.endpoint_groups.sites.static_ports.mode) }}
+    ${sp}=   Set Variable   sites[?siteId=='${site_id}' && templateName=='{{ template.name }}'] | [0].anps[?anpRef=='/schemas/${schema_id}/templates/{{ template.name }}/anps/{{ ap_name }}'] | [0].epgs[?epgRef=='/schemas/${schema_id}/templates/{{ template.name }}/anps/{{ ap_name }}/epgs/{{ epg_name }}'] | [0].staticPorts[?path=='{{ path }}'] | [0]
+    Should Be Equal JMESPath Json   ${r.json()}   ${sp}.type   {{ type }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${sp}.path   {{ path }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${sp}.portEncapVlan   {{ sp.vlan }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${sp}.deploymentImmediacy   {{ sp.deployment_immediacy | default(defaults.ndo.schemas.templates.application_profiles.endpoint_groups.sites.static_ports.deployment_immediacy) }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${sp}.mode   {{ sp.mode | default(defaults.ndo.schemas.templates.application_profiles.endpoint_groups.sites.static_ports.mode) }}
 {% if sp.useg_vlan is defined %}
-    Should Be Equal Value Json String   ${r.json()}   ${sp}.microSegVlan   {{ sp.useg_vlan }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${sp}.microSegVlan   {{ sp.useg_vlan }}
 {% endif %}
 {% endfor %}
 
@@ -175,9 +175,9 @@ Verify Schema {{ schema.name }} Template {{ template.name }} Application Profile
 Verify Schema {{ schema.name }} Template {{ template.name }} Application Profile {{ ap_name }} Endpoint Group {{ epg_name }} Site {{ site.name }} Static Leaf '{{ path | replace("topology/", "") }}'
     ${schema_id}=   NDO Lookup   schemas/list-identity   {{ schema.name }}
     ${site_id}=   NDO Lookup   sites   {{ site.name }}
-    ${sl}=   Set Variable   $.sites[?(@.siteId=='${site_id}')&(@.templateName=='{{ template.name }}')].anps[?(@.anpRef=='/schemas/${schema_id}/templates/{{ template.name }}/anps/{{ ap_name }}')].epgs[?(@.epgRef=='/schemas/${schema_id}/templates/{{ template.name }}/anps/{{ ap_name }}/epgs/{{ epg_name }}')].staticLeafs[?(@.path=='{{ path }}')]
-    Should Be Equal Value Json String   ${r.json()}   ${sl}.path   {{ path }}
-    Should Be Equal Value Json String   ${r.json()}   ${sl}.portEncapVlan   {{ sl.vlan }}
+    ${sl}=   Set Variable   sites[?siteId=='${site_id}' && templateName=='{{ template.name }}'] | [0].anps[?anpRef=='/schemas/${schema_id}/templates/{{ template.name }}/anps/{{ ap_name }}'] | [0].epgs[?epgRef=='/schemas/${schema_id}/templates/{{ template.name }}/anps/{{ ap_name }}/epgs/{{ epg_name }}'] | [0].staticLeafs[?path=='{{ path }}'] | [0]
+    Should Be Equal JMESPath Json   ${r.json()}   ${sl}.path   {{ path }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${sl}.portEncapVlan   {{ sl.vlan }}
 {% endfor %}
 
 {% for subnet in site.subnets | default([]) %}
@@ -185,13 +185,13 @@ Verify Schema {{ schema.name }} Template {{ template.name }} Application Profile
 Verify Schema {{ schema.name }} Template {{ template.name }} Application Profile {{ ap_name }} Endpoint Group {{ epg_name }} Site {{ site.name }} Subnet {{ subnet.ip }}
     ${schema_id}=   NDO Lookup   schemas/list-identity   {{ schema.name }}
     ${site_id}=   NDO Lookup   sites   {{ site.name }}
-    ${subnet}=   Set Variable   $.sites[?(@.siteId=='${site_id}')&(@.templateName=='{{ template.name }}')].anps[?(@.anpRef=='/schemas/${schema_id}/templates/{{ template.name }}/anps/{{ ap_name }}')].epgs[?(@.epgRef=='/schemas/${schema_id}/templates/{{ template.name }}/anps/{{ ap_name }}/epgs/{{ epg_name }}')].subnets[?(@.ip=='{{ subnet.ip }}')]
-    Should Be Equal Value Json String   ${r.json()}   ${subnet}.ip   {{ subnet.ip }}
-    Should Be Equal Value Json String   ${r.json()}   ${subnet}.description   {{ subnet.description | default() }}
-    Should Be Equal Value Json String   ${r.json()}   ${subnet}.scope   {{ subnet.scope | default(defaults.ndo.schemas.templates.application_profiles.endpoint_groups.sites.subnets.scope) }}
-    Should Be Equal Value Json Boolean   ${r.json()}   ${subnet}.shared   {{ subnet.shared | default(defaults.ndo.schemas.templates.application_profiles.endpoint_groups.sites.subnets.shared) }}
-    Should Be Equal Value Json Boolean   ${r.json()}   ${subnet}.noDefaultGateway   {{ subnet.no_default_gateway | default(defaults.ndo.schemas.templates.application_profiles.endpoint_groups.sites.subnets.no_default_gateway) }}
-    Should Be Equal Value Json Boolean   ${r.json()}   ${subnet}.primary   {{ subnet.primary | default(defaults.ndo.schemas.templates.application_profiles.endpoint_groups.sites.subnets.primary) }}
+    ${subnet}=   Set Variable   sites[?siteId=='${site_id}' && templateName=='{{ template.name }}'] | [0].anps[?anpRef=='/schemas/${schema_id}/templates/{{ template.name }}/anps/{{ ap_name }}'] | [0].epgs[?epgRef=='/schemas/${schema_id}/templates/{{ template.name }}/anps/{{ ap_name }}/epgs/{{ epg_name }}'] | [0].subnets[?ip=='{{ subnet.ip }}'] | [0]
+    Should Be Equal JMESPath Json   ${r.json()}   ${subnet}.ip   {{ subnet.ip }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${subnet}.description   {{ subnet.description | default() }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${subnet}.scope   {{ subnet.scope | default(defaults.ndo.schemas.templates.application_profiles.endpoint_groups.sites.subnets.scope) }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${subnet}.shared   {{ subnet.shared | default(defaults.ndo.schemas.templates.application_profiles.endpoint_groups.sites.subnets.shared) }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${subnet}.noDefaultGateway   {{ subnet.no_default_gateway | default(defaults.ndo.schemas.templates.application_profiles.endpoint_groups.sites.subnets.no_default_gateway) }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${subnet}.primary   {{ subnet.primary | default(defaults.ndo.schemas.templates.application_profiles.endpoint_groups.sites.subnets.primary) }}
 {% endfor %}
 
 {% for selector in site.selectors | default([]) %}
@@ -199,13 +199,13 @@ Verify Schema {{ schema.name }} Template {{ template.name }} Application Profile
 Verify Schema {{ schema.name }} Template {{ template.name }} Application Profile {{ ap_name }} Endpoint Group {{ epg_name }} Site {{ site.name }} Selector {{ selector.name }}
     ${schema_id}=   NDO Lookup   schemas/list-identity   {{ schema.name }}
     ${site_id}=   NDO Lookup   sites   {{ site.name }}
-    ${selector}=   Set Variable   $.sites[?(@.siteId=='${site_id}')&(@.templateName=='{{ template.name }}')].anps[?(@.anpRef=='/schemas/${schema_id}/templates/{{ template.name }}/anps/{{ ap_name }}')].epgs[?(@.epgRef=='/schemas/${schema_id}/templates/{{ template.name }}/anps/{{ ap_name }}/epgs/{{ epg_name }}')].selectors[?(@.name=='{{ selector.name }}')]
-    Should Be Equal Value Json String   ${r.json()}   ${selector}.name   {{ selector.name }}
+    ${selector}=   Set Variable   sites[?siteId=='${site_id}' && templateName=='{{ template.name }}'] | [0].anps[?anpRef=='/schemas/${schema_id}/templates/{{ template.name }}/anps/{{ ap_name }}'] | [0].epgs[?epgRef=='/schemas/${schema_id}/templates/{{ template.name }}/anps/{{ ap_name }}/epgs/{{ epg_name }}'] | [0].selectors[?name=='{{ selector.name }}'] | [0]
+    Should Be Equal JMESPath Json   ${r.json()}   ${selector}.name   {{ selector.name }}
 {% for expression in selector.expressions | default([]) %}
-    ${expression}=   Set Variable   $.sites[?(@.siteId=='${site_id}')&(@.templateName=='{{ template.name }}')].anps[?(@.anpRef=='/schemas/${schema_id}/templates/{{ template.name }}/anps/{{ ap_name }}')].epgs[?(@.epgRef=='/schemas/${schema_id}/templates/{{ template.name }}/anps/{{ ap_name }}/epgs/{{ epg_name }}')].selectors[?(@.name=='{{ selector.name }}')].expressions[?(@.value=='{{ expression.value }}')]
-    Should Be Equal Value Json String   ${r.json()}   ${expression}.key   {{ expression.key }}
-    Should Be Equal Value Json String   ${r.json()}   ${expression}.operator   {{ expression.operator }}
-    Should Be Equal Value Json String   ${r.json()}   ${expression}.value   {{ expression.value }}
+    ${expression}=   Set Variable   sites[?siteId=='${site_id}' && templateName=='{{ template.name }}'] | [0].anps[?anpRef=='/schemas/${schema_id}/templates/{{ template.name }}/anps/{{ ap_name }}'] | [0].epgs[?epgRef=='/schemas/${schema_id}/templates/{{ template.name }}/anps/{{ ap_name }}/epgs/{{ epg_name }}'] | [0].selectors[?name=='{{ selector.name }}'] | [0].expressions[?value=='{{ expression.value }}'] | [0]
+    Should Be Equal JMESPath Json   ${r.json()}   ${expression}.key   {{ expression.key }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${expression}.operator   {{ expression.operator }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${expression}.value   {{ expression.value }}
 {% endfor %}
 {% endfor %}
 
@@ -219,27 +219,27 @@ Verify Schema {{ schema.name }} Template {{ template.name }} Application Profile
 {% set vrf_name = vrf.name ~ defaults.ndo.schemas.templates.vrfs.name_suffix %}
 
 Verify Schema {{ schema.name }} Template {{ template.name }} VRF {{ vrf_name }}
-    ${vrf}=   Set Variable   $.templates[?(@.name=='{{ template.name }}')].vrfs[?(@.name=='{{ vrf_name }}')]
-    Should Be Equal Value Json String   ${r.json()}   ${vrf}.name   {{ vrf_name }}
-    Should Be Equal Value Json String   ${r.json()}   ${vrf}.displayName   {{ vrf_name }}
-    Should Be Equal Value Json String   ${r.json()}   ${vrf}.ipDataPlaneLearning   {{ 'enabled' if vrf.data_plane_learning | default(defaults.ndo.schemas.templates.vrfs.data_plane_learning) else 'disabled'}}
-    Should Be Equal Value Json Boolean   ${r.json()}   ${vrf}.preferredGroup   {{ vrf.preferred_group | default(defaults.ndo.schemas.templates.vrfs.preferred_group) }}
-    Should Be Equal Value Json Boolean   ${r.json()}   ${vrf}.l3MCast   {{ vrf.l3_multicast | default(defaults.ndo.schemas.templates.vrfs.l3_multicast) }}
+    ${vrf}=   Set Variable   templates[?name=='{{ template.name }}'] | [0].vrfs[?name=='{{ vrf_name }}'] | [0]
+    Should Be Equal JMESPath Json   ${r.json()}   ${vrf}.name   {{ vrf_name }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${vrf}.displayName   {{ vrf_name }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${vrf}.ipDataPlaneLearning   {{ 'enabled' if vrf.data_plane_learning | default(defaults.ndo.schemas.templates.vrfs.data_plane_learning) else 'disabled'}}
+    Should Be Equal JMESPath Json   ${r.json()}   ${vrf}.preferredGroup   {{ vrf.preferred_group | default(defaults.ndo.schemas.templates.vrfs.preferred_group) }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${vrf}.l3MCast   {{ vrf.l3_multicast | default(defaults.ndo.schemas.templates.vrfs.l3_multicast) }}
     {% if vrf.site_aware_policy_enforcement is defined %}
-    Should Be Equal Value Json Boolean   ${r.json()}   ${vrf}.siteAwarePolicyEnforcementMode   {{ vrf.site_aware_policy_enforcement }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${vrf}.siteAwarePolicyEnforcementMode   {{ vrf.site_aware_policy_enforcement }}
     {% endif %}
-    Should Be Equal Value Json Boolean   ${r.json()}   ${vrf}.vzAnyEnabled   {{ vrf.vzany | default(defaults.ndo.schemas.templates.vrfs.vzany) }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${vrf}.vzAnyEnabled   {{ vrf.vzany | default(defaults.ndo.schemas.templates.vrfs.vzany) }}
 {% for contract in vrf.contracts.consumers | default([]) %}
 {% set contract_name = contract.name ~ defaults.ndo.schemas.templates.contracts.name_suffix %}
     ${schema_id}=   NDO Lookup   schemas/list-identity   {{ contract.schema | default(schema.name) }}
-    ${con}=   Set Variable   $.templates[?(@.name=='{{ template.name }}')].vrfs[?(@.name=='{{ vrf_name }}')].vzAnyConsumerContracts[?(@.contractRef=='/schemas/${schema_id}/templates/{{ contract.template | default( template.name ) }}/contracts/{{ contract_name }}')]
-    Should Be Equal Value Json String   ${r.json()}   ${con}.contractRef   /schemas/${schema_id}/templates/{{ contract.template | default( template.name ) }}/contracts/{{ contract_name }}
+    ${con}=   Set Variable   templates[?name=='{{ template.name }}'] | [0].vrfs[?name=='{{ vrf_name }}'] | [0].vzAnyConsumerContracts[?contractRef=='/schemas/${schema_id}/templates/{{ contract.template | default( template.name ) }}/contracts/{{ contract_name }}'] | [0]
+    Should Be Equal JMESPath Json   ${r.json()}   ${con}.contractRef   /schemas/${schema_id}/templates/{{ contract.template | default( template.name ) }}/contracts/{{ contract_name }}
 {% endfor %}
 {% for contract in vrf.contracts.providers | default([]) %}
 {% set contract_name = contract.name ~ defaults.ndo.schemas.templates.contracts.name_suffix %}
     ${schema_id}=   NDO Lookup   schemas/list-identity   {{ contract.schema | default(schema.name) }}
-    ${con}=   Set Variable   $.templates[?(@.name=='{{ template.name }}')].vrfs[?(@.name=='{{ vrf_name }}')].vzAnyProviderContracts[?(@.contractRef=='/schemas/${schema_id}/templates/{{ contract.template | default( template.name ) }}/contracts/{{ contract_name }}')]
-    Should Be Equal Value Json String   ${r.json()}   ${con}.contractRef   /schemas/${schema_id}/templates/{{ contract.template | default( template.name ) }}/contracts/{{ contract_name }}
+    ${con}=   Set Variable   templates[?name=='{{ template.name }}'] | [0].vrfs[?name=='{{ vrf_name }}'] | [0].vzAnyProviderContracts[?contractRef=='/schemas/${schema_id}/templates/{{ contract.template | default( template.name ) }}/contracts/{{ contract_name }}'] | [0]
+    Should Be Equal JMESPath Json   ${r.json()}   ${con}.contractRef   /schemas/${schema_id}/templates/{{ contract.template | default( template.name ) }}/contracts/{{ contract_name }}
 {% endfor %}
 
 {% for site in vrf.sites | default([]) %}
@@ -247,8 +247,8 @@ Verify Schema {{ schema.name }} Template {{ template.name }} VRF {{ vrf_name }}
 Verify Schema {{ schema.name }} Template {{ template.name }} VRF {{ vrf_name }} Site {{ site.name }}
     ${schema_id}=   NDO Lookup   schemas/list-identity   {{ schema.name }}
     ${site_id}=   NDO Lookup   sites   {{ site.name }}
-    ${vrf}=   Set Variable   $.sites[?(@.siteId=='${site_id}')&(@.templateName=='{{ template.name }}')].vrfs[?(@.vrfRef=='/schemas/${schema_id}/templates/{{ template.name }}/vrfs/{{ vrf_name }}')]
-    Should Be Equal Value Json String   ${r.json()}   ${vrf}.vrfRef   /schemas/${schema_id}/templates/{{ template.name }}/vrfs/{{ vrf_name }}
+    ${vrf}=   Set Variable   sites[?siteId=='${site_id}' && templateName=='{{ template.name }}'] | [0].vrfs[?vrfRef=='/schemas/${schema_id}/templates/{{ template.name }}/vrfs/{{ vrf_name }}'] | [0]
+    Should Be Equal JMESPath Json   ${r.json()}   ${vrf}.vrfRef   /schemas/${schema_id}/templates/{{ template.name }}/vrfs/{{ vrf_name }}
 {% endfor %}
 {% endfor %}
 
@@ -256,44 +256,44 @@ Verify Schema {{ schema.name }} Template {{ template.name }} VRF {{ vrf_name }} 
 {% set bd_name = bd.name ~ defaults.ndo.schemas.templates.bridge_domains.name_suffix %}
 
 Verify Schema {{ schema.name }} Template {{ template.name }} Bridge Domain {{ bd_name }}
-    ${bd}=   Set Variable   $.templates[?(@.name=='{{ template.name }}')].bds[?(@.name=='{{ bd_name }}')]
-    Should Be Equal Value Json String   ${r.json()}   ${bd}.name   {{ bd_name }}
-    Should Be Equal Value Json String   ${r.json()}   ${bd}.displayName   {{ bd_name }}
-    Should Be Equal Value Json String   ${r.json()}   ${bd}.description   {{ bd.description | default() }}
-    Should Be Equal Value Json String   ${r.json()}   ${bd}.l2UnknownUnicast   {{ bd.l2_unknown_unicast | default(defaults.ndo.schemas.templates.bridge_domains.l2_unknown_unicast)}}
-    Should Be Equal Value Json Boolean   ${r.json()}   ${bd}.intersiteBumTrafficAllow   {{ bd.intersite_bum_traffic | default(defaults.ndo.schemas.templates.bridge_domains.intersite_bum_traffic) }}
-    Should Be Equal Value Json Boolean   ${r.json()}   ${bd}.optimizeWanBandwidth   {{ bd.optimize_wan_bandwidth | default(defaults.ndo.schemas.templates.bridge_domains.optimize_wan_bandwidth) }}
-    Should Be Equal Value Json Boolean   ${r.json()}   ${bd}.l2Stretch   {{ bd.l2_stretch | default(defaults.ndo.schemas.templates.bridge_domains.l2_stretch) }}
-    Should Be Equal Value Json Boolean   ${r.json()}   ${bd}.l3MCast   {{ bd.l3_multicast | default(defaults.ndo.schemas.templates.bridge_domains.l3_multicast) }}
-    Should Be Equal Value Json Boolean   ${r.json()}   ${bd}.unicastRouting  {{ bd.unicast_routing | default(defaults.ndo.schemas.templates.bridge_domains.unicast_routing) }}
+    ${bd}=   Set Variable   templates[?name=='{{ template.name }}'] | [0].bds[?name=='{{ bd_name }}'] | [0]
+    Should Be Equal JMESPath Json   ${r.json()}   ${bd}.name   {{ bd_name }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${bd}.displayName   {{ bd_name }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${bd}.description   {{ bd.description | default() }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${bd}.l2UnknownUnicast   {{ bd.l2_unknown_unicast | default(defaults.ndo.schemas.templates.bridge_domains.l2_unknown_unicast)}}
+    Should Be Equal JMESPath Json   ${r.json()}   ${bd}.intersiteBumTrafficAllow   {{ bd.intersite_bum_traffic | default(defaults.ndo.schemas.templates.bridge_domains.intersite_bum_traffic) }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${bd}.optimizeWanBandwidth   {{ bd.optimize_wan_bandwidth | default(defaults.ndo.schemas.templates.bridge_domains.optimize_wan_bandwidth) }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${bd}.l2Stretch   {{ bd.l2_stretch | default(defaults.ndo.schemas.templates.bridge_domains.l2_stretch) }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${bd}.l3MCast   {{ bd.l3_multicast | default(defaults.ndo.schemas.templates.bridge_domains.l3_multicast) }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${bd}.unicastRouting  {{ bd.unicast_routing | default(defaults.ndo.schemas.templates.bridge_domains.unicast_routing) }}
 {% if bd.ep_move_detection_mode is defined %}
-    Should Be Equal Value Json Boolean   ${r.json()}   ${bd}.epMoveDetectMode  {{ bd.ep_move_detection_mode }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${bd}.epMoveDetectMode  {{ bd.ep_move_detection_mode }}
 {% endif %}
 
 {% if bd.virtual_mac is defined %}
-    Should Be Equal Value Json String   ${r.json()}   ${bd}.vmac   {{ bd.virtual_mac }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${bd}.vmac   {{ bd.virtual_mac }}
 {% endif %}
-    Should Be Equal Value Json String   ${r.json()}   ${bd}.multiDstPktAct   {{ bd.multi_destination_flooding | default(defaults.ndo.schemas.templates.bridge_domains.multi_destination_flooding) }}
-    Should Be Equal Value Json String   ${r.json()}   ${bd}.unkMcastAct   {{ bd.unknown_ipv4_multicast | default(defaults.ndo.schemas.templates.bridge_domains.unknown_ipv4_multicast) }}
-    Should Be Equal Value Json String   ${r.json()}   ${bd}.v6unkMcastAct   {{ bd.unknown_ipv6_multicast | default(defaults.ndo.schemas.templates.bridge_domains.unknown_ipv6_multicast) }}
-    Should Be Equal Value Json Boolean   ${r.json()}   ${bd}.arpFlood   {{ bd.arp_flooding | default(defaults.ndo.schemas.templates.bridge_domains.arp_flooding) }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${bd}.multiDstPktAct   {{ bd.multi_destination_flooding | default(defaults.ndo.schemas.templates.bridge_domains.multi_destination_flooding) }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${bd}.unkMcastAct   {{ bd.unknown_ipv4_multicast | default(defaults.ndo.schemas.templates.bridge_domains.unknown_ipv4_multicast) }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${bd}.v6unkMcastAct   {{ bd.unknown_ipv6_multicast | default(defaults.ndo.schemas.templates.bridge_domains.unknown_ipv6_multicast) }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${bd}.arpFlood   {{ bd.arp_flooding | default(defaults.ndo.schemas.templates.bridge_domains.arp_flooding) }}
 
 {% if bd.dhcp_relay_policy is defined %}
 {% set dhcp_relay_policy_name = bd.dhcp_relay_policy ~ defaults.ndo.policies.dhcp_relays.name_suffix %}
-    Should Be Equal Value Json String   ${r.json()}   ${bd}.dhcpLabel.name   {{ dhcp_relay_policy_name }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${bd}.dhcpLabel.name   {{ dhcp_relay_policy_name }}
 {% if bd.dhcp_option_policy is defined %}
 {% set dhcp_option_name = bd.dhcp_option_policy ~ defaults.ndo.policies.dhcp_options.name_suffix %}
-    Should Be Equal Value Json String   ${r.json()}   ${bd}.dhcpLabel.dhcpOptionLabel.name   {{ dhcp_option_name }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${bd}.dhcpLabel.dhcpOptionLabel.name   {{ dhcp_option_name }}
 {% endif %}
 {% endif %}
 
 {% for pol in  bd.dhcp_policies | default([]) %}
 {% set dhcp_relay_policy_name = pol.dhcp_relay_policy ~ defaults.ndo.policies.dhcp_relays.name_suffix %}
-    ${dhcp}=   Set Variable   $.templates[?(@.name=='{{ template.name }}')].bds[?(@.name=='{{ bd_name }}')].dhcpLabels[?(@.name=='{{ dhcp_relay_policy_name }}')]
-    Should Be Equal Value Json String   ${r.json()}   ${dhcp}.name   {{ dhcp_relay_policy_name }}
+    ${dhcp}=   Set Variable   templates[?name=='{{ template.name }}'] | [0].bds[?name=='{{ bd_name }}'] | [0].dhcpLabels[?name=='{{ dhcp_relay_policy_name }}'] | [0]
+    Should Be Equal JMESPath Json   ${r.json()}   ${dhcp}.name   {{ dhcp_relay_policy_name }}
 {% if pol.dhcp_option_policy is defined %}
 {% set dhcp_option_name = pol.dhcp_option_policy ~ defaults.ndo.policies.dhcp_options.name_suffix %}
-    Should Be Equal Value Json String   ${r.json()}   ${dhcp}.dhcpOptionLabel.name   {{ dhcp_option_name }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${dhcp}.dhcpOptionLabel.name   {{ dhcp_option_name }}
 {% endif %}
 {% endfor %}
 
@@ -301,40 +301,40 @@ Verify Schema {{ schema.name }} Template {{ template.name }} Bridge Domain {{ bd
 {% for subnet in bd.subnets | default([]) %}
 
 Verify Schema {{ schema.name }} Template {{ template.name }} Bridge Domain {{ bd_name }} Subnet {{ subnet.ip }}
-    ${subnet}=   Set Variable   $.templates[?(@.name=='{{ template.name }}')].bds[?(@.name=='{{ bd_name }}')].subnets[?(@.ip=='{{ subnet.ip }}')]
-    Should Be Equal Value Json String   ${r.json()}   ${subnet}.ip   {{ subnet.ip }}
-    Should Be Equal Value Json String   ${r.json()}   ${subnet}.scope   {{ subnet.scope | default(defaults.ndo.schemas.templates.bridge_domains.subnets.scope) }}
-    Should Be Equal Value Json Boolean   ${r.json()}   ${subnet}.shared   {{ subnet.shared | default(defaults.ndo.schemas.templates.bridge_domains.subnets.shared) }}
-    Should Be Equal Value Json Boolean   ${r.json()}   ${subnet}.noDefaultGateway   {{ subnet.no_default_gateway | default(defaults.ndo.schemas.templates.bridge_domains.subnets.no_default_gateway) }}
-    Should Be Equal Value Json Boolean   ${r.json()}   ${subnet}.querier   {{ subnet.querier | default(defaults.ndo.schemas.templates.bridge_domains.subnets.querier) }}
-    Should Be Equal Value Json Boolean   ${r.json()}   ${subnet}.primary   {{ subnet.primary | default(defaults.ndo.schemas.templates.bridge_domains.subnets.primary) }}
+    ${subnet}=   Set Variable   templates[?name=='{{ template.name }}'] | [0].bds[?name=='{{ bd_name }}'] | [0].subnets[?ip=='{{ subnet.ip }}'] | [0]
+    Should Be Equal JMESPath Json   ${r.json()}   ${subnet}.ip   {{ subnet.ip }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${subnet}.scope   {{ subnet.scope | default(defaults.ndo.schemas.templates.bridge_domains.subnets.scope) }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${subnet}.shared   {{ subnet.shared | default(defaults.ndo.schemas.templates.bridge_domains.subnets.shared) }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${subnet}.noDefaultGateway   {{ subnet.no_default_gateway | default(defaults.ndo.schemas.templates.bridge_domains.subnets.no_default_gateway) }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${subnet}.querier   {{ subnet.querier | default(defaults.ndo.schemas.templates.bridge_domains.subnets.querier) }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${subnet}.primary   {{ subnet.primary | default(defaults.ndo.schemas.templates.bridge_domains.subnets.primary) }}
 {% endfor %}
 
 {% for site in bd.sites | default([]) %}
-{% set l3outs = site.l3outs | default([]) | map('regex_replace', '$', defaults.ndo.schemas.templates.l3outs.name_suffix) | list %}
+{% set l3outs = site.l3outs | default([]) | map('regex_replace', '', defaults.ndo.schemas.templates.l3outs.name_suffix) | list %}
 
 Verify Schema {{ schema.name }} Template {{ template.name }} Bridge Domain {{ bd_name }} Site {{ site.name }}
     ${schema_id}=   NDO Lookup   schemas/list-identity   {{ schema.name }}
     ${site_id}=   NDO Lookup   sites   {{ site.name }}
-    ${bd}=   Set Variable   $.sites[?(@.siteId=='${site_id}')&(@.templateName=='{{ template.name }}')].bds[?(@.bdRef=='/schemas/${schema_id}/templates/{{ template.name }}/bds/{{ bd_name }}')]
-    Should Be Equal Value Json String   ${r.json()}   ${bd}.bdRef   /schemas/${schema_id}/templates/{{ template.name }}/bds/{{ bd_name }}
-    Should Be Equal Value Json Boolean   ${r.json()}   ${bd}.hostBasedRouting   {{ site.advertise_host_routes | default(defaults.ndo.schemas.templates.bridge_domains.sites.advertise_host_routes) }}
-    Should Be Equal Value Json String   ${r.json()}   ${bd}.mac   {{ site.mac | default(defaults.ndo.schemas.templates.bridge_domains.sites.mac) }}
+    ${bd}=   Set Variable   sites[?siteId=='${site_id}' && templateName=='{{ template.name }}'] | [0].bds[?bdRef=='/schemas/${schema_id}/templates/{{ template.name }}/bds/{{ bd_name }}'] | [0]
+    Should Be Equal JMESPath Json   ${r.json()}   ${bd}.bdRef   /schemas/${schema_id}/templates/{{ template.name }}/bds/{{ bd_name }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${bd}.hostBasedRouting   {{ site.advertise_host_routes | default(defaults.ndo.schemas.templates.bridge_domains.sites.advertise_host_routes) }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${bd}.mac   {{ site.mac | default(defaults.ndo.schemas.templates.bridge_domains.sites.mac) }}
     ${l3outs}=   Create List   {{ l3outs | join('   ') }}
-    Should Be Equal Value Json List   ${r.json()}   ${bd}.l3Outs   ${l3outs}
+    Should Be Equal JMESPath Json List   ${r.json()}   ${bd}.l3Outs   ${l3outs}
 
 {% for subnet in site.subnets | default([]) %}
 
 Verify Schema {{ schema.name }} Template {{ template.name }} Bridge Domain {{ bd_name }} Site {{ site.name }} Subnet {{ subnet.ip }}
     ${schema_id}=   NDO Lookup   schemas/list-identity   {{ schema.name }}
     ${site_id}=   NDO Lookup   sites   {{ site.name }}
-    ${subnet}=   Set Variable   $.sites[?(@.siteId=='${site_id}')&(@.templateName=='{{ template.name }}')].bds[?(@.bdRef=='/schemas/${schema_id}/templates/{{ template.name }}/bds/{{ bd_name }}')].subnets[?(@.ip=='{{ subnet.ip }}')]
-    Should Be Equal Value Json String   ${r.json()}   ${subnet}.ip   {{ subnet.ip }}
-    Should Be Equal Value Json String   ${r.json()}   ${subnet}.scope   {{ subnet.scope | default(defaults.ndo.schemas.templates.bridge_domains.sites.subnets.scope) }}
-    Should Be Equal Value Json Boolean   ${r.json()}   ${subnet}.shared   {{ subnet.shared | default(defaults.ndo.schemas.templates.bridge_domains.sites.subnets.shared) }}
-    Should Be Equal Value Json Boolean   ${r.json()}   ${subnet}.noDefaultGateway   {{ subnet.no_default_gateway | default(defaults.ndo.schemas.templates.bridge_domains.sites.subnets.no_default_gateway) }}
-    Should Be Equal Value Json Boolean   ${r.json()}   ${subnet}.querier   {{ subnet.querier | default(defaults.ndo.schemas.templates.bridge_domains.sites.subnets.querier) }}
-    Should Be Equal Value Json Boolean   ${r.json()}   ${subnet}.primary   {{ subnet.primary | default(defaults.ndo.schemas.templates.bridge_domains.sites.subnets.primary) }}
+    ${subnet}=   Set Variable   sites[?siteId=='${site_id}' && templateName=='{{ template.name }}'] | [0].bds[?bdRef=='/schemas/${schema_id}/templates/{{ template.name }}/bds/{{ bd_name }}'] | [0].subnets[?ip=='{{ subnet.ip }}'] | [0]
+    Should Be Equal JMESPath Json   ${r.json()}   ${subnet}.ip   {{ subnet.ip }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${subnet}.scope   {{ subnet.scope | default(defaults.ndo.schemas.templates.bridge_domains.sites.subnets.scope) }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${subnet}.shared   {{ subnet.shared | default(defaults.ndo.schemas.templates.bridge_domains.sites.subnets.shared) }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${subnet}.noDefaultGateway   {{ subnet.no_default_gateway | default(defaults.ndo.schemas.templates.bridge_domains.sites.subnets.no_default_gateway) }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${subnet}.querier   {{ subnet.querier | default(defaults.ndo.schemas.templates.bridge_domains.sites.subnets.querier) }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${subnet}.primary   {{ subnet.primary | default(defaults.ndo.schemas.templates.bridge_domains.sites.subnets.primary) }}
 {% endfor %}
 
 {% endfor %}
@@ -345,11 +345,11 @@ Verify Schema {{ schema.name }} Template {{ template.name }} Bridge Domain {{ bd
 {% set contract_name = contract.name ~ defaults.ndo.schemas.templates.contracts.name_suffix %}
 
 Verify Schema {{ schema.name }} Template {{ template.name }} Contract {{ contract_name }}
-    ${contract}=   Set Variable   $.templates[?(@.name=='{{ template.name }}')].contracts[?(@.name=='{{ contract_name }}')]
-    Should Be Equal Value Json String   ${r.json()}   ${contract}.name   {{ contract_name }}
-    Should Be Equal Value Json String   ${r.json()}   ${contract}.displayName   {{ contract_name }}
-    Should Be Equal Value Json String   ${r.json()}   ${contract}.scope   {{ contract.scope | default(defaults.ndo.schemas.templates.contracts.scope) }}
-    Should Be Equal Value Json String   ${r.json()}   ${contract}.filterType   {{ contract.type | default(defaults.ndo.schemas.templates.contracts.type) }}
+    ${contract}=   Set Variable   templates[?name=='{{ template.name }}'] | [0].contracts[?name=='{{ contract_name }}'] | [0]
+    Should Be Equal JMESPath Json   ${r.json()}   ${contract}.name   {{ contract_name }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${contract}.displayName   {{ contract_name }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${contract}.scope   {{ contract.scope | default(defaults.ndo.schemas.templates.contracts.scope) }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${contract}.filterType   {{ contract.type | default(defaults.ndo.schemas.templates.contracts.type) }}
 
 {% if contract.type | default(defaults.ndo.schemas.templates.contracts.type) == "bothWay" %}
 {% for filter in contract.filters | default([]) %}
@@ -360,10 +360,10 @@ Verify Schema {{ schema.name }} Template {{ template.name }} Contract {{ contrac
 
 Verify Schema {{ schema.name }} Template {{ template.name }} Contract {{ contract_name }} Filter Chain {{ filter_name }}
     ${schema_id}=   NDO Lookup   schemas/list-identity   {{ filter.schema | default(schema.name) }}
-    ${filter}=   Set Variable   $.templates[?(@.name=='{{ template.name }}')].contracts[?(@.name=='{{ contract_name }}')].filterRelationships[?(@.filterRef=='/schemas/${schema_id}/templates/{{ filter.template | default(template.name) }}/filters/{{ filter_name }}')]
+    ${filter}=   Set Variable   templates[?name=='{{ template.name }}'] | [0].contracts[?name=='{{ contract_name }}'] | [0].filterRelationships[?filterRef=='/schemas/${schema_id}/templates/{{ filter.template | default(template.name) }}/filters/{{ filter_name }}'] | [0]
     ${directives} =   Create List   {{ directives | join('   ') if directives != [] else 'none'}}
-    Should Be Equal Value Json String   ${r.json()}   ${filter}.filterRef   /schemas/${schema_id}/templates/{{ filter.template | default(template.name) }}/filters/{{ filter_name }}
-    Should Be Equal Value Json List   ${r.json()}   ${filter}.directives   ${directives}
+    Should Be Equal JMESPath Json   ${r.json()}   ${filter}.filterRef   /schemas/${schema_id}/templates/{{ filter.template | default(template.name) }}/filters/{{ filter_name }}
+    Should Be Equal JMESPath Json List   ${r.json()}   ${filter}.directives   ${directives}
 {% endfor %}
 {% endif %}
 
@@ -376,10 +376,10 @@ Verify Schema {{ schema.name }} Template {{ template.name }} Contract {{ contrac
 
 Verify Schema {{ schema.name }} Template {{ template.name }} Contract {{ contract_name }} Provider To Consumer Filter Chain {{ filter_name }}
     ${schema_id}=   NDO Lookup   schemas/list-identity   {{ filter.schema | default(schema.name) }}
-    ${filter}=   Set Variable   $.templates[?(@.name=='{{ template.name }}')].contracts[?(@.name=='{{ contract_name }}')].filterRelationshipsProviderToConsumer[?(@.filterRef=='/schemas/${schema_id}/templates/{{ filter.template | default(template.name) }}/filters/{{ filter_name }}')]
+    ${filter}=   Set Variable   templates[?name=='{{ template.name }}'] | [0].contracts[?name=='{{ contract_name }}'] | [0].filterRelationshipsProviderToConsumer[?filterRef=='/schemas/${schema_id}/templates/{{ filter.template | default(template.name) }}/filters/{{ filter_name }}'] | [0]
     ${directives} =   Create List   {{ directives | join('   ') if directives != [] else 'none' }}
-    Should Be Equal Value Json String   ${r.json()}   ${filter}.filterRef   /schemas/${schema_id}/templates/{{ filter.template | default(template.name) }}/filters/{{ filter_name }}
-    Should Be Equal Value Json List   ${r.json()}   ${filter}.directives   ${directives}
+    Should Be Equal JMESPath Json   ${r.json()}   ${filter}.filterRef   /schemas/${schema_id}/templates/{{ filter.template | default(template.name) }}/filters/{{ filter_name }}
+    Should Be Equal JMESPath Json List   ${r.json()}   ${filter}.directives   ${directives}
 {% endfor %}
 
 {% for filter in contract.consumer_to_provider_filters | default([]) %}
@@ -390,10 +390,10 @@ Verify Schema {{ schema.name }} Template {{ template.name }} Contract {{ contrac
 
 Verify Schema {{ schema.name }} Template {{ template.name }} Contract {{ contract_name }} Consumer To Provider Filter Chain {{ filter_name }}
     ${schema_id}=   NDO Lookup   schemas/list-identity   {{ filter.schema | default(schema.name) }}
-    ${filter}=   Set Variable   $.templates[?(@.name=='{{ template.name }}')].contracts[?(@.name=='{{ contract_name }}')].filterRelationshipsConsumerToProvider[?(@.filterRef=='/schemas/${schema_id}/templates/{{ filter.template | default(template.name) }}/filters/{{ filter_name }}')]
+    ${filter}=   Set Variable   templates[?name=='{{ template.name }}'] | [0].contracts[?name=='{{ contract_name }}'] | [0].filterRelationshipsConsumerToProvider[?filterRef=='/schemas/${schema_id}/templates/{{ filter.template | default(template.name) }}/filters/{{ filter_name }}'] | [0]
     ${directives} =   Create List   {{ directives | join('   ') if directives != [] else 'none' }}
-    Should Be Equal Value Json String   ${r.json()}   ${filter}.filterRef   /schemas/${schema_id}/templates/{{ filter.template | default(template.name) }}/filters/{{ filter_name }}
-    Should Be Equal Value Json List   ${r.json()}   ${filter}.directives   ${directives}
+    Should Be Equal JMESPath Json   ${r.json()}   ${filter}.filterRef   /schemas/${schema_id}/templates/{{ filter.template | default(template.name) }}/filters/{{ filter_name }}
+    Should Be Equal JMESPath Json List   ${r.json()}   ${filter}.directives   ${directives}
 {% endfor %}
 
 {% endif %}
@@ -404,9 +404,9 @@ Verify Schema {{ schema.name }} Template {{ template.name }} Contract {{ contrac
 {% set filter_name = filter.name ~ defaults.ndo.schemas.templates.filters.name_suffix %}
 
 Verify Schema {{ schema.name }} Template {{ template.name }} Filter {{ filter_name }}
-    ${filter}=   Set Variable   $.templates[?(@.name=='{{ template.name }}')].filters[?(@.name=='{{ filter_name }}')]
-    Should Be Equal Value Json String   ${r.json()}   ${filter}.name   {{ filter_name }}
-    Should Be Equal Value Json String   ${r.json()}   ${filter}.displayName   {{ filter_name }}
+    ${filter}=   Set Variable   templates[?name=='{{ template.name }}'] | [0].filters[?name=='{{ filter_name }}'] | [0]
+    Should Be Equal JMESPath Json   ${r.json()}   ${filter}.name   {{ filter_name }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${filter}.displayName   {{ filter_name }}
 
 {% for entry in filter.entries | default([]) %}
 {% set entry_name = entry.name ~ defaults.ndo.schemas.templates.filters.entries.name_suffix %}
@@ -417,19 +417,19 @@ Verify Schema {{ schema.name }} Template {{ template.name }} Filter {{ filter_na
 {% endmacro %}
 
 Verify Schema {{ schema.name }} Template {{ template.name }} Filter {{ filter_name }} Entry {{ entry_name }}
-    ${entry}=   Set Variable   $.templates[?(@.name=='{{ template.name }}')].filters[?(@.name=='{{ filter_name }}')].entries[?(@.name=='{{ entry_name }}')]
-    Should Be Equal Value Json String   ${r.json()}   ${entry}.description   {{ entry.description | default() }}
-    Should Be Equal Value Json String   ${r.json()}   ${entry}.etherType   {{ entry.ethertype | default(defaults.ndo.schemas.templates.filters.entries.ethertype) }}
+    ${entry}=   Set Variable   templates[?name=='{{ template.name }}'] | [0].filters[?name=='{{ filter_name }}'] | [0].entries[?name=='{{ entry_name }}'] | [0]
+    Should Be Equal JMESPath Json   ${r.json()}   ${entry}.description   {{ entry.description | default() }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${entry}.etherType   {{ entry.ethertype | default(defaults.ndo.schemas.templates.filters.entries.ethertype) }}
 {% if entry.ethertype | default(defaults.ndo.schemas.templates.filters.entries.ethertype) in ['ip', 'ipv4', 'ipv6'] %}
-    Should Be Equal Value Json String   ${r.json()}   ${entry}.ipProtocol   {{ entry.protocol | default(defaults.ndo.schemas.templates.filters.entries.protocol) }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${entry}.ipProtocol   {{ entry.protocol | default(defaults.ndo.schemas.templates.filters.entries.protocol) }}
 {% else %}
-    Should Be Equal Value Json String   ${r.json()}   ${entry}.ipProtocol   unspecified
+    Should Be Equal JMESPath Json   ${r.json()}   ${entry}.ipProtocol   unspecified
 {% endif %}
-    Should Be Equal Value Json Boolean   ${r.json()}   ${entry}.stateful   {{ entry.stateful | default(defaults.ndo.schemas.templates.filters.entries.stateful) }}
-    Should Be Equal Value Json String   ${r.json()}   ${entry}.sourceFrom   {{ get_protocol_from_port(entry.source_from_port | default(defaults.ndo.schemas.templates.filters.entries.source_from_port)) }}
-    Should Be Equal Value Json String   ${r.json()}   ${entry}.sourceTo   {{ get_protocol_from_port(entry.source_to_port | default(entry.source_from_port | default(defaults.ndo.schemas.templates.filters.entries.source_from_port))) }}
-    Should Be Equal Value Json String   ${r.json()}   ${entry}.destinationFrom   {{ get_protocol_from_port(entry.destination_from_port | default(defaults.ndo.schemas.templates.filters.entries.destination_from_port)) }}
-    Should Be Equal Value Json String   ${r.json()}   ${entry}.destinationTo   {{ get_protocol_from_port(entry.destination_to_port | default(entry.destination_from_port | default(defaults.ndo.schemas.templates.filters.entries.destination_from_port))) }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${entry}.stateful   {{ entry.stateful | default(defaults.ndo.schemas.templates.filters.entries.stateful) }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${entry}.sourceFrom   {{ get_protocol_from_port(entry.source_from_port | default(defaults.ndo.schemas.templates.filters.entries.source_from_port)) }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${entry}.sourceTo   {{ get_protocol_from_port(entry.source_to_port | default(entry.source_from_port | default(defaults.ndo.schemas.templates.filters.entries.source_from_port))) }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${entry}.destinationFrom   {{ get_protocol_from_port(entry.destination_from_port | default(defaults.ndo.schemas.templates.filters.entries.destination_from_port)) }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${entry}.destinationTo   {{ get_protocol_from_port(entry.destination_to_port | default(entry.destination_from_port | default(defaults.ndo.schemas.templates.filters.entries.destination_from_port))) }}
 
 {% endfor %}
 
@@ -443,42 +443,42 @@ Verify Schema {{ schema.name }} Template {{ template.name }} Filter {{ filter_na
 
 Verify Schema {{ schema.name }} Template {{ template.name }} External EPG {{ epg_name }}
     ${schema_id}=   NDO Lookup   schemas/list-identity   {{ epg.vrf.schema | default(schema.name) }}
-    ${epg}=   Set Variable   $.templates[?(@.name=='{{ template.name }}')].externalEpgs[?(@.name=='{{ epg_name }}')]
-    Should Be Equal Value Json String   ${r.json()}   ${epg}.name   {{ epg_name }}
-    Should Be Equal Value Json String   ${r.json()}   ${epg}.displayName   {{ epg_name }}
-    Should Be Equal Value Json Boolean   ${r.json()}   ${epg}.preferredGroup   {{ epg.preferred_group | default() }}
-    Should Be Equal Value Json String   ${r.json()}   ${epg}.vrfRef    /schemas/${schema_id}/templates/{{ epg.vrf.template | default(template.name) }}/vrfs/{{ vrf_name }}
+    ${epg}=   Set Variable   templates[?name=='{{ template.name }}'] | [0].externalEpgs[?name=='{{ epg_name }}'] | [0]
+    Should Be Equal JMESPath Json   ${r.json()}   ${epg}.name   {{ epg_name }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${epg}.displayName   {{ epg_name }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${epg}.preferredGroup   {{ epg.preferred_group | default() }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${epg}.vrfRef    /schemas/${schema_id}/templates/{{ epg.vrf.template | default(template.name) }}/vrfs/{{ vrf_name }}
 {% if epg.l3out.name is defined %}
 {% set l3out_name = epg.l3out.name ~ defaults.ndo.schemas.templates.l3outs.name_suffix %}
     ${schema_id}=   NDO Lookup   schemas/list-identity   {{ epg.l3out.schema | default(schema.name) }}
-    Should Be Equal Value Json String   ${r.json()}   ${epg}.l3outRef   /schemas/${schema_id}/templates/{{ epg.l3out.template | default(template.name) }}/l3outs/{{ l3out_name }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${epg}.l3outRef   /schemas/${schema_id}/templates/{{ epg.l3out.template | default(template.name) }}/l3outs/{{ l3out_name }}
 {% endif %}
 {% if epg.application_profile.name is defined %}
 {% set ap_name = epg.application_profile.name ~ defaults.ndo.schemas.templates.application_profiles.name_suffix %}
     ${schema_id}=   NDO Lookup   schemas/list-identity   {{ epg.application_profile.schema | default(schema.name) }}
-    Should Be Equal Value Json String   ${r.json()}   ${epg}.anpRef   /schemas/${schema_id}/templates/{{ epg.application_profile.template | default(template.name) }}/anps/{{ ap_name }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${epg}.anpRef   /schemas/${schema_id}/templates/{{ epg.application_profile.template | default(template.name) }}/anps/{{ ap_name }}
 {% for selector in epg.selectors | default([]) %}
 {% for ip in selector.ips | default([]) %}
-    ${ip}=   Set Variable   $.templates[?(@.name=='{{ template.name }}')].externalEpgs[?(@.name=='{{ epg_name }}')].selectors[?(@.name=='{{ selector.name }}')].expressions[?(@.value=='{{ ip }}')]
-    Should Be Equal Value Json String   ${r.json()}   ${ip}.key   ipAddress
-    Should Be Equal Value Json String   ${r.json()}   ${ip}.operator   equals
-    Should Be Equal Value Json String   ${r.json()}   ${ip}.value   {{ ip }}
+    ${ip}=   Set Variable   templates[?name=='{{ template.name }}'] | [0].externalEpgs[?name=='{{ epg_name }}'] | [0].selectors[?name=='{{ selector.name }}'] | [0].expressions[?value=='{{ ip }}'] | [0]
+    Should Be Equal JMESPath Json   ${r.json()}   ${ip}.key   ipAddress
+    Should Be Equal JMESPath Json   ${r.json()}   ${ip}.operator   equals
+    Should Be Equal JMESPath Json   ${r.json()}   ${ip}.value   {{ ip }}
 {% endfor %}
 {% endfor %}
 {% endif %}
 {% for contract in epg.contracts.consumers | default([]) %}
 {% set contract_name = contract.name ~ defaults.ndo.schemas.templates.contracts.name_suffix %}
     ${schema_id}=   NDO Lookup   schemas/list-identity   {{ contract.schema | default(schema.name) }}
-    ${con}=   Set Variable   $.templates[?(@.name=='{{ template.name }}')].externalEpgs[?(@.name=='{{ epg_name }}')].contractRelationships[?(@.relationshipType=='consumer')&(@.contractRef=='/schemas/${schema_id}/templates/{{ contract.template | default(template.name) }}/contracts/{{ contract_name }}')]
-    Should Be Equal Value Json String   ${r.json()}   ${con}.contractRef   /schemas/${schema_id}/templates/{{ contract.template | default(template.name) }}/contracts/{{ contract_name }}
-    Should Be Equal Value Json String   ${r.json()}   ${con}.relationshipType   consumer
+    ${con}=   Set Variable   templates[?name=='{{ template.name }}'] | [0].externalEpgs[?name=='{{ epg_name }}'] | [0].contractRelationships[?relationshipType=='consumer' && contractRef=='/schemas/${schema_id}/templates/{{ contract.template | default(template.name) }}/contracts/{{ contract_name }}'] | [0]
+    Should Be Equal JMESPath Json   ${r.json()}   ${con}.contractRef   /schemas/${schema_id}/templates/{{ contract.template | default(template.name) }}/contracts/{{ contract_name }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${con}.relationshipType   consumer
 {% endfor %}
 {% for contract in epg.contracts.providers | default([]) %}
 {% set contract_name = contract.name ~ defaults.ndo.schemas.templates.contracts.name_suffix %}
     ${schema_id}=   NDO Lookup   schemas/list-identity   {{ contract.schema | default(schema.name) }}
-    ${con}=   Set Variable   $.templates[?(@.name=='{{ template.name }}')].externalEpgs[?(@.name=='{{ epg_name }}')].contractRelationships[?(@.relationshipType=='provider')&(@.contractRef=='/schemas/${schema_id}/templates/{{ contract.template | default(template.name) }}/contracts/{{ contract_name }}')]
-    Should Be Equal Value Json String   ${r.json()}   ${con}.contractRef   /schemas/${schema_id}/templates/{{ contract.template | default(template.name) }}/contracts/{{ contract_name }}
-    Should Be Equal Value Json String   ${r.json()}   ${con}.relationshipType   provider
+    ${con}=   Set Variable   templates[?name=='{{ template.name }}'] | [0].externalEpgs[?name=='{{ epg_name }}'] | [0].contractRelationships[?relationshipType=='provider' && contractRef=='/schemas/${schema_id}/templates/{{ contract.template | default(template.name) }}/contracts/{{ contract_name }}'] | [0]
+    Should Be Equal JMESPath Json   ${r.json()}   ${con}.contractRef   /schemas/${schema_id}/templates/{{ contract.template | default(template.name) }}/contracts/{{ contract_name }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${con}.relationshipType   provider
 {% endfor %}
 
 {% for subnet in epg.subnets | default([]) %}
@@ -494,12 +494,12 @@ Verify Schema {{ schema.name }} Template {{ template.name }} External EPG {{ epg
 {% if subnet.aggregate_shared | default(defaults.ndo.schemas.templates.external_endpoint_groups.subnets.aggregate_shared) %}{% set aggregate = aggregate + [('shared-rtctrl')] %}{% endif %}
 
 Verify Schema {{ schema.name }} Template {{ template.name }} External EPG {{ epg_name }} Subnet {{ subnet.prefix }}
-    ${subnet}=   Set Variable   $.templates[?(@.name=='{{ template.name }}')].externalEpgs[?(@.name=='{{ epg_name }}')].subnets[?(@.ip=='{{ subnet.prefix }}')]
+    ${subnet}=   Set Variable   templates[?name=='{{ template.name }}'] | [0].externalEpgs[?name=='{{ epg_name }}'] | [0].subnets[?ip=='{{ subnet.prefix }}'] | [0]
     ${scope} =   Create List   {{ scope | join('   ') }}
     ${aggregate}=   Create List   {{ aggregate | join('   ') }}
-    Should Be Equal Value Json String   ${r.json()}   ${subnet}.ip   {{ subnet.prefix }}
-    Should Be Equal Value Json List   ${r.json()}   ${subnet}.scope   ${scope}
-    Should Be Equal Value Json List   ${r.json()}   ${subnet}.aggregate   ${aggregate}
+    Should Be Equal JMESPath Json   ${r.json()}   ${subnet}.ip   {{ subnet.prefix }}
+    Should Be Equal JMESPath Json List   ${r.json()}   ${subnet}.scope   ${scope}
+    Should Be Equal JMESPath Json List   ${r.json()}   ${subnet}.aggregate   ${aggregate}
 {% endfor %}
 
 {% for site in epg.sites | default([]) %}
@@ -507,21 +507,21 @@ Verify Schema {{ schema.name }} Template {{ template.name }} External EPG {{ epg
 Verify Schema {{ schema.name }} Template {{ template.name }} External EPG {{ epg_name }} Site {{ site.name }}
     ${schema_id}=   NDO Lookup   schemas/list-identity   {{ schema.name }}
     ${site_id}=   NDO Lookup   sites   {{ site.name }}
-    ${epg}=   Set Variable   $.sites[?(@.siteId=='${site_id}')&(@.templateName=='{{ template.name }}')].externalEpgs[?(@.externalEpgRef=='/schemas/${schema_id}/templates/{{ template.name }}/externalEpgs/{{ epg_name }}')]
-    Should Be Equal Value Json String   ${r.json()}   ${epg}.externalEpgRef   /schemas/${schema_id}/templates/{{ template.name }}/externalEpgs/{{ epg_name }}
+    ${epg}=   Set Variable   sites[?siteId=='${site_id}' && templateName=='{{ template.name }}'] | [0].externalEpgs[?externalEpgRef=='/schemas/${schema_id}/templates/{{ template.name }}/externalEpgs/{{ epg_name }}'] | [0]
+    Should Be Equal JMESPath Json   ${r.json()}   ${epg}.externalEpgRef   /schemas/${schema_id}/templates/{{ template.name }}/externalEpgs/{{ epg_name }}
 {% if epg.type | default(defaults.ndo.schemas.templates.external_endpoint_groups.type) == "on-premise" and site.l3out.name is defined %}
 {% set l3out_name = site.l3out.name ~ defaults.ndo.schemas.templates.l3outs.name_suffix %}
     ${schema_id}=   NDO Lookup   schemas/list-identity   {{ site.l3out.schema | default(schema.name) }}
 {% if site.l3out.schema is defined and site.l3out.schema != schema.name and site.l3out.template is defined %}
-    Should Be Equal Value Json String   ${r.json()}   ${epg}.l3outRef   /schemas/${schema_id}/templates/{{ site.l3out.template }}/l3outs/{{ l3out_name }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${epg}.l3outRef   /schemas/${schema_id}/templates/{{ site.l3out.template }}/l3outs/{{ l3out_name }}
 {% elif site.l3out.template is defined %}
-    Should Be Equal Value Json String   ${r.json()}   ${epg}.l3outRef   /schemas/${schema_id}/templates/{{ site.l3out.template }}/l3outs/{{ l3out_name }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${epg}.l3outRef   /schemas/${schema_id}/templates/{{ site.l3out.template }}/l3outs/{{ l3out_name }}
 {% elif site.l3out.name in l3out_list  %}
-    Should Be Equal Value Json String   ${r.json()}   ${epg}.l3outRef   /schemas/${schema_id}/templates/{{ template.name }}/l3outs/{{ l3out_name }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${epg}.l3outRef   /schemas/${schema_id}/templates/{{ template.name }}/l3outs/{{ l3out_name }}
 {% endif %}
-    Should Be Equal Value Json String   ${r.json()}   ${epg}.l3outDn   uni/tn-{{ site.l3out.tenant | default(site.tenant | default(template.tenant)) }}/out-{{ l3out_name }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${epg}.l3outDn   uni/tn-{{ site.l3out.tenant | default(site.tenant | default(template.tenant)) }}/out-{{ l3out_name }}
 {% else %}
-    Should Be Equal Value Json String   ${r.json()}   ${epg}.l3outDn
+    Should Be Equal JMESPath Json   ${r.json()}   ${epg}.l3outDn
 {% endif %}
 
 {% endfor %}
@@ -532,19 +532,19 @@ Verify Schema {{ schema.name }} Template {{ template.name }} External EPG {{ epg
 {% set sg_name = sg.name ~ defaults.ndo.schemas.templates.service_graphs.name_suffix %}
 
 Verify Schema {{ schema.name }} Template {{ template.name }} Service Graph {{ sg_name }}
-    ${sg}=   Set Variable   $.templates[?(@.name=='{{ template.name }}')].serviceGraphs[?(@.name=='{{ sg_name }}')]
-    Should Be Equal Value Json String   ${r.json()}   ${sg}.name   {{ sg_name }}
-    Should Be Equal Value Json String   ${r.json()}   ${sg}.displayName   {{ sg_name }}
-    Should Be Equal Value Json String   ${r.json()}   ${sg}.description   {{ sg.description | default() }}
+    ${sg}=   Set Variable   templates[?name=='{{ template.name }}'] | [0].serviceGraphs[?name=='{{ sg_name }}'] | [0]
+    Should Be Equal JMESPath Json   ${r.json()}   ${sg}.name   {{ sg_name }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${sg}.displayName   {{ sg_name }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${sg}.description   {{ sg.description | default() }}
 
 {%- for node in sg.nodes | default([]) %}
 {% set node_type = {"firewall": "0000ffff0000000000000051", "load-balancer": "0000ffff0000000000000052", "other": "0000ffff0000000000000053"}[node.type | default(defaults.ndo.schemas.templates.service_graphs.node_type)] %}
 
 Verify Schema {{ schema.name }} Template {{ template.name }} Service Graph {{ sg_name }} Node {{ node.name }}
-    ${node}=   Set Variable   $.templates[?(@.name=='{{ template.name }}')].serviceGraphs[?(@.name=='{{ sg_name }}')].serviceNodes[?(@.name =~ '^{{ node.name }}|node{{ node.index | default(1) }}$')]
-    Should Be Equal Value Json String   ${r.json()}   ${node}.name   {{ node.name }}   node{{ node.index | default(1) }}
-    Should Be Equal Value Json String   ${r.json()}   ${node}.serviceNodeTypeId   {{ node_type }}
-    Should Be Equal Value Json String   ${r.json()}   ${node}.index   {{ node.index | default(1) }}
+    ${node}=   Set Variable   templates[?name=='{{ template.name }}'] | [0].serviceGraphs[?name=='{{ sg_name }}'] | [0].serviceNodes[?name=='{{ node.name }}' || name=='node{{ node.index | default(1) }}'] | [0]
+    Should Be Equal JMESPath Json   ${r.json()}   ${node}.name   {{ node.name }}   node{{ node.index | default(1) }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${node}.serviceNodeTypeId   {{ node_type }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${node}.index   {{ node.index | default(1) }}
 
 {% endfor %}
 
@@ -555,9 +555,9 @@ Verify Schema {{ schema.name }} Template {{ template.name }} Service Graph {{ sg
 {% set vrf_name = l3out.vrf.name ~ defaults.ndo.schemas.templates.vrfs.name_suffix %}
 
 Verify Schema {{ schema.name }} Template {{ template.name }} L3out {{ l3out_name }}
-    ${l3out}=   Set Variable   $.templates[?(@.name=='{{ template.name }}')].intersiteL3outs[?(@.name=='{{ l3out_name }}')]
-    Should Be Equal Value Json String   ${r.json()}   ${l3out}.name   {{ l3out_name }}
-    Should Be Equal Value Json String   ${r.json()}   ${l3out}.displayName   {{ l3out_name }}
+    ${l3out}=   Set Variable   templates[?name=='{{ template.name }}'] | [0].intersiteL3outs[?name=='{{ l3out_name }}'] | [0]
+    Should Be Equal JMESPath Json   ${r.json()}   ${l3out}.name   {{ l3out_name }}
+    Should Be Equal JMESPath Json   ${r.json()}   ${l3out}.displayName   {{ l3out_name }}
 
 {% endfor %}
 
