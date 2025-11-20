@@ -592,7 +592,7 @@ def test_apic_terraform_60(
 @pytest.mark.apic_61
 @pytest.mark.terraform
 @pytest.mark.parametrize(
-    "data_paths, terraform_path, vm_name, snapshot_name, apic_url, version",
+    "data_paths, terraform_path, vm_name, snapshot_name, apic_url, version, terraform_binary",
     [
         (
             [
@@ -605,6 +605,7 @@ def test_apic_terraform_60(
             "Clean",
             "https://10.50.202.15",
             "6.1",
+            "tofu",
         ),
     ],
 )
@@ -616,6 +617,7 @@ def test_apic_terraform_61(
     apic_url,
     version,
     tmpdir,
+    terraform_binary,
 ):
     full_apic_terraform_test(
         data_paths,
@@ -625,6 +627,7 @@ def test_apic_terraform_61(
         apic_url,
         version,
         tmpdir,
+        terraform_binary,
     )
 
 
