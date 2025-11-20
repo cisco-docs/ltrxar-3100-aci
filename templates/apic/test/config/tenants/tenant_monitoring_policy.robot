@@ -47,11 +47,11 @@ Verify Monitoring Policy {{ policy_name }} Syslog Policy {{ syslog_policy_name }
 
 {% for cl in policy.fault_severity_policies | default([]) %}
 Verify Monitoring Policy {{ policy_name }} Fault Severity Policy Class {{ cl.class }}
-    Should Be Equal JMESPath Json   ${r}    imdata[0].monEPGPol.children[?monEPGTarget] | [0].monEPGTarget.attributes.scope  {{ cl.class }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].monEPGPol.children[?monEPGTarget.attributes.scope=='{{ cl.class }}'] | [0].monEPGTarget.attributes.scope  {{ cl.class }}
 
 {% for fault in cl.faults | default([]) %}
 Verify Monitoring Policy {{ policy_name }} Fault Severity Policy Class {{ cl.class }} Fault {{ fault.fault_id }}
-    ${sev}=   Set Variable    imdata[0].monEPGPol.children[?monEPGTarget] | [0].monEPGTarget.children[?faultSevAsnP.attributes.code=='{{ fault.fault_id }}'] | [0]
+    ${sev}=   Set Variable    imdata[0].monEPGPol.children[?monEPGTarget.attributes.scope=='{{ cl.class }}'] | [0].monEPGTarget.children[?faultSevAsnP.attributes.code=='{{ fault.fault_id }}'] | [0]
     Should Be Equal JMESPath Json   ${r}    ${sev}.faultSevAsnP.attributes.code  {{ fault.fault_id }}
     Should Be Equal JMESPath Json   ${r}    ${sev}.faultSevAsnP.attributes.initial  {{ fault.initial_severity | default(defaults.apic.tenants.policies.monitoring.policies.fault_severity_policies.initial_severity) }}
     Should Be Equal JMESPath Json   ${r}    ${sev}.faultSevAsnP.attributes.target  {{ fault.target_severity | default(defaults.apic.tenants.policies.monitoring.policies.fault_severity_policies.target_severity) }}

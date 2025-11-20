@@ -44,10 +44,12 @@ Verify Monitoring Policy {{ policy_name }} Syslog Policy {{ syslog_policy_name }
 {% endfor %}
 
 {% for cl in policy.fault_severity_policies | default([]) %}
+Verify Access Monitoring Policy {{ policy_name }} Fault Severity Policy Class {{ cl.class }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].monInfraPol.children[?monInfraTarget.attributes.scope=='{{ cl.class }}'] | [0].monInfraTarget.attributes.scope  {{ cl.class }}
+
 {% for fault in cl.faults | default([]) %}
 Verify Monitoring Policy {{ policy_name }} Fault Severity Policy Class {{ cl.class }} Fault {{ fault.fault_id }}
-    ${fault_class}=   Set Variable    imdata[0].monInfraPol.children[?monInfraTarget.attributes.scope=='{{ cl.class }}'] | [0]
-    ${sev}=   Set Variable    ${fault_class}.monInfraTarget.children[?faultSevAsnP.attributes.code=='{{ fault.fault_id }}'] | [0]
+    ${sev}=   Set Variable    imdata[0].monInfraPol.children[?monInfraTarget.attributes.scope=='{{ cl.class }}'] | [0].monInfraTarget.children[?faultSevAsnP.attributes.code=='{{ fault.fault_id }}'] | [0]
     Should Be Equal JMESPath Json   ${r}    ${sev}.faultSevAsnP.attributes.code  {{ fault.fault_id }}
     Should Be Equal JMESPath Json   ${r}    ${sev}.faultSevAsnP.attributes.initial  {{ fault.initial_severity | default(defaults.apic.access_policies.monitoring.policies.fault_severity_policies.initial_severity) }}
     Should Be Equal JMESPath Json   ${r}    ${sev}.faultSevAsnP.attributes.target  {{ fault.target_severity | default(defaults.apic.access_policies.monitoring.policies.fault_severity_policies.target_severity) }}
