@@ -81,8 +81,17 @@
                                                         },
                                                         "children": [
                                                             {%- set comma5 = joiner(",") %}
-                                                            {%- for nh in sr.next_hops | default([]) %}{{ comma5() }}
+                                                            {%- for nh in sr.next_hops | default([none]) %}{{ comma5() }}
                                                             {
+                                                                {% if nh is none %}
+                                                                "ipNexthopP": {
+                                                                    "attributes": {
+                                                                        "annotation": "orchestrator:aac",
+                                                                        "nhAddr": "0.0.0.0/0",
+                                                                        "type": "none"
+                                                                    }
+                                                                }
+                                                                {% else %}
                                                                 "ipNexthopP": {
                                                                     "attributes": {
                                                                         "annotation": "orchestrator:aac",
@@ -121,8 +130,11 @@
                                                                             }
                                                                         }
                                                                         {%- endif %}
+
                                                                     ]
                                                                 }
+                                                                {%- endif %}
+
                                                             }
                                                             {%- endfor %}
                                                             {%- if sr.track_list is defined %}{{ comma5() }}
@@ -940,8 +952,17 @@
                                                         },
                                                         "children": [
                                                             {%- set comma5 = joiner(",") %}
-                                                            {%- for nh in sr.next_hops | default([]) %}{{ comma5() }}
+                                                            {%- for nh in sr.next_hops | default([none]) %}{{ comma5() }}
                                                             {
+                                                                {% if nh is none %}
+                                                                "ipNexthopP": {
+                                                                    "attributes": {
+                                                                        "annotation": "orchestrator:aac",
+                                                                        "nhAddr": "0.0.0.0/0",
+                                                                        "type": "none"
+                                                                    }
+                                                                }
+                                                                {% else %}
                                                                 "ipNexthopP": {
                                                                     "attributes": {
                                                                         "annotation": "orchestrator:aac",
@@ -980,8 +1001,11 @@
                                                                             }
                                                                         }
                                                                         {%- endif %}
+
                                                                     ]
                                                                 }
+                                                                {%- endif %}
+
                                                             }
                                                             {%- endfor %}
                                                             {%- if sr.track_list is defined %}{{ comma5() }}
