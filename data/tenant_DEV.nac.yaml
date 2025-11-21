@@ -1,7 +1,7 @@
 ---
 apic:
   tenants:
-    - name: NAC-COH-DEMO-DEV
+    - name: NAC-COH1-DEMO-DEV
 
       vrfs:
         - name: DEV
