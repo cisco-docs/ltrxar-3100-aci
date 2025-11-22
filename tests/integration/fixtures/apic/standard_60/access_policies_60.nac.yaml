@@ -1,0 +1,62 @@
+---
+apic:
+  access_policies:
+    ptp_profiles:
+      - name: test
+        template: telecom
+        announce_interval: -3
+        delay_interval: -4
+        sync_interval: -4
+      - name: tes2
+      - name: test3
+        template: smpte
+    interface_policies:
+      link_level_policies:
+        - name: 10G-sfp-10g-tx
+          speed: 10G
+          auto: true
+          fec_mode: inherit
+          physical_media_type: sfp-10g-tx
+          link_delay_ms: 20
+        - name: 10G-auto
+          speed: 10G
+          auto: true
+          fec_mode: inherit
+      lldp_policies:
+        - name: LLDP-ENABLED-DCBXP
+          admin_rx_state: true
+          admin_tx_state: true
+          dcbxp_version: IEEE
+
+    switch_policies:
+      vpc_policies:
+        - name: VPC400
+          delay_restore_timer: 210
+      forwarding_scale_policies:
+        - name: HIGH-LPM
+          profile: high-lpm
+        - name: HIGH-POLICY
+          profile: high-policy
+        - name: HIGH_IPV4_EP
+          profile: high-ipv4-ep
+        - name: MCAST-HEAVY
+          profile: mcast-heavy
+        - name: MAX-LPM
+          profile: max-lpm
+    leaf_switch_policy_groups:
+      - name: HIGH_LPM
+        forwarding_scale_policy: HIGH-LPM
+      - name: HIGH_POLICY
+        forwarding_scale_policy: HIGH-POLICY
+      - name: HIGH_IPV4_EP
+        forwarding_scale_policy: HIGH_IPV4_EP
+      - name: MCAST_HEAVY
+        forwarding_scale_policy: MCAST-HEAVY
+      - name: MAX_LPM
+        forwarding_scale_policy: MAX-LPM
+
+    aaeps:
+      - name: AAEP1
+        nutanix_vmm_domains:
+          - ntnx_1
+          - ntnx_2

@@ -1,15 +1,18 @@
 ---
 kind: pipeline
+type: docker
 name: Pipeline
 
 concurrency:
   limit: 1
 
 environment:
-  # Enable NDI Pre-Change Validation
-  NDI_PCV: "false"
-
   PY_COLORS: "1"
+  ANSIBLE_FORCE_COLOR: "1"
+
+trigger:
+  branch:
+    - master
 
 clone:
   disable: true
@@ -19,78 +22,68 @@ steps:
     image: drone/git
     pull: if-not-exists
 
-  - name: Restore Cache
-    image: meltwater/drone-cache:v1.3.0
-    settings:
-      backend: "filesystem"
-      restore: true
-      cache_key: "volume"
-      mount:
-        - ".terraform"
-    volumes:
-      - name: cache
-        path: /tmp/cache
-
-  - name: Setup
-    image: danischm/nac:0.1.4
-    environment:
-      TF_TOKEN_app_terraform_io:
-        from_secret: TF_TOKEN_app_terraform_io
+  - name: Test Validate
+    image: danischm/nac:0.1.3
     commands:
-      - terraform init -input=false
+      - pytest -m validate
     depends_on:
       - Clone Repo
-      - Restore Cache
 
-  - name: Rebuild Cache
-    image: meltwater/drone-cache:v1.3.0
-    settings:
-      backend: "filesystem"
-      rebuild: true
-      cache_key: "volume"
-      mount:
-        - ".terraform"
-    volumes:
-      - name: cache
-        path: /tmp/cache
-    depends_on:
-      - Setup
-
-  - name: Validate
-    image: danischm/nac:0.1.4
+  - name: Test APIC 4.2
+    image: danischm/nac:0.1.3
     environment:
-    commands:
-      - set -o pipefail
-      - terraform fmt -check |& tee fmt_output.txt
-      - iac-validate ./data/ |& tee validate_output.txt
-    depends_on:
-      - Setup
-
-  - name: Plan
-    image: danischm/nac:0.1.4
-    environment:
-      ACI_URL:
-        from_secret: ACI_URL
+      VMWARE_HOST:
+        from_secret: VMWARE_HOST
+      VMWARE_USER:
+        from_secret: VMWARE_USER
+      VMWARE_PASSWORD:
+        from_secret: VMWARE_PASSWORD
       ACI_USERNAME:
         from_secret: ACI_USERNAME
       ACI_PASSWORD:
         from_secret: ACI_PASSWORD
-      TF_TOKEN_app_terraform_io:
-        from_secret: TF_TOKEN_app_terraform_io
     commands:
-      - terraform plan -out=plan.tfplan -input=false
-      - terraform show -no-color plan.tfplan > plan.txt
-      - terraform show -json plan.tfplan > plan.json
-    when:
-      branch:
-        - master
-      event:
-        - push
-        - pull_request
+      - pytest -m "apic_42 and not terraform"
     depends_on:
-      - Validate
+      - Clone Repo
 
-  - name: Upload Plan Artifacts
+  - name: Test APIC 5.2
+    image: danischm/nac:0.1.3
+    environment:
+      VMWARE_HOST:
+        from_secret: VMWARE_HOST
+      VMWARE_USER:
+        from_secret: VMWARE_USER
+      VMWARE_PASSWORD:
+        from_secret: VMWARE_PASSWORD
+      ACI_USERNAME:
+        from_secret: ACI_USERNAME
+      ACI_PASSWORD:
+        from_secret: ACI_PASSWORD
+    commands:
+      - pytest -m "apic_52 and not terraform"
+    depends_on:
+      - Clone Repo
+
+  - name: Test NDO
+    image: danischm/nac:0.1.3
+    environment:
+      VMWARE_HOST:
+        from_secret: VMWARE_HOST
+      VMWARE_USER:
+        from_secret: VMWARE_USER
+      VMWARE_PASSWORD:
+        from_secret: VMWARE_PASSWORD
+      MSO_USERNAME:
+        from_secret: MSO_USERNAME
+      MSO_PASSWORD:
+        from_secret: MSO_PASSWORD
+    commands:
+      - pytest -m ndo
+    depends_on:
+      - Clone Repo
+
+  - name: Upload Reports
     image: jmccann/drone-artifactory:3.3
     settings:
       username: as-deployer
@@ -101,152 +94,51 @@ steps:
         - action: upload
           path: AS-release/Community/${DRONE_REPO_OWNER}/${DRONE_REPO_NAME}/${DRONE_BUILD_NUMBER}/
           sources:
-            - plan.tfplan
-            - plan.txt
-            - plan.json
+            - apic_4.2_log.html
+            - apic_5.2_log.html
+            - ndo_log.html
     when:
-      branch:
-        - master
-      event:
-        - push
-        - pull_request
       status: [changed, failure, success]
     depends_on:
-      - Plan
+      - Test Validate
+      - Test APIC 4.2
+      - Test APIC 5.2
+      - Test NDO
 
-  - name: Github Comment
-    image: danischm/nac:0.1.4
-    environment:
-      GITHUB_TOKEN:
-        from_secret: GITHUB_TOKEN
+  - name: Build Documentation
+    image: danischm/nac:0.1.3
     commands:
-      - export REPO=$DRONE_REPO_OWNER/$DRONE_REPO_NAME
-      - export CHANGE_ID=$DRONE_PULL_REQUEST
-      - python3 .ci/github-comment.py
-    when:
-      branch:
-        - master
-      event:
-        - pull_request
-    depends_on:
-      - Plan
-
-  - name: NDI Pre-Change Validation
-    image: danischm/nac:0.1.4
-    environment:
-      PCV_HOSTNAME_IP:
-        from_secret: PCV_HOSTNAME_IP
-      PCV_USERNAME:
-        from_secret: PCV_USERNAME
-      PCV_PASSWORD:
-        from_secret: PCV_PASSWORD
-      PCV_GROUP:
-        from_secret: PCV_GROUP
-    commands:
-      - >
-        if [ "$NDI_PCV" == "true" ]; then
-          export PCV_NAME="$DRONE_COMMIT_MESSAGE #$DRONE_BUILD_NUMBER"
-          nexus-pcv --nac-tf-plan plan.json --output-summary ndi_pcv_output.txt --output-url ndi_url.txt
-        fi
-    when:
-      branch:
-        - master
-      event:
-        - pull_request
-    depends_on:
-      - Plan
-
-  - name: Deploy
-    image: danischm/nac:0.1.4
-    environment:
-      ACI_URL:
-        from_secret: ACI_URL
-      ACI_USERNAME:
-        from_secret: ACI_USERNAME
-      ACI_PASSWORD:
-        from_secret: ACI_PASSWORD
-      ACI_RETRIES: 4
-      TF_TOKEN_app_terraform_io:
-        from_secret: TF_TOKEN_app_terraform_io
-    commands:
-      - terraform apply -input=false -auto-approve plan.tfplan
+      - pip install --upgrade mkdocs mkdocs-material mkdocs-mermaid2-plugin
+      - python3 docs/aac-doc.py
+      - mkdocs build
     when:
       branch:
         - master
       event:
         - push
     depends_on:
-      - Plan
-      - NDI Pre-Change Validation
+      - Clone Repo
 
-  - name: Test Idempotency
-    image: danischm/nac:0.1.4
-    environment:
-      ACI_URL:
-        from_secret: ACI_URL
-      ACI_USERNAME:
-        from_secret: ACI_USERNAME
-      ACI_PASSWORD:
-        from_secret: ACI_PASSWORD
-      TF_TOKEN_app_terraform_io:
-        from_secret: TF_TOKEN_app_terraform_io
-    commands:
-      - terraform plan -input=false -detailed-exitcode
-    when:
-      branch:
-        - master
-      event:
-        - push
-    depends_on:
-      - Deploy
-
-  - name: Test Integration
-    image: danischm/nac:0.1.4
-    environment:
-      ACI_URL:
-        from_secret: ACI_URL
-      ACI_USERNAME:
-        from_secret: ACI_USERNAME
-      ACI_PASSWORD:
-        from_secret: ACI_PASSWORD
-    commands:
-      - set -o pipefail
-      - iac-test -d ./data -d ./defaults.yaml -t ./tests/templates -f ./tests/filters -o ./tests/results/aci |& tee test_output.txt
-    when:
-      branch:
-        - master
-      event:
-        - push
-    depends_on:
-      - Deploy
-
-  - name: Upload Test Artifacts
-    image: jmccann/drone-artifactory:3.3
+  - name: Deploy Documentation
+    image: appleboy/drone-scp:1.6.3
     settings:
-      username: as-deployer
+      host: aac.cisco.com
+      username:
+        from_secret: HOST_USERNAME
       password:
-        from_secret: ARTIFACTORY_PASSWORD
-      url: https://engci-maven.cisco.com/artifactory
-      actions:
-        - action: upload
-          flat: true
-          path: AS-release/Community/${DRONE_REPO_OWNER}/${DRONE_REPO_NAME}/${DRONE_BUILD_NUMBER}/
-          sources:
-            - tests/results/aci/log.html
-            - tests/results/aci/output.xml
-            - tests/results/aci/report.html
+        from_secret: HOST_PASSWORD
+      target: /www/aac/
+      source: site/
     when:
-      status: [changed, failure, success]
       branch:
         - master
       event:
         - push
     depends_on:
-      - Test Idempotency
-      - Test Integration
+      - Build Documentation
 
   - name: Notify
-    image: danischm/nac:0.1.4
+    image: danischm/nac:0.1.3
     environment:
       WEBEX_TOKEN:
         from_secret: SPARK_ACCESS_TOKEN
@@ -256,10 +148,5 @@ steps:
     when:
       status: [changed, failure, success]
     depends_on:
-      - Upload Plan Artifacts
-      - Upload Test Artifacts
-
-volumes:
-  - name: cache
-    host:
-      path: /var/lib/cache
+      - Upload Reports
+      - Deploy Documentation

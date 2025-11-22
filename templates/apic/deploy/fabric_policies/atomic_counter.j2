@@ -1,0 +1,22 @@
+{
+    "fabricInst": {
+        "attributes": {
+            "dn": "uni/fabric"
+        },
+        "children": [
+            {% if apic.fabric_policies.atomic_counter.admin_state is defined %}
+            {
+                "dbgOngoingAcMode": {
+                    "attributes": {
+                        "annotation": "orchestrator:aac",
+                        "dn": "uni/fabric/ogmode",
+                        "name": "default",
+                        "adminSt": "{{ 'enabled' if apic.fabric_policies.atomic_counter.admin_state else 'disabled' }}",
+                        "mode": "{{ apic.fabric_policies.atomic_counter.mode | default(defaults.apic.fabric_policies.atomic_counter.mode) }}"
+                    }
+                }
+            }
+            {% endif %}
+        ]
+    }
+}

@@ -1,0 +1,76 @@
+*** Settings ***
+Documentation   Verify Management Access Policy
+Suite Setup     Login APIC
+Default Tags    apic   day1   config   fabric_policies
+Resource        ../../apic_common.resource
+
+*** Test Cases ***
+
+{%- for policy in apic.fabric_policies.pod_policies.management_access_policies | default([]) %}
+{% set management_access_policy_name = policy.name ~ defaults.apic.fabric_policies.pod_policies.management_access_policies.name_suffix %}
+
+Verify Management Access Policy {{ policy.name }}
+    ${r}=   GET On Session   apic   /api/node/mo/uni/fabric/comm-{{ management_access_policy_name }}.json   params=rsp-subtree=full
+    Set Suite Variable   $r   ${r.json()}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].commPol.attributes.name   {{ management_access_policy_name }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].commPol.attributes.descr   {{ policy.description | default() }}
+
+Verify Management Access Policy {{ policy.name }} Telnet
+    Should Be Equal JMESPath Json   ${r}    imdata[0].commPol.children[?commTelnet] | [0].commTelnet.attributes.adminSt   {{ 'enabled' if policy.telnet.admin_state | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.telnet.admin_state) else 'disabled' }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].commPol.children[?commTelnet] | [0].commTelnet.attributes.port   {{ policy.telnet.port | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.telnet.port) }}
+
+{% set ssl_ciphers = [] %}
+{% if policy.ssh.aes128_ctr | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.ssh.aes128_ctr) %}{% set ssl_ciphers = ssl_ciphers + [("aes128-ctr")] %}{% endif %}
+{% if policy.ssh.aes128_gcm | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.ssh.aes128_gcm) %}{% set ssl_ciphers = ssl_ciphers + [("aes128-gcm@openssh.com")] %}{% endif %}
+{% if policy.ssh.aes192_ctr | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.ssh.aes192_ctr) %}{% set ssl_ciphers = ssl_ciphers + [("aes192-ctr")] %}{% endif %}
+{% if policy.ssh.aes256_ctr | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.ssh.aes256_ctr) %}{% set ssl_ciphers = ssl_ciphers + [("aes256-ctr")] %}{% endif %}
+{% if policy.ssh.aes256_gcm | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.ssh.aes256_gcm) %}{% set ssl_ciphers = ssl_ciphers + [("aes256-gcm@openssh.com")] %}{% endif %}
+{% if policy.ssh.chacha | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.ssh.chacha) %}{% set ssl_ciphers = ssl_ciphers + [("chacha20-poly1305@openssh.com")] %}{% endif %}
+
+{% set ssh_kexalgos = [] %}
+{% if policy.ssh.curve25519_sha256 | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.ssh.curve25519_sha256)  %}{% set ssh_kexalgos = ssh_kexalgos + [("curve25519-sha256")] %}{% endif %}
+{% if policy.ssh.curve25519_sha256_libssh | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.ssh.curve25519_sha256_libssh)  %}{% set ssh_kexalgos = ssh_kexalgos + [("curve25519-sha256@libssh.org")] %}{% endif %}
+{% if policy.ssh.dh1_sha1 | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.ssh.dh1_sha1) %}{% set ssh_kexalgos = ssh_kexalgos + [("diffie-hellman-group1-sha1")] %}{% endif %}
+{% if policy.ssh.dh14_sha1 | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.ssh.dh14_sha1) %}{% set ssh_kexalgos = ssh_kexalgos + [("diffie-hellman-group14-sha1")] %}{% endif %}
+{% if policy.ssh.dh14_sha256 | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.ssh.dh14_sha256) %}{% set ssh_kexalgos = ssh_kexalgos + [("diffie-hellman-group14-sha256")] %}{% endif %}
+{% if policy.ssh.dh16_sha512 | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.ssh.dh16_sha512) %}{% set ssh_kexalgos = ssh_kexalgos + [("diffie-hellman-group16-sha512")] %}{% endif %}
+{% if policy.ssh.ecdh_sha2_nistp256 | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.ssh.ecdh_sha2_nistp256) %}{% set ssh_kexalgos = ssh_kexalgos + [("ecdh-sha2-nistp256")] %}{% endif %}
+{% if policy.ssh.ecdh_sha2_nistp384 | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.ssh.ecdh_sha2_nistp384) %}{% set ssh_kexalgos = ssh_kexalgos + [("ecdh-sha2-nistp384")] %}{% endif %}
+{% if policy.ssh.ecdh_sha2_nistp521 | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.ssh.ecdh_sha2_nistp521) %}{% set ssh_kexalgos = ssh_kexalgos + [("ecdh-sha2-nistp521")] %}{% endif %}
+
+{% set ssh_macs = [] %}
+{% if policy.ssh.hmac_sha1 | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.ssh.hmac_sha1) %}{% set ssh_macs = ssh_macs + [("hmac-sha1")] %}{% endif %}
+{% if policy.ssh.hmac_sha2_256 | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.ssh.hmac_sha2_256) %}{% set ssh_macs = ssh_macs + [("hmac-sha2-256")] %}{% endif %}
+{% if policy.ssh.hmac_sha2_512 | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.ssh.hmac_sha2_512) %}{% set ssh_macs = ssh_macs + [("hmac-sha2-512")] %}{% endif %}
+
+Verify Management Access Policy {{ policy.name }} SSH
+    Should Be Equal JMESPath Json   ${r}    imdata[0].commPol.children[?commSsh] | [0].commSsh.attributes.adminSt   {{ 'enabled' if policy.ssh.admin_state | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.ssh.admin_state) else 'disabled' }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].commPol.children[?commSsh] | [0].commSsh.attributes.port   {{ policy.ssh.port | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.ssh.port) }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].commPol.children[?commSsh] | [0].commSsh.attributes.passwordAuth   {{ 'enabled' if policy.ssh.password_auth | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.ssh.password_auth) else 'disabled' }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].commPol.children[?commSsh] | [0].commSsh.attributes.sshCiphers   {{ ssl_ciphers | join(',') }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].commPol.children[?commSsh] | [0].commSsh.attributes.sshMacs   {{ ssh_macs | join(',') }}
+{% if ssh_kexalgos %}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].commPol.children[?commSsh] | [0].commSsh.attributes.kexAlgos   {{ ssh_kexalgos | join(',') }}
+{% endif %}
+
+{% set ssl_protocols = [] %}
+{% if policy.https.tlsv1 | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.https.tlsv1) %}{% set ssl_protocols = ssl_protocols + [("TLSv1")] %}{% endif %}
+{% if policy.https.tlsv1_1 | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.https.tlsv1_1) %}{% set ssl_protocols = ssl_protocols + [("TLSv1.1")] %}{% endif %}
+{% if policy.https.tlsv1_2 | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.https.tlsv1_2) %}{% set ssl_protocols = ssl_protocols + [("TLSv1.2")] %}{% endif %}
+{% if policy.https.tlsv1_3 | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.https.tlsv1_3) %}{% set ssl_protocols = ssl_protocols + [("TLSv1.3")] %}{% endif %}
+
+Verify Management Access Policy {{ policy.name }} HTTPS
+    Should Be Equal JMESPath Json   ${r}    imdata[0].commPol.children[?commHttps] | [0].commHttps.attributes.adminSt   {{ 'enabled' if policy.https.admin_state | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.https.admin_state) else 'disabled' }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].commPol.children[?commHttps] | [0].commHttps.attributes.clientCertAuthState   {{ 'enabled' if policy.https.client_cert_auth_state | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.https.client_cert_auth_state) else 'disabled' }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].commPol.children[?commHttps] | [0].commHttps.attributes.dhParam   {{ policy.https.dh | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.https.dh) }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].commPol.children[?commHttps] | [0].commHttps.attributes.port   {{ policy.https.port | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.https.port) }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].commPol.children[?commHttps] | [0].commHttps.attributes.sslProtocols   {{ ssl_protocols | join(',') }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].commPol.children[?commHttps] | [0].commHttps.children[?commRsKeyRing] | [0].commRsKeyRing.attributes.tnPkiKeyRingName   {{ policy.https.key_ring | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.https.key_ring) }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].commPol.children[?commHttps] | [0].commHttps.attributes.accessControlAllowOrigins   {{ policy.allow_origins | default() }}
+
+Verify Management Access Policy {{ policy.name }} HTTP
+    Should Be Equal JMESPath Json   ${r}    imdata[0].commPol.children[?commHttp] | [0].commHttp.attributes.adminSt   {{ 'enabled' if policy.http.admin_state | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.http.admin_state) else 'disabled' }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].commPol.children[?commHttp] | [0].commHttp.attributes.port   {{ policy.http.port | default(defaults.apic.fabric_policies.pod_policies.management_access_policies.http.port) }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].commPol.children[?commHttps] | [0].commHttps.attributes.accessControlAllowOrigins   {{ policy.allow_origins | default() }}
+
+{% endfor %}

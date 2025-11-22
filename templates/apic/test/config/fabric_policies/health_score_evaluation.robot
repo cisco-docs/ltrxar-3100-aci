@@ -1,0 +1,11 @@
+*** Settings ***
+Documentation   Health Score Evaluation
+Suite Setup     Login APIC
+Default Tags    apic   day0   config   fabric_policies
+Resource        ../../apic_common.resource
+
+*** Test Cases ***
+Verify Healt Score Acknowledged Faults
+    ${r}=   GET On Session   apic   /api/mo/uni/fabric/hsPols/hseval.json
+    Set Suite Variable   $r   ${r.json()}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].healthEvalP.attributes.ignoreAckedFaults   {{ 'yes' if apic.fabric_policies.ignore_acked_faults | default(defaults.apic.fabric_policies.ignore_acked_faults) else 'no' }}

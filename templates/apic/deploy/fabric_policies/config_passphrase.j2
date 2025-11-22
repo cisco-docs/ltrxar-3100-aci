@@ -1,0 +1,20 @@
+{% if apic.fabric_policies.config_passphrase is not defined %}
+{
+    "infraInfra": {
+        "attributes": {
+            "dn": "uni/infra"
+        }
+    }
+}
+{% else %}
+{
+    "pkiExportEncryptionKey": {
+        "attributes": {
+            "annotation": "orchestrator:aac",
+            "dn": "uni/exportcryptkey",
+            "strongEncryptionEnabled": "true",
+            "passphrase": "{{ apic.fabric_policies.config_passphrase }}"
+        }
+    }
+}
+{% endif %}

@@ -1,0 +1,18 @@
+*** Settings ***
+Documentation   Banners
+Suite Setup     Login APIC
+Default Tags    apic   day0   config   fabric_policies
+Resource        ../../apic_common.resource
+
+*** Test Cases ***
+Verify Banners
+    ${r}=   GET On Session   apic   /api/mo/uni/userext/preloginbanner.json
+    Set Suite Variable   $r   ${r.json()}
+{% if apic.fabric_policies.banners.apic_gui_banner_message is not defined %}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].aaaPreLoginBanner.attributes.guiMessage   {{ apic.fabric_policies.banners.apic_gui_banner_url | default(defaults.apic.fabric_policies.banners.apic_gui_banner_url) }}
+{% endif %}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].aaaPreLoginBanner.attributes.guiTextMessage   {{ apic.fabric_policies.banners.apic_gui_alias | default(defaults.apic.fabric_policies.banners.apic_gui_alias) }}
+{% if apic.fabric_policies.banners.apic_app_banner is defined %}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].aaaPreLoginBanner.attributes.bannerMessage   {{ apic.fabric_policies.banners.apic_app_banner | default(defaults.apic.fabric_policies.banners.apic_app_banner) }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].aaaPreLoginBanner.attributes.bannerMessageSeverity   {{ apic.fabric_policies.banners.apic_app_banner_severity | default(defaults.apic.fabric_policies.banners.apic_app_banner_severity) }}
+{% endif %}

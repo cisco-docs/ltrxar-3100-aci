@@ -1,5 +1,17 @@
+<<<<<<< HEAD
 blank_issues_enabled: false
 contact_links:
   - name: ACI as Code Support
     url: https://netascode.cisco.com/solutions/aci/support
     about: Get community support here.
+=======
+---
+blank_issues_enabled: false
+contact_links:
+  - name: NetasCode Site
+    url: https://netascode.cisco.com
+    about: Please review additional information on the NetasCode site.
+  - name: Webex Room
+    url: https://eurl.io/#FHLjWp5qM
+    about: Join the "ACI Support - Network as Code" Webex room for discussions.
+>>>>>>> upstream/master

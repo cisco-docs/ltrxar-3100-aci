@@ -1,0 +1,271 @@
+{% if apic.fabric_policies.vmware_vmm_domains is not defined %}
+{
+    "infraInfra": {
+        "attributes": {
+            "dn": "uni/infra"
+        }
+    }
+}
+{% else %}
+{
+    "vmmProvP": {
+        "attributes": {
+            "dn": "uni/vmmp-VMware"
+        },
+        "children": [
+            {%- set comma1 = joiner(",") %}
+            {%- for vmm in apic.fabric_policies.vmware_vmm_domains | default([]) %}{{ comma1() }}
+            {% set vmm_name = vmm.name ~ defaults.apic.fabric_policies.vmware_vmm_domains.name_suffix %}
+            {
+                "vmmDomP": {
+                    "attributes": {
+                        "annotation": "orchestrator:aac",
+                        "name": "{{ vmm_name }}",
+                        "dn": "uni/vmmp-VMware/dom-{{ vmm_name }}",
+                        "accessMode": "{{ vmm.access_mode | default(defaults.apic.fabric_policies.vmware_vmm_domains.access_mode) }}",
+                        "delimiter": "{{ vmm.delimiter | default(defaults.apic.fabric_policies.vmware_vmm_domains.delimiter) }}",
+                        "enableTag": "{{ 'yes' if vmm.tag_collection | default(defaults.apic.fabric_policies.vmware_vmm_domains.tag_collection) else 'no' }}",
+                        "mode": "default",
+                        "childAction": "deleteNonPresent"
+                    },
+                    "children": [
+                        {%- set comma3 = joiner(",") %}
+                        {%- for sd in vmm.security_domains | default([]) %}{{ comma3() }}
+                        {
+                            "aaaDomainRef": {
+                                "attributes": {
+                                    "annotation": "orchestrator:aac",
+                                    "name": "{{ sd }}"
+                                }
+                            }
+                        }
+                        {%- endfor %}{{ comma3() }}
+                        {
+                            "vmmVSwitchPolicyCont": {
+                                "attributes": {
+                                    "annotation": "orchestrator:aac",
+                                    "childAction": "deleteNonPresent"
+                                },
+                                "children": [
+                                    {%- set comma2 = joiner(",") %}
+                                    {%- if vmm.vswitch.cdp_policy is defined %}{{ comma2() }}
+                                    {% set cdp_policy_name = vmm.vswitch.cdp_policy ~ defaults.apic.access_policies.interface_policies.cdp_policies.name_suffix %}
+                                    {
+                                        "vmmRsVswitchOverrideCdpIfPol": {
+                                            "attributes": {
+                                                "annotation": "orchestrator:aac",
+                                                "tDn": "uni/infra/cdpIfP-{{ cdp_policy_name }}"
+                                            }
+                                        }
+                                    }
+                                    {%- endif %}
+                                    {%- if vmm.vswitch.lldp_policy is defined %}{{ comma2() }}
+                                    {% set lldp_policy_name = vmm.vswitch.lldp_policy ~ defaults.apic.access_policies.interface_policies.lldp_policies.name_suffix %}
+                                    {
+                                        "vmmRsVswitchOverrideLldpIfPol": {
+                                            "attributes": {
+                                                "annotation": "orchestrator:aac",
+                                                "tDn": "uni/infra/lldpIfP-{{ lldp_policy_name }}"
+                                            }
+                                        }
+                                    }
+                                    {%- endif %}
+                                    {%- if vmm.vswitch.port_channel_policy is defined %}{{ comma2() }}
+                                    {% set port_channel_policy_name = vmm.vswitch.port_channel_policy ~ defaults.apic.access_policies.interface_policies.port_channel_policies.name_suffix %}
+                                    {
+                                        "vmmRsVswitchOverrideLacpPol": {
+                                            "attributes": {
+                                                "annotation": "orchestrator:aac",
+                                                "tDn": "uni/infra/lacplagp-{{ port_channel_policy_name }}"
+                                            }
+                                        }
+                                    }
+                                    {%- endif %}
+                                    {%- if vmm.vswitch.mtu_policy is defined %}{{ comma2() }}
+                                    {% set mtu_policy_name = vmm.vswitch.mtu_policy ~ defaults.apic.fabric_policies.l2_mtu_policies.name_suffix %}
+                                    {
+                                        "vmmRsVswitchOverrideMtuPol": {
+                                            "attributes": {
+                                                "annotation": "orchestrator:aac",
+                                                "tDn": "uni/fabric/l2pol-{{ mtu_policy_name }}"
+                                            }
+                                        }
+                                    }
+                                    {%- endif %}
+                                    {%- if vmm.vswitch.netflow_exporter_policy is defined %}{{ comma2() }}
+                                    {% set exporter_name = vmm.vswitch.netflow_exporter_policy ~ defaults.apic.access_policies.interface_policies.netflow_vmm_exporters.name_suffix %}
+                                    {
+                                        "vmmRsVswitchExporterPol": {
+                                            "attributes": {
+                                                "annotation": "orchestrator:aac",
+                                                "tDn": "uni/infra/vmmexporterpol-{{ exporter_name }}"
+                                            }
+                                        }
+                                    }
+                                    {%- endif %}
+                                    {%- for elag in vmm.vswitch.enhanced_lags | default([]) %}{{ comma2() }}
+                                        {% set elag_name = elag.name ~ defaults.apic.fabric_policies.vmware_vmm_domains.vswitch.enhanced_lags.name_suffix %}
+                                        {
+                                            "lacpEnhancedLagPol": {
+                                                "attributes": {
+                                                    "annotation": "orchestrator:aac",
+                                                    "lbmode": "{{ elag.lb_mode | default(defaults.apic.fabric_policies.vmware_vmm_domains.vswitch.enhanced_lags.lb_mode) }}",
+                                                    "mode": "{{ elag.mode | default(defaults.apic.fabric_policies.vmware_vmm_domains.vswitch.enhanced_lags.mode) }}",
+                                                    "name": "{{ elag_name }}",
+                                                    "numLinks": "{{ elag.num_links | default(defaults.apic.fabric_policies.vmware_vmm_domains.vswitch.enhanced_lags.num_links) }}"
+                                                }
+                                            }
+                                        }
+                                    {%- endfor %}
+
+                                ]
+                            }
+                        }
+                        {%- for cp in vmm.credential_policies | default([]) %},
+                        {% set policy_name = cp.name ~ defaults.apic.fabric_policies.vmware_vmm_domains.credential_policies.name_suffix %}
+                        {
+                            "vmmUsrAccP": {
+                                "attributes": {
+                                    "annotation": "orchestrator:aac",
+                                    "name": "{{ policy_name }}",
+                                    "usr": "{{ cp.username }}",
+                                    "pwd": "{{ cp.password }}"
+                                }
+                            }
+                        }
+                        {%- endfor %}
+                        {%- for vc in vmm.vcenters| default([]) %},
+                        {% set vc_name = vc.name ~ defaults.apic.fabric_policies.vmware_vmm_domains.vcenters.name_suffix %}
+                        {
+                            "vmmCtrlrP": {
+                                "attributes": {
+                                    "annotation": "orchestrator:aac",
+                                    "dvsVersion": "{{ vc.dvs_version | default(defaults.apic.fabric_policies.vmware_vmm_domains.vcenters.dvs_version) }}",
+                                    "hostOrIp": "{{ vc.hostname_ip }}",
+                                    "inventoryTrigSt": "untriggered",
+                                    "mode": "default",
+                                    "name": "{{ vc_name }}",
+                                    "port": "0",
+                                    "rootContName": "{{ vc.datacenter }}",
+                                    "scope": "vm",
+                                    "statsMode": "{{ 'enabled' if vc.statistics | default(defaults.apic.fabric_policies.vmware_vmm_domains.vcenters.statistics) else 'disabled' }}",
+                                    "childAction": "deleteNonPresent"
+                                },
+                                "children": [
+                                    {
+                                        "vmmRsAcc": {
+                                            "attributes": {
+                                                "annotation": "orchestrator:aac",
+                                                {% set vc_policy_name = vc.credential_policy ~ defaults.apic.fabric_policies.vmware_vmm_domains.credential_policies.name_suffix %}
+                                                "tDn": "uni/vmmp-VMware/dom-{{ vmm_name }}/usracc-{{ vc_policy_name }}"
+                                            }
+                                        }
+                                    }
+                                    {%- set mgmt_epg = vc.mgmt_epg | default(defaults.apic.fabric_policies.vmware_vmm_domains.vcenters.mgmt_epg) %}
+                                    {%- if mgmt_epg == "inb" %},
+                                    {
+                                        "vmmRsMgmtEPg": {
+                                            "attributes": {
+                                                "annotation": "orchestrator:aac",
+                                                "tDn": "uni/tn-mgmt/mgmtp-default/inb-{{ apic.node_policies.inb_endpoint_group | default(defaults.apic.node_policies.inb_endpoint_group) }}"
+                                            }
+                                        }
+                                    }
+                                    {%- endif %}
+
+                                ]
+                            }
+                        }
+                        {%- endfor %},
+                        {
+                            "infraRsVlanNs": {
+                                "attributes": {
+                                    "annotation": "orchestrator:aac",
+                                    {% set vlan_pool_name = vmm.vlan_pool ~ defaults.apic.access_policies.vlan_pools.name_suffix %}
+                                    "tDn": "uni/infra/vlanns-[{{ vlan_pool_name }}]-{{ vmm.allocation | default(defaults.apic.fabric_policies.vmware_vmm_domains.allocation) }}"
+                                }
+                            }
+                        }
+                        {%- if vmm.uplinks is defined %}
+                        ,
+                        {
+                            "vmmUplinkPCont": {
+                                "attributes": {
+                                    "annotation": "orchestrator:aac",
+                                    "numOfUplinks": "{{ vmm.uplinks | length }}",
+                                    "childAction": "deleteNonPresent"
+                                },
+                                "children": [
+                                    {%- set comma_ul = joiner(",") %}
+                                    {%- for uplink in vmm.uplinks %}{{ comma_ul() }}
+                                    {
+                                        "vmmUplinkP": {
+                                            "attributes": {
+                                                "annotation": "orchestrator:aac",
+                                                "uplinkId": "{{ uplink.id }}",
+                                                "uplinkName": "{{ uplink.name }}"
+                                            }
+                                        }
+                                    }
+                                    {%- endfor %}
+
+                                ]
+                            }
+                        }
+                        {%- endif %}
+                        {%- for tpg in vmm.trunk_port_groups | default([]) %}{{ comma3() }}
+                        {% set tpg_name = tpg.name ~ defaults.apic.fabric_policies.vmware_vmm_domains.trunk_port_groups.name_suffix %}
+                        {
+                            "vmmUsrAggr": {
+                                "attributes": {
+                                    "aggrImedcy": "{{ tpg.immediacy | default(defaults.apic.fabric_policies.vmware_vmm_domains.trunk_port_groups.immediacy) }}",
+                                    "annotation": "orchestrator:aac",
+                                    "forgedTransmit": "{{ 'Enabled' if tpg.forged_transmit | default(defaults.apic.fabric_policies.vmware_vmm_domains.trunk_port_groups.forged_transmit) else 'Disabled' }}",
+                                    "macChange": "{{ 'Enabled' if tpg.mac_change | default(defaults.apic.fabric_policies.vmware_vmm_domains.trunk_port_groups.mac_change) else 'Disabled' }}",
+                                    "name": "{{ tpg_name }}",
+                                    "promMode": "{{ 'Enabled' if tpg.promiscuous_mode | default(defaults.apic.fabric_policies.vmware_vmm_domains.trunk_port_groups.promiscuous_mode) else 'Disabled' }}"
+                                },
+                                "children": [
+                                    {%- set comma4 = joiner(",") %}
+                                    {%- for vlan_range in tpg.vlan_ranges | default([]) %}{{ comma4() }}
+                                    {
+                                        "fvnsEncapBlk": {
+                                            "attributes": {
+                                                "allocMode": "inherit",
+                                                "annotation": "orchestrator:aac",
+                                                "descr": "",
+                                                "from": "vlan-{{ vlan_range.from }}",
+                                                "name": "",
+                                                "nameAlias": "",
+                                                "role": "external",
+                                                "to": "vlan-{{ vlan_range.to }}"
+                                            }
+                                        }
+                                    }
+                                    {%- endfor %}
+                                    {%- if tpg.enhanced_lag_policy is defined %}{{ comma4() }}
+                                    {% set elag_name = tpg.enhanced_lag_policy ~ defaults.apic.fabric_policies.vmware_vmm_domains.vswitch.enhanced_lags.name_suffix %}
+                                    {
+                                        "vmmRsUsrAggrLagPolAtt": {
+                                            "attributes": {
+                                                "annotation": "orchestrator:aac",
+                                                "tDn": "uni/vmmp-VMware/dom-{{ vmm_name }}/vswitchpolcont/enlacplagp-{{ elag_name }}"
+                                            }
+                                        }
+                                    }
+                                    {%- endif %}
+
+                                ]
+                            }
+                        }
+                        {%- endfor %}
+
+                    ]
+                }
+            }
+            {%- endfor %}
+
+        ]
+    }
+}
+{% endif %}

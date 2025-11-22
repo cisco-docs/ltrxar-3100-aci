@@ -1,0 +1,43 @@
+---
+apic:
+  tenants:
+    - name: DEF
+      vrfs:
+        - name: DMZ
+        - name: DEV
+      bridge_domains:
+        - name: BD1
+          vrf: DMZ
+      application_profiles:
+        - name: AP1
+          endpoint_groups:
+            - name: EPG1
+              bridge_domain: BD1
+      contracts:
+        - name: CON1
+          scope: global
+          subjects:
+            - name: SUB1
+        - name: CON2
+          scope: global
+        - name: CON3
+          scope: global
+      services:
+        imported_l4l7_devices:
+          - name: DEV1
+            tenant: ABC
+            description: My imported device
+        service_graph_templates:
+          - name: TEMPLATE1
+            alias: TEMPLATE1-ALIAS
+            description: My Desc
+            template_type: FW_ROUTED
+            redirect: true
+            share_encapsulation: false
+            device:
+              tenant: ABC
+              name: DEV1
+            consumer:
+              direct_connect: false
+            provider:
+              direct_connect: true

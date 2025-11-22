@@ -1,0 +1,12 @@
+{
+    "infraCPMtuPol": {
+        "attributes": {
+            "annotation": "orchestrator:aac",
+            "dn": "uni/infra/CPMtu",
+            "CPMtu": "{{ apic.fabric_policies.control_plane_mtu.mtu | default(defaults.apic.fabric_policies.control_plane_mtu.mtu) }}"
+            {%- if apic.fabric_policies.control_plane_mtu.apic_mtu_apply is defined %},
+            "APICMtuApply": "{% if apic.fabric_policies.control_plane_mtu.apic_mtu_apply %}yes{% else %}no{% endif %}"
+            {% endif %}
+        }
+    }
+}

@@ -204,6 +204,9 @@ share/python-wheels/
 *.egg
 MANIFEST
 
+#Virtual Environment
+venv/
+
 # PyInstaller
 #  Usually these files are written by a python script from a template
 #  before PyInstaller builds the exe, so as to inject date/other infos into it.
@@ -390,6 +393,7 @@ $RECYCLE.BIN/
 
 # Test Results
 test_results/
+tests/results
 
 #Mac Book DS_Store
 .DS_Store
@@ -400,24 +404,40 @@ tmp/
 # Ansible Collections
 ansible_collections/
 
-# Rendered Documentation
-site/
-
 # Terraform
 .terraform/
 .terraform.lock.hcl
+.terraform.tfstate.lock.info
 *.tfstate
 *.tfstate.backup
 *.tfplan
 
-# key
-key
-
-# Test results
-tests/results/
+# Rendered Documentation
+site/
+pubhub/
 
 # Pabot
 .pabotsuitenames
+ordering.txt
 
-# defaults.yaml
-/defaults.yaml
+# Test logs
+apic_*.html
+ndo_*.html
+apic_*.xml
+ndo_*.xml
+
+log.html
+report.html
+output.xml
+
+# common output directories
+output/
+output-*/
+
+# json schema
+schemas/schema.json
+
+# for nac-test-utils coverage tests
+.coverage-backup/
+coverage_manifest.json
+coverage_missing.txt

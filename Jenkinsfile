@@ -1,96 +1,144 @@
 pipeline {
     agent {
         docker {
-            image 'danischm/nac:0.1.4'
+            image 'danischm/nac:0.1.6'
             label 'digidev'
+            args '-u root'
         }
     }
 
-    parameters {
-        booleanParam(name: 'NDI_PCV', defaultValue: false, description: 'Enable NDI Pre-Change Validation')
-    }
-
     environment {
-        TF_TOKEN_app_terraform_io = credentials('TF_TOKEN_app_terraform_io')
-        ACI_URL = credentials('ACI_URL')
         ACI_USERNAME = credentials('ACI_USERNAME')
         ACI_PASSWORD = credentials('ACI_PASSWORD')
+        ACI_PASSWORD_61 = credentials('ACI_PASSWORD_61')
+        MSO_USERNAME = credentials('MSO_USERNAME')
+        MSO_PASSWORD = credentials('MSO_PASSWORD')
+        VMWARE_HOST = credentials('VMWARE_HOST')
+        VMWARE_USER = credentials('VMWARE_USER')
+        VMWARE_PASSWORD = credentials('VMWARE_PASSWORD')
+        DD_GITHUB_TOKEN = credentials('DD_GITHUB_TOKEN')
+        DD_INTERNAL_GITHUB_TOKEN = credentials('DD_INTERNAL_GITHUB_TOKEN')
         WEBEX_TOKEN = credentials('WEBEX_TOKEN')
         WEBEX_ROOM_ID = 'Y2lzY29zcGFyazovL3VzL1JPT00vNTFmMGNmODAtYjI0My0xMWU5LTljZjUtNWY0NGQ2ZTlmYWY0'
-        GITHUB_TOKEN = credentials('GITHUB_TOKEN')
-        REPO = env.GIT_URL.replaceFirst(/^.*?(?::\/\/.*?\/|:)(.*).git$/, '$1')
-        GIT_COMMIT_MESSAGE = "${sh(returnStdout: true, script: 'git log -1 --pretty=%B ${GIT_COMMIT}').trim()}"
+        GIT_COMMIT_MESSAGE = "${sh(returnStdout: true, script: 'git config --global --add safe.directory "*" && git log -1 --pretty=%B ${GIT_COMMIT}').trim()}"
         GIT_COMMIT_AUTHOR = "${sh(returnStdout: true, script: 'git show -s --pretty=%an').trim()}"
         GIT_EVENT = "${(env.CHANGE_ID != null) ? 'Pull Request' : 'Push'}"
     }
 
     options {
         disableConcurrentBuilds()
+        newContainerPerStage()
+        timeout(time: 1, unit: 'HOURS')
     }
 
     stages {
-        stage('Setup') {
+        stage('Lint') {
             steps {
-                sh 'terraform init -input=false'
+                sh 'yamllint -s .'
+                sh 'pip install ruff'
+                sh 'ruff format --check'
+                sh 'ruff check'
+                sh 'pytest -m validate'
             }
         }
-        stage('Validate') {
-            steps {
-                sh 'set -o pipefail && terraform fmt -check |& tee fmt_output.txt'
-                sh 'set -o pipefail && iac-validate ./data/ |& tee validate_output.txt'
-            }
-        }
-        stage('Plan') {
-            steps {
-                sh 'terraform plan -out=plan.tfplan -input=false'
-                sh 'terraform show -no-color plan.tfplan > plan.txt'
-                sh 'terraform show -json plan.tfplan > plan.json'
-                sh 'python3 .ci/github-comment.py'
-                archiveArtifacts 'plan.*'
-            }
-        }
-        stage('NDI Pre-Change Validation') {
-            when {
-                changeRequest target: 'master'
-                expression { return params.NDI_PCV }
-            }
-            environment {
-                PCV_HOSTNAME_IP = credentials('PCV_HOSTNAME_IP')
-                PCV_USERNAME = credentials('PCV_USERNAME')
-                PCV_PASSWORD = credentials('PCV_PASSWORD')
-                PCV_GROUP = credentials('PCV_GROUP')
-                PCV_NAME = "Jenkins Build ${BUILD_DISPLAY_NAME} PR #${CHANGE_ID}"
-            }
-            steps {
-                sh 'nexus-pcv --nac-tf-plan plan.json --output-summary ndi_pcv_output.txt --output-url ndi_url.txt'
-            }
-        }
-        stage('Deploy') {
+        stage('Update Documentation') {
             when {
                 branch 'master'
             }
             steps {
-                sh 'terraform apply -input=false -auto-approve plan.tfplan'
+                build job: '/netascode/netascode/master', wait: false
             }
         }
         stage('Test') {
-            when {
-                branch 'master'
-            }
             parallel {
-                stage('Test Idempotency') {
+                stage('Test APIC 4.2') {
                     steps {
-                        sh 'terraform plan -input=false -detailed-exitcode'
-                    }
-                }
-                stage('Test Integration') {
-                    steps {
-                        sh 'set -o pipefail && iac-test -d ./data -d ./defaults.yaml -t ./tests/templates -f ./tests/filters -o ./tests/results/aci |& tee test_output.txt'
+                        lock(resource: 'nac-ci-apic1-4.2.4i') {
+                            sh 'pytest -m "apic_42 and not terraform"'
+                        }
                     }
                     post {
                         always {
-                            archiveArtifacts 'tests/results/aci/log.html, tests/results/aci/output.xml, tests/results/aci/report.html, tests/results/aci/xunit.xml'
-                            junit 'tests/results/aci/xunit.xml'
+                            junit 'apic_4.2_xunit.xml'
+                            archiveArtifacts 'apic_4.2_*.html, apic_4.2_*.xml'
+                        }
+                    }
+                }
+                stage('Test APIC 5.2') {
+                    steps {
+                        lock(resource: 'nac-ci-apic1-5.2.1g') {
+                            sh 'pytest -m "apic_52 and not terraform"'
+                        }
+                    }
+                    post {
+                        always {
+                            junit 'apic_5.2_xunit.xml'
+                            archiveArtifacts 'apic_5.2_*.html, apic_5.2_*.xml'
+                        }
+                    }
+                }
+                stage('Test APIC 6.0') {
+                    steps {
+                        lock(resource: 'nac-ci-apic1-6.0.4c') {
+                            sh 'pytest -m "apic_60 and not terraform"'
+                        }
+                    }
+                    post {
+                        always {
+                            junit 'apic_6.0_xunit.xml'
+                            archiveArtifacts 'apic_6.0_*.html, apic_6.0_*.xml'
+                        }
+                    }
+                }
+                stage('Test APIC 6.1') {
+                    steps {
+                        lock(resource: 'nac-ci-vapic1-6.1.4h') {
+                            sh 'pytest -m "apic_61 and not terraform"'
+                        }
+                    }
+                    post {
+                        always {
+                            junit 'apic_6.1_xunit.xml'
+                            archiveArtifacts 'apic_6.1_*.html, apic_6.1_*.xml'
+                        }
+                    }
+                }
+                stage('Test NDO 4.2') {
+                    steps {
+                        lock(resource: 'nac-ci-apic3-6.0.5h', extra: [[resource: 'nac-ci-nd1-3.0.1i']]) {
+                            sh 'pytest -m "ndo_42 and not terraform"'
+                        }
+                    }
+                    post {
+                        always {
+                            junit 'ndo_4.2_xunit.xml'
+                            archiveArtifacts 'ndo_4.2_*.html, ndo_4.2_*.xml'
+                        }
+                    }
+                }
+                stage('Test NDO 4.3') {
+                    steps {
+                        lock(resource: 'nac-ci-apic2-6.0.5h', extra: [[resource: 'nac-ci-nd1-3.1.1n']]) {
+                            sh 'pytest -m "ndo_43 and not terraform"'
+                        }
+                    }
+                    post {
+                        always {
+                            junit 'ndo_4.3_xunit.xml'
+                            archiveArtifacts 'ndo_4.3_*.html, ndo_4.3_*.xml'
+                        }
+                    }
+                }
+                stage('Test NDO 4.4') {
+                    steps {
+                        lock(resource: 'nac-ci-apic5-6.0.5h', extra: [[resource: 'nac-ci-nd1-3.2.1i']]) {
+                            sh 'pytest -m "ndo_44 and not terraform"'
+                        }
+                    }
+                    post {
+                        always {
+                            junit 'ndo_4.4_xunit.xml'
+                            archiveArtifacts 'ndo_4.4_*.html, ndo_4.4_*.xml'
                         }
                     }
                 }
@@ -100,8 +148,15 @@ pipeline {
 
     post {
         always {
-            sh "BUILD_STATUS=${currentBuild.currentResult} python3 .ci/webex-notification-jenkins.py"
-            sh 'rm -rf plan.* *.txt tests/results'
+            script {
+                if (env.TAG_NAME) {
+                    sh 'cd scripts && python3 update_repos.py --release'
+                } else if (env.BRANCH_NAME == "master") {
+                    sh 'cd scripts && python3 update_repos.py'
+                }
+            }
+            sh "BUILD_STATUS=${currentBuild.currentResult} python .ci/webex-notification-jenkins.py"
+            cleanWs()
         }
     }
 }

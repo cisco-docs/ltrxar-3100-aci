@@ -1,0 +1,26 @@
+{# iterate_list apic.tenants name item[2] #}
+*** Settings ***
+Documentation   Verify ND RA Prefix Policy Health
+Suite Setup     Login APIC
+Default Tags    apic   day2   health   tenants   non-critical
+Resource        ../../../apic_common.resource
+
+*** Test Cases ***
+{% set tenant = ((apic | default()) | community.general.json_query('tenants[?name==`' ~ item[2] ~ '`]'))[0] %}
+{% for nd_ra_prefix_pol in tenant.policies.nd_ra_prefix_policies | default([]) %}
+{% set policy_name = nd_ra_prefix_pol.name ~ defaults.apic.tenants.policies.nd_ra_prefix_policies.name_suffix %}
+
+Verify ND RA Prefix Policy {{ policy_name }} Faults
+    ${r}=   GET On Session   apic   /api/mo/uni/tn-{{ tenant.name }}/ndpfxpol-{{ policy_name }}/fltCnts.json
+    Set Suite Variable   $r   ${r.json()}
+    ${critical}=   Json Search String   ${r}   imdata[0].faultCounts.attributes.crit
+    ${major}=   Json Search String   ${r}   imdata[0].faultCounts.attributes.maj
+    ${minor}=   Json Search String   ${r}   imdata[0].faultCounts.attributes.minor
+    Run Keyword If   ${critical} > 0   Run Keyword And Continue On Failure
+    ...   Fail  "{{ policy_name }} has ${critical} critical faults"
+    Run Keyword If   ${major} > 0   Run Keyword And Continue On Failure
+    ...   Fail  "{{ policy_name }} has ${major} major faults"
+    Run Keyword If   ${minor} > 0   Run Keyword And Continue On Failure
+    ...   Fail  "{{ policy_name }} has ${minor} minor faults"
+
+{% endfor %}

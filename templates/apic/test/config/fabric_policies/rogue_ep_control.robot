@@ -1,0 +1,14 @@
+*** Settings ***
+Documentation   Verify Rogue EP Control
+Suite Setup     Login APIC
+Default Tags    apic   day0   config   fabric_policies
+Resource        ../../apic_common.resource
+
+*** Test Cases ***
+Verify Rogue EP Control
+    ${r}=   GET On Session   apic   /api/mo/uni/infra/epCtrlP-default.json
+    Set Suite Variable   $r   ${r.json()}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].epControlP.attributes.adminSt   {{ 'enabled' if apic.fabric_policies.rogue_ep_control.admin_state | default(defaults.apic.fabric_policies.rogue_ep_control.admin_state) else 'disabled' }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].epControlP.attributes.holdIntvl   {{ apic.fabric_policies.rogue_ep_control.hold_interval | default(defaults.apic.fabric_policies.rogue_ep_control.hold_interval) }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].epControlP.attributes.rogueEpDetectIntvl   {{ apic.fabric_policies.rogue_ep_control.detection_interval | default(defaults.apic.fabric_policies.rogue_ep_control.detection_interval) }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].epControlP.attributes.rogueEpDetectMult   {{ apic.fabric_policies.rogue_ep_control.detection_multiplier | default(defaults.apic.fabric_policies.rogue_ep_control.detection_multiplier) }}

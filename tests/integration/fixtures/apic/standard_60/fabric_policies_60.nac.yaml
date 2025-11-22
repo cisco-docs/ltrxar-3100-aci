@@ -1,0 +1,83 @@
+---
+apic:
+  fabric_policies:
+    aaa:
+      radius_providers:
+        - hostname_ip: 3.3.3.1
+          description: descr
+          port: 1815
+          protocol: chap
+          key: "123"
+          timeout: 6
+          retries: 2
+          mgmt_epg: oob
+          monitoring: true
+          monitoring_username: user1
+          monitoring_password: pass1
+          expected_state:
+            minimum_health: 0
+            maximum_critical_faults: 1000
+            maximum_major_faults: 1000
+            maximum_minor_faults: 1000
+        - hostname_ip: 3.3.3.2
+      login_domains:
+        - name: radius
+          realm: radius
+          description: login domain radius
+          radius_providers:
+            - hostname_ip: 3.3.3.1
+              priority: 1
+            - hostname_ip: 3.3.3.2
+
+    vmware_vmm_domains:
+      - name: VMM2
+        vlan_pool: STATIC1
+        allocation: static
+    ep_loop_protection:
+      admin_state: true
+      detection_interval: 180
+      detection_multiplier: 10
+      bd_learn_disable: false
+      port_disable: false
+    sr_mpls_global_configuration:
+      sr_global_block_minimum: 16000
+      sr_global_block_maximum: 275999
+    monitoring:
+      syslogs:
+        - name: syslog3
+          format: enhanced-log
+
+    nutanix_vmm_domains:
+      - name: ntnx_1
+      - name: ntnx_2
+        vlan_pool: VPOOL2
+        access_mode: read-only
+        custom_vswitch_name: open_vswitch
+        security_domains:
+          - ntnx_2_SD1
+          - ntnx_2_SD2
+          - ntnx_2_SD3
+        credential_policies:
+          - name: credentials_central
+            username: admin
+            password: C1sco123
+          - name: credentials_element
+            username: root
+            password: 1234QWer!
+        controller_profile:
+          name: ntnx_prism_central
+          hostname_ip: 10.10.10.10
+          datacenter: DC1
+          aos_version: 6.5
+          credentials: credentials_central
+          statistics: true
+          cluster_controller:
+            name: ntnx_prism_element
+            hostname_ip: 192.168.1.1
+            cluster_name: cluster_1
+            credentials: credentials_element
+            port: 9441
+
+    control_plane_mtu:
+      mtu: 6000
+      apic_mtu_apply: true

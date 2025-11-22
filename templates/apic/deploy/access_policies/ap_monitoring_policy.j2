@@ -1,0 +1,111 @@
+{
+    "infraInfra": {
+        "attributes": {
+            "dn": "uni/infra"
+        },
+        "children": [
+            {%- set comma1 = joiner(",") %}
+            {%- for policy in apic.access_policies.monitoring.policies | default([]) %}{{ comma1() }}
+            {% set policy_name = policy.name ~ defaults.apic.access_policies.monitoring.policies.name_suffix %}
+            {
+                "monInfraPol": {
+                    "attributes": {
+                        "annotation": "orchestrator:aac",
+                        "dn": "uni/infra/moninfra-{{ policy_name }}",
+                        "name": "{{ policy_name }}",
+                        "descr": "{{ policy.description | default('') }}"
+                    },
+                    "children": [
+                        {%- set comma2 = joiner(",") %}
+                        {%- for snmp in policy.snmp_traps | default([]) %}{{ comma2() }}
+                        {% set snmp_policy_name = snmp.name ~ defaults.apic.access_policies.monitoring.policies.snmp_traps.name_suffix %}
+                        {
+                            "snmpSrc": {
+                                "attributes": {
+                                    "annotation": "orchestrator:aac",
+                                    "dn": "uni/infra/moninfra-{{ policy_name }}/snmpsrc-{{ snmp_policy_name}}",
+                                    "name": "{{ snmp_policy_name }}" ,
+                                    "childAction": "deleteNonPresent"
+                               },
+                                "children": [
+                                    {%- if snmp.destination_group is defined %}
+                                    {
+                                        "snmpRsDestGroup": {
+                                            "attributes": {
+                                                "annotation": "orchestrator:aac",
+                                                "tDn": "uni/fabric/snmpgroup-{{ snmp.destination_group ~ defaults.apic.access_policies.monitoring.policies.snmp_traps.name_suffix }}"
+                                            }
+                                        }
+                                    }
+                                    {% endif %}
+                                ]
+                            }
+                        }
+                        {%- endfor %}
+                        {%- for syslog in policy.syslogs | default([]) %}{{ comma2() }}
+                        {% set syslog_policy_name = syslog.name ~ defaults.apic.access_policies.monitoring.policies.syslogs.name_suffix %}
+                        {% set include = [] %}
+                        {% if syslog.audit | default(defaults.apic.access_policies.monitoring.policies.syslogs.audit) %}{% set include = include + ['audit'] %}{% endif %}
+                        {% if syslog.events | default(defaults.apic.access_policies.monitoring.policies.syslogs.events) %}{% set include = include + ['events'] %}{% endif %}
+                        {% if syslog.faults | default(defaults.apic.access_policies.monitoring.policies.syslogs.faults) %}{% set include = include + ['faults'] %}{% endif %}
+                        {% if syslog.session | default(defaults.apic.access_policies.monitoring.policies.syslogs.session) %}{% set include = include + ['session'] %}{% endif %}
+                        {
+                            "syslogSrc": {
+                                "attributes": {
+                                    "annotation": "orchestrator:aac",
+                                    "dn": "uni/infra/moninfra-{{ policy_name }}/slsrc-{{ syslog_policy_name }}",
+                                    "name": "{{ syslog_policy_name }}",
+                                    "incl": "{{ include | join(',') }}",
+                                    "minSev": "{{ syslog.minimum_severity | default(defaults.apic.access_policies.monitoring.policies.syslogs.minimum_severity) }}",
+                                    "childAction": "deleteNonPresent"
+                                },
+                                "children": [
+                                    {%- if syslog.destination_group is defined %}
+                                    {
+                                        "syslogRsDestGroup": {
+                                            "attributes": {
+                                                "annotation": "orchestrator:aac",
+                                                "tDn": "uni/fabric/slgroup-{{ syslog.destination_group ~ defaults.apic.access_policies.monitoring.policies.syslogs.name_suffix }}"
+                                            }
+                                        }
+                                    }
+                                    {% endif %}
+                                ]
+                            }
+                        }
+                        {%- endfor %}
+                        {%- for cl in policy.fault_severity_policies | default([]) %}{{ comma2() }}
+                        {
+                            "monInfraTarget": {
+                                "attributes": {
+                                    "annotation": "orchestrator:aac",
+                                    "dn": "uni/infra/moninfra-{{ policy_name }}/tarinfra-{{ cl.class }}",
+                                    "scope": "{{ cl.class }}"
+                                },
+                                "children": [
+                                {%- set comma3 = joiner(",") %}
+                                {%- for fault in cl.faults | default([]) %}{{ comma3() }}
+                                {
+                                    "faultSevAsnP": {
+                                        "attributes": {
+                                            "annotation": "orchestrator:aac",
+                                            "code": "{{ fault.fault_id }}",
+                                            "descr": "{{ fault.description | default('') }}",
+                                            "dn": "uni/infra/moninfra-{{ policy_name }}/tarinfra-{{ cl.class }}/fsevp-{{ fault.fault_id }}",
+                                            "initial": "{{ fault.initial_severity | default(defaults.apic.access_policies.monitoring.policies.fault_severity_policies.initial_severity) }}",
+                                            "target": "{{ fault.target_severity | default(defaults.apic.access_policies.monitoring.policies.fault_severity_policies.target_severity) }}"
+                                        }
+                                    }
+                                }
+                                {% endfor %}
+                                ]
+                            }
+                        }
+                        {%- endfor %}
+                    ]
+                }
+            }
+            {%- endfor %}
+        ]
+    }
+}

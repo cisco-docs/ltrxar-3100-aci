@@ -1,0 +1,49 @@
+{% if apic.tenants is not defined %}
+{
+    "infraInfra": {
+        "attributes": {
+            "dn": "uni/infra"
+        }
+    }
+}
+{% else %}
+{
+    "polUni": {
+        "attributes": {
+            "dn": "uni"
+        },
+        "children": [
+            {%- set comma1 = joiner(",") %}
+            {%- for tenant in apic.tenants | default([]) %}{{ comma1() }}
+            {
+                "fvTenant": {
+                    "attributes": {
+                        "annotation": {% if tenant.ndo_managed | default(defaults.apic.tenants.ndo_managed) %}"orchestrator:msc"{% else %}"orchestrator:aac"{% endif %},
+                        "name": "{{ tenant.name }}",
+                        "dn": "uni/tn-{{ tenant.name }}",
+                        "nameAlias": "{{ tenant.alias | default() }}",
+                        "descr": "{{ tenant.description | default() }}"
+                    },
+                    "children": [
+                            {%- set comma2 = joiner(",") %}
+                            {%- for sd in tenant.security_domains | default([]) %}{{ comma2() }}
+                            {
+                                "aaaDomainRef": {
+                                    "attributes": {
+                                        "annotation": "orchestrator:aac",
+                                        "name": "{{ sd }}",
+                                        "dn": "uni/tn-{{ tenant.name }}/domain-{{ sd }}"
+                                    }
+                                }
+                            }
+                            {%- endfor %}
+
+                        ]
+                }
+            }
+            {%- endfor %}
+
+        ]
+    }
+}
+{% endif %}

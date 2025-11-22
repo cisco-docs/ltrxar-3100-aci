@@ -1,0 +1,15 @@
+{
+    "infraSetPol": {
+        "attributes": {
+            "annotation": "orchestrator:aac",
+            "dn": "uni/infra/settings",
+            "domainValidation": "{{ 'yes' if apic.fabric_policies.global_settings.domain_validation | default(defaults.apic.fabric_policies.global_settings.domain_validation) else 'no' }}",
+            "enforceSubnetCheck": "{{ 'yes' if apic.fabric_policies.global_settings.enforce_subnet_check | default(defaults.apic.fabric_policies.global_settings.enforce_subnet_check) else 'no' }}",
+            "opflexpAuthenticateClients": "{{ 'yes' if apic.fabric_policies.global_settings.opflex_authentication | default(defaults.apic.fabric_policies.global_settings.opflex_authentication) else 'no' }}",
+            "unicastXrEpLearnDisable": "{{ 'yes' if apic.fabric_policies.global_settings.disable_remote_endpoint_learn | default(defaults.apic.fabric_policies.global_settings.disable_remote_endpoint_learn) else 'no' }}",
+            "validateOverlappingVlans": "{{ 'yes' if apic.fabric_policies.global_settings.overlapping_vlan_validation | default(defaults.apic.fabric_policies.global_settings.overlapping_vlan_validation) else 'no' }}",
+            "enableRemoteLeafDirect": "{{ 'yes' if apic.fabric_policies.global_settings.remote_leaf_direct | default(defaults.apic.fabric_policies.global_settings.remote_leaf_direct) else 'no' }}",
+            "reallocateGipo": "{{ 'yes' if apic.fabric_policies.global_settings.reallocate_gipo | default(defaults.apic.fabric_policies.global_settings.reallocate_gipo) else 'no' }}"
+        }
+    }
+}

@@ -1,0 +1,95 @@
+{
+    "fabricInst": {
+        "attributes": {
+            "dn": "uni/fabric"
+        },
+        "children": [
+            {%- set comma1 = joiner(",") %}
+            {%- for syslog in apic.fabric_policies.monitoring.syslogs | default([]) %}{{ comma1() }}
+            {% set policy_name = syslog.name ~ defaults.apic.fabric_policies.monitoring.syslogs.name_suffix %}
+            {
+                "syslogGroup": {
+                    "attributes": {
+                        "annotation": "orchestrator:aac",
+                        "dn": "uni/fabric/slgroup-{{ policy_name }}",
+                        "name": "{{ policy_name }}",
+                        "descr": "{{ syslog.description | default() }}",
+                        "format": "{{ 'rfc5424-ts' if syslog.format | default(defaults.apic.fabric_policies.monitoring.syslogs.format) == 'enhanced-log' else syslog.format | default(defaults.apic.fabric_policies.monitoring.syslogs.format) }}",
+                        "includeMilliSeconds": "{{ 'yes' if syslog.show_millisecond | default(defaults.apic.fabric_policies.monitoring.syslogs.show_millisecond) else 'no' }}",
+                        "includeTimeZone": "{{ 'yes' if syslog.show_timezone | default(defaults.apic.fabric_policies.monitoring.syslogs.show_timezone) else 'no' }}",
+                        "childAction": "deleteNonPresent"
+                    },
+                    "children": [
+                        {%- set comma2 = joiner(",") %}
+                        {%- for dest in syslog.destinations | default([]) %}{{ comma2() }}
+                        {
+                            "syslogRemoteDest": {
+                                "attributes": {
+                                    "annotation": "orchestrator:aac",
+                                    "name": "{{ dest.name | default() }}",
+                                    "host": "{{ dest.hostname_ip }}",
+                                    {% if dest.protocol is defined %}
+                                    "protocol": "{{ dest.protocol | default(defaults.apic.fabric_policies.monitoring.syslogs.destinations.protocol) }}",
+                                    {% endif %}
+                                    "port": "{{ dest.port | default(defaults.apic.fabric_policies.monitoring.syslogs.destinations.port) }}",
+                                    "adminState": "{{ 'enabled' if dest.admin_state | default(defaults.apic.fabric_policies.monitoring.syslogs.destinations.admin_state) else 'disabled' }}",
+                                    "format": "{{ 'rfc5424-ts' if syslog.format | default(defaults.apic.fabric_policies.monitoring.syslogs.format) == 'enhanced-log' else syslog.format | default(defaults.apic.fabric_policies.monitoring.syslogs.format) }}",
+                                    "forwardingFacility": "{{ dest.facility | default(defaults.apic.fabric_policies.monitoring.syslogs.destinations.facility) }}",
+                                    "severity": "{{ dest.severity | default(defaults.apic.fabric_policies.monitoring.syslogs.destinations.severity) }}",
+                                    "childAction": "deleteNonPresent"
+                                },
+                                "children": [
+                                    {
+                                        "fileRsARemoteHostToEpg": {
+                                            "attributes": {
+                                                "annotation": "orchestrator:aac",
+                                                {% set mgmt_epg = dest.mgmt_epg | default(defaults.apic.fabric_policies.monitoring.syslogs.destinations.mgmt_epg) %}
+                                                {% if mgmt_epg == "oob" %}
+                                                "tDn": "uni/tn-mgmt/mgmtp-default/oob-{{ apic.node_policies.oob_endpoint_group | default(defaults.apic.node_policies.oob_endpoint_group) }}"
+                                                {% elif mgmt_epg == "inb" %}
+                                                "tDn": "uni/tn-mgmt/mgmtp-default/inb-{{ apic.node_policies.inb_endpoint_group | default(defaults.apic.node_policies.inb_endpoint_group) }}"
+                                                {% endif %}
+                                            }
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                        {%- endfor %}{{ comma2() }}
+                        {
+                            "syslogProf": {
+                                "attributes": {
+                                    "annotation": "orchestrator:aac",
+                                    "adminState": "{{ 'enabled' if syslog.admin_state | default(defaults.apic.fabric_policies.monitoring.syslogs.admin_state) else 'disabled' }}",
+                                    "name": "syslog"
+                                }
+                            }
+                        },
+                        {
+                            "syslogFile": {
+                                "attributes": {
+                                    "annotation": "orchestrator:aac",
+                                    "adminState": "{{ 'enabled' if syslog.local_admin_state | default(defaults.apic.fabric_policies.monitoring.syslogs.local_admin_state) else 'disabled' }}",
+                                    "format": "{{ 'rfc5424-ts' if syslog.format | default(defaults.apic.fabric_policies.monitoring.syslogs.format) == 'enhanced-log' else syslog.format | default(defaults.apic.fabric_policies.monitoring.syslogs.format) }}",
+                                    "severity": "{{ syslog.local_severity | default(defaults.apic.fabric_policies.monitoring.syslogs.local_severity) }}"
+                                }
+                            }
+                        },
+                        {
+                            "syslogConsole": {
+                                "attributes": {
+                                    "annotation": "orchestrator:aac",
+                                    "adminState": "{{ 'enabled' if syslog.console_admin_state | default(defaults.apic.fabric_policies.monitoring.syslogs.console_admin_state) else 'disabled' }}",
+                                    "format": "{{ 'rfc5424-ts' if syslog.format | default(defaults.apic.fabric_policies.monitoring.syslogs.format) == 'enhanced-log' else syslog.format | default(defaults.apic.fabric_policies.monitoring.syslogs.format) }}",
+                                    "severity": "{{ syslog.console_severity | default(defaults.apic.fabric_policies.monitoring.syslogs.console_severity) }}"
+                                }
+                            }
+                        }
+                    ]
+                }
+            }
+            {%- endfor %}
+
+        ]
+    }
+}

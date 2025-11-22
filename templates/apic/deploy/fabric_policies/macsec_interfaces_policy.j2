@@ -1,0 +1,45 @@
+{
+    "fabricInst": {
+        "attributes": {
+            "dn": "uni/fabric"
+        },
+        "children": [
+            {%- set comma1 = joiner(",") %}
+            {%- for policy in apic.fabric_policies.macsec_interfaces_policies | default([]) %}{{ comma1() }}
+            {% set policy_name = policy.name ~ defaults.apic.fabric_policies.macsec_interfaces_policies.name_suffix %}
+            {
+                "macsecFabIfPol": {
+                    "attributes": {
+                        "annotation": "orchestrator:aac",
+                        "name": "{{ policy_name }}",
+                        "descr": "{{ policy.description | default() }}",
+                        "adminSt": "{{ 'enabled' if policy.admin_state | default(defaults.apic.fabric_policies.macsec_interfaces_policies.admin_state) else 'disabled' }}",
+                        "dn": "uni/fabric/macsecfabifp-{{ policy_name }}",
+                        "childAction": "deleteNonPresent"
+                    },
+                    "children": [
+                        {
+                            "macsecRsToParamPol": {
+                                "attributes": {
+                                    "annotation": "orchestrator:aac",
+                                    {% set param_policy_name = policy.macsec_parameters_policy ~ defaults.apic.fabric_policies.macsec_parameters_policies.name_suffix %}
+                                    "tDn":"uni/fabric/macsecpcontfab/fabparamp-{{ param_policy_name }}"
+                                }
+                            }
+                        },
+                        {
+                            "macsecRsToKeyChainPol": {
+                                "attributes": {
+                                    "annotation": "orchestrator:aac",
+                                    {% set keychain_policy_name = policy.macsec_keychain_policy ~ defaults.apic.fabric_policies.macsec_keychain_policies.name_suffix %}
+                                    "tDn":"uni/fabric/macsecpcontfab/keychainp-{{ keychain_policy_name }}"
+                                }
+                            }
+                        }
+                    ]
+                }
+            }
+            {%- endfor %}
+        ]
+    }
+}

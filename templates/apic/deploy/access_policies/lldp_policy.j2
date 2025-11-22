@@ -1,0 +1,28 @@
+{
+    "infraInfra": {
+        "attributes": {
+            "dn": "uni/infra"
+        },
+        "children": [
+            {%- set comma1 = joiner(",") %}
+            {%- for policy in apic.access_policies.interface_policies.lldp_policies | default([]) %}{{ comma1() }}
+            {% set lldp_policy_name = policy.name ~ defaults.apic.access_policies.interface_policies.lldp_policies.name_suffix %}
+            {
+                "lldpIfPol": {
+                    "attributes": {
+                        "annotation": "orchestrator:aac",
+                        "name": "{{ lldp_policy_name }}",
+                        "dn": "uni/infra/lldpIfP-{{ lldp_policy_name }}",
+                        {% if policy.dcbxp_version is defined %}
+                        "portDCBXPVer": "{{ policy.dcbxp_version }}",
+                        {% endif %}
+                        "adminRxSt": "{{ 'enabled' if policy.admin_rx_state else 'disabled' }}",
+                        "adminTxSt": "{{ 'enabled' if policy.admin_tx_state else 'disabled' }}"
+                    }
+                }
+            }
+            {%- endfor %}
+
+        ]
+    }
+}

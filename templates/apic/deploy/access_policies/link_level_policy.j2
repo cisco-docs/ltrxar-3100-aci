@@ -1,0 +1,32 @@
+{
+    "infraInfra": {
+        "attributes": {"dn": "uni/infra"},
+        "children": [
+            {%- set comma1 = joiner(",") %}
+            {%- for policy in apic.access_policies.interface_policies.link_level_policies | default([]) %}{{ comma1() }}
+            {% set link_level_policy_name = policy.name ~ defaults.apic.access_policies.interface_policies.link_level_policies.name_suffix %}
+            {
+                "fabricHIfPol": {
+                    "attributes": {
+                        "annotation": "orchestrator:aac",
+                        "name": "{{ link_level_policy_name }}",
+                        "dn": "uni/infra/hintfpol-{{ link_level_policy_name }}",
+                        "speed": "{{ policy.speed | default(defaults.apic.access_policies.interface_policies.link_level_policies.speed) }}",
+                        {% if policy.link_delay_interval is defined %}
+                        "dfeDelayMs": "{{ policy.link_delay_interval | default(defaults.apic.access_policies.interface_policies.link_level_policies.link_delay_interval) }}",
+                        {% endif %}
+                        "linkDebounce": "{{ policy.link_debounce_interval | default(defaults.apic.access_policies.interface_policies.link_level_policies.link_debounce_interval) }}",
+                        "autoNeg": "{{ 'on' if policy.auto | default(defaults.apic.access_policies.interface_policies.link_level_policies.auto) else 'off' }}",
+                        "fecMode": "{{ policy.fec_mode | default(defaults.apic.access_policies.interface_policies.link_level_policies.fec_mode) }}"
+                        {%- if policy.physical_media_type is defined %},
+                        "portPhyMediaType": "{{ policy.physical_media_type }}"
+                        {%- endif %}
+
+                    }
+                }
+            }
+            {%- endfor %}
+
+        ]
+    }
+}

@@ -1,0 +1,27 @@
+{
+    "latencyPtpMode": {
+        "attributes": {
+            "annotation": "orchestrator:aac",
+            "dn": "uni/fabric/ptpmode",
+            {% if apic.fabric_policies.ptp.global_domain is defined %}
+            "globalDomain": "{{ apic.fabric_policies.ptp.global_domain }}",
+            {% endif %}
+            {% if apic.fabric_policies.ptp.profile is defined %}
+            "fabProfileTemplate": "{{ apic.fabric_policies.ptp.profile }}",
+            {% endif %}
+            {% if apic.fabric_policies.ptp.announce_interval is defined %}
+            "fabAnnounceIntvl": "{{ apic.fabric_policies.ptp.announce_interval }}",
+            {% endif %}
+            {% if apic.fabric_policies.ptp.announce_timeout is defined %}
+            "fabAnnounceTimeout": "{{ apic.fabric_policies.ptp.announce_timeout }}",
+            {% endif %}
+            {% if apic.fabric_policies.ptp.sync_interval is defined %}
+            "fabSyncIntvl": "{{ apic.fabric_policies.ptp.sync_interval }}",
+            {% endif %}
+            {% if apic.fabric_policies.ptp.delay_interval is defined %}
+            "fabDelayIntvl": "{{ apic.fabric_policies.ptp.delay_interval }}",
+            {% endif %}
+            "state": "{{ 'enabled' if apic.fabric_policies.ptp.admin_state | default(defaults.apic.fabric_policies.ptp.admin_state) else 'disabled' }}"
+        }
+    }
+}

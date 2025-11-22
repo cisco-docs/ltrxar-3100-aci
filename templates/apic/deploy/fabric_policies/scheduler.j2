@@ -1,0 +1,43 @@
+{
+    "fabricInst": {
+        "attributes": {
+            "dn": "uni/fabric"
+        },
+        "children": [
+            {%- set comma1 = joiner(",") %}
+            {%- for scheduler in apic.fabric_policies.schedulers | default([]) %}{{ comma1() }}
+            {% set scheduler_name = scheduler.name ~ defaults.apic.fabric_policies.schedulers.name_suffix %}
+            {
+                "trigSchedP": {
+                    "attributes": {
+                        "annotation": "orchestrator:aac",
+                        "dn": "uni/fabric/schedp-{{ scheduler_name }}",
+                        "name": "{{ scheduler_name }}",
+                        "descr": "{{ scheduler.description | default() }}",
+                        "childAction": "deleteNonPresent"
+                    },
+                    "children": [
+                        {%- set comma2 = joiner(",") %}
+                        {%- for win in scheduler.recurring_windows | default([]) %}{{ comma2() }}
+                        {% set win_name = win.name ~ defaults.apic.fabric_policies.schedulers.recurring_windows.name_suffix %}
+                        {
+                            "trigRecurrWindowP": {
+                                "attributes": {
+                                    "annotation": "orchestrator:aac",
+                                    "name": "{{ win_name }}",
+                                    "day": "{{ win.day | default(defaults.apic.fabric_policies.schedulers.recurring_windows.day) }}",
+                                    "hour": "{{ win.hour | default(defaults.apic.fabric_policies.schedulers.recurring_windows.hour) }}",
+                                    "minute": "{{ win.minute | default(defaults.apic.fabric_policies.schedulers.recurring_windows.minute) }}"
+                                }
+                            }
+                        }
+                        {%- endfor %}
+
+                    ]
+                }
+            }
+            {%- endfor %}
+
+        ]
+    }
+}

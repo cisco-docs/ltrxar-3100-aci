@@ -1,0 +1,9 @@
+{
+    "fmcastSystemGIPoPol": {
+        "attributes": {
+            "annotation": "orchestrator:aac",
+            "dn": "uni/infra/systemgipopol",
+            "useConfiguredSystemGIPo": "{{ 'enabled' if apic.fabric_policies.use_infra_gipo | default(defaults.apic.fabric_policies.use_infra_gipo) else 'disabled' }}"
+        }
+    }
+}

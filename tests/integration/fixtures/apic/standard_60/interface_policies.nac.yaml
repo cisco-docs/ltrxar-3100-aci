@@ -1,0 +1,34 @@
+---
+apic:
+  new_interface_configuration: true
+  interface_policies:
+    nodes:
+      - id: 1001
+        interfaces:
+          - port: 51
+            policy_group: IPN2
+      - id: 101
+        interfaces:
+          - port: 21
+            breakout: 10g-4x
+            sub_ports:
+              - port: 1
+                policy_group: ACC1
+                shutdown: true
+              - port: 2
+                description: FEX
+                fex_id: 102
+              - port: 3
+                policy_group: VPC2
+                port_channel_member_policy: FAST
+          - port: 7
+            policy_group: VPC2
+            port_channel_member_policy: FAST
+          - port: 12
+            fex_id: 102
+        fexes:
+          - id: 102
+            interfaces:
+              - port: 1
+                policy_group: VPC3
+                port_channel_member_policy: FAST

@@ -1,0 +1,34 @@
+{# iterate_list apic.tenants name item[2] #}
+{% set tenant = ((apic | default()) | community.general.json_query('tenants[?name==`' ~ item[2] ~ '`]'))[0] %}
+{
+    "fvTenant": {
+        "attributes": {
+            "dn": "uni/tn-{{ tenant.name }}",
+            "name": "{{ tenant.name }}"
+        },
+        "children": [
+            {%- set comma1 = joiner(",") %}
+            {%- for ip_sla in tenant.policies.ip_sla_policies | default([]) %}{{ comma1() }}
+            {% set ip_sla_name = ip_sla.name ~ defaults.apic.tenants.policies.ip_sla_policies.name_suffix %}
+            {
+                "fvIPSLAMonitoringPol": {
+                    "attributes": {
+                        "annotation": "orchestrator:aac",
+                        "descr": "{{ ip_sla.description | default()}}",
+                        "name": "{{ ip_sla_name }}",
+                        "dn": "uni/tn-{{ tenant.name }}/ipslaMonitoringPol-{{ ip_sla_name }}",
+                        "slaDetectMultiplier": "{{ ip_sla.multiplier | default(defaults.apic.tenants.policies.ip_sla_policies.multiplier) }}",
+                        "slaFrequency": "{{ ip_sla.frequency | default(defaults.apic.tenants.policies.ip_sla_policies.frequency) }}",
+                        "slaPort": "{{ ip_sla.port | default(defaults.apic.tenants.policies.ip_sla_policies.port) }}",
+                        "slaType": "{{ ip_sla.sla_type | default(defaults.apic.tenants.policies.ip_sla_policies.sla_type) }}"{% if ip_sla.sla_type | default(defaults.apic.tenants.policies.ip_sla_policies.sla_type) == 'http' %},
+                        "httpMethod": "{{ ip_sla.http_method | default(defaults.apic.tenants.policies.ip_sla_policies.http_method) }}",
+                        "httpVersion": "{{ ip_sla.http_version | default(defaults.apic.tenants.policies.ip_sla_policies.http_version) }}",
+                        "httpUri": "{{ ip_sla.http_uri | default(defaults.apic.tenants.policies.ip_sla_policies.http_uri) }}"
+                        {% endif %}
+                    }
+                }
+            }
+            {%- endfor %}
+        ]
+    }
+}

@@ -25,6 +25,7 @@ TEMPLATE = """[**[{status}] {job_name} {build}**]({url})
 * _Author_: {author}
 * _Branch_: {branch}
 * _Event_: {event}
+* _Test Reports_: [APIC 4.2]({build_url}artifact/apic_4.2_log.html), [APIC 5.2]({build_url}artifact/apic_5.2_log.html), [APIC 6.0]({build_url}artifact/apic_6.0_log.html), [NDO 4.2]({build_url}artifact/ndo_4.2_log.html), [NDO 4.3]({build_url}artifact/ndo_4.3_log.html), [NDO 4.4]({build_url}artifact/ndo_4.4_log.html),
 """.format(
     status=str(os.getenv("BUILD_STATUS") or "").lower(),
     job_name=str(os.getenv("JOB_NAME")).rsplit("/", 1)[0],
@@ -35,67 +36,12 @@ TEMPLATE = """[**[{status}] {job_name} {build}**]({url})
     author=os.getenv("GIT_COMMIT_AUTHOR"),
     branch=os.getenv("GIT_BRANCH"),
     event=os.getenv("GIT_EVENT"),
+    build_url=os.getenv("BUILD_URL"),
 )
-
-FMT_OUTPUT = """\n**Terraform FMT Errors**
-```
-"""
-
-VALIDATE_OUTPUT = """\n**Validate Errors**
-```
-"""
-
-PLAN_OUTPUT = """\n[**Terraform Plan**]({})
-```
-""".format(
-    os.getenv("RUN_ARTIFACTS_DISPLAY_URL")
-)
-
-TEST_OUTPUT = """\n[**Testing**]({}artifact/tests/results/aci/log.html)
-```
-""".format(
-    os.getenv("BUILD_URL")
-)
-
-NDI_OUTPUT = """\n[**NDI Pre-Change Validation**]({})
-```
-"""
 
 
 def main():
     message = TEMPLATE
-    if os.path.isfile("./fmt_output.txt"):
-        with open("./fmt_output.txt", "r") as fmt_file:
-            fmt_output = fmt_file.read()
-            if len(fmt_output.strip()):
-                message += FMT_OUTPUT + fmt_output + "\n```\n"
-    if os.path.isfile("./validate_output.txt"):
-        with open("./validate_output.txt", "r") as validate_file:
-            validate_output = validate_file.read()
-            if len(validate_output.strip()):
-                message += VALIDATE_OUTPUT + validate_output + "\n```\n"
-    if os.path.isfile("./plan.txt"):
-        with open("./plan.txt", "r") as in_file:
-            plan = in_file.read()
-        for line in plan.split("\n"):
-            if line.startswith("Plan:"):
-                message += PLAN_OUTPUT + line[6:-1] + "\n```\n"
-    if os.path.isfile("./ndi_pcv_output.txt"):
-        with open("./ndi_pcv_output.txt", "r") as in_file:
-            pcv = in_file.read()
-        with open("./ndi_url.txt", "r") as in_file:
-            url = in_file.read()
-        if len(pcv.strip()):
-            message += NDI_OUTPUT.format(url) + pcv + "\n```\n"
-    if os.path.isfile("./test_output.txt"):
-        with open("./test_output.txt", "r") as in_file:
-            tests = in_file.read()
-        tests_line = ""
-        for line in tests.split("\n"):
-            if "tests, " in line:
-                tests_line = line
-        if tests_line:
-            message += TEST_OUTPUT + tests_line[0:-1] + "\n```\n"
 
     body = {"roomId": os.getenv("WEBEX_ROOM_ID"), "markdown": message}
     headers = {

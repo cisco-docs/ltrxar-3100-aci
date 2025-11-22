@@ -1,0 +1,138 @@
+{% if apic.fabric_policies.nutanix_vmm_domains is not defined %}
+{
+    "infraInfra": {
+        "attributes": {
+            "dn": "uni/infra"
+        }
+    }
+}
+{% else %}
+{
+    "vmmProvP": {
+        "attributes": {
+            "dn": "uni/vmmp-Nutanix"
+        },
+        "children": [
+            {%- set comma1 = joiner(",") %}
+            {%- for vmm in apic.fabric_policies.nutanix_vmm_domains | default([]) %}{{ comma1() }}
+            {% set vmm_name = vmm.name ~ defaults.apic.fabric_policies.nutanix_vmm_domains.name_suffix %}
+            {
+                "vmmDomP": {
+                    "attributes": {
+                        "annotation": "orchestrator:aac",
+                        "name": "{{ vmm_name }}",
+                        "dn": "uni/vmmp-Nutanix/dom-{{ vmm_name }}",
+                        "accessMode": "{{ vmm.access_mode | default(defaults.apic.fabric_policies.nutanix_vmm_domains.access_mode) }}",
+                        "customSwitchName": "{{ vmm.custom_vswitch_name | default() }}",
+                        "mode": "nutanix_pc",
+                        "childAction": "deleteNonPresent"
+                    },
+                    "children": [
+                        {%- set comma2 = joiner(",") %}
+                        {%- for sd in vmm.security_domains | default([]) %}{{ comma2() }}
+                        {
+                            "aaaDomainRef": {
+                                "attributes": {
+                                    "annotation": "orchestrator:aac",
+                                    "name": "{{ sd }}"
+                                }
+                            }
+                        }
+                        {%- endfor %}
+                        {% if vmm.vlan_pool is defined %}{{ comma2() }}
+                        {
+                            "infraRsVlanNs": {
+                                "attributes": {
+                                    "annotation": "orchestrator:aac",
+                                    {% set vlan_pool_name = vmm.vlan_pool ~ defaults.apic.access_policies.vlan_pools.name_suffix %}
+                                    "tDn": "uni/infra/vlanns-[{{ vlan_pool_name }}]-{{ vmm.allocation | default(defaults.apic.fabric_policies.nutanix_vmm_domains.allocation) }}"
+                                }
+                            }
+                        }
+                        {%- endif %}
+                        {%- for cp in vmm.credential_policies | default([]) %}{{ comma2() }}
+                        {% set policy_name = cp.name ~ defaults.apic.fabric_policies.nutanix_vmm_domains.credential_policies.name_suffix %}
+                        {
+                            "vmmUsrAccP": {
+                                "attributes": {
+                                    "annotation": "orchestrator:aac",
+                                    "name": "{{ policy_name }}",
+                                    "usr": "{{ cp.username }}",
+                                    "pwd": "{{ cp.password }}"
+                                }
+                            }
+                        }
+                        {%- endfor %}
+                        {% if vmm.controller_profile.name is defined %}{{ comma2() }}
+                        {% set controller_profile_name = vmm.controller_profile.name ~ defaults.apic.fabric_policies.nutanix_vmm_domains.controller_profile.name_suffix %}
+                        {
+                            "vmmCtrlrP": {
+                                "attributes": {
+                                    "annotation": "orchestrator:aac",
+                                    "aosVersion": "{{ vmm.controller_profile.aos_version | default(defaults.apic.fabric_policies.nutanix_vmm_domains.controller_profile.aos_version) }}",
+                                    "hostOrIp": "{{ vmm.controller_profile.hostname_ip }}",
+                                    "inventoryTrigSt": "untriggered",
+                                    "mode": "nutanix_pc",
+                                    "name": "{{ controller_profile_name }}",
+                                    "port": "0",
+                                    "rootContName": "{{ vmm.controller_profile.datacenter }}",
+                                    "scope": "nutanix",
+                                    "statsMode": "{{ 'enabled' if vmm.controller_profile.statistics | default(defaults.apic.fabric_policies.nutanix_vmm_domains.controller_profile.statistics) else 'disabled' }}",
+                                    "childAction": "deleteNonPresent"
+                                },
+                                "children": [
+                                    {% set comma3 = joiner(",") %}
+                                    {
+                                        "vmmRsAcc": {
+                                            "attributes": {
+                                                "annotation": "orchestrator:aac",
+                                                {% set ctrl_policy_name = vmm.controller_profile.credentials ~ defaults.apic.fabric_policies.nutanix_vmm_domains.credential_policies.name_suffix %}
+                                                "tDn": "uni/vmmp-Nutanix/dom-{{ vmm_name }}/usracc-{{ ctrl_policy_name }}"
+                                            }
+                                        }
+                                    }{{ comma3() -}}
+                                    {% if vmm.controller_profile.cluster_controller.name is defined -%}{{ comma3() }}
+                                    {% set cluster_controller_name = vmm.controller_profile.cluster_controller.name ~ defaults.apic.fabric_policies.nutanix_vmm_domains.controller_profile.cluster_controller.name_suffix %}
+                                    {
+                                        "vmmClusterCtrlrP":
+                                        {
+                                            "attributes":
+                                            {
+                                                "annotation": "orchestrator:aac",
+                                                "hostOrIp": "{{ vmm.controller_profile.cluster_controller.hostname_ip }}",
+                                                "name": "{{ cluster_controller_name }}",
+                                                "port": "{{ vmm.controller_profile.cluster_controller.port | default(defaults.apic.fabric_policies.nutanix_vmm_domains.controller_profile.cluster_controller.port) }}",
+                                                "rootContName": "{{ vmm.controller_profile.cluster_controller.cluster_name }}"
+                                            },
+                                            "children":
+                                            [
+                                                {
+                                                    "vmmRsClusterAcc":
+                                                    {
+                                                        "attributes":
+                                                        {
+                                                            "annotation": "orchestrator:aac",
+                                                            {% set ctrl_policy_name = vmm.controller_profile.cluster_controller.credentials ~ defaults.apic.fabric_policies.nutanix_vmm_domains.credential_policies.name_suffix %}
+                                                            "tDn": "uni/vmmp-Nutanix/dom-{{ vmm_name }}/usracc-{{ ctrl_policy_name }}"
+                                                        }
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    }
+                                    {%- endif %}
+
+                                ]
+                            }
+                        }
+                        {%- endif %}
+
+                    ]
+                }
+            }
+            {%- endfor %}
+
+        ]
+    }
+}
+{% endif %}

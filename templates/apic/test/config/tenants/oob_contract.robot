@@ -1,0 +1,39 @@
+{# iterate_list apic.tenants name item[2] #}
+*** Settings ***
+Documentation   Verify OOB Contract
+Suite Setup     Login APIC
+Default Tags    apic   day2   config   tenants
+Resource        ../../../apic_common.resource
+
+*** Test Cases ***
+{% set tenant = ((apic | default()) | community.general.json_query('tenants[?name==`' ~ item[2] ~ '`]'))[0] %}
+{% for contract in tenant.oob_contracts | default([]) %}
+{% set contract_name = contract.name ~ defaults.apic.tenants.oob_contracts.name_suffix %}
+
+Verify OOB Contract {{ contract_name }}
+    ${r}=   GET On Session   apic   /api/mo/uni/tn-{{ tenant.name }}/oobbrc-{{ contract_name }}.json   params=rsp-subtree=full
+    Set Suite Variable   $r   ${r.json()}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].vzOOBBrCP.attributes.name   {{ contract_name }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].vzOOBBrCP.attributes.nameAlias   {{ contract.alias | default() }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].vzOOBBrCP.attributes.descr   {{ contract.description | default() }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].vzOOBBrCP.attributes.scope   {{ contract.scope | default(defaults.apic.tenants.oob_contracts.scope) }}
+
+{% for subject in contract.subjects | default([]) %}
+{% set subject_name = subject.name ~ defaults.apic.tenants.oob_contracts.subjects.name_suffix %}
+
+Verify OOB Contract {{ contract_name }} Subject {{ subject_name }}
+    ${subject}=   Set Variable   imdata[0].vzOOBBrCP.children[?vzSubj.attributes.name=='{{ subject_name }}'] | [0]
+    Should Be Equal JMESPath Json   ${r}   ${subject}.vzSubj.attributes.name   {{ subject_name }}
+
+{% for filter in subject.filters | default([]) %}
+{% set filter_name = filter.filter ~ defaults.apic.tenants.filters.name_suffix %}
+
+Verify OOB Contract {{ contract_name }} Subject {{ subject_name }} Filter {{ filter_name }}
+    ${filter}=   Set Variable   imdata[0].vzOOBBrCP.children[?vzSubj.attributes.name=='{{ subject_name }}'] | [0].vzSubj.children[?vzRsSubjFiltAtt.attributes.tnVzFilterName=='{{ filter_name }}'] | [0]
+    Should Be Equal JMESPath Json   ${r}   ${filter}.vzRsSubjFiltAtt.attributes.tnVzFilterName   {{ filter_name }}
+
+{% endfor %}
+
+{% endfor %}
+
+{% endfor %}

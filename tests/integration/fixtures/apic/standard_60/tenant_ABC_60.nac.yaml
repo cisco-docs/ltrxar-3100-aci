@@ -1,0 +1,142 @@
+---
+apic:
+  tenants:
+    - name: ABC
+      vrfs:
+        - name: VRF1
+          route_summarization_policies:
+            - name: RTSUM1
+              nodes:
+                - id: 101
+                - id: 102
+              subnets:
+                - prefix: 1.1.0.0/16
+                  bgp_route_summarization_policy: BGP_ROUTE_SUMMARIZATION1
+                - prefix: 192.168.0.0/16
+            - name: RTSUM2
+      bridge_domains:
+        - name: BD4
+          vrf: VRF1
+          l3_multicast: true
+          multicast_arp_drop: false
+      l3outs:
+        - name: L3OUT_MICROBFD
+          vrf: VRF1
+          domain: ROUTED1
+          dhcp_labels:
+            - dhcp_relay_policy: DHCP-RELAY1
+              dhcp_option_policy: DHCP-OPTION1
+              scope: tenant
+          netflow_monitor_policies:
+            - name: MONITOR1
+              ip_filter_type: ipv4
+            - name: MONITOR2
+              ip_filter_type: ipv6
+          nodes:
+            - node_id: 101
+              router_id: 5.5.5.5
+              router_id_as_loopback: false
+              interfaces:
+                - channel: PC1
+                  node_id: 101
+                  ip: 3.3.3.1/24
+                  micro_bfd:
+                    destination_ip: 3.3.3.2
+                    start_timer: 120
+        - name: L3OUT_DHCP
+          vrf: VRF1
+          domain: ROUTED1
+          node_profiles:
+            - name: NP1
+              interface_profiles:
+                - name: IP1
+                  dhcp_labels:
+                    - dhcp_relay_policy: DHCP-RELAY1
+                      dhcp_option_policy: DHCP-OPTION1
+                  netflow_monitor_policies:
+                    - name: MONITOR1
+                      ip_filter_type: ipv4
+                    - name: MONITOR2
+                      ip_filter_type: ipv6
+        - name: L3OUT_FLOATING_SVI
+          vrf: VRF1
+          domain: ROUTED1
+          nodes:
+            - node_id: 101
+              router_id: 5.5.5.5
+              router_id_as_loopback: false
+              interfaces:
+                - floating_svi: true
+                  node_id: 101
+                  ip: 9.9.9.2/24
+                  vlan: 135
+                  paths:
+                    - floating_ip: 9.9.9.1/24
+                      physical_domain: PHY1
+                      vlan: 305
+        - name: L3OUT_BFD_MULTIHOP2
+          vrf: VRF1
+          domain: ROUTED1
+          bfd_multihop_node_policy: BFD-NODE1
+          bfd_multihop_auth:
+            type: sha1
+            key_id: 1
+            key: C1sco123
+          nodes:
+            - node_id: 101
+              router_id: 5.5.5.5
+              router_id_as_loopback: false
+              interfaces:
+                - node_id: 101
+                  port: 14
+                  vlan: 303
+                  ip: 34.34.34.35/24
+                  bgp_peers:
+                    - ip: 34.34.34.36
+                      remote_as: 65010
+
+      policies:
+        set_rules:
+          - name: SET3
+            external_endpoint_group:
+              name: L3OUT1-EPG1
+              l3out: L3OUT1
+              tenant: ABC
+        ip_sla_policies:
+          - name: IP_SLA_60
+            frequency: 10
+            multiplier: 10
+            sla_type: http
+            port: 80
+            http_method: get
+            http_version: HTTP10
+            http_uri: /example
+        bfd_multihop_node_policies:
+          - name: BFD-NODE1
+            description: My BFD Node Policy
+            detection_multiplier: 5
+            min_rx_interval: 300
+            min_tx_interval: 300
+        bgp_route_summarization_policies:
+          - name: BGP_ROUTE_SUMMARIZATION1
+            description: BGP_Route_Summarization_Policy
+            as_set: true
+            summary_only: false
+            af_mcast: true
+            af_ucast: true
+
+      application_profiles:
+        - name: AP1
+          endpoint_groups:
+            - name: EPG1
+              bridge_domain: BD1
+              nutanix_vmm_domains:
+                - name: ntnx_1
+                - name: ntnx_2
+                  vlan: 100
+                  deployment_immediacy: immediate
+                  ipam:
+                    gateway_address: 1.1.1.1/24
+                    dhcp_server_address_override: 1.1.1.4
+                    dhcp_address_pool: dhcp-addr-pool
+                  custom_epg_name: EPG1_custom

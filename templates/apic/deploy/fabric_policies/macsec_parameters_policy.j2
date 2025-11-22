@@ -1,0 +1,27 @@
+{
+    "macsecFabPolCont": {
+        "attributes": {
+            "dn": "uni/fabric/macsecpcontfab"
+        },
+        "children": [
+            {%- set comma1 = joiner(",") %}
+            {%- for policy in apic.fabric_policies.macsec_parameters_policies | default([]) %}{{ comma1() }}
+            {% set policy_name = policy.name ~ defaults.apic.fabric_policies.macsec_parameters_policies.name_suffix %}
+            {
+                "macsecFabParamPol": {
+                    "attributes": {
+                        "annotation": "orchestrator:aac",
+                        "name": "{{ policy_name }}",
+                        "descr": "{{ policy.description | default() }}",
+                        "dn": "uni/fabric/macsecpcontfab/fabparamp-{{ policy_name }}",
+                        "cipherSuite": "{{ policy.cipher_suite | default(defaults.apic.fabric_policies.macsec_parameters_policies.cipher_suite) }}",
+                        "replayWindow": "{{ policy.window_size | default(defaults.apic.fabric_policies.macsec_parameters_policies.window_size) }}",
+                        "sakExpiryTime": "{{ policy.key_expiry_time | default(defaults.apic.fabric_policies.macsec_parameters_policies.key_expiry_time) }}",
+                        "secPolicy": "{{ policy.security_policy | default(defaults.apic.fabric_policies.macsec_parameters_policies.security_policy) }}"
+                    }
+                }
+            }
+            {%- endfor %}
+        ]
+    }
+}

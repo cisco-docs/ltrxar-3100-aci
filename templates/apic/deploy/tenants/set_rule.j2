@@ -1,0 +1,211 @@
+{# iterate_list apic.tenants name item[2] #}
+{% set tenant = ((apic | default()) | community.general.json_query('tenants[?name==`' ~ item[2] ~ '`]'))[0] %}
+{
+    "fvTenant": {
+        "attributes": {
+            "dn": "uni/tn-{{ tenant.name }}",
+            "name": "{{ tenant.name }}"
+        },
+        "children": [
+            {%- set comma1 = joiner(",") %}
+            {%- for rule in tenant.policies.set_rules | default([]) %}{{ comma1() }}
+            {% set rule_name = rule.name ~ defaults.apic.tenants.policies.set_rules.name_suffix %}
+            {
+                "rtctrlAttrP": {
+                    "attributes": {
+                        "annotation": "orchestrator:aac",
+                        "name": "{{ rule_name }}",
+                        "dn": "uni/tn-{{ tenant.name }}/attr-{{ rule_name }}",
+                        "descr": "{{ rule.description | default() }}",
+                        "childAction": "deleteNonPresent"
+                    },
+                    "children": [
+                        {%- set comma2 = joiner(",") %}
+                        {%- if rule.community is defined %}{{ comma2() }}
+                        {
+                            "rtctrlSetComm": {
+                                "attributes": {
+                                    "annotation": "orchestrator:aac",
+                                    "community": "{{ rule.community }}",
+                                    "setCriteria": "{{ rule.community_mode | default(defaults.apic.tenants.policies.set_rules.community_mode) }}",
+                                    "type": "community"
+                                }
+                            }
+                        }
+                        {%- endif %}
+                        {%- if rule.tag is defined %}{{ comma2() }}
+                        {
+                            "rtctrlSetTag": {
+                                "attributes": {
+                                    "annotation": "orchestrator:aac",
+                                    "tag": "{{ rule.tag }}",
+                                    "type": "rt-tag"
+                                }
+                            }
+                        }
+                        {%- endif %}
+                        {%- if rule.dampening is defined %}{{ comma2() }}
+                        {
+                            "rtctrlSetDamp": {
+                                "attributes": {
+                                    "annotation": "orchestrator:aac",
+                                    "halfLife": "{{ rule.dampening.half_life | default(defaults.apic.tenants.policies.set_rules.dampening.half_life) }}",
+                                    "maxSuppressTime": "{{ rule.dampening.max_suppress_time | default(defaults.apic.tenants.policies.set_rules.dampening.max_suppress_time) }}",
+                                    "reuse": "{{ rule.dampening.reuse_limit | default(defaults.apic.tenants.policies.set_rules.dampening.reuse_limit) }}",
+                                    "suppress": "{{ rule.dampening.suppress_limit | default(defaults.apic.tenants.policies.set_rules.dampening.suppress_limit) }}",
+                                    "type": "dampening-pol"
+                                }
+                            }
+                        }
+                        {%- endif %}
+                        {%- if rule.weight is defined %}{{ comma2() }}
+                        {
+                            "rtctrlSetWeight": {
+                                "attributes": {
+                                    "annotation": "orchestrator:aac",
+                                    "type": "rt-weight",
+                                    "weight": "{{ rule.weight }}"
+                                }
+                            }
+                        }
+                        {%- endif %}
+                        {%- if rule.next_hop is defined %}{{ comma2() }}
+                        {
+                            "rtctrlSetNh": {
+                                "attributes": {
+                                    "annotation": "orchestrator:aac",
+                                    "addr": "{{ rule.next_hop }}",
+                                    "type": "ip-nh"
+                                }
+                            }
+                        }
+                        {%- endif %}
+                        {%- if rule.preference is defined %}{{ comma2() }}
+                        {
+                            "rtctrlSetPref": {
+                                "attributes": {
+                                    "annotation": "orchestrator:aac",
+                                    "localPref": "{{ rule.preference }}",
+                                    "type": "local-pref"
+                                }
+                            }
+                        }
+                        {%- endif %}
+                        {%- if rule.metric is defined %}{{ comma2() }}
+                        {
+                            "rtctrlSetRtMetric": {
+                                "attributes": {
+                                    "annotation": "orchestrator:aac",
+                                    "metric": "{{ rule.metric }}",
+                                    "type": "metric"
+                                }
+                            }
+                        }
+                        {%- endif %}
+                        {%- if rule.metric_type is defined %}{{ comma2() }}
+                        {
+                            "rtctrlSetRtMetricType": {
+                                "attributes": {
+                                    "annotation": "orchestrator:aac",
+                                    "metricType": "{{ rule.metric_type }}",
+                                    "type": "metric-type"
+                                }
+                            }
+                        }
+                        {%- endif %}
+                        {%- for add_comm in rule.additional_communities | default([]) %}{{ comma2() }}
+                        {
+                            "rtctrlSetAddComm": {
+                                "attributes": {
+                                    "annotation": "orchestrator:aac",
+                                    "community": "{{ add_comm.community }}",
+                                    "descr": "{{ add_comm.description | default() }}",
+                                    "setCriteria": "append",
+                                    "type": "community"
+                                }
+                            }
+                        }
+                        {%- endfor %}
+                        {%- for as_path in rule.set_as_paths | default([]) %}{{ comma2() }}
+                        {
+                            "rtctrlSetASPath": {
+                                "attributes": {
+                                    "annotation": "orchestrator:aac",
+                                    "criteria": "{{ as_path.criteria | default(defaults.apic.tenants.policies.set_rules.set_as_paths.criteria) }}",
+                                    {% if as_path.criteria == 'prepend-last-as' %}
+                                    "lastnum": "{{ as_path.count | default(defaults.apic.tenants.policies.set_rules.set_as_paths.count) }}",
+                                    {% endif %}
+                                    "type": "as-path",
+                                    "childAction": "deleteNonPresent"
+                                },
+                                "children": [
+                                    {% if as_path.criteria == 'prepend' %}
+                                    {%- set comma3 = joiner(",") %}
+                                    {%- for asn_entry in as_path.asns | default([]) %}{{ comma3() }}
+                                    {
+                                        "rtctrlSetASPathASN": {
+                                            "attributes": {
+                                                "annotation": "orchestrator:aac",
+                                                "asn": "{{ asn_entry.number }}",
+                                                "order": "{{ asn_entry.order | default(defaults.apic.tenants.policies.set_rules.set_as_paths.asns.order ) }}"
+                                            }
+                                        }
+                                    }
+                                    {%- endfor %}
+                                    {% endif %}
+                                ]
+                            }
+                        }
+                        {%- endfor %}
+                        {%- if (rule.next_hop_propagation | default(defaults.apic.tenants.policies.set_rules.next_hop_propagation)) or (rule.multipath | default(defaults.apic.tenants.policies.set_rules.multipath)) %}{{ comma2() }}
+                        {
+                            "rtctrlSetNhUnchanged": {
+                                "attributes": {
+                                    "annotation": "orchestrator:aac",
+                                    "type": "nh-unchanged"
+                                }
+                            }
+                        }
+                        {%- endif %}
+                        {%- if rule.multipath | default(defaults.apic.tenants.policies.set_rules.multipath) %}{{ comma2() }}
+                        {
+                            "rtctrlSetRedistMultipath": {
+                                "attributes": {
+                                    "annotation": "orchestrator:aac",
+                                    "type": "redist-multipath"
+                                }
+                            }
+                        }
+                        {%- endif %}
+                        {%- if rule.external_endpoint_group is defined %}{{ comma2() }}
+                        {% set l3out_name = rule.external_endpoint_group.l3out ~ defaults.apic.tenants.l3outs.name_suffix %}
+                        {% set eepg_name = rule.external_endpoint_group.name ~ defaults.apic.tenants.l3outs.external_endpoint_groups.name_suffix %}
+                        {
+                            "rtctrlSetPolicyTag": {
+                                "attributes": {
+                                    "annotation": "orchestrator:aac",
+                                    "type": "policy-tag",
+                                    "childAction": "deleteNonPresent"
+                                },
+                                "children": [
+                                    {
+                                        "rtctrlRsSetPolicyTagToInstP": {
+                                            "attributes": {
+                                                "annotation": "orchestrator:aac",
+                                                "tDn": "uni/tn-{{ rule.external_endpoint_group.tenant | default(tenant) }}/out-{{ l3out_name }}/instP-{{ eepg_name }}"
+                                            }
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                        {%- endif %}
+
+                    ]
+                }
+            }
+            {%- endfor %}
+
+        ]
+    }
+}

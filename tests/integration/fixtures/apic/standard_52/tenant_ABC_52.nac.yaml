@@ -1,0 +1,274 @@
+---
+apic:
+  tenants:
+    - name: ABC
+      vrfs:
+        - name: VRF1
+          leaked_internal_prefixes:
+            - prefix: 1.1.1.0/24
+              public: true
+              destinations:
+                - description: Internal Prefix 1
+                  tenant: ABC
+                  vrf: VRF2
+                  public: false
+            - prefix: 2.2.2.0/24
+          leaked_external_prefixes:
+            - prefix: 3.3.0.0/16
+              from_prefix_length: 24
+              to_prefix_length: 32
+              destinations:
+                - description: External Prefix 1
+                  tenant: ABC
+                  vrf: VRF2
+            - prefix: 4.4.4.0/24
+      bridge_domains:
+        - name: BD3
+          vrf: VRF1
+          l3_multicast: true
+          pim_source_filter: TEST_MRM1
+          pim_destination_filter: TEST_MRM1
+          subnets:
+            - ip: 198.168.1.254/24
+              ip_dataplane_learning: false
+      application_profiles:
+        - name: AP1
+          endpoint_groups:
+            - name: EPG1
+              bridge_domain: BD1
+              static_ports:
+                - node_id: 204
+                  port: 1
+                  vlan: 12
+                  ptp:
+                    mode: multicast-master
+                    source_ip: 1.1.1.1
+                    profile: test
+          endpoint_security_groups:
+            - name: ESG1
+              description: ESG1 description
+              vrf: VRF1
+              shutdown: true
+              intra_esg_isolation: true
+              preferred_group: true
+              contracts:
+                consumers:
+                  - CON3
+                  - CON4
+                providers:
+                  - CON3
+                  - CON4
+                imported_consumers:
+                  - IMPORT-CON3
+                intra_esgs:
+                  - CON3
+                  - CON4
+                masters:
+                  - application_profile: AP1
+                    endpoint_security_group: ESG2
+                  - endpoint_security_group: ESG3
+              tag_selectors:
+                - key: KEY1
+                  operator: contains
+                  value: VALUE1
+                  description: TAG Selector 1
+                - key: KEY2
+                  value: VALUE2
+              epg_selectors:
+                - application_profile: AP1
+                  endpoint_group: EPG1
+                  description: EPG Selector 1
+                - endpoint_group: EPG2
+              ip_subnet_selectors:
+                - value: 10.1.1.0/24
+                  description: IP Subnet Selector 1
+                - value: 10.1.2.0/24
+              expected_state:
+                minimum_health: 0
+                maximum_critical_faults: 1000
+                maximum_major_faults: 1000
+                maximum_minor_faults: 1000
+            - name: ESG2
+              vrf: VRF2
+            - name: ESG3
+              vrf: VRF2
+      l3outs:
+        - name: L3OUT_SVI
+          vrf: VRF1
+          domain: ROUTED1
+          nodes:
+            - node_id: 101
+              router_id: 5.5.5.5
+              router_id_as_loopback: false
+              interfaces:
+                - floating_svi: true
+                  node_id: 101
+                  ip: 1.1.1.2/24
+                  vlan: 134
+                  paths:
+                    - floating_ip: 1.1.1.1/24
+                      vmware_vmm_domain: VMM1
+                      elag: ELAGDefault
+
+        - name: L3OUT_DUALSTACK
+          vrf: VRF1
+          domain: ROUTED1
+          node_profiles:
+            - name: NP1
+              nodes:
+                - node_id: 103
+                  router_id: 10.10.10.10
+                  router_id_as_loopback: false
+                  loopbacks:
+                    - 2a01:8f0:ff0e:7000::4:122/128
+                    - 10.1.10.102
+              interface_profiles:
+                - name: IP1
+                  interfaces:
+                    - node_id: 101
+                      port: 12
+                      vlan: 303
+                      svi: true
+                      ip: 172.16.100.2/24
+                      ip_shared: 172.16.100.1/24
+                      ip_shared_dhcp_relay: true
+
+        - name: L3OUT_BFD_MULTIHOP1
+          vrf: VRF1
+          domain: ROUTED1
+          node_profiles:
+            - name: NP_102
+              nodes:
+              - node_id: 104
+                router_id: 12.12.12.12
+              bfd_multihop_node_policy: BFD_MHOP_POL
+              bfd_multihop_auth:
+                type: sha1
+                key_id: 1
+                key: C1sco123
+              interface_profiles:
+              - name: IPF101
+                interfaces:
+                  - node_id: 104
+                    port: 5
+                    ip: 10.15.1.2/28
+                    bgp_peers:
+                    - ip: 10.15.1.1
+                      remote_as: 65010
+
+      sr_mpls_l3outs:
+        - name: ABC_SR_MPLS_L3OUT
+          vrf: VRF1
+          sr_mpls_infra_l3outs:
+            - name: INFRA_SR_MPLS_L3
+              outbound_route_map: export-map
+              inbound_route_map: import-map
+              external_endpoint_groups:
+                - ext-epg
+                - ext-epg2
+          external_endpoint_groups:
+            - name: ext-epg
+              subnets:
+                - name: ALL
+                  prefix: 0.0.0.0/0
+                  route_leaking: true
+                  security: true
+                  aggregate_shared_route_control: true
+              contracts:
+                consumers:
+                  - CON1
+                providers:
+                  - CON1
+                imported_consumers:
+                  - IMPORT-CON1
+            - name: ext-epg2
+      policies:
+        nd_interface_policies:
+          - name: ND_INT3
+            description: My ND Interface policy
+            controller_state: [managed-cfg, other-cfg]
+            hop_limit: 10
+            ns_tx_interval: 1000
+            mtu: 2000
+            retransmit_retry_count: 10
+            nud_retransmit_base: 1
+            nud_retransmit_interval: 2000
+            nud_retransmit_count: 5
+            route_advertise_interval: 500
+            router_lifetime: 1000
+            reachable_time: 10000
+            retransmit_timer: 20
+        set_rules:
+          - name: SET3
+            multipath: true
+        endpoint_mac_tags:
+          - mac: 00:01:02:03:04:05
+            vrf: VRF1
+            bridge_domain: BD3
+            tags:
+              - key: Environment
+                value: Prod
+              - key: OS
+                value: Linux
+          - mac: 00:00:00:AA:BB:CC
+            vrf: VRF1
+        endpoint_ip_tags:
+          - ip: 10.1.1.1
+            vrf: VRF1
+            tags:
+              - key: Environment
+                value: Test
+              - key: OS
+                value: Linux
+          - ip: 10.1.1.2
+            vrf: VRF1
+        ip_sla_policies:
+          - name: IP_SLA_52
+            frequency: 10
+            multiplier: 10
+            sla_type: http
+            port: 80
+            http_method: get
+            http_version: HTTP10
+            http_uri: /example
+        bfd_multihop_node_policies:
+          - name: BFD_MHOP_POL
+            description: My BFD Node Policy
+            detection_multiplier: 5
+            min_rx_interval: 300
+            min_tx_interval: 300
+      services:
+        l4l7_devices:
+          - name: DEV3
+            type: PHYSICAL
+            function: L2
+            service_type: OTHERS
+            physical_domain: PHY1
+            active_active: true
+            concrete_devices:
+              - name: DEV1
+                alias: DEV1-ALIAS
+                interfaces:
+                  - name: INT1
+                    node_id: 101
+                    module: 1
+                    port: 11
+                    vlan: 123
+                  - name: INT2
+                    node_id: 101
+                    fex_id: 101
+                    port: 13
+                    vlan: 124
+            logical_interfaces:
+              - name: INT1
+                alias: INT1-ALIAS
+                concrete_interfaces:
+                  - device: DEV1
+                    interface_name: INT1
+              - name: INT2
+                concrete_interfaces:
+                  - device: DEV1
+                    interface_name: INT2
+        redirect_policies:
+          - name: PBR3
+            rewrite_source_mac: true

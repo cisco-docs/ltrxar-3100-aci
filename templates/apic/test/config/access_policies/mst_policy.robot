@@ -1,0 +1,35 @@
+*** Settings ***
+Documentation   Verify MST Switch Policy
+Suite Setup     Login APIC
+Default Tags    apic   day1   config   access_policies
+Resource        ../../apic_common.resource
+
+*** Test Cases ***
+{% for policy in apic.access_policies.switch_policies.mst_policies | default([]) %}
+{% set mst_policy_name = policy.name ~ defaults.apic.access_policies.switch_policies.mst_policies.name_suffix %}
+
+Verify MST Switch Policy {{ mst_policy_name }}
+    ${r}=   GET On Session   apic   /api/mo/uni/infra/mstpInstPol-default/mstpRegionPol-{{ mst_policy_name }}.json   params=rsp-subtree=full
+    Set Suite Variable   $r   ${r.json()}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].stpMstRegionPol.attributes.name   {{ mst_policy_name }}
+
+{% for inst in policy.instances | default([]) %}
+
+Verify MST Switch Policy {{ mst_policy_name }} Instance {{ inst.name }}
+    ${inst}=   Set Variable   imdata[0].stpMstRegionPol.children[?stpMstDomPol.attributes.name=='{{ inst.name }}'] | [0]
+    Should Be Equal JMESPath Json   ${r}    ${inst}.stpMstDomPol.attributes.name   {{ inst.name }}
+    Should Be Equal JMESPath Json   ${r}    ${inst}.stpMstDomPol.attributes.id   {{ inst.id }}
+
+{% for range in inst.vlan_ranges | default([]) %}
+
+Verify MST Switch Policy {{ mst_policy_name }} Instance {{ inst.name }} Range VLAN {{ range.from }}-{{ range.to | default(range.from) }}
+    ${inst}=   Set Variable   imdata[0].stpMstRegionPol.children[?stpMstDomPol.attributes.name=='{{ inst.name }}'] | [0]
+    ${range}=   Set Variable   ${inst}.stpMstDomPol.children[?fvnsEncapBlk.attributes.from=='vlan-{{ range.from }}'] | [0]
+    Should Be Equal JMESPath Json   ${r}    ${range}.fvnsEncapBlk.attributes.from   vlan-{{ range.from }}
+    Should Be Equal JMESPath Json   ${r}    ${range}.fvnsEncapBlk.attributes.to   vlan-{{ range.to | default(range.from) }}
+
+{% endfor %}
+
+{% endfor %}
+
+{% endfor %}

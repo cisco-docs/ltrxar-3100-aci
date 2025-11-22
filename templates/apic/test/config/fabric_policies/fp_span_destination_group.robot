@@ -1,0 +1,31 @@
+*** Settings ***
+Documentation   Verify Fabric SPAN Destination Group
+Suite Setup     Login APIC
+Default Tags    apic   day2   config   fabric_policies
+Resource        ../../apic_common.resource
+
+*** Test Cases ***
+{%- for span in apic.fabric_policies.span.destination_groups | default([]) %}
+{% set span_name = span.name ~ defaults.apic.fabric_policies.span.destination_groups.name_suffix %}
+
+Verify SPAN Destination Group {{ span_name }}
+    ${r}=   GET On Session   apic   /api/mo/uni/fabric/destgrp-{{ span_name }}.json   params=rsp-subtree=full
+    Set Suite Variable   $r   ${r.json()}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].spanDestGrp.attributes.name   {{ span_name }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].spanDestGrp.attributes.descr   {{ span.description | default() }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].spanDestGrp.children[?spanDest] | [0].spanDest.attributes.name   {{ span_name }}
+{% if span.tenant is defined and span.application_profile is defined and span.endpoint_group is defined %}
+{% set application_profile_name = span.application_profile ~ defaults.apic.tenants.application_profiles.name_suffix %}
+{% set endpoint_group_name = span.endpoint_group ~ defaults.apic.tenants.application_profiles.endpoint_groups.name_suffix %}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].spanDestGrp.children[?spanDest] | [0].spanDest.children[?spanRsDestEpg] | [0].spanRsDestEpg.attributes.ip   {{ span.ip }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].spanDestGrp.children[?spanDest] | [0].spanDest.children[?spanRsDestEpg] | [0].spanRsDestEpg.attributes.srcIpPrefix   {{ span.source_prefix }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].spanDestGrp.children[?spanDest] | [0].spanDest.children[?spanRsDestEpg] | [0].spanRsDestEpg.attributes.dscp   {{ span.dscp | default(defaults.apic.fabric_policies.span.destination_groups.dscp) }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].spanDestGrp.children[?spanDest] | [0].spanDest.children[?spanRsDestEpg] | [0].spanRsDestEpg.attributes.flowId   {{ span.flow_id | default(defaults.apic.fabric_policies.span.destination_groups.flow_id) }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].spanDestGrp.children[?spanDest] | [0].spanDest.children[?spanRsDestEpg] | [0].spanRsDestEpg.attributes.mtu   {{ span.mtu | default(defaults.apic.fabric_policies.span.destination_groups.mtu) }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].spanDestGrp.children[?spanDest] | [0].spanDest.children[?spanRsDestEpg] | [0].spanRsDestEpg.attributes.ttl   {{ span.ttl | default(defaults.apic.fabric_policies.span.destination_groups.ttl) }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].spanDestGrp.children[?spanDest] | [0].spanDest.children[?spanRsDestEpg] | [0].spanRsDestEpg.attributes.ver   ver{{ span.version | default(defaults.apic.fabric_policies.span.destination_groups.version) }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].spanDestGrp.children[?spanDest] | [0].spanDest.children[?spanRsDestEpg] | [0].spanRsDestEpg.attributes.verEnforced   {{ 'yes' if span.enforce_version | default(defaults.apic.fabric_policies.span.destination_groups.enforce_version) else 'no' }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].spanDestGrp.children[?spanDest] | [0].spanDest.children[?spanRsDestEpg] | [0].spanRsDestEpg.attributes.tDn   uni/tn-{{ span.tenant | default(tenant.name) }}/ap-{{ application_profile_name }}/epg-{{ endpoint_group_name }}
+{% endif %}
+
+{% endfor %}

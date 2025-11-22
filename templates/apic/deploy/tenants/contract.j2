@@ -1,0 +1,166 @@
+{# iterate_list apic.tenants name item[2] #}
+{% set tenant = ((apic | default()) | community.general.json_query('tenants[?name==`' ~ item[2] ~ '`]'))[0] %}
+{
+    "fvTenant": {
+        "attributes": {
+            "dn": "uni/tn-{{ tenant.name }}",
+            "name": "{{ tenant.name }}"
+        },
+        "children": [
+            {%- set comma1 = joiner(",") %}
+            {%- for contract in tenant.contracts | default([]) %}{{ comma1() }}
+            {% set contract_name = contract.name ~ defaults.apic.tenants.contracts.name_suffix %}
+            {
+                "vzBrCP": {
+                    "attributes": {
+                        "annotation": "orchestrator:aac",
+                        "descr": "{{ contract.description | default() }}",
+                        "dn": "uni/tn-{{ tenant.name }}/brc-{{ contract_name }}",
+                        "name": "{{ contract_name }}",
+                        "nameAlias": "{{ contract.alias | default() }}",
+                        "scope": "{{ contract.scope | default(defaults.apic.tenants.contracts.scope) }}",
+                        "prio": "{{ contract.qos_class | default(defaults.apic.tenants.contracts.qos_class) }}",
+                        "targetDscp": "{{ contract.target_dscp | default(defaults.apic.tenants.contracts.target_dscp) }}",
+                        "childAction": "deleteNonPresent"
+                    },
+                    "children": [
+                        {%- set comma2 = joiner(",") %}
+                        {%- for subject in contract.subjects | default([]) %}{{ comma2() }}
+                        {% set subject_name = subject.name ~ defaults.apic.tenants.contracts.subjects.name_suffix %}
+                        {
+                            "vzSubj": {
+                                "attributes": {
+                                    "annotation": "orchestrator:aac",
+                                    "name": "{{ subject_name }}",
+                                    "nameAlias": "{{ subject.alias | default() }}",
+                                    "descr": "{{ subject.description | default() }}",
+                                    "revFltPorts": "{{ ('yes' if (subject.reverse_filter_ports | default(defaults.apic.tenants.contracts.subjects.reverse_filter_ports)) else 'no') if subject.filters is defined  else 'no' }}",
+                                    "prio": "{{ subject.qos_class | default(defaults.apic.tenants.contracts.subjects.qos_class) }}",
+                                    "targetDscp": "{{ subject.target_dscp | default(defaults.apic.tenants.contracts.subjects.target_dscp) }}",
+                                    "childAction": "deleteNonPresent"
+                                },
+                                "children": [
+                                    {%- set comma3 = joiner(",") %}
+                                        {%- for filter in subject.filters | default([]) %}{{ comma3() }}
+                                        {% set filter_name = filter.filter ~ defaults.apic.tenants.filters.name_suffix %}
+                                        {% set directives = [] %}
+                                        {% if filter.log | default(defaults.apic.tenants.contracts.subjects.filters.log) %}{% set directives = directives + [("log")] %}{% endif %}
+                                        {% if filter.no_stats | default(defaults.apic.tenants.contracts.subjects.filters.no_stats) %}{% set directives = directives + [("no-stats")] %}{% endif %}
+                                        {
+                                            "vzRsSubjFiltAtt": {
+                                                "attributes": {
+                                                    "annotation": "orchestrator:aac",
+                                                    "action": "{{ filter.action | default(defaults.apic.tenants.contracts.subjects.filters.action) }}",
+                                                    "tnVzFilterName": "{{ filter_name }}",
+                                                    "directives": "{{ directives | join(',') }}",
+                                                    "priorityOverride": "{{ filter.priority | default(defaults.apic.tenants.contracts.subjects.filters.priority) }}"
+                                                }
+                                            }
+                                        }
+                                        {%- endfor %}
+                                        {%- if subject.service_graph is defined and subject.filters is defined %}{{ comma3() }}
+                                        {
+                                            "vzRsSubjGraphAtt": {
+                                                "attributes": {
+                                                    "annotation": "orchestrator:aac",
+                                                    "tnVnsAbsGraphName": "{{ subject.service_graph }}"
+                                                }
+                                            }
+                                        }
+                                        {%- endif %}
+                                    {%- if subject.filters is not defined and subject.consumer_to_provider.filters is defined %}{{ comma3() }}
+                                        {
+                                            "vzInTerm": {
+                                                "attributes": {
+                                                    "annotation": "orchestrator:aac",
+                                                    "prio": "{{ subject.consumer_to_provider.qos_class | default(defaults.apic.tenants.contracts.subjects.consumer_to_provider.qos_class) }}",
+                                                    "targetDscp": "{{ subject.consumer_to_provider.target_dscp | default(defaults.apic.tenants.contracts.subjects.consumer_to_provider.target_dscp) }}"
+                                                },
+                                                "children" : [
+                                                    {%- set comma4 = joiner(",") %}
+                                                    {%- for filter in subject.consumer_to_provider.filters | default([]) %}{{ comma4() }}
+                                                    {% set filter_name = filter.filter ~ defaults.apic.tenants.filters.name_suffix %}
+                                                    {% set directives = [] %}
+                                                    {% if filter.log | default(defaults.apic.tenants.contracts.subjects.consumer_to_provider.filters.log) %}{% set directives = directives + [("log")] %}{% endif %}
+                                                    {% if filter.no_stats | default(defaults.apic.tenants.contracts.subjects.consumer_to_provider.filters.no_stats) %}{% set directives = directives + [("no-stats")] %}{% endif %}
+                                                    {
+                                                        "vzRsFiltAtt": {
+                                                            "attributes": {
+                                                                "annotation": "orchestrator:aac",
+                                                                "action": "{{ filter.action | default(defaults.apic.tenants.contracts.subjects.consumer_to_provider.filters.action) }}",
+                                                                "tnVzFilterName": "{{ filter_name }}",
+                                                                "directives": "{{ directives | join(',') }}",
+                                                                "priorityOverride": "{{ filter.priority | default(defaults.apic.tenants.contracts.subjects.consumer_to_provider.filters.priority) }}"
+                                                            }
+                                                        }
+                                                    }
+                                                    {%- endfor %}
+                                                    {%- if subject.consumer_to_provider.service_graph is defined and subject.consumer_to_provider.filters is defined %}{{ comma4() }}
+                                                    {
+                                                        "vzRsInTermGraphAtt": {
+                                                            "attributes": {
+                                                                "annotation": "orchestrator:aac",
+                                                                "tnVnsAbsGraphName": "{{ subject.consumer_to_provider.service_graph }}"
+                                                            }
+                                                        }
+                                                    }
+                                                    {%- endif %}
+                                                ]
+                                            }
+                                        }
+                                    {% endif %}
+                                    {% if subject.filters is not defined and subject.provider_to_consumer.filters is defined %}{{ comma3() }}
+                                        {
+                                            "vzOutTerm": {
+                                                "attributes": {
+                                                    "annotation": "orchestrator:aac",
+                                                    "prio": "{{ subject.provider_to_consumer.qos_class | default(defaults.apic.tenants.contracts.subjects.provider_to_consumer.qos_class) }}",
+                                                    "targetDscp": "{{ subject.provider_to_consumer.target_dscp | default(defaults.apic.tenants.contracts.subjects.provider_to_consumer.target_dscp) }}"
+                                                },
+                                                "children" : [
+                                                    {%- set comma4 = joiner(",") %}
+                                                    {%- for filter in subject.provider_to_consumer.filters | default([]) %}{{ comma4() }}
+                                                    {% set filter_name = filter.filter ~ defaults.apic.tenants.filters.name_suffix %}
+                                                    {% set directives = [] %}
+                                                    {% if filter.log | default(defaults.apic.tenants.contracts.subjects.provider_to_consumer.filters.log) %}{% set directives = directives + [("log")] %}{% endif %}
+                                                    {% if filter.no_stats | default(defaults.apic.tenants.contracts.subjects.provider_to_consumer.filters.no_stats) %}{% set directives = directives + [("no-stats")] %}{% endif %}
+                                                    {
+                                                        "vzRsFiltAtt": {
+                                                            "attributes": {
+                                                                "annotation": "orchestrator:aac",
+                                                                "action": "{{ filter.action | default(defaults.apic.tenants.contracts.subjects.provider_to_consumer.filters.action) }}",
+                                                                "tnVzFilterName": "{{ filter_name }}",
+                                                                "directives": "{{ directives | join(',') }}",
+                                                                "priorityOverride": "{{ filter.priority | default(defaults.apic.tenants.contracts.subjects.provider_to_consumer.filters.priority) }}"
+                                                            }
+                                                        }
+                                                    }
+                                                    {%- endfor %}
+                                                    {%- if subject.provider_to_consumer.service_graph is defined and subject.provider_to_consumer.filters is defined %}{{ comma4() }}
+                                                    {
+                                                        "vzRsOutTermGraphAtt": {
+                                                            "attributes": {
+                                                                "annotation": "orchestrator:aac",
+                                                                "tnVnsAbsGraphName": "{{ subject.provider_to_consumer.service_graph }}"
+                                                            }
+                                                        }
+                                                    }
+                                                    {%- endif %}
+                                                ]
+                                            }
+                                        }
+                                    {%- endif %}
+
+                                ]
+                            }
+                        }
+                        {%- endfor %}
+
+                    ]
+                }
+            }
+            {%- endfor %}
+
+        ]
+    }
+}

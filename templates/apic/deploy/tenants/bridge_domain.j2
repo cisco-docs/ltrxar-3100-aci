@@ -1,0 +1,271 @@
+{# iterate_list apic.tenants name item[2] #}
+{% set tenant = ((apic | default()) | community.general.json_query('tenants[?name==`' ~ item[2] ~ '`]'))[0] %}
+{
+    "fvTenant": {
+        "attributes": {
+            "dn": "uni/tn-{{ tenant.name }}",
+            "name": "{{ tenant.name }}"
+        },
+        "children": [
+            {%- set comma1 = joiner(",") %}
+            {%- for bd in tenant.bridge_domains | default([]) %}{{ comma1() }}
+            {%- set bd_name = bd.name ~ defaults.apic.tenants.bridge_domains.name_suffix  %}
+            {%- set bd_move_detection = "" %}
+            {%- if bd.ep_move_detection | default(defaults.apic.tenants.bridge_domains.ep_move_detection) %}
+                {%- set bd_move_detection = "garp" %}
+            {%- endif %}
+            {
+                "fvBD": {
+                    "attributes": {
+                        "annotation": {% if bd.ndo_managed | default(defaults.apic.tenants.bridge_domains.ndo_managed) %}"orchestrator:msc-shadow:no"{% else %}"orchestrator:aac"{% endif %},
+                        "arpFlood": "{{ 'yes' if bd.arp_flooding | default(defaults.apic.tenants.bridge_domains.arp_flooding) else 'no' }}",
+                        "descr": "{{ bd.description | default() }}",
+                        "dn": "uni/tn-{{ tenant.name }}/BD-{{ bd_name }}",
+                        "hostBasedRouting": "{{ 'yes' if bd.advertise_host_routes | default(defaults.apic.tenants.bridge_domains.advertise_host_routes) else 'no' }}",
+                        "ipLearning": "{{ 'yes' if bd.ip_dataplane_learning | default(defaults.apic.tenants.bridge_domains.ip_dataplane_learning) else 'no' }}",
+                        "limitIpLearnToSubnets": "{{ 'yes' if bd.limit_ip_learn_to_subnets | default(defaults.apic.tenants.bridge_domains.limit_ip_learn_to_subnets) else 'no' }}",
+                        "mac": "{{ bd.mac | default(defaults.apic.tenants.bridge_domains.mac) }}",
+                        "epMoveDetectMode": "{{ bd_move_detection }}",
+                        "vmac": "{{ bd.virtual_mac | default(defaults.apic.tenants.bridge_domains.virtual_mac) }}",
+                        "mcastAllow": "{{ 'yes' if bd.l3_multicast | default(defaults.apic.tenants.bridge_domains.l3_multicast) else 'no' }}",
+                        {% if bd.multicast_arp_drop is defined %}
+                            "mcastARPDrop": "{{ 'yes' if bd.multicast_arp_drop else 'no' }}",
+                        {% endif %}
+                        "multiDstPktAct": "{{ bd.multi_destination_flooding | default(defaults.apic.tenants.bridge_domains.multi_destination_flooding) }}",
+                        "name": "{{ bd_name }}",
+                        "nameAlias": "{{ bd.alias | default() }}",
+                        "type": "regular",
+                        "unicastRoute": "{{ 'yes' if bd.unicast_routing | default(defaults.apic.tenants.bridge_domains.unicast_routing) else 'no' }}",
+                        "unkMacUcastAct": "{{ bd.unknown_unicast | default(defaults.apic.tenants.bridge_domains.unknown_unicast) }}",
+                        "unkMcastAct": "{{ bd.unknown_ipv4_multicast | default(defaults.apic.tenants.bridge_domains.unknown_ipv4_multicast) }}",
+                        "epClear": "{{ 'yes' if bd.clear_remote_mac_entries | default(defaults.apic.tenants.bridge_domains.clear_remote_mac_entries) else 'no' }}",
+                        "v6unkMcastAct": "{{ bd.unknown_ipv6_multicast | default(defaults.apic.tenants.bridge_domains.unknown_ipv6_multicast) }}",
+                        "childAction": "deleteNonPresent"
+                    },
+                    "children": [
+                        {%- set comma2 = joiner(",") %}
+                        {%- for dhcp_label in bd.dhcp_labels | default([]) %}{{ comma2() }}
+                        {% set dhcp_relay_policy_name = dhcp_label.dhcp_relay_policy ~ defaults.apic.tenants.policies.dhcp_relay_policies.name_suffix %}
+                        {
+                            "dhcpLbl": {
+                                "attributes": {
+                                    "annotation": "orchestrator:aac",
+                                    "dn": "uni/tn-{{ tenant.name }}/BD-{{ bd_name }}/dhcplbl-{{ dhcp_relay_policy_name }}",
+                                    "owner": "{{ dhcp_label.scope | default(defaults.apic.tenants.bridge_domains.dhcp_labels.scope) }}",
+                                    "name": "{{ dhcp_relay_policy_name }}"
+                                },
+                                "children": [
+                                    {% if dhcp_label.dhcp_option_policy is defined %}
+                                    {% set dhcp_option_policy_name = dhcp_label.dhcp_option_policy | default() ~ defaults.apic.tenants.policies.dhcp_option_policies.name_suffix %}
+                                    {
+                                        "dhcpRsDhcpOptionPol": {
+                                            "attributes": {
+                                                "annotation": "orchestrator:aac",
+                                                "tnDhcpOptionPolName": "{{ dhcp_option_policy_name }}"
+                                            }
+                                        }
+                                    }
+                                    {% endif %}
+                                ]
+                            }
+                        }
+                        {%- endfor %}
+                        {%- for subnet in bd.subnets | default([]) %}{{ comma2() }}
+                        {% set scope = [] %}
+                        {% if subnet.public | default(defaults.apic.tenants.bridge_domains.subnets.public) %}{% set scope = scope + [("public")] %}{% else %}{% set scope = scope + [("private")] %}{% endif %}
+                        {% if subnet.shared | default(defaults.apic.tenants.bridge_domains.subnets.shared)  %}{% set scope = scope + [("shared")] %}{% endif %}
+                        {% set ctrl = [] %}
+                        {% if subnet.igmp_querier | default(defaults.apic.tenants.bridge_domains.subnets.igmp_querier) %}{% set ctrl = ctrl + [("querier")] %}{% endif %}
+                        {% if subnet.nd_ra_prefix | default(defaults.apic.tenants.bridge_domains.subnets.nd_ra_prefix) %}{% set ctrl = ctrl + [("nd")] %}{% endif %}
+                        {% if subnet.no_default_gateway | default(defaults.apic.tenants.bridge_domains.subnets.no_default_gateway) %}{% set ctrl = ctrl + [("no-default-gateway")] %}{% endif %}
+                        {
+                            "fvSubnet": {
+                                "attributes": {
+                                    "annotation": "orchestrator:aac",
+                                    "ctrl": "{{ ctrl | join(',') }}",
+                                    "descr": "{{ subnet.description | default() }}",
+                                    "dn": "uni/tn-{{ tenant.name }}/BD-{{ bd_name }}/subnet-[{{ subnet.ip }}]",
+                                    "ip": "{{ subnet.ip }}",
+                                    "preferred": "{{ 'yes' if subnet.primary_ip | default(defaults.apic.tenants.bridge_domains.subnets.primary_ip) else 'no' }}",
+                                    "scope": "{{ scope | join(',') }}",
+                                    {%- if subnet.ip_dataplane_learning is defined %}
+                                    "ipDPLearning": "{{ 'enabled' if subnet.ip_dataplane_learning else 'disabled' }}",
+                                    {%- endif %}
+                                    "virtual": "{{ 'yes' if subnet.virtual | default(defaults.apic.tenants.bridge_domains.subnets.virtual) else 'no' }}"
+                                }
+                                {%- if subnet.nd_ra_prefix_policy is defined %},
+                                {%- set nd_ra_prefix_policy_name = subnet.nd_ra_prefix_policy ~ defaults.apic.tenants.policies.nd_ra_prefix_policies.name_suffix %}
+                                "children": [
+                                    {
+                                        "fvRsNdPfxPol": {
+                                            "attributes": {
+                                                "annotation": "orchestrator:aac",
+                                                "tnNdPfxPolName": "{{ nd_ra_prefix_policy_name }}"
+                                            }
+                                        }
+                                    }
+                                ]
+                                {%- endif %}
+
+                            }
+                        }
+                        {%- endfor %}
+                        {%- for l3out in bd.l3outs | default([]) %}{{ comma2() }}
+                        {% set l3out_name = l3out ~ defaults.apic.tenants.l3outs.name_suffix %}
+                        {
+                            "fvRsBDToOut": {
+                                "attributes": {
+                                    "annotation": "orchestrator:aac",
+                                    "tnL3extOutName": "{{ l3out_name }}"
+                                }
+                            }
+                        }
+                        {%- endfor %}{{ comma2() }}
+                        {% set vrf_name = bd.vrf ~ ('' if bd.vrf in ('inb', 'obb', 'overlay-1') else defaults.apic.tenants.vrfs.name_suffix) %}
+                        {
+                            "fvRsCtx": {
+                                "attributes": {
+                                    "annotation": "orchestrator:aac",
+                                    "tnFvCtxName": "{{ vrf_name }}"
+                                }
+                            }
+                        }
+                        {% if bd.igmp_interface_policy is defined %}{{ comma2() }}
+                        {% set igmp_interface_policy_name = bd.igmp_interface_policy ~ defaults.apic.tenants.policies.igmp_interface_policies.name_suffix %}
+                        {
+                            "igmpIfP": {
+                                "attributes": {
+                                    "annotation": "orchestrator:aac",
+                                    "childAction": "deleteNonPresent"
+                                },
+                                "children": [
+                                    {
+                                        "igmpRsIfPol": {
+                                            "attributes": {
+                                                "annotation": "orchestrator:aac",
+                                                "tDn": "uni/tn-{{ tenant.name }}/igmpIfPol-{{ igmp_interface_policy_name }}"
+                                            }
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                        {% endif %}
+                        {% if bd.igmp_snooping_policy is defined %}{{ comma2() }}
+                        {% set igmp_snooping_policy_name = bd.igmp_snooping_policy ~ defaults.apic.tenants.policies.igmp_snooping_policies.name_suffix %}
+                        {
+                            "fvRsIgmpsn": {
+                                "attributes": {
+                                    "annotation": "orchestrator:aac",
+                                    "tnIgmpSnoopPolName": "{{ igmp_snooping_policy_name }}"
+                                }
+                            }
+                        }
+                        {%- endif %}
+                        {%- if bd.pim_source_filter is defined or bd.pim_destination_filter is defined %}{{ comma2() }}
+                        {
+                            "pimBDP": {
+                                "attributes": {
+                                    "annotation": "orchestrator:aac"
+                                },
+                                "children": [
+                                    {
+                                        "pimBDFilterPol": {
+                                            "attributes": {
+                                                "annotation": "orchestrator:aac"
+                                            },
+                                            "children": [
+                                                {%- set comma3 = joiner(",") %}
+                                                {%- if bd.pim_source_filter is defined %}{{ comma3() }}
+                                                {% set filter_name = bd.pim_source_filter ~ defaults.apic.tenants.policies.multicast_route_maps.name_suffix %}
+                                                {
+                                                    "pimBDSrcFilterPol": {
+                                                        "attributes": {
+                                                            "annotation": "orchestrator:aac"
+                                                        },
+                                                        "children": [
+                                                            {
+                                                                "rtdmcRsFilterToRtMapPol": {
+                                                                    "attributes": {
+                                                                        "annotation": "orchestrator:aac",
+                                                                        "tDn": "uni/tn-{{ tenant.name }}/rtmap-{{ filter_name }}"
+                                                                    }
+                                                                }
+                                                            }
+                                                        ]
+                                                    }
+                                                }
+                                                {%- endif %}
+                                                {%- if bd.pim_destination_filter is defined %}{{ comma3() }}
+                                                {% set filter_name = bd.pim_destination_filter ~ defaults.apic.tenants.policies.multicast_route_maps.name_suffix %}
+                                                {
+                                                    "pimBDDestFilterPol": {
+                                                        "attributes": {
+                                                            "annotation": "orchestrator:aac"
+                                                        },
+                                                        "children": [
+                                                            {
+                                                                "rtdmcRsFilterToRtMapPol": {
+                                                                    "attributes": {
+                                                                        "annotation": "orchestrator:aac",
+                                                                        "tDn": "uni/tn-{{ tenant.name }}/rtmap-{{ filter_name }}"
+                                                                    }
+                                                                }
+                                                            }
+                                                        ]
+                                                    }
+                                                }
+                                                {%- endif %}
+
+                                            ]
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                        {%- endif %}
+                        {%- if bd.netflow_monitor_policies is defined %}{{ comma2() }}
+                        {%- set comma3 = joiner(",") %}
+                        {%- for monitor in bd.netflow_monitor_policies %}{{ comma3() }}                       
+                        {% set monitor_name = monitor.name ~ defaults.apic.tenants.policies.netflow_monitors.name_suffix %}
+                        {
+                            "fvRsBDToNetflowMonitorPol": {
+                                "attributes": {
+                                    "annotation": "orchestrator:aac",
+                                    "fltType": "{{ monitor.ip_filter_type | default(defaults.apic.tenants.bridge_domains.netflow_monitor_policies.ip_filter_type) }}",
+                                    "tnNetflowMonitorPolName": "{{ monitor_name }}"
+                                }
+                            }
+                        }
+                        {%- endfor %}
+                        {%- endif %}                          
+                        {%- if bd.nd_interface_policy is defined %}{{ comma2() }}
+                        {% set nd_interface_policy_name = bd.nd_interface_policy ~ defaults.apic.tenants.policies.nd_interface_policies.name_suffix %}
+                        {
+                            "fvRsBDToNdP": {
+                                "attributes": {
+                                    "annotation": "orchestrator:aac",
+                                    "tnNdIfPolName": "{{ nd_interface_policy_name }}"
+                                }
+                            }
+                        }
+                        {%- endif %}
+                        {%- if bd.endpoint_retention_policy is defined %} {{ comma2() }}
+                        {% set endpoint_retention_policy_name = bd.endpoint_retention_policy ~ defaults.apic.tenants.policies.endpoint_retention_policies.name_suffix %}
+                        {
+                            "fvRsBdToEpRet": {
+                                "attributes": {
+                                    "annotation": "orchestrator:aac",
+                                    "tnFvEpRetPolName": "{{ endpoint_retention_policy_name }}"
+                                }
+                            }
+                        }
+                        {%- endif %}
+                    ]
+                }
+            }
+            {%- endfor %}
+
+        ]
+    }
+}

@@ -1,0 +1,17 @@
+{
+    "mcpInstPol": {
+        "attributes": {
+            "annotation": "orchestrator:aac",
+            "adminSt": "{{ 'enabled' if apic.access_policies.mcp.admin_state | default(defaults.apic.access_policies.mcp.admin_state) else 'disabled' }}",
+            "ctrl": "{% if apic.access_policies.mcp.per_vlan | default(defaults.apic.access_policies.mcp.per_vlan) %}pdu-per-vlan{% endif %}",
+            "dn": "uni/infra/mcpInstP-default",
+            "initDelayTime": "{{ apic.access_policies.mcp.initial_delay | default(defaults.apic.access_policies.mcp.initial_delay) }}",
+            "key": "{% if apic.access_policies.mcp.admin_state | default(defaults.apic.access_policies.mcp.admin_state) %}{{ apic.access_policies.mcp.key | default(defaults.apic.access_policies.mcp.key) }}{% endif %}",
+            "loopDetectMult": "{{ apic.access_policies.mcp.loop_detection | default(defaults.apic.access_policies.mcp.loop_detection) }}",
+            "loopProtectAct": "{% if apic.access_policies.mcp.action | default(defaults.apic.access_policies.mcp.action) %}port-disable{% endif %}",
+            "name": "default",
+            "txFreq": "{{ apic.access_policies.mcp.frequency_sec | default(defaults.apic.access_policies.mcp.frequency_sec) }}",
+            "txFreqMsec": "{{ apic.access_policies.mcp.frequency_msec | default(defaults.apic.access_policies.mcp.frequency_msec) }}"
+        }
+    }
+}

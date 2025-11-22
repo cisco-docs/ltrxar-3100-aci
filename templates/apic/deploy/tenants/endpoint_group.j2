@@ -1,0 +1,625 @@
+{# iterate_list apic.tenants name item[2] #}
+{% set tenant = ((apic | default()) | community.general.json_query('tenants[?name==`' ~ item[2] ~ '`]'))[0] %}
+{%- macro get_nlb_mode(name) -%}
+    {%- set modes = {"mode-mcast-static":"mode-mcast--static"} -%}
+    {{ modes[name] | default(name)}}
+{%- endmacro -%}
+{
+    "fvTenant": {
+        "attributes": {
+            "dn": "uni/tn-{{ tenant.name }}",
+            "name": "{{ tenant.name }}"
+        },
+        "children": [
+            {%- set comma1 = joiner(",") %}
+            {%- for ap in tenant.application_profiles | default([]) %}{{ comma1() }}
+            {% set ap_name = ap.name ~ defaults.apic.tenants.application_profiles.name_suffix %}
+            {
+                "fvAp": {
+                    "attributes": {
+                        "annotation": {% if ap.ndo_managed | default(defaults.apic.tenants.application_profiles.ndo_managed) %}"orchestrator:msc-shadow:no"{% else %}"orchestrator:aac"{% endif %},
+                        "dn": "uni/tn-{{ tenant.name }}/ap-{{ ap_name }}",
+                        "name": "{{ ap_name }}"
+                    },
+                    "children": [
+                        {%- set comma2 = joiner(",") %}
+                        {%- for epg in ap.endpoint_groups | default([]) %}{{ comma2() }}
+                        {% set epg_name = epg.name ~ defaults.apic.tenants.application_profiles.endpoint_groups.name_suffix %}
+                        {
+                            "fvAEPg": {
+                                "attributes": {
+                                    "annotation": {% if epg.ndo_managed | default(defaults.apic.tenants.application_profiles.endpoint_groups.ndo_managed) %}"orchestrator:msc-shadow:no"{% else %}"orchestrator:aac"{% endif %},
+                                    "descr": "{{ epg.description | default() }}",
+                                    "dn": "uni/tn-{{ tenant.name }}/ap-{{ ap_name }}/epg-{{ epg_name }}",
+                                    "name": "{{ epg_name }}",
+                                    "nameAlias": "{{ epg.alias | default() }}",
+                                    "floodOnEncap": "{{ 'enabled' if epg.flood_in_encap | default(defaults.apic.tenants.application_profiles.endpoint_groups.flood_in_encap) else 'disabled' }}",
+                                    "pcEnfPref": "{{ 'enforced' if epg.intra_epg_isolation | default(defaults.apic.tenants.application_profiles.endpoint_groups.intra_epg_isolation) else 'unenforced' }}",
+                                    "fwdCtrl": {% if epg.proxy_arp | default(defaults.apic.tenants.application_profiles.endpoint_groups.proxy_arp) %}"proxy-arp"{% else %}""{% endif %},
+                                    "prefGrMemb": "{{ 'include' if epg.preferred_group | default(defaults.apic.tenants.application_profiles.endpoint_groups.preferred_group) else 'exclude' }}",
+                                    "prio": "{{ epg.qos_class | default(defaults.apic.tenants.application_profiles.endpoint_groups.qos_class) }}",
+                                    "childAction": "deleteNonPresent"
+                                },
+                                "children": [
+                                    {%- set comma3 = joiner(",") %}
+                                    {%- for ma in epg.contracts.masters | default([]) %}{{ comma3() }}
+                                    {% set app_profile_name = (ma.application_profile | default(ap_name)) %}
+                                    {
+                                        "fvRsSecInherited": {
+                                            "attributes": {
+                                                "tDn": "uni/tn-{{ tenant.name }}/ap-{{ app_profile_name }}/epg-{{ ma.endpoint_group }}"
+                                            }
+                                        }
+                                    }
+                                    {%- endfor %}
+                                    {%- for pd in epg.physical_domains | default([]) %}{{ comma3() }}
+                                    {% set domain_name = pd ~ defaults.apic.access_policies.physical_domains.name_suffix %}
+                                    {
+                                        "fvRsDomAtt": {
+                                            "attributes": {
+                                                "annotation": "orchestrator:aac",
+                                                "tDn": "uni/phys-{{ domain_name }}"
+                                            }
+                                        }
+                                    }
+                                    {%- endfor %}
+                                    {%- for vmm in epg.vmware_vmm_domains | default([]) %}{{ comma3() }}
+                                    {% set vmm_name = vmm.name ~ defaults.apic.fabric_policies.vmware_vmm_domains.name_suffix %}
+                                    {
+                                        "fvRsDomAtt": {
+                                            "attributes": {
+                                                "annotation": "orchestrator:aac",
+                                                "bindingType": "none",
+                                                {% if vmm.u_segmentation | default(defaults.apic.tenants.application_profiles.endpoint_groups.vmware_vmm_domains.u_segmentation) %}{% set useg = 'useg' %}{% else %}{% set useg = 'encap' %}{% endif %}
+                                                "classPref": "{{ useg }}",
+                                                "delimiter": "{{ vmm.delimiter | default(defaults.apic.tenants.application_profiles.endpoint_groups.vmware_vmm_domains.delimiter) }}",
+                                                {% if vmm.primary_vlan is defined %}
+                                                "encap": "vlan-{{ vmm.secondary_vlan }}",
+                                                {% elif vmm.vlan is defined %}
+                                                "encap": "vlan-{{ vmm.vlan }}",
+                                                {% else %}
+                                                "encap": "unknown",
+                                                {% endif %}
+                                                "encapMode": "auto",
+                                                "instrImedcy": "{{ vmm.deployment_immediacy  | default(defaults.apic.tenants.application_profiles.endpoint_groups.vmware_vmm_domains.deployment_immediacy) }}",
+                                                "netflowPref": "{{ 'enabled' if vmm.netflow | default(defaults.apic.tenants.application_profiles.endpoint_groups.vmware_vmm_domains.netflow) else 'disabled' }}",
+                                                {% if vmm.primary_vlan is defined %}
+                                                "primaryEncap": "vlan-{{ vmm.primary_vlan }}",
+                                                {% else %}
+                                                "primaryEncap": "unknown",
+                                                {% endif %}
+                                                "resImedcy": "{{ vmm.resolution_immediacy | default(defaults.apic.tenants.application_profiles.endpoint_groups.vmware_vmm_domains.resolution_immediacy) }}",
+                                                "switchingMode": "native",
+                                                "customEpgName": "{{ vmm.custom_epg_name | default() }}",
+                                                "tDn": "uni/vmmp-VMware/dom-{{ vmm_name }}",
+                                                "childAction": "deleteNonPresent"
+                                            },
+                                            "children": [
+                                                {
+                                                    "vmmSecP": {
+                                                        "attributes": {
+                                                            "annotation": "orchestrator:aac",
+                                                            "allowPromiscuous": "{{ vmm.allow_promiscuous | default(defaults.apic.tenants.application_profiles.endpoint_groups.vmware_vmm_domains.allow_promiscuous) }}",
+                                                            "forgedTransmits": "{{ vmm.forged_transmits | default(defaults.apic.tenants.application_profiles.endpoint_groups.vmware_vmm_domains.forged_transmits) }}",
+                                                            "macChanges": "{{ vmm.mac_changes | default(defaults.apic.tenants.application_profiles.endpoint_groups.vmware_vmm_domains.mac_changes) }}"
+                                                        }
+                                                    }
+                                                }
+                                                {%- if vmm.elag is defined %},
+                                                {
+                                                    "fvAEPgLagPolAtt": {
+                                                        "attributes": {
+                                                            "annotation": "orchestrator:aac"
+                                                        },
+                                                        "children": [
+                                                            {
+                                                                "fvRsVmmVSwitchEnhancedLagPol": {
+                                                                    "attributes": {
+                                                                        "annotation": "orchestrator:aac",
+                                                                        "tDn": "uni/vmmp-VMware/dom-{{ vmm_name }}/vswitchpolcont/enlacplagp-{{ vmm.elag }}"
+                                                                    }
+                                                                }
+                                                            }
+                                                        ]
+                                                    }
+                                                }
+                                                {%- endif %}
+                                                {%- if vmm.active_uplinks_order is defined or vmm.standby_uplinks is defined %},
+                                                {
+                                                    "fvUplinkOrderCont": {
+                                                        "attributes": {
+                                                            "annotation": "orchestrator:aac",
+                                                            "active": "{{ vmm.active_uplinks_order | default()  }}",
+                                                            "standby": "{{ vmm.standby_uplinks | default()  }}"
+                                                        }
+                                                    }
+                                                }
+                                                {% endif %}
+                                            ]
+                                        }
+                                    }
+                                    {%- endfor %}
+                                    {%- for vmm in epg.nutanix_vmm_domains | default([]) %}{{ comma3() }}
+                                    {% set vmm_name = vmm.name ~ defaults.apic.fabric_policies.nutanix_vmm_domains.name_suffix %}
+                                    {
+                                        "fvRsDomAtt": {
+                                            "attributes": {
+                                                "annotation": "orchestrator:aac",
+                                                {% if vmm.vlan is defined %}
+                                                "encap": "vlan-{{ vmm.vlan }}",
+                                                {% else %}
+                                                "encap": "unknown",
+                                                {% endif %}
+                                                {% if vmm.ipam.gateway_address is defined %}
+                                                "ipamEnabled": "yes",
+                                                {% else %}
+                                                "ipamEnabled": "no",
+                                                {% endif %}
+                                                "ipamGateway": "{{ vmm.ipam.gateway_address | default(defaults.apic.tenants.application_profiles.endpoint_groups.nutanix_vmm_domains.ipam.gateway_address) }}",
+                                                "ipamDhcpOverride": "{{ vmm.ipam.dhcp_server_address_override | default(defaults.apic.tenants.application_profiles.endpoint_groups.nutanix_vmm_domains.ipam.dhcp_server_address_override) }}",
+                                                "encapMode": "auto",
+                                                "instrImedcy": "{{ vmm.deployment_immediacy  | default(defaults.apic.tenants.application_profiles.endpoint_groups.nutanix_vmm_domains.deployment_immediacy) }}",
+                                                "resImedcy": "pre-provision",
+                                                "customEpgName": "{{ vmm.custom_epg_name | default() }}",
+                                                "tDn": "uni/vmmp-Nutanix/dom-{{ vmm_name }}",
+                                                "childAction": "deleteNonPresent"
+                                            },
+                                            "children": [
+                                            {% if vmm.ipam.dhcp_address_pool is defined %}
+                                                {
+                                                    "fvAEPgAddrMgmtPoolAtt": {
+                                                        "attributes": {
+                                                            "annotation": "orchestrator:aac"
+                                                        },
+                                                        "children": [
+                                                            {
+                                                                "fvRsAddrMgmtPool": {
+                                                                    "attributes": {
+                                                                        "annotation": "orchestrator:aac",
+                                                                        "tDn": "uni/tn-{{ tenant.name }}/ipampool-{{ vmm.ipam.dhcp_address_pool }}"
+                                                                    }
+                                                                }
+                                                            }
+                                                        ]
+                                                    }
+                                                }
+                                            {% endif %}
+                                            ]
+                                        }
+                                    }
+                                    {%- endfor %}
+                                    {%- for sp in epg.static_ports | default([]) %}{{ comma3() }}
+                                    {
+                                        "fvRsPathAtt": {
+                                            "attributes": {
+                                                "annotation": "orchestrator:aac",
+                                                "descr": "{{ sp.description | default() }}",
+                                                "childAction": "deleteNonPresent",
+                                                "encap": "vlan-{{ sp.vlan }}",
+                                                {%- if sp.primary_vlan is defined %}
+                                                "primaryEncap": "vlan-{{ sp.primary_vlan}}",
+                                                {%- endif %}
+                                                "instrImedcy": "{{ sp.deployment_immediacy | default(defaults.apic.tenants.application_profiles.endpoint_groups.static_ports.deployment_immediacy)  }}",
+                                                "mode": "{{ sp.mode | default(defaults.apic.tenants.application_profiles.endpoint_groups.static_ports.mode) }}",
+                                                {% if sp.node_id is defined and sp.channel is not defined %}
+                                                    {% set query = "nodes[?id==`" ~ sp.node_id ~ "`].pod" %}
+                                                    {% set pod = sp.pod_id | default(((apic.node_policies | default()) | community.general.json_query(query))[0] | default('1')) %}
+                                                    {% if sp.sub_port is defined %}
+                                                "tDn": "topology/pod-{{ pod }}/paths-{{ sp.node_id }}/pathep-[eth{{ sp.module | default(defaults.apic.tenants.application_profiles.endpoint_groups.static_ports.module) }}/{{ sp.port }}/{{ sp.sub_port }}]"
+                                                    {% elif sp.fex_id is defined %}
+                                                "tDn": "topology/pod-{{ pod }}/paths-{{ sp.node_id }}/extpaths-{{ sp.fex_id }}/pathep-[eth{{ sp.module | default(defaults.apic.tenants.application_profiles.endpoint_groups.static_ports.module) }}/{{ sp.port }}]"
+                                                    {%else%}
+                                                "tDn": "topology/pod-{{ pod }}/paths-{{ sp.node_id }}/pathep-[eth{{ sp.module | default(defaults.apic.tenants.application_profiles.endpoint_groups.static_ports.module) }}/{{ sp.port }}]"
+                                                    {% endif %}
+                                                {% else %}
+                                                    {% set policy_group_name = sp.channel ~ defaults.apic.access_policies.leaf_interface_policy_groups.name_suffix %}
+                                                    {% set query = "leaf_interface_policy_groups[?name==`" ~ sp.channel ~ "`].type" %}
+                                                    {% set type = (apic.access_policies | community.general.json_query(query))[0] | default('vpc' if sp.node2_id is defined else 'pc') %}
+                                                    {% set query_sub_ports = "nodes[?interfaces[?sub_ports[?policy_group==`" ~ sp.channel ~ "`]]].id" %}
+                                                    {% set id_sub_ports = (apic.interface_policies | default() | community.general.json_query(query_sub_ports)) %}
+                                                    {% set query_ports = "nodes[?interfaces[?policy_group==`" ~ sp.channel ~ "`]].id" %}
+                                                    {% set id_ports = (apic.interface_policies | default() | community.general.json_query(query_ports)) %}
+                                                    {% if id_sub_ports != None and id_sub_ports | length > 0 %}
+                                                        {% if sp.node_id is defined %}
+                                                            {% set node = sp.node_id %}
+                                                        {% else %}
+                                                            {% set query = "nodes[?interfaces[?sub_ports[?policy_group==`" ~ sp.channel ~ "`]]].id" %}
+                                                            {% set node = (apic.interface_policies | default() | community.general.json_query(query))[0] %}
+                                                        {% endif %}
+                                                        {% set query = "nodes[?id==`" ~ node ~ "`].pod" %}
+                                                        {% set pod = sp.pod_id | default(((apic.node_policies | default()) | community.general.json_query(query))[0] | default('1')) %}
+                                                        {% if type == 'vpc' %}
+                                                            {% if sp.node2_id is defined %}
+                                                                {% set node2 = sp.node2_id %}
+                                                            {% else %}
+                                                                {% set query = "nodes[?interfaces[?sub_ports[?policy_group==`" ~ sp.channel ~ "`]]].id" %}
+                                                                {% set node2 = (apic.interface_policies | default() | community.general.json_query(query))[1] %}
+                                                                {% if node2 < node %}{% set node_tmp = node %}{% set node = node2 %}{% set node2 = node_tmp %}{% endif %}
+                                                            {% endif %}
+                                                "tDn": "topology/pod-{{ pod }}/protpaths-{{ node }}-{{ node2 }}/pathep-[{{ policy_group_name }}]"
+                                                        {% else %}
+                                                "tDn": "topology/pod-{{ pod }}/paths-{{ node }}/pathep-[{{ policy_group_name }}]"
+                                                        {% endif %}
+                                                    {% else %}
+                                                        {% if sp.node_id is defined %}
+                                                            {% set node = sp.node_id %}
+                                                        {% else %}
+                                                            {% set query = "nodes[?interfaces[?policy_group==`" ~ sp.channel ~ "`]].id" %}
+                                                            {% set node = (apic.interface_policies | default() | community.general.json_query(query))[0] %}
+                                                        {% endif %}
+                                                        {% set query = "nodes[?id==`" ~ node ~ "`].pod" %}
+                                                        {% set pod = sp.pod_id | default(((apic.node_policies | default()) | community.general.json_query(query))[0] | default('1')) %}
+                                                        {% if type == 'vpc' %}
+                                                            {% if sp.node2_id is defined %}
+                                                                {% set node2 = sp.node2_id %}
+                                                            {% else %}
+                                                                {% set query = "nodes[?interfaces[?policy_group==`" ~ sp.channel ~ "`]].id" %}
+                                                                {% set node2 = (apic.interface_policies | default() | community.general.json_query(query))[1] %}
+                                                                {% if node2 < node %}{% set node_tmp = node %}{% set node = node2 %}{% set node2 = node_tmp %}{% endif %}
+                                                            {% endif %}
+                                                            {% if sp.fex_id is defined and sp.fex2_id is defined %}
+                                                "tDn": "topology/pod-{{ pod }}/protpaths-{{ node }}-{{ node2 }}/extprotpaths-{{ sp.fex_id }}-{{ sp.fex2_id }}/pathep-[{{ policy_group_name }}]"
+                                                            {% else %}
+                                                "tDn": "topology/pod-{{ pod }}/protpaths-{{ node }}-{{ node2 }}/pathep-[{{ policy_group_name }}]"
+                                                            {% endif %}
+                                                        {% else %}
+                                                "tDn": "topology/pod-{{ pod }}/paths-{{ node }}/pathep-[{{ policy_group_name }}]"
+                                                        {% endif %}
+                                                    {% endif %}
+                                                {% endif %}
+                                            }{% if sp.ptp is defined %}{{ comma3() }}
+                                            "children": [
+                                                {
+                                                    "ptpEpgCfg":{
+                                                        "attributes": {
+                                                            "annotation": "orchestrator:aac",
+                                                            "srcIp": "{{ sp.ptp.source_ip | default(defaults.apic.tenants.application_profiles.endpoint_groups.static_ports.ptp.source_ip)}}",
+                                                            "ptpMode": "{{ sp.ptp.mode | default(defaults.apic.tenants.application_profiles.endpoint_groups.static_ports.ptp.mode) }}"
+                                                        },
+                                                        "children": [
+                                                            {
+                                                                "ptpRsProfile": {
+                                                                    "attributes": {
+                                                                        "tDn": "uni/infra/ptpprofile-{{sp.ptp.profile}}"
+                                                                    }
+                                                                }
+                                                            }
+                                                        ]
+                                                    }
+                                                }
+                                            ]
+                                            {% endif %}
+                                        }
+                                    }
+                                    {%- endfor %}
+                                    {%- for sl in epg.static_leafs | default([]) %}{{ comma3() }}
+                                    {% set query = "nodes[?id==`" ~ sl.node_id ~ "`].pod" %}
+                                    {% set pod = sl.pod_id | default(((apic.node_policies | default()) | community.general.json_query(query))[0] | default('1')) %}
+                                    {
+                                        "fvRsNodeAtt": {
+                                            "attributes": {
+                                                "annotation": "orchestrator:aac",
+                                                "encap": "vlan-{{ sl.vlan }}",
+                                                "instrImedcy": "{{ sl.deployment_immediacy | default(defaults.apic.tenants.application_profiles.endpoint_groups.static_leafs.deployment_immediacy) }}",
+                                                "mode": "{{ sl.mode | default(defaults.apic.tenants.application_profiles.endpoint_groups.static_leafs.mode) }}",
+                                                "tDn": "topology/pod-{{ pod }}/node-{{ sl.node_id }}"
+                                            }
+                                        }
+                                    }
+                                    {%- endfor %}
+                                    {%- for st_ep in epg.static_endpoints | default([]) %}{{ comma3() }}
+                                    {
+                                        "fvStCEp": {
+                                            "attributes": {
+                                                "annotation": "orchestrator:aac",
+                                                {% if st_ep.type != "vep" %}
+                                                "encap": "vlan-{{ st_ep.vlan }}",
+                                                {% else %}
+                                                "encap": "unknown",
+                                                {% endif %}
+                                                "id": "0",
+                                                "ip": "{{ st_ep.ip | default(defaults.apic.tenants.application_profiles.endpoint_groups.static_endpoints.ip)}}",
+                                                "mac": "{{ st_ep.mac }}",
+                                                "name": "{% if st_ep.name is defined %}{{ st_ep.name ~ defaults.apic.tenants.application_profiles.endpoint_groups.static_endpoints.name_suffix }}{% endif %}",
+                                                "nameAlias": "{{ st_ep.alias | default() }}",
+                                                "type": "{{ st_ep.type }}"
+                                            }{%- if st_ep.type != "vep" %}{{ comma3() }}
+                                            "children": [
+                                                {%- set comma4 = joiner(",") %}
+                                                {%- for ip in st_ep.additional_ips | default([]) %}{{ comma4() }}
+                                                {
+                                                "fvStIp": {
+                                                    "attributes": {
+                                                        "annotation": "orchestrator:aac",
+                                                        "addr": "{{ ip }}"
+                                                    }
+                                                }
+                                                }
+                                                {%- endfor %}
+                                                {% endif %}
+                                                {%- if st_ep.type != "vep" %}{{ comma4() }}
+                                                {
+                                                "fvRsStCEpToPathEp": {
+                                                    "attributes": {
+                                                        "annotation": "orchestrator:aac",
+                                                        {% if st_ep.node_id is defined and st_ep.channel is not defined%}
+                                                        {% set query = "nodes[?id==`" ~ st_ep.node_id ~ "`].pod" %}
+                                                        {% set pod = st_ep.pod_id | default(((apic.node_policies | default()) | community.general.json_query(query))[0] | default('1')) %}
+                                                        "tDn": "topology/pod-{{ pod }}/paths-{{ st_ep.node_id }}/pathep-[eth{{ st_ep.module | default(defaults.apic.tenants.application_profiles.endpoint_groups.static_ports.module) }}/{{ st_ep.port }}]"
+                                                        {% else %}
+                                                        {% set policy_group_name = st_ep.channel ~ defaults.apic.access_policies.leaf_interface_policy_groups.name_suffix %}
+                                                        {% set query = "leaf_interface_policy_groups[?name==`" ~ st_ep.channel ~ "`].type" %}
+                                                        {% set type = (apic.access_policies | community.general.json_query(query))[0] | default('vpc' if st_ep.node2_id is defined else 'pc') %}
+                                                        {% if st_ep.node_id is defined %}
+                                                            {% set node = st_ep.node_id %}
+                                                        {% else %}
+                                                            {% set query = "nodes[?interfaces[?policy_group==`" ~ st_ep.channel ~ "`]].id" %}
+                                                            {% set node = (apic.interface_policies | community.general.json_query(query))[0] %}
+                                                        {% endif %}
+                                                        {% set query = "nodes[?id==`" ~ node ~ "`].pod" %}
+                                                        {% set pod = st_ep.pod_id | default(((apic.node_policies | default()) | community.general.json_query(query))[0] | default('1')) %}
+                                                        {% if type == 'vpc' %}
+                                                        {% if st_ep.node2_id is defined %}
+                                                            {% set node2 = st_ep.node2_id %}
+                                                        {% else %}
+                                                            {% set query = "nodes[?interfaces[?policy_group==`" ~ st_ep.channel ~ "`]].id" %}
+                                                            {% set node2 = (apic.interface_policies | community.general.json_query(query))[1] %}
+                                                            {% if node2 < node %}{% set node_tmp = node %}{% set node = node2 %}{% set node2 = node_tmp %}{% endif %}
+                                                        {% endif %}
+                                                        "tDn": "topology/pod-{{ pod }}/protpaths-{{ node }}-{{ node2 }}/pathep-[{{ policy_group_name }}]"
+                                                        {% else %}
+                                                        "tDn": "topology/pod-{{ pod }}/paths-{{ node }}/pathep-[{{ policy_group_name }}]"
+                                                        {% endif %}
+                                                        {% endif %}
+                                                    }
+                                                }
+                                                }
+
+                                            ]
+                                            {% endif %}
+                                        }
+                                    }
+                                    {%- endfor %}
+                                    {%- for contract in epg.contracts.providers | default([]) %}{{ comma3() }}
+                                    {% set contract_name = contract ~ defaults.apic.tenants.contracts.name_suffix %}
+                                    {
+                                        "fvRsProv": {
+                                            "attributes": {
+                                                "annotation": "orchestrator:aac",
+                                                "tnVzBrCPName": "{{ contract_name }}"
+                                            }
+                                        }
+                                    }
+                                    {%- endfor %}
+                                    {%- for contract in epg.contracts.consumers | default([]) %}{{ comma3() }}
+                                    {% set contract_name = contract ~ defaults.apic.tenants.contracts.name_suffix %}
+                                    {
+                                        "fvRsCons": {
+                                            "attributes": {
+                                                "annotation": "orchestrator:aac",
+                                                "tnVzBrCPName": "{{ contract_name }}"
+                                            }
+                                        }
+                                    }
+                                    {%- endfor %}
+                                    {%- for contract in epg.contracts.imported_consumers | default([]) %}{{ comma3() }}
+                                    {% set contract_name = contract ~ defaults.apic.tenants.imported_contracts.name_suffix %}
+                                    {
+                                        "fvRsConsIf": {
+                                            "attributes": {
+                                                "annotation": "orchestrator:aac",
+                                                "tnVzCPIfName": "{{ contract_name }}"
+                                            }
+                                        }
+                                    }
+                                    {%- endfor %}
+                                    {%- for contract in epg.contracts.intra_epgs | default([]) %}{{ comma3() }}
+                                    {% set contract_name = contract ~ defaults.apic.tenants.contracts.name_suffix %}
+                                    {
+                                        "fvRsIntraEpg": {
+                                            "attributes": {
+                                                "annotation": "orchestrator:aac",
+                                                "tnVzBrCPName": "{{ contract_name }}"
+                                            }
+                                        }
+                                    }
+                                    {%- endfor %}
+                                    {%- for subnet in epg.subnets | default([]) %}{{ comma3() }}
+                                    {% set scope = [] %}
+                                    {% if subnet.public | default(defaults.apic.tenants.application_profiles.endpoint_groups.subnets.public) %}{% set scope = scope + [("public")] %}{% else %}{% set scope = scope + [("private")] %}{% endif %}
+                                    {% if subnet.shared | default(defaults.apic.tenants.application_profiles.endpoint_groups.subnets.shared) %}{% set scope = scope + [("shared")] %}{% endif %}
+                                    {% set ctrl = [] %}
+                                    {% if subnet.nd_ra_prefix | default(defaults.apic.tenants.application_profiles.endpoint_groups.subnets.nd_ra_prefix) %}{% set ctrl = ctrl + [("nd")] %}{% endif %}
+                                    {% if subnet.no_default_gateway | default(defaults.apic.tenants.application_profiles.endpoint_groups.subnets.no_default_gateway) %}{% set ctrl = ctrl + [("no-default-gateway")] %}{% endif %}
+                                    {% if subnet.igmp_querier | default(defaults.apic.tenants.application_profiles.endpoint_groups.subnets.igmp_querier) %}{% set ctrl = ctrl + [("querier")] %}{% endif %}
+                                    {
+                                        "fvSubnet": {
+                                            "attributes": {
+                                                "annotation": "orchestrator:aac",
+                                                "ctrl": "{{ ctrl | join(',') }}",
+                                                "descr": "{{ subnet.description | default() }}",
+                                                "ip": "{{ subnet.ip }}",
+                                                "scope": "{{ scope | join(',') }}",
+                                                "virtual": "{{ 'yes' if subnet.virtual | default(defaults.apic.tenants.application_profiles.endpoint_groups.subnets.virtual) else 'no' }}",
+                                                {%- if subnet.ip_dataplane_learning is defined %}
+                                                "ipDPLearning": "{{ 'enabled' if subnet.ip_dataplane_learning else 'disabled' }}",
+                                                {%- endif %}
+                                                "childAction": "deleteNonPresent"
+                                            },
+                                            "children": [
+                                                {%- set comma4 = joiner(",") %}
+                                                {%- for pool in subnet.ip_pools | default([]) %}{{ comma4() }}
+                                                {% set pool_name = pool.name ~ defaults.apic.tenants.application_profiles.endpoint_groups.subnets.ip_pools.name_suffix %}
+                                                {
+                                                    "fvCepNetCfgPol": {
+                                                        "attributes": {
+                                                            "annotation": "orchestrator:aac",
+                                                            "name": "{{ pool_name }}",
+                                                            "startIp": "{{ pool.start_ip | default(defaults.apic.tenants.application_profiles.endpoint_groups.subnets.ip_pools.start_ip) }}",
+                                                            "endIp": "{{ pool.end_ip | default(defaults.apic.tenants.application_profiles.endpoint_groups.subnets.ip_pools.end_ip) }}",
+                                                            "dnsSearchSuffix": "{{ pool.dns_search_suffix | default() }}",
+                                                            "dnsServers": "{{ pool.dns_server | default() }}",
+                                                            "dnsSuffix": "{{ pool.dns_suffix | default() }}",
+                                                            "winsServers": "{{ pool.wins_server | default() }}"
+                                                        }
+                                                    }
+                                                }
+                                                {%- endfor %}
+                                                {%- if subnet.next_hop_ip is defined %}{{ comma4() }}
+                                                {
+                                                    "fvEpReachability": {
+                                                        "attributes": {
+                                                            "annotation": "orchestrator:aac",
+                                                            "childAction": "deleteNonPresent"
+                                                        },
+                                                        "children": [
+                                                            {
+                                                                "ipNexthopEpP": {
+                                                                    "attributes": {
+                                                                        "annotation": "orchestrator:aac",
+                                                                        "nhAddr": "{{ subnet.next_hop_ip }}"
+                                                                    }
+                                                                }
+                                                            }
+                                                        ]
+                                                    }
+                                                }
+                                                {% elif subnet.anycast_mac is defined %}{{ comma4() }}
+                                                {
+                                                    "fvEpAnycast": {
+                                                        "attributes": {
+                                                            "annotation": "orchestrator:aac",
+                                                            "mac": "{{ subnet.anycast_mac }}"
+                                                        }
+                                                    }
+                                                }
+                                                {% elif subnet.nlb_mode is defined %}{{ comma4() }}
+                                                {
+                                                    "fvEpNlb": {
+                                                        "attributes": {
+                                                            "annotation": "orchestrator:aac",
+                                                            "group": "{{ subnet.nlb_group | default(defaults.apic.tenants.application_profiles.endpoint_groups.subnets.nlb_group) }}",
+                                                            "mac": "{{ subnet.nlb_mac | default(defaults.apic.tenants.application_profiles.endpoint_groups.subnets.nlb_mac) }}",
+                                                            "mode": "{{ get_nlb_mode(subnet.nlb_mode) }}"
+                                                        }
+                                                    }
+                                                }
+                                                {% endif %}
+                                                {%- if subnet.nd_ra_prefix_policy is defined %}{{ comma4() }}
+                                                {% set nd_ra_prefix_policy_name = subnet.nd_ra_prefix_policy ~ defaults.apic.tenants.policies.nd_ra_prefix_policies.name_suffix %}
+                                                {
+                                                    "fvRsNdPfxPol": {
+                                                        "attributes": {
+                                                            "annotation": "orchestrator:aac",
+                                                            "tnNdPfxPolName": "{{ nd_ra_prefix_policy_name }}"
+                                                        }
+                                                    }
+                                                }
+                                                {% endif %}
+                                            ]
+                                        }
+                                    }
+                                    {%- endfor %}
+                                    {%- for tag in epg.tags | default([]) %}{{ comma3() }}
+                                    {
+                                        "tagInst": {
+                                            "attributes": {
+                                                "annotation": "orchestrator:aac",
+                                                "name": "{{ tag }}"
+                                            }
+                                        }
+                                    }
+                                    {%- endfor %}
+                                    {%- if epg.trust_control_policy is defined %}
+                                    {%- set trust_control_policy_name = epg.trust_control_policy ~ defaults.apic.tenants.policies.trust_control_policies.name_suffix %}{{ comma3() }}
+                                    {
+                                        "fvRsTrustCtrl": {
+                                            "attributes": {
+                                                "annotation": "orchestrator:aac",
+                                                "tnFhsTrustCtrlPolName": "{{ trust_control_policy_name }}"
+                                            }
+                                        }
+                                    }
+                                    {%- endif %}
+                                    {%- for vip in epg.l4l7_virtual_ips | default([]) %}{{ comma3() }}
+                                    {
+                                        "fvVip": {
+                                            "attributes": {
+                                                "annotation": "orchestrator:aac",
+                                                "addr": "{{ vip.ip }}",
+                                                "descr": "{{ vip.description | default() }}"
+                                            }
+                                        }
+                                    }
+                                    {%- endfor %}
+                                    {%- for pool in epg.l4l7_address_pools | default([]) %}{{ comma3() }}
+                                    {
+                                        "vnsAddrInst": {
+                                            "attributes": {
+                                                "annotation": "orchestrator:aac",
+                                                "name": "{{ pool.name }}",
+                                                "addr": "{{ pool.gateway_address }}",
+                                                "childAction": "deleteNonPresent"
+                                            },
+                                            "children": [
+                                                {% if pool.from is defined and pool.to is defined %}
+                                                {
+                                                    "fvnsUcastAddrBlk": {
+                                                        "attributes": {
+                                                            "annotation": "orchestrator:aac",
+                                                            "from": "{{ pool.from }}",
+                                                            "to": "{{ pool.to }}"
+                                                        }
+                                                    }
+                                                }
+                                                {%- endif%}
+
+                                            ]
+                                        }
+                                    }
+                                    {%- endfor %}
+                                    {%- set bd_name = epg.bridge_domain ~ defaults.apic.tenants.bridge_domains.name_suffix %}{{ comma3() }}
+                                    {
+                                        "fvRsBd": {
+                                            "attributes": {
+                                                "annotation": {% if epg.ndo_managed | default(defaults.apic.tenants.application_profiles.endpoint_groups.ndo_managed) %}"orchestrator:msc"{% else %}"orchestrator:aac"{% endif %},
+                                                "tnFvBDName": "{{ bd_name }}"
+                                            }
+                                        }
+                                    }
+                                    {%- if epg.custom_qos_policy is defined %}{{ comma3() }}
+                                    {% set custom_qos_policy_name = epg.custom_qos_policy ~ defaults.apic.tenants.policies.custom_qos.name_suffix %}
+                                    {
+                                        "fvRsCustQosPol": {
+                                            "attributes": {
+                                                "annotation": "orchestrator:aac",
+                                                "tnQosCustomPolName": "{{ custom_qos_policy_name }}"
+                                            }
+                                        }
+                                    }
+                                    {%- endif %}
+                                    {%- if epg.data_plane_policing_policy is defined %}{{ comma3() }}
+                                    {% set data_plane_policing_policy_name = epg.data_plane_policing_policy ~ defaults.apic.tenants.policies.data_plane_policing_policies.name_suffix %}
+                                    {
+                                        "fvRsDppPol": {
+                                            "attributes": {
+                                                "annotation": "orchestrator:aac",
+                                                "tnQosDppPolName": "{{ data_plane_policing_policy_name }}"
+                                            }
+                                        }
+                                    }
+                                    {%- endif %}
+
+                                ]
+                            }
+                        }
+                        {%- endfor %}
+
+                    ]
+                }
+            }
+            {%- endfor %}
+
+        ]
+    }
+}

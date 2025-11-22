@@ -1,0 +1,57 @@
+{# iterate_list apic.tenants name item[2] #}
+{% set tenant = ((apic | default()) | community.general.json_query('tenants[?name==`' ~ item[2] ~ '`]'))[0] %}
+{
+    "fvTenant": {
+        "attributes": {
+            "dn": "uni/tn-{{ tenant.name }}",
+            "name": "{{ tenant.name }}"
+        },
+        "children": [
+            {%- set comma1 = joiner(",") %}
+            {%- if tenant.policies.endpoint_mac_tags is defined %}{{ comma1() }}
+            {
+                "fvEpTags": {
+                    "attributes": {
+                        "dn": "uni/tn-{{ tenant.name }}/eptags"
+                    },
+                    "children": [
+                        {%- set comma2 = joiner(",") %}
+                        {%- for tag in tenant.policies.endpoint_mac_tags | default([]) %}{{ comma2() }}
+                        {% set bd_name = tag.bridge_domain ~ defaults.apic.tenants.bridge_domains.name_suffix if tag.bridge_domain is defined and tag.bridge_domain != 'all' else '*' %}
+                        {% set vrf_name = tag.vrf ~ defaults.apic.tenants.vrfs.name_suffix %}
+                        {
+                            "fvEpMacTag": {
+                                "attributes": {
+                                    "annotation": "orchestrator:aac",
+                                    "dn": "uni/tn-{{ tenant.name }}/eptags/epmactag-{{ tag.mac }}-[{{ bd_name }}]",
+                                    "bdName": "{{ bd_name }}",
+                                    "ctxName": "{{ vrf_name }}",
+                                    "mac": "{{ tag.mac }}",
+                                    "childAction": "deleteNonPresent"
+                                },
+                                "children": [
+                                    {%- set comma3 = joiner(",") %}
+                                    {%- for kv in tag.tags | default([]) %}{{ comma3() }}
+                                    {
+                                        "tagTag": {
+                                            "attributes": {
+                                                "key": "{{ kv.key }}",
+                                                "value": "{{ kv.value }}"
+                                            }
+                                        }
+                                    }
+                                    {%- endfor %}
+
+                                ]
+                            }
+                        }
+                        {%- endfor %}
+
+                    ]
+                }
+            }
+            {% endif %}
+
+        ]
+    }
+}

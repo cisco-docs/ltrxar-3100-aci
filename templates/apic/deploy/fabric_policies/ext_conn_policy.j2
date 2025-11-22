@@ -1,0 +1,99 @@
+{
+    "fvTenant": {
+        "attributes": {
+            "dn": "uni/tn-infra"
+        },
+        "children": [
+            {% if apic.fabric_policies is defined and apic.fabric_policies.external_connectivity_policy is defined %}
+            {% set policy_name = apic.fabric_policies.external_connectivity_policy.name ~ defaults.apic.fabric_policies.external_connectivity_policy.name_suffix %}
+            {
+                "fvFabricExtConnP": {
+                    "attributes": {
+                        "annotation": "orchestrator:aac",
+                        "dn": "uni/tn-infra/fabricExtConnP-{{ apic.fabric_policies.external_connectivity_policy.fabric_id | default(defaults.apic.fabric_policies.external_connectivity_policy.fabric_id) }}",
+                        "id": "{{ apic.fabric_policies.external_connectivity_policy.fabric_id | default(defaults.apic.fabric_policies.external_connectivity_policy.fabric_id) }}",
+                        "name": "{{ policy_name }}",
+                        "rt": "{{ apic.fabric_policies.external_connectivity_policy.route_target | default(defaults.apic.fabric_policies.external_connectivity_policy.route_target) }}",
+                        "siteId": "{{ apic.fabric_policies.external_connectivity_policy.site_id | default(defaults.apic.fabric_policies.external_connectivity_policy.site_id) }}"
+                    },
+                    "children": [
+                        {
+                            "fvPeeringP": {
+                                "attributes": {
+                                    "annotation": "orchestrator:aac",
+                                    {% set peering_type = apic.fabric_policies.external_connectivity_policy.peering_type | default(defaults.apic.fabric_policies.external_connectivity_policy.peering_type) %}
+                                    {% if peering_type == "full_mesh" %}{% set type = "automatic_with_full_mesh" %}
+                                    {% elif peering_type == "route_reflector" %}{% set type = "automatic_with_rr" %}
+                                    {% endif %}
+                                    "type": "{{ type }}"
+                                    {%- if apic.fabric_policies.external_connectivity_policy.bgp_password is defined %},
+                                    "password": "{{ apic.fabric_policies.external_connectivity_policy.bgp_password }}"
+                                    {% endif %}
+                                }
+                            }
+                        }
+                        {%- for routing_profile in apic.fabric_policies.external_connectivity_policy.routing_profiles | default([]) %},
+                        {% set routing_profile_name = routing_profile.name ~ defaults.apic.fabric_policies.external_connectivity_policy.routing_profiles.name_suffix %}
+                        {
+                            "l3extFabricExtRoutingP": {
+                                "attributes": {
+                                    "annotation": "orchestrator:aac",
+                                    "name": "{{ routing_profile_name }}"
+                                },
+                                "children": [
+                                    {%- set comma1 = joiner(",") %}
+                                    {%- for subnet in routing_profile.subnets | default([]) %}{{ comma1() }}
+                                    {
+                                        "l3extSubnet": {
+                                            "attributes": {
+                                                "annotation": "orchestrator:aac",
+                                                "ip": "{{ subnet }}",
+                                                "scope": "import-security"
+                                            }
+                                        }
+                                    }
+                                    {%- endfor %}
+
+                                ]
+                            }
+                        }
+                        {%- endfor %}
+                        {%- for pod in apic.pod_policies.pods | default([]) %},
+                        {
+                            "fvPodConnP": {
+                                "attributes": {
+                                    "annotation": "orchestrator:aac",
+                                    "id": "{{ pod.id }}"
+                                },
+                                "children": [
+                                    {
+                                        "fvIp": {
+                                            "attributes": {
+                                                "annotation": "orchestrator:aac",
+                                                "addr": "{{ pod.data_plane_tep }}"
+                                            }
+                                        }
+                                    }
+                                    {%- if pod.unicast_tep is defined %},
+                                    {
+                                        "fvExtRoutableUcastConnP": {
+                                            "attributes": {
+                                                "annotation": "orchestrator:aac",
+                                                "addr": "{{ pod.unicast_tep }}"
+                                            }
+                                        }
+                                    }
+                                    {% endif %}
+
+                                ]
+                            }
+                        }
+                        {%- endfor %}
+
+                    ]
+                }
+            }
+            {% endif %}
+        ]
+    }
+}

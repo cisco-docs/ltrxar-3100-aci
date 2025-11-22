@@ -1,0 +1,9 @@
+{
+    "mgmtConnectivityPrefs": {
+        "attributes": {
+            "annotation": "orchestrator:aac",
+            "dn": "uni/fabric/connectivityPrefs",
+            "interfacePref": "{{ apic.fabric_policies.apic_conn_pref | default(defaults.apic.fabric_policies.apic_conn_pref) }}"
+        }
+    }
+}

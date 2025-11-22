@@ -1,0 +1,19 @@
+# ND RA Prefix Policy
+
+Location in GUI:
+`Tenants` » `XXX` » `Policies` » `Protocol` » `ND RA Prefix`
+
+{{ doc_gen }}
+
+### Examples
+
+```yaml
+apic:
+  tenants:
+    - name: ABC
+      policies:
+        nd_ra_prefix_policies:
+          - name: ND-RA-PREFIX1
+            auto_configuration: true
+            on_link: true
+```

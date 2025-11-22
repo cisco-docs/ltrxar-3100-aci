@@ -1,0 +1,28 @@
+{# iterate_list apic.tenants name item[2] #}
+*** Settings ***
+Documentation   Verify IP SLA Policy
+Suite Setup     Login APIC
+Default Tags    apic   day2   config   tenants
+Resource        ../../../apic_common.resource
+
+*** Test Cases ***
+{% set tenant = ((apic | default()) | community.general.json_query('tenants[?name==`' ~ item[2] ~ '`]'))[0] %}
+{% for ip_sla in tenant.policies.ip_sla_policies | default([]) %}
+{% set ip_sla_name = ip_sla.name ~ defaults.apic.tenants.policies.ip_sla_policies.name_suffix %}
+
+Verify IP SLA Policy {{ ip_sla_name }}
+    ${r}=   GET On Session   apic   /api/node/mo/uni/tn-{{ tenant.name }}/ipslaMonitoringPol-{{ ip_sla_name }}.json
+    Set Suite Variable   $r   ${r.json()}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].fvIPSLAMonitoringPol.attributes.name   {{ ip_sla_name }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].fvIPSLAMonitoringPol.attributes.descr   {{ ip_sla.description | default()}}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].fvIPSLAMonitoringPol.attributes.slaDetectMultiplier   {{ ip_sla.multiplier | default(defaults.apic.tenants.policies.ip_sla_policies.multiplier) }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].fvIPSLAMonitoringPol.attributes.slaFrequency   {{ ip_sla.frequency | default(defaults.apic.tenants.policies.ip_sla_policies.frequency) }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].fvIPSLAMonitoringPol.attributes.slaPort   {{ ip_sla.port | default(defaults.apic.tenants.policies.ip_sla_policies.port) }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].fvIPSLAMonitoringPol.attributes.slaType   {{ ip_sla.sla_type | default(defaults.apic.tenants.policies.ip_sla_policies.sla_type) }}
+{% if ip_sla.sla_type | default(defaults.apic.tenants.policies.ip_sla_policies.sla_type) == 'http' %}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].fvIPSLAMonitoringPol.attributes.httpMethod   {{ ip_sla.http_method | default(defaults.apic.tenants.policies.ip_sla_policies.http_method) }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].fvIPSLAMonitoringPol.attributes.httpVersion   {{ ip_sla.http_version | default(defaults.apic.tenants.policies.ip_sla_policies.http_version) }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].fvIPSLAMonitoringPol.attributes.httpUri   {{ ip_sla.http_uri | default(defaults.apic.tenants.policies.ip_sla_policies.http_uri) }}
+{% endif %}
+
+{% endfor %}

@@ -1,0 +1,24 @@
+{
+    "infraInfra": {
+        "attributes": {
+            "dn": "uni/infra"
+        },
+        "children": [
+            {%- set comma1 = joiner(",") %}
+            {%- for policy in apic.access_policies.interface_policies.mcp_policies | default([]) %}{{ comma1() }}
+            {% set mcp_policy_name = policy.name ~ defaults.apic.access_policies.interface_policies.mcp_policies.name_suffix %}
+            {
+                "mcpIfPol": {
+                    "attributes": {
+                        "annotation": "orchestrator:aac",
+                        "name": "{{ mcp_policy_name }}",
+                        "dn": "uni/infra/mcpIfP-{{ mcp_policy_name }}",
+                        "adminSt": "{{ 'enabled' if policy.admin_state else 'disabled' }}"
+                    }
+                }
+            }
+            {%- endfor %}
+
+        ]
+    }
+}

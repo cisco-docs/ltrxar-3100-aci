@@ -1,0 +1,48 @@
+{
+    "infraInfra": {
+        "attributes": {
+            "dn": "uni/infra"
+        },
+        "children": [
+            {%- set comma1 = joiner(",") %}
+            {%- for filter_ in apic.access_policies.span.filter_groups | default([]) %}{{ comma1() }}
+            {% set filter_name = filter_.name ~ defaults.apic.access_policies.span.filter_groups.name_suffix %}
+            {
+                "spanFilterGrp": {
+                    "attributes": {
+                        "annotation": "orchestrator:aac",
+                        "name": "{{ filter_name }}",
+                        "descr": "{{filter_.description | default() }}",
+                        "dn": "uni/infra/filtergrp-{{ filter_name }}",
+                        "childAction": "deleteNonPresent"
+                    },
+                    "children": [
+                        {%- set comma2 = joiner(",") %}
+                        {%- for entry in filter_.entries | default([]) %}{{ comma2() }}
+                        {% set entry_name = entry.name | default() ~ defaults.apic.access_policies.span.filter_groups.entries.name_suffix %}
+                        {
+                            "spanFilterEntry": {
+                                "attributes": {
+                                    "annotation": "orchestrator:aac",
+                                    "name": "{{ entry_name | default() }}",
+                                    "descr": "{{ entry.description | default() }}",
+                                    "dstAddr": "{{ entry.destination_ip }}",
+                                    "dstPortFrom": "{{ entry.destination_from_port | default(defaults.apic.access_policies.span.filter_groups.entries.destination_from_port) }}",
+                                    "dstPortTo": "{{ entry.destination_to_port | default(entry.destination_from_port | default(defaults.apic.access_policies.span.filter_groups.entries.destination_from_port)) }}",
+                                    "ipProto": "{{ entry.ip_protocol | default(defaults.apic.access_policies.span.filter_groups.entries.ip_protocol) }}",
+                                    "srcAddr": "{{ entry.source_ip }}",
+                                    "srcPortFrom": "{{ entry.source_from_port | default(defaults.apic.access_policies.span.filter_groups.entries.source_from_port) }}",
+                                    "srcPortTo": "{{ entry.source_to_port | default(entry.source_from_port | default(defaults.apic.access_policies.span.filter_groups.entries.source_from_port)) }}"
+                                }
+                            }
+                        }
+                        {%- endfor %}
+
+                    ]
+                }
+            }
+            {%- endfor %}
+
+        ]
+    }
+}

@@ -110,7 +110,7 @@ deploy:
 test-integration:
   stage: test
   script:
-    - set -o pipefail && iac-test -d ./data -d ./defaults.yaml -t ./tests/templates -f ./tests/filters -i tenants -o ./tests/results/aci |& tee test_output.txt
+    - set -o pipefail && iac-test -d ./data -d ./defaults -t ./templates/apic/test -f ./jinja_filters -i tenants -o ./tests/results/aci |& tee test_output.txt
   artifacts:
     when: always
     paths:

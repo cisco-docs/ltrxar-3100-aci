@@ -1,0 +1,117 @@
+{# iterate_list apic.tenants name item[2] #}
+{% set tenant = ((apic | default()) | community.general.json_query('tenants[?name==`' ~ item[2] ~ '`]'))[0] %}
+{
+    "fvTenant":
+    {
+        "attributes": {
+            "dn": "uni/tn-{{ tenant.name }}",
+            "name": "{{ tenant.name }}"
+        },
+        "children": [
+            {%- set comma1 = joiner(",") %}
+            {%- for policy in tenant.policies.monitoring.policies | default([]) %}{{ comma1() }}
+            {%- set policy_name = policy.name ~ defaults.apic.tenants.policies.monitoring.policies.name_suffix %}
+            {
+                "monEPGPol": {
+                    "attributes": {
+                        "annotation": "orchestrator:aac",
+                        "name": "{{ policy_name }}",
+                        "dn": "uni/tn-{{ tenant.name }}/monepg-{{ policy_name }}",
+                        "descr": "{{ policy.description | default() }}",
+                        "childAction": "deleteNonPresent"
+                    },
+                    "children" : [
+                        {%- set comma2 = joiner(",") %}
+                        {%- for snmp in policy.snmp_traps | default([]) %}{{ comma2() }}
+                        {%- set snmp_policy_name = snmp.name ~ defaults.apic.tenants.policies.monitoring.policies.snmp_traps.name_suffix %}
+                        {
+                            "snmpSrc": {
+                                "attributes": {
+                                    "annotation": "orchestrator:aac",
+                                    "dn": "uni/tn-{{ tenant.name }}/monepg-{{ policy_name }}/snmpsrc-{{ snmp_policy_name }}",
+                                    "name": "{{ snmp_policy_name }}",
+                                    "childAction": "deleteNonPresent"
+                                },
+                                "children": [
+                                    {%- if snmp.destination_group is defined %}
+                                    {
+                                        "snmpRsDestGroup": {
+                                            "attributes": {
+                                                "annotation": "orchestrator:aac",
+                                                "tDn": "uni/fabric/snmpgroup-{{ snmp.destination_group ~ defaults.apic.fabric_policies.monitoring.snmp_traps.name_suffix }}"
+                                            }
+                                        }
+                                    }
+                                    {%- endif %}
+                                ]
+                            }
+                        }
+                        {%- endfor %}
+                        {%- for syslog in policy.syslogs | default([]) %}{{ comma2() }}
+                        {%- set syslog_policy_name = syslog.name ~ defaults.apic.tenants.policies.monitoring.policies.syslogs.name_suffix %}
+                        {%- set include = [] %}
+                        {% if syslog.audit | default(defaults.apic.fabric_policies.monitoring.syslogs.audit) %}{% set include = include + [("audit")] %}{% endif %}
+                        {% if syslog.events | default(defaults.apic.fabric_policies.monitoring.syslogs.events) %}{% set include = include + [("events")] %}{% endif %}
+                        {% if syslog.faults | default(defaults.apic.fabric_policies.monitoring.syslogs.faults) %}{% set include = include + [("faults")] %}{% endif %}
+                        {% if syslog.session | default(defaults.apic.fabric_policies.monitoring.syslogs.session) %}{% set include = include + [("session")] %}{% endif %}
+                        {
+                            "syslogSrc": {
+                                "attributes": {
+                                    "annotation": "orchestrator:aac",
+                                    "dn": "uni/tn-{{ tenant.name }}/monepg-{{ policy_name }}/slsrc-{{ syslog_policy_name }}",
+                                    "name": "{{ syslog_policy_name }}",
+                                    "incl":  "{{ include | join(',') }}",
+                                    "minSev": "{{ syslog.minimum_severity | default(defaults.apic.fabric_policies.monitoring.syslogs.minimum_severity) }}",
+                                    "childAction": "deleteNonPresent"
+                                },
+                                "children": [
+                                    {%- if syslog.destination_group is defined %}
+                                    {
+                                        "syslogRsDestGroup": {
+                                            "attributes": {
+                                                "annotation": "orchestrator:aac",
+                                                "tDn": "uni/fabric/slgroup-{{ syslog.destination_group ~ defaults.apic.fabric_policies.monitoring.syslogs.name_suffix }}"
+                                            }
+                                        }
+                                    }
+                                    {%- endif %}
+                                ]
+                            }
+                        }
+                        {%- endfor %}
+                        {%- for cl in policy.fault_severity_policies | default([]) %}{{ comma2() }}
+                        {
+                            "monEPGTarget": {
+                                "attributes": {
+                                    "annotation": "orchestrator:aac",
+                                    "dn": "uni/tn-{{ tenant.name }}/monepg-{{ policy_name }}/tarepg-{{ cl.class }}",
+                                    "scope": "{{ cl.class }}",
+                                    "childAction": "deleteNonPresent"
+                                },
+                                "children": [
+                                {%- set comma3 = joiner(",") %}
+                                {%- for fault in cl.faults | default([]) %}{{ comma3() }}
+                                {
+                                    "faultSevAsnP": {
+                                        "attributes": {
+                                            "annotation": "orchestrator:aac",
+                                            "dn": "uni/tn-{{ tenant.name }}/monepg-{{ policy_name }}/tarepg-{{ cl.class }}/fsevp-{{ fault.fault_id }}",
+                                            "code": "{{ fault.fault_id }}",
+                                            "initial": "{{ fault.initial_severity | default(defaults.apic.tenants.policies.monitoring.policies.fault_severity_policies.initial_severity) }}",
+                                            "target": "{{ fault.target_severity | default(defaults.apic.tenants.policies.monitoring.policies.fault_severity_policies.target_severity) }}",
+                                            "descr": "{{ fault.description | default() }}"
+                                        }
+                                    }
+                                }
+                                {%- endfor %}
+                                ]
+                            }
+                        }
+                        {%- endfor %}
+                    ]
+                }
+            }
+            {%- endfor %}
+        ]
+    }
+}

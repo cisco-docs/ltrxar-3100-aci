@@ -1,0 +1,744 @@
+---
+apic:
+  access_policies:
+    leaf_switch_profile_name: "LEAF\\g<id>"
+    leaf_switch_selector_name: "LEAF\\g<id>"
+    leaf_interface_profile_name: "LEAF\\g<id>"
+    leaf_interface_selector_name: "ETH\\g<mod>-\\g<port>"
+    fex_profile_name: "LEAF\\g<id>-FEX\\g<fex>"
+    fex_interface_selector_name: "ETH\\g<mod>-\\g<port>"
+    spine_switch_profile_name: "SPINE\\g<id>"
+    spine_switch_selector_name: "SPINE\\g<id>"
+    spine_interface_profile_name: "SPINE\\g<id>"
+    spine_interface_selector_name: "ETH\\g<mod>-\\g<port>"
+    vpc_group_name: "LEAF\\g<switch1_id>-\\g<switch2_id>"
+
+    infra_vlan: 4
+
+    span:
+      destination_groups:
+        - name: DST_GRP1
+          description: My_SPAN_Destination
+          node_id: 101
+          port: 48
+          expected_state:
+            minimum_health: 0
+            maximum_critical_faults: 1000
+            maximum_major_faults: 1000
+            maximum_minor_faults: 1000
+        - name: DST_GRP2
+          ip: 1.2.3.4
+          source_prefix: 1.1.1.1
+          flow_id: 10
+          ttl: 32
+          mtu: 9000
+          version: 1
+          enforce_version: true
+          tenant: MSO1
+          application_profile: AP1
+          endpoint_group: EPG1
+        - name: DST_GRP3
+          channel: PC1
+        - name: DST_GRP4
+          node_id: 102
+          port: 20
+          sub_port: 1
+      source_groups:
+        - name: SRC_GRP1
+          filter_group: FLT_GRP1
+          destination:
+            name: DST_GRP1
+          sources:
+            - name: SRC1
+              direction: both
+              access_paths:
+                - node_id: 101
+                  port: 1
+                - node_id: 101
+                  port: 2
+            - name: SRC2
+              direction: both
+              access_paths:
+                - node_id: 101
+                  port: 10
+                - node_id: 101
+                  port: 11
+            - name: SRC3
+              direction: both
+              access_paths:
+                - node_id: 101
+                  port: 20
+                  sub_port: 3
+                - node_id: 101
+                  fex_id: 101
+                  port: 11
+          expected_state:
+            minimum_health: 0
+            maximum_critical_faults: 1000
+            maximum_major_faults: 1000
+            maximum_minor_faults: 1000
+        - name: SRC_GRP2
+          destination:
+            name: DST_GRP2
+          sources:
+            - name: SRC2
+              direction: both
+              access_paths:
+                - channel: VPC1
+                  node_id: 101
+                  node2_id: 102
+                - channel: VPC2
+                  node_id: 102
+                  type: component
+        - name: SRC_GRP3
+          destination:
+            name: DST_GRP2
+          sources:
+            - name: SRC3
+              tenant: MSO1
+              application_profile: AP1
+              endpoint_group: EPG1
+              access_paths:
+                - channel: PC1
+      filter_groups:
+        - name: FLT_GRP1
+          description: My SPAN Filter Groups
+          entries:
+            - destination_ip: 33.33.33.33
+              source_ip: 44.44.44.44
+            - name: ENTRY2
+              destination_ip: 11.11.11.11
+              source_ip: 22.22.22.22
+            - name: ENTRY1
+              destination_ip: 10.10.10.10
+              destination_from_port: http
+              destination_to_port: 90
+              source_from_port: 100
+              source_to_port: 102
+              source_ip: 20.20.20.20
+              ip_protocol: tcp
+        - name: FLT_GRP2
+    vspan:
+      sessions:
+        - name: SESSION1
+          description: My VSPAN Session
+          destination:
+            name: DST_GRP1
+          sources:
+            - name: SRC1
+              direction: both
+              access_paths:
+                - node_id: 101
+                  port: 1
+                - node_id: 101
+                  port: 3
+              tenant: MSO1
+              application_profile: AP1
+              endpoint_group: EPG1
+              endpoint: 00:50:56:96:6B:4F
+            - name: SRC2
+              direction: in
+              access_paths:
+                - node_id: 101
+                  port: 1
+                - channel: PC1
+                - node_id: 101
+                  node2_id: 102
+                  channel: VPC1
+              tenant: ABC
+              application_profile: AP1
+              endpoint_group: EPG1
+          expected_state:
+            minimum_health: 0
+            maximum_critical_faults: 1000
+            maximum_major_faults: 1000
+            maximum_minor_faults: 1000
+        - name: SESSION2
+          admin_state: false
+          destination:
+            name: DST_GRP2
+      destination_groups:
+        - name: DST_GRP1
+          description: My VSPAN Destination Groups
+          destinations:
+            - name: DST1
+              description: My Destination 1
+              tenant: MSO1
+              application_profile: AP1
+              endpoint_group: EPG1
+              endpoint: 00:50:56:96:6B:4F
+            - name: DST2
+              ip: 1.2.3.4
+              mtu: 9000
+              ttl: 10
+              flow_id: 10
+              dscp: CS4
+          expected_state:
+            minimum_health: 0
+            maximum_critical_faults: 1000
+            maximum_major_faults: 1000
+            maximum_minor_faults: 1000
+    mcp:
+      key: $3cR3t_K3y
+    qos:
+      qos_classes:
+        - level: 2
+          admin_state: false
+          mtu: 1500
+          scheduling: strict-priority
+          bandwidth_percent: 0
+          congestion_algorithm: wred
+          minimum_buffer: 2
+          pfc_state: true
+          no_drop_cos: cos2
+          pfc_scope: fabric
+          ecn: true
+          forward_non_ecn: true
+          wred_max_threshold: 99
+          wred_min_threshold: 50
+          wred_probability: 33
+          weight: 5
+        - level: 3
+
+    vlan_pools:
+      - name: STATIC1
+        description: "Static VLAN Pool"
+        allocation: static
+        ranges:
+          - from: 4000
+            to: 4002
+            allocation: inherit
+            role: external
+            description: "Range #1"
+          - from: 4003
+          - from: 300
+            to: 305
+      - name: STATIC2
+      - name: VMM1
+        allocation: dynamic
+        ranges:
+          - from: 2000
+            to: 2099
+          - from: 134
+            to: 135
+            allocation: static
+      - name: ROUTED1
+        ranges:
+          - from: 134
+            to: 135
+          - from: 300
+            to: 305
+      - name: ROUTED2
+
+    physical_domains:
+      - name: PHY1
+        vlan_pool: STATIC1
+        security_domains:
+          - SEC1
+        expected_state:
+          minimum_health: 0
+          maximum_critical_faults: 1000
+          maximum_major_faults: 1000
+          maximum_minor_faults: 1000
+      - name: PHY2
+        vlan_pool: STATIC2
+
+    routed_domains:
+      - name: ROUTED1
+        vlan_pool: ROUTED1
+        security_domains:
+          - SEC1
+        expected_state:
+          minimum_health: 0
+          maximum_critical_faults: 1000
+          maximum_major_faults: 1000
+          maximum_minor_faults: 1000
+      - name: ROUTED2
+        vlan_pool: ROUTED2
+      - name: ROUTED3
+    aaeps:
+      - name: AAEP1
+        description: My AAEP1
+        infra_vlan: false
+        physical_domains:
+          - PHY1
+          - PHY2
+        routed_domains:
+          - ROUTED1
+          - ROUTED2
+        vmware_vmm_domains:
+          - VMM1
+        endpoint_groups:
+          - tenant: ABC
+            application_profile: AP1
+            endpoint_group: EPG1
+            vlan: 1234
+            mode: untagged
+            deployment_immediacy: immediate
+          - tenant: ABC
+            application_profile: AP1
+            endpoint_group: EPG2
+            primary_vlan: 1235
+            secondary_vlan: 1236
+        expected_state:
+          minimum_health: 0
+          maximum_critical_faults: 1000
+          maximum_major_faults: 1000
+          maximum_minor_faults: 1000
+      - name: AAEP2
+        infra_vlan: false
+
+    interface_policies:
+      cdp_policies:
+        - name: CDP-ENABLED
+          admin_state: true
+        - name: CDP-DISABLED
+          admin_state: false
+      data_plane_policing_policies:
+        - name: AP_DPP1
+          admin_state: true
+          type: 2R3C
+          mode: bit
+          sharing_mode: shared
+          conform_mark_cos: 1
+          conform_mark_dscp: 10
+          exceed_action: mark
+          exceed_mark_cos: 2
+          exceed_mark_dscp: 20
+          violate_action: mark
+          violate_mark_cos: 3
+          violate_mark_dscp: 30
+          rate: 10
+          rate_unit: mega
+          burst: 20
+          burst_unit: mega
+          peak_rate: 30
+          peak_rate_unit: mega
+          burst_excessive: 40
+          burst_excessive_unit: mega
+          conform_action: mark
+        - name: AP_DPP2
+      lldp_policies:
+        - name: LLDP-ENABLED
+          admin_rx_state: true
+          admin_tx_state: true
+        - name: LLDP-DISABLED
+          admin_rx_state: false
+          admin_tx_state: false
+      link_level_policies:
+        - name: 10G
+          speed: 10G
+          auto: true
+          fec_mode: inherit
+          link_debounce_interval: 120
+        - name: 100G
+          speed: 100G
+      port_channel_policies:
+        - name: LACP-ACTIVE
+          mode: active
+          min_links: 1
+          max_links: 16
+          suspend_individual: true
+          graceful_convergence: true
+          fast_select_standby: true
+          load_defer: false
+          symmetric_hash: false
+          hash_key: "src-ip"
+        - name: MAC-PINNING
+          mode: mac-pin
+      port_channel_member_policies:
+        - name: FAST
+          rate: fast
+          priority: 32768
+        - name: NORMAL
+          rate: normal
+      spanning_tree_policies:
+        - name: BPDU-FILTER
+          bpdu_filter: true
+        - name: BPDU-GUARD
+          bpdu_guard: true
+      mcp_policies:
+        - name: MCP-ENABLED
+          admin_state: true
+        - name: MCP-DISABLED
+          admin_state: false
+      l2_policies:
+        - name: PORT-LOCAL
+          vlan_scope: portlocal
+          qinq: disabled
+        - name: GLOBAL
+          reflective_relay: true
+      storm_control_policies:
+        - name: 10P
+          description: My Desc
+          alias: 10P
+          broadcast_burst_pps: unspecified
+          broadcast_pps: unspecified
+          broadcast_burst_rate: "10.000000"
+          broadcast_rate: "10.000000"
+          multicast_burst_pps: unspecified
+          multicast_pps: unspecified
+          multicast_burst_rate: "10.000000"
+          multicast_rate: "10.000000"
+          unknown_unicast_burst_pps: unspecified
+          unknown_unicast_pps: unspecified
+          unknown_unicast_burst_rate: "10.000000"
+          unknown_unicast_rate: "10.000000"
+          action: drop
+        - name: 20P
+          broadcast_burst_rate: "20.000000"
+          broadcast_rate: "20.000000"
+        - name: 30P
+          rate: "30.000000"
+          burst_rate: "40.000000"
+      netflow_exporters:
+        - name: EXPORTER1
+          description: exporter 1
+          source_type: custom-src-ip
+          source_ip: 1.1.1.1/20
+          destination_port: 1234
+          destination_ip: 2.2.2.2
+          dscp: AF11
+          epg_type: epg
+          tenant: ABC
+          application_profile: AP1
+          endpoint_group: EPG1
+          vrf: VRF1
+        - name: EXPORTER2
+          source_type: oob-mgmt-ip
+          destination_port: 5555
+          destination_ip: 3.3.3.3
+          epg_type: external_epg
+          tenant: ABC
+          l3out: L3OUT1
+          external_endpoint_group: L3OUT1-EPG1
+          vrf: VRF1
+        - name: EXPORTER3
+          source_type: ptep
+          destination_port: 123
+          destination_ip: 1.2.3.4
+      netflow_monitors:
+        - name: MONITOR1
+          description: monitor 1
+          flow_record: RECORD1
+          flow_exporters:
+            - EXPORTER1
+            - EXPORTER2
+        - name: MONITOR2
+          flow_record: RECORD2
+          flow_exporters:
+            - EXPORTER2
+        - name: MONITOR3
+      netflow_records:
+        - name: RECORD1
+          description: record 1
+          match_parameters:
+            - dst-ip
+            - src-ip
+            - dst-port
+            - src-port
+        - name: RECORD2
+          match_parameters:
+            - ethertype
+            - dst-mac
+        - name: RECORD3
+      macsec_parameters_policies:
+        - name: MACSEC_PARAM1
+          description: MACSEC parameters policy 1
+          confidentiality_offset: offset-30
+          key_server_priority: 128
+          cipher_suite: gcm-aes-256
+          window_size: 120
+          security_policy: must-secure
+        - name: MACSEC_PARAM2
+      macsec_keychain_policies:
+        - name: MACSEC_KEYCHAIN1
+          description: MACSEC Keychain policy 1
+          key_policies:
+            - name: keypolicy1
+              description: Key Policy description
+              key_name: abcd1234
+              pre_shared_key: abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234
+              start_time: '2025-07-31T16:32:21.000+00:00'
+              end_time: '2026-07-31T16:32:21.000+00:00'
+            - key_name: abcdef123456
+              pre_shared_key: abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234
+        - name: MACSEC_KEYCHAIN2
+      macsec_interfaces_policies:
+        - name: MACSEC_INT1
+          description: MACSEC Interfaces Policy 1
+          admin_state: false
+          macsec_parameters_policy: MACSEC_PARAM1
+          macsec_keychain_policy: MACSEC_KEYCHAIN1
+
+    spine_interface_policy_groups:
+      - name: IPN1
+        link_level_policy: 10G
+        cdp_policy: CDP-ENABLED
+        aaep: AAEP1
+        macsec_interface_policy: MACSEC_INT1
+      - name: IPN2
+
+    switch_policies:
+      mst_policies:
+        - name: REGION1
+          region: region1
+          revision: 1
+          instances:
+            - name: INST-1
+              id: 1
+              vlan_ranges:
+                - from: 5
+                  to: 6
+      vpc_policies:
+        - name: VPC300
+          peer_dead_interval: 300
+      forwarding_scale_policies:
+        - name: HIGH-DUAL-STACK
+          profile: high-dual-stack
+        - name: DUAL-STACK
+          profile: dual-stack
+      bfd_ipv4_policies:
+        - name: BFD-IPV4-POLICY
+          description: BFD IPv4 Policy
+          detection_multiplier: 5
+          min_transmit_interval: 100
+          min_receive_interval: 50
+          slow_timer_interval: 3000
+          echo_receive_interval: 50
+      bfd_ipv6_policies:
+        - name: BFD-IPV6-POLICY
+          description: BFD IPv6 Policy
+          detection_multiplier: 5
+          min_transmit_interval: 100
+          min_receive_interval: 50
+          slow_timer_interval: 3000
+          echo_receive_interval: 50
+
+    spine_switch_policy_groups:
+      - name: ALL_SPINES
+        lldp_policy: LLDP-ENABLED
+        bfd_ipv4_policy: BFD-IPV4-POLICY
+        bfd_ipv6_policy: BFD-IPV6-POLICY
+      - name: DISABLE_LLDP
+        lldp_policy: LLDP-DISABLED
+
+    leaf_switch_policy_groups:
+      - name: ALL_LEAFS
+        forwarding_scale_policy: HIGH-DUAL-STACK
+        bfd_ipv4_policy: BFD-IPV4-POLICY
+        bfd_ipv6_policy: BFD-IPV6-POLICY
+      - name: DUAL-STACK
+        forwarding_scale_policy: DUAL-STACK
+
+    leaf_switch_profiles:
+      - name: LEAF-PROF1
+        selectors:
+          - name: SEL1
+            policy: ALL_LEAFS
+            node_blocks:
+              - name: BLOCK1
+                from: 500
+                to: 501
+        expected_state:
+          minimum_health: 0
+          maximum_critical_faults: 1000
+          maximum_major_faults: 1000
+          maximum_minor_faults: 1000
+        interface_profiles:
+          - LEAF-INT-PROF1
+
+    spine_switch_profiles:
+      - name: SPINE-PROF1
+        selectors:
+          - name: SEL1
+            policy: ALL_SPINES
+            node_blocks:
+              - name: BLOCK1
+                from: 600
+                to: 601
+              - name: BLOCK2
+                from: 602
+                to: 603
+          - name: SEL2
+            node_blocks:
+              - name: BLOCK1
+                from: 604
+                to: 605
+        interface_profiles:
+          - SPINE-INT-PROF1
+        expected_state:
+          minimum_health: 0
+          maximum_critical_faults: 1000
+          maximum_major_faults: 1000
+          maximum_minor_faults: 1000
+      - name: SPINE-PROF2
+        selectors:
+          - name: SEL1
+            node_blocks:
+              - name: BLOCK1
+                from: 606
+                to: 607
+        interface_profiles:
+          - SPINE-INT-PROF2
+
+    leaf_interface_policy_groups:
+      - name: ACC1
+        description: "Access Policy Group"
+        type: access
+        link_level_policy: 10G
+        cdp_policy: CDP-ENABLED
+        lldp_policy: LLDP-ENABLED
+        spanning_tree_policy: BPDU-FILTER
+        mcp_policy: MCP-ENABLED
+        l2_policy: PORT-LOCAL
+        storm_control_policy: 10P
+        port_channel_policy: LACP-ACTIVE
+        port_channel_member_policy: FAST
+        ingress_data_plane_policing_policy: AP_DPP1
+        egress_data_plane_policing_policy: AP_DPP2
+        aaep: AAEP1
+        netflow_monitor_policies:
+          - name: MONITOR1
+            ip_filter_type: ipv6
+          - name: MONITOR2
+        macsec_interface_policy: MACSEC_INT1
+      - name: PC1
+        type: pc
+        link_level_policy: 10G
+        cdp_policy: CDP-ENABLED
+        lldp_policy: LLDP-ENABLED
+        spanning_tree_policy: BPDU-FILTER
+        mcp_policy: MCP-ENABLED
+        l2_policy: PORT-LOCAL
+        port_channel_policy: LACP-ACTIVE
+        port_channel_member_policy: FAST
+        aaep: AAEP1
+        macsec_interface_policy: MACSEC_INT1
+      - name: VPC1
+        type: vpc
+        link_level_policy: 10G
+        cdp_policy: CDP-ENABLED
+        lldp_policy: LLDP-ENABLED
+        spanning_tree_policy: BPDU-FILTER
+        mcp_policy: MCP-ENABLED
+        l2_policy: PORT-LOCAL
+        port_channel_policy: LACP-ACTIVE
+        port_channel_member_policy: FAST
+        aaep: AAEP1
+        netflow_monitor_policies:
+          - name: MONITOR1
+            ip_filter_type: ce
+          - name: MONITOR2
+            ip_filter_type: ipv4
+        macsec_interface_policy: MACSEC_INT1
+      - name: VPC2
+        type: vpc
+        aaep: AAEP1
+      - name: VPC3
+        type: vpc
+        aaep: AAEP1
+      - name: BREAKOUT1
+        description: My Breakout Port
+        type: breakout
+        map: 10g-4x
+      - name: VPC4
+        type: vpc
+        aaep: AAEP1
+
+    leaf_interface_profiles:
+      - name: LEAF-INT-PROF1
+        selectors:
+          - name: SEL1
+            fex_id: 101
+            fex_profile: FEX-INT-PROF1
+      - name: LEAF-INT-PROF2
+        description: My Leaf Interface Profile
+        selectors:
+          - name: SEL1
+            policy_group: ACC1
+            port_blocks:
+              - name: BLK1
+                description: INT-DESC
+                from_port: 1
+            sub_port_blocks:
+              - name: SUBBLK1
+                description: SUBBLK-DESC
+                from_port: 1
+                from_sub_port: 1
+        expected_state:
+          minimum_health: 0
+          maximum_critical_faults: 1000
+          maximum_major_faults: 1000
+          maximum_minor_faults: 1000
+
+    fex_interface_profiles:
+      - name: FEX-INT-PROF1
+        selectors:
+          - name: SEL1
+            policy_group: ACC1
+            port_blocks:
+              - name: BLK1
+                description: INT-DESC
+                from_port: 1
+        expected_state:
+          minimum_health: 0
+          maximum_critical_faults: 1000
+          maximum_major_faults: 1000
+          maximum_minor_faults: 1000
+
+    spine_interface_profiles:
+      - name: SPINE-INT-PROF1
+        selectors:
+          - name: SEL1
+            policy_group: IPN1
+            port_blocks:
+              - name: BLK1
+                description: INT-DESC
+                from_port: 1
+        expected_state:
+          minimum_health: 0
+          maximum_critical_faults: 1000
+          maximum_major_faults: 1000
+          maximum_minor_faults: 1000
+      - name: SPINE-INT-PROF2
+        selectors:
+          - name: SEL1
+            policy_group: IPN1
+            port_blocks:
+              - name: BLK1
+                description: INT-DESC
+                from_port: 1
+    dhcp_relay_policies:
+      - name: INFRA-DHCP-RELAY1
+        description: "My Description"
+        providers:
+          - ip: 6.6.6.6
+            type: epg
+            tenant: ABC
+            application_profile: AP1
+            endpoint_group: EPG1
+    monitoring:
+      policies:
+        - name: test_mon_pol
+          snmp_traps:
+            - name: test_trap
+              destination_group: DAR
+            - name: test_trap2
+              destination_group: 1.1.1.1
+          syslogs:
+            - name: test_syslog
+              audit: false
+              events: false
+              faults: true
+              session: false
+              minimum_severity: alerts
+              destination_group: syslog_grp
+            - name: test_syslog2
+          fault_severity_policies:
+            - class: l1PhysIf
+              faults:
+                - fault_id: F1696
+                  initial_severity: warning
+                  target_severity: inherit
+                  description: test

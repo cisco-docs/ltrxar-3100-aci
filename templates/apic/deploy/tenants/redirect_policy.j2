@@ -1,0 +1,150 @@
+{# iterate_list apic.tenants name item[2] #}
+{% set tenant = ((apic | default()) | community.general.json_query('tenants[?name==`' ~ item[2] ~ '`]'))[0] %}
+{
+    "fvTenant": {
+        "attributes": {
+            "dn": "uni/tn-{{ tenant.name }}",
+            "name": "{{ tenant.name }}"
+        },
+        "children": [
+            {
+                "vnsSvcCont": {
+                    "attributes": {
+                        "dn": "uni/tn-{{ tenant.name }}/svcCont"
+                    },
+                    "children": [
+                        {%- set comma1 = joiner(",") %}
+                        {%- for pol in tenant.services.redirect_policies | default([]) %}{{ comma1() }}
+                        {% set pol_name = pol.name ~ defaults.apic.tenants.services.redirect_policies.name_suffix %}
+                        {
+                            "vnsSvcRedirectPol": {
+                                "attributes": {
+                                    "annotation": "orchestrator:aac",
+                                    "descr": "{{ pol.description | default() }}",
+                                    "dn": "uni/tn-{{ tenant.name }}/svcCont/svcRedirectPol-{{ pol_name }}",
+                                    "name": "{{ pol_name }}",
+                                    "nameAlias": "{{ pol.alias | default() }}",
+                                    "AnycastEnabled": "{{ 'yes' if pol.anycast | default(defaults.apic.tenants.services.redirect_policies.anycast) else 'no' }}",
+                                    "destType": "{{ pol.type | default(defaults.apic.tenants.services.redirect_policies.type) }}",
+                                    "hashingAlgorithm": "{{ pol.hashing | default(defaults.apic.tenants.services.redirect_policies.hashing) }}",
+                                    "maxThresholdPercent": "{{ pol.max_threshold | default(defaults.apic.tenants.services.redirect_policies.max_threshold) }}",
+                                    "minThresholdPercent": "{{ pol.min_threshold | default(defaults.apic.tenants.services.redirect_policies.min_threshold) }}",
+                                    "programLocalPodOnly": "{{ 'yes' if pol.pod_aware | default(defaults.apic.tenants.services.redirect_policies.pod_aware) else 'no' }}",
+                                    "resilientHashEnabled": "{{ 'yes' if pol.resilient_hashing | default(defaults.apic.tenants.services.redirect_policies.resilient_hashing) else 'no' }}",
+                                    {% if pol.rewrite_source_mac is defined %}
+                                    "srcMacRewriteEnabled": "{{ 'yes' if pol.rewrite_source_mac else 'no' }}",
+                                    {% endif %}
+                                    "thresholdDownAction": "{{ pol.threshold_down_action | default(defaults.apic.tenants.services.redirect_policies.threshold_down_action) }}",
+                                    "thresholdEnable": "{{ 'yes' if pol.threshold | default(defaults.apic.tenants.services.redirect_policies.threshold) else 'no' }}",
+                                    "childAction": "deleteNonPresent"
+                                },
+                                "children": [
+                                    {%- set comma2 = joiner(",") %}
+                                    {%- if pol.ip_sla_policy is defined %}{{ comma2() }}
+                                    {%- set ip_sla_name = pol.ip_sla_policy ~ defaults.apic.tenants.policies.ip_sla_policies.name_suffix %}
+                                    {
+                                        "vnsRsIPSLAMonitoringPol": {
+                                            "attributes": {
+                                                "annotation": "orchestrator:aac",
+                                                "tDn": "uni/tn-{{ tenant.name }}/ipslaMonitoringPol-{{ ip_sla_name }}"
+                                            }
+                                        }
+                                    }
+                                    {%- endif %}
+                                    {%- if pol.resilient_hashing | default(defaults.apic.tenants.services.redirect_policies.resilient_hashing) == "enabled" and pol.redirect_backup_policy is defined %}{{ comma2() }}
+                                    {% set backup_pol_name = pol.redirect_backup_policy ~ defaults.apic.tenants.services.redirect_backup_policies.name_suffix %}
+                                    {
+                                        "vnsRsBackupPol": {
+                                            "attributes": {
+                                                "annotation": "orchestrator:aac",
+                                                "tDn": "uni/tn-{{ tenant.name }}/svcCont/backupPol-{{ backup_pol_name }}"
+                                            }
+                                        }
+                                    }
+                                    {%- endif %}
+                                    {%- for dest in pol.l3_destinations | default([]) %}{{ comma2() }}
+                                    {
+                                        "vnsRedirectDest": {
+                                            "attributes": {
+                                                "annotation": "orchestrator:aac",
+                                                "descr": "{{ dest.description | default() }}",
+                                                "destName": "{{ dest.name | default() }}",
+                                                "ip": "{{ dest.ip }}",
+                                                "ip2": "{{ dest.ip_2 | default() }}",
+                                                "mac": "{{ dest.mac | default("00:00:00:00:00:00") }}",
+                                                "podId": "{{ dest.pod | default(defaults.apic.tenants.services.redirect_policies.l3_destinations.pod) }}"
+                                            },
+                                            "children": [
+                                                {% if dest.redirect_health_group is defined %}
+                                                {% set health_group_name = dest.redirect_health_group ~ defaults.apic.tenants.services.redirect_health_groups.name_suffix %}
+                                                {
+                                                    "vnsRsRedirectHealthGroup": {
+                                                        "attributes": {
+                                                            "annotation": "orchestrator:aac",
+                                                            "tDn": "uni/tn-{{ tenant.name }}/svcCont/redirectHealthGroup-{{ health_group_name }}"
+                                                        }
+                                                    }
+                                                }
+                                                {%- endif %}
+
+                                            ]
+                                        }
+                                    }
+                                    {%- endfor %}
+                                    {%- for dest in pol.l1l2_destinations | default([]) %}{{ comma2() }}
+                                    {
+                                        "vnsL1L2RedirectDest": {
+                                            "attributes": {
+                                                "annotation": "orchestrator:aac",
+                                                "destName": "{{ dest.name }}",
+                                                {% if dest.mac is defined %}
+                                                "mac": "{{ dest.mac }}",
+                                                {% endif %}
+                                                {% if dest.weight is defined %}
+                                                "weight": "{{ dest.weight }}",
+                                                {% endif %}
+                                                {% if dest.pod is defined %}
+                                                "podId": "{{ dest.pod }}",
+                                                {% endif %}
+                                                "descr": "{{ dest.description | default() }}"
+                                            },
+                                            "children": [
+                                                {% if dest.redirect_health_group is defined %}
+                                                {% set health_group_name = dest.redirect_health_group ~ defaults.apic.tenants.services.redirect_health_groups.name_suffix %}
+                                                {
+                                                    "vnsRsL1L2RedirectHealthGroup": {
+                                                        "attributes": {
+                                                            "annotation": "orchestrator:aac",
+                                                            "tDn": "uni/tn-{{ tenant.name }}/svcCont/redirectHealthGroup-{{ health_group_name }}"
+                                                        }
+                                                    }
+                                                },
+                                                {%- endif %}
+
+                                                {% set l4l7_device = dest.concrete_interface.l4l7_device ~ defaults.apic.tenants.services.l4l7_devices.name_suffix %}
+                                                {% set concrete_device = dest.concrete_interface.concrete_device ~ defaults.apic.tenants.services.l4l7_devices.concrete_devices.name_suffix %}
+                                                {% set interface = dest.concrete_interface.interface ~ defaults.apic.tenants.services.l4l7_devices.concrete_devices.interfaces.name_suffix %}
+                                                {
+                                                    "vnsRsToCIf": {
+                                                        "attributes": {
+                                                            "annotation": "orchestrator:aac",
+                                                            "tDn": "uni/tn-{{ tenant.name }}/lDevVip-{{ l4l7_device }}/cDev-{{ concrete_device }}/cIf-[{{ interface }}]"
+                                                        }
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    }
+                                    {%- endfor %}
+
+                                ]
+                            }
+                        }
+                        {%- endfor %}
+
+                    ]
+                }
+            }
+        ]
+    }
+}

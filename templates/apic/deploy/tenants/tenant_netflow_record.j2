@@ -1,0 +1,30 @@
+{# iterate_list apic.tenants name item[2] #}
+{% set tenant = ((apic | default()) | community.general.json_query('tenants[?name==`' ~ item[2] ~ '`]'))[0] %}
+{
+    "fvTenant":
+    {
+        "attributes": {
+            "dn": "uni/tn-{{ tenant.name }}",
+            "name": "{{ tenant.name }}"
+        },
+        "children": [
+            {%- set comma1 = joiner(",") %}
+            {%- for record in tenant.policies.netflow_records | default([]) %}{{ comma1() }}
+            {% set record_name = record.name ~ defaults.apic.tenants.policies.netflow_records.name_suffix %}
+            {
+                "netflowRecordPol": {
+                    "attributes": {
+                        "annotation": "orchestrator:aac",
+                        "name": "{{ record_name }}",
+                        "descr": "{{ record.description | default() }}",
+                        "dn": "uni/tn-{{ tenant.name }}/recordpol-{{ record_name }}",
+                        "match": "{{ record.match_parameters | default() | sort() | join(',')  }}",
+                        "childAction": "deleteNonPresent"
+                    }
+                }
+            }
+            {%- endfor %}
+
+        ]
+    }
+}

@@ -1,0 +1,755 @@
+{# iterate_list apic.tenants name item[2] #}
+{% set tenant = ((apic | default()) | community.general.json_query('tenants[?name==`' ~ item[2] ~ '`]'))[0] %}
+{
+    "fvTenant": {
+        "attributes": {
+            "dn": "uni/tn-{{ tenant.name }}",
+            "name": "{{ tenant.name }}"
+        },
+        "children": [
+            {%- set comma1 = joiner(",") %}
+            {%- for vrf in tenant.vrfs | default([]) %}{{ comma1() }}
+            {% set vrf_name = vrf.name ~ ('' if vrf.name in ('inb', 'obb', 'overlay-1') else defaults.apic.tenants.vrfs.name_suffix) %}
+            {
+                "fvCtx": {
+                    "attributes": {
+                        "annotation": {% if vrf.ndo_managed | default(defaults.apic.tenants.vrfs.ndo_managed) %}"orchestrator:msc-shadow:no"{% else %}"orchestrator:aac"{% endif %},
+                        "name": "{{ vrf_name }}",
+                        "dn": "uni/tn-{{ tenant.name }}/ctx-{{ vrf_name }}",
+                        "nameAlias": "{{ vrf.alias | default() }}",
+                        "ipDataPlaneLearning": "{{ 'enabled' if vrf.data_plane_learning | default(defaults.apic.tenants.vrfs.data_plane_learning) else 'disabled' }}",
+                        {%- if not vrf.ndo_managed | default(defaults.apic.tenants.vrfs.ndo_managed) %}
+                        "pcEnfDir": "{{ vrf.enforcement_direction | default(defaults.apic.tenants.vrfs.enforcement_direction) }}",
+                        {%- endif %}
+                        "pcEnfPref": "{{ vrf.enforcement_preference | default(defaults.apic.tenants.vrfs.enforcement_preference) }}",
+                        "descr": "{{ vrf.description | default() }}",
+                        "childAction": "deleteNonPresent"
+                    },
+                    "children": [
+                       {% set comma1 = joiner(",") %}{{ comma1() }}
+                       {
+                            "vzAny": {
+                                "attributes": {
+                                    "annotation": "orchestrator:aac",
+                                    "prefGrMemb": "{{ 'enabled' if vrf.preferred_group | default(defaults.apic.tenants.vrfs.preferred_group) else 'disabled' }}"
+                                },
+                                "children": [
+                                    {%- set comma2 = joiner(",") %}
+                                    {%- for contract in vrf.contracts.providers | default([]) %}{{ comma2() }}
+                                    {% set contract_name = contract ~ defaults.apic.tenants.contracts.name_suffix %}
+                                    {
+                                        "vzRsAnyToProv": {
+                                            "attributes": {
+                                                "annotation": "orchestrator:aac",
+                                                "tnVzBrCPName": "{{ contract_name }}"
+                                            }
+                                        }
+                                    }
+                                    {%- endfor %}
+                                    {%- for contract in vrf.contracts.consumers | default([]) %}{{ comma2() }}
+                                    {% set contract_name = contract ~ defaults.apic.tenants.contracts.name_suffix %}
+                                    {
+                                        "vzRsAnyToCons": {
+                                            "attributes": {
+                                                "annotation": "orchestrator:aac",
+                                                "tnVzBrCPName": "{{ contract_name }}"
+                                            }
+                                        }
+                                    }
+                                    {%- endfor %}
+                                    {%- for contract in vrf.contracts.imported_consumers | default([]) %}{{ comma2() }}
+                                    {% set contract_name = contract ~ defaults.apic.tenants.imported_contracts.name_suffix %}
+                                    {
+                                        "vzRsAnyToConsIf": {
+                                            "attributes": {
+                                                "annotation": "orchestrator:aac",
+                                                "tnVzCPIfName": "{{ contract_name }}"
+                                            }
+                                        }
+                                    }
+                                    {%- endfor %}
+
+                                ]
+                            }
+                        }
+                        {%- if vrf.leaked_internal_prefixes is defined or vrf.leaked_external_prefixes is defined %}{{ comma1() }}
+                        {
+                            "leakRoutes": {
+                                "attributes": {
+                                    "annotation": "orchestrator:aac"
+                                },
+                                "children": [
+                                    {%- set comma2 = joiner(",") %}
+                                    {%- for prefix in vrf.leaked_internal_prefixes | default([]) %}{{ comma2() }}
+                                    {
+                                        "leakInternalSubnet": {
+                                            "attributes": {
+                                                "annotation": "orchestrator:aac",
+                                                "ip": "{{ prefix.prefix }}",
+                                                "scope": "{% if prefix.public | default(defaults.apic.tenants.vrfs.leaked_internal_prefixes.public) %}public{% else %}private{% endif %}"
+                                            },
+                                            "children": [
+                                                {%- set comma3 = joiner(",") %}
+                                                {%- for destination in prefix.destinations | default([]) %}{{ comma3() }}
+                                                {% set vrf_name = destination.vrf ~ ('' if vrf.name in ('inb', 'obb', 'overlay-1') else defaults.apic.tenants.vrfs.name_suffix) %}
+                                                {
+                                                    "leakTo": {
+                                                        "attributes": {
+                                                            "annotation": "orchestrator:aac",
+                                                            "descr": "{{ destination.description | default("") }}",
+                                                            "ctxName": "{{ vrf_name }}",
+                                                            "tenantName": "{{ destination.tenant }}",
+                                                            "scope": "{% if destination.public is defined %}{% if destination.public %}public{% else %}private{% endif %}{% else %}inherit{% endif %}"
+                                                        }
+                                                    }
+                                                }
+                                                {%- endfor %}
+
+                                            ]
+                                        }
+                                    }
+                                    {%- endfor %}
+                                    {%- for prefix in vrf.leaked_external_prefixes | default([]) %}{{ comma2() }}
+                                    {
+                                        "leakExternalPrefix": {
+                                            "attributes": {
+                                                "annotation": "orchestrator:aac",
+                                                "ip": "{{ prefix.prefix }}",
+                                                "le": "{{ prefix.to_prefix_length | default('unspecified') }}",
+                                                "ge": "{{ prefix.from_prefix_length | default('unspecified') }}"
+                                            },
+                                            "children": [
+                                                {%- set comma3 = joiner(",") %}
+                                                {%- for destination in prefix.destinations | default([]) %}{{ comma3() }}
+                                                {% set vrf_name = destination.vrf ~ ('' if vrf.name in ('inb', 'obb', 'overlay-1') else defaults.apic.tenants.vrfs.name_suffix) %}
+                                                {
+                                                    "leakTo": {
+                                                        "attributes": {
+                                                            "annotation": "orchestrator:aac",
+                                                            "descr": "{{ destination.description | default("") }}",
+                                                            "ctxName": "{{ vrf_name }}",
+                                                            "tenantName": "{{ destination.tenant }}"
+                                                        }
+                                                    }
+                                                }
+                                                {%- endfor %}
+
+                                            ]
+                                        }
+                                    }
+                                    {%- endfor %}
+
+                                ]
+                            }
+                        }
+                        {%- endif %}
+                        {%- if vrf.transit_route_tag_policy is defined %}{{ comma1() }}
+                        {% set transit_route_tag_policy_name = vrf.transit_route_tag_policy ~ defaults.apic.tenants.policies.route_tag_policies.name_suffix %}
+                        {
+                            "fvRsCtxToExtRouteTagPol": {
+                                "attributes": {
+                                    "annotation": "orchestrator:aac",
+                                    "tnL3extRouteTagPolName": "{{ transit_route_tag_policy_name }}"
+                                }
+                            }
+                        }
+                        {%- endif %}
+                        {%- if vrf.bgp.timer_policy is defined %}{{ comma1() }}
+                        {% set bgp_timer_name = vrf.bgp.timer_policy ~ defaults.apic.tenants.policies.bgp_timer_policies.name_suffix %}
+                        {
+                            "fvRsBgpCtxPol": {
+                                "attributes": {
+                                    "annotation": "orchestrator:aac",
+                                    "tnBgpCtxPolName": "{{ bgp_timer_name }}"
+                                }
+                            }
+                        }
+                        {%- endif %}
+                        {%- if vrf.bgp.ipv4_address_family_context_policy is defined %}{{ comma1() }}
+                        {% set address_family_context_policy_name = vrf.bgp.ipv4_address_family_context_policy ~ defaults.apic.tenants.policies.bgp_address_family_context_policies.name_suffix %}
+                        {
+                            "fvRsCtxToBgpCtxAfPol": {
+                                "attributes": {
+                                    "annotation": "orchestrator:aac",
+                                    "af": "ipv4-ucast",
+                                    "tnBgpCtxAfPolName": "{{ address_family_context_policy_name }}"
+                                }
+                            }
+                        }
+                        {%- endif %}
+                        {%- if vrf.bgp.ipv6_address_family_context_policy is defined %}{{ comma1() }}
+                        {% set address_family_context_policy_name = vrf.bgp.ipv6_address_family_context_policy ~ defaults.apic.tenants.policies.bgp_address_family_context_policies.name_suffix %}
+                        {
+                            "fvRsCtxToBgpCtxAfPol": {
+                                "attributes": {
+                                    "annotation": "orchestrator:aac",
+                                    "af": "ipv6-ucast",
+                                    "tnBgpCtxAfPolName": "{{ address_family_context_policy_name }}"
+                                }
+                            }
+                        }
+                        {%- endif %}
+                        {%- if vrf.ospf.timer_policy is defined %}{{ comma1() }}
+                        {% set ospf_timer_name = vrf.ospf.timer_policy ~ defaults.apic.tenants.policies.ospf_timer_policies.name_suffix %}
+                        {
+                            "fvRsOspfCtxPol": {
+                                "attributes": {
+                                    "tnOspfCtxPolName": "{{ ospf_timer_name }}"
+                                }
+                            }
+                        }
+                        {%- endif %}
+                        {%- if vrf.ospf.ipv4_address_family_context_policy is defined %}{{ comma1() }}
+                        {% set address_family_context_policy_name = vrf.ospf.ipv4_address_family_context_policy ~ defaults.apic.tenants.policies.ospf_timer_policies.name_suffix %}
+                        {
+                            "fvRsCtxToOspfCtxPol": {
+                                "attributes": {
+                                    "af": "ipv4-ucast",
+                                    "tnOspfCtxPolName": "{{ address_family_context_policy_name }}"
+                                }
+                            }
+                        }
+                        {%- endif %}
+                        {%- if vrf.ospf.ipv6_address_family_context_policy is defined %}{{ comma1() }}
+                        {% set address_family_context_policy_name = vrf.ospf.ipv6_address_family_context_policy ~ defaults.apic.tenants.policies.ospf_timer_policies.name_suffix %}
+                        {
+                            "fvRsCtxToOspfCtxPol": {
+                                "attributes": {
+                                    "af": "ipv6-ucast",
+                                    "tnOspfCtxPolName": "{{ address_family_context_policy_name }}"
+                                }
+                            }
+                        }
+                        {%- endif %}
+                        {%- if (vrf.bgp.ipv4_import_route_target is defined or vrf.bgp.ipv4_export_route_target is defined) %}{{ comma1() }}
+                        {
+                            "bgpRtTargetP": {
+                                "attributes": {
+                                    "annotation": "orchestrator:aac",
+                                    "af": "ipv4-ucast",
+                                    "childAction": "deleteNonPresent"
+                                },
+                                "children": [
+                                    {%- set comma3 = joiner(",") %}
+                                    {%- if vrf.bgp.ipv4_import_route_target is defined %}
+                                    {%- for ipv4_import_target in vrf.bgp.ipv4_import_route_target | default([]) %}{{ comma3() }}
+                                    {
+                                        "bgpRtTarget": {
+                                            "attributes": {
+                                                "annotation": "orchestrator:aac",
+                                                "rt": "{{ ipv4_import_target }}",
+                                                "type": "import"
+                                            }
+                                        }
+                                    }
+                                    {% endfor %}
+                                    {% endif %}
+                                    {%- if vrf.bgp.ipv4_export_route_target is defined %}
+                                    {%- for ipv4_export_target in vrf.bgp.ipv4_export_route_target | default([]) %}{{ comma3() }}
+                                    {
+                                        "bgpRtTarget": {
+                                            "attributes": {
+                                                "annotation": "orchestrator:aac",
+                                                "rt": "{{ ipv4_export_target }}",
+                                                "type": "export"
+                                            }
+                                        }
+                                    }
+                                    {% endfor %}
+                                    {% endif %}
+                                ]
+                            }
+                        }
+                        {% endif %}
+                        {%- if (vrf.bgp.ipv6_import_route_target is defined or vrf.bgp.ipv6_export_route_target is defined) %}{{ comma1() }}
+                        {
+                            "bgpRtTargetP": {
+                                "attributes": {
+                                    "annotation": "orchestrator:aac",
+                                    "af": "ipv6-ucast",
+                                    "childAction": "deleteNonPresent"
+                                },
+                                "children": [
+                                    {%- set comma4 = joiner(",") %}
+                                    {%- if vrf.bgp.ipv6_import_route_target is defined %}
+                                    {%- for ipv6_import_target in vrf.bgp.ipv6_import_route_target | default([]) %}{{ comma4() }}
+                                    {
+                                        "bgpRtTarget": {
+                                            "attributes": {
+                                                "annotation": "orchestrator:aac",
+                                                "rt": "{{ ipv6_import_target }}",
+                                                "type": "import"
+                                            }
+                                        }
+                                    }
+                                    {% endfor %}
+                                    {% endif %}
+                                    {%- if vrf.bgp.ipv6_export_route_target is defined %}
+                                    {%- set comma2 = joiner(",") %}
+                                    {%- for ipv6_export_target in vrf.bgp.ipv6_export_route_target | default([]) %}{{ comma4() }}
+                                    {
+                                        "bgpRtTarget": {
+                                            "attributes": {
+                                                "annotation": "orchestrator:aac",
+                                                "rt": "{{ ipv6_export_target }}",
+                                                "type": "export"
+                                            }
+                                        }
+                                    }
+                                    {% endfor %}
+                                    {% endif %}
+                                ]
+                            }
+                        }
+                        {% endif %}
+                        {%- if vrf.dns_labels is defined %}
+                        {%- for dns_label in vrf.dns_labels %}{{ comma1() }}
+                        {% set dns_label_name = dns_label ~ defaults.apic.fabric_policies.dns_policies.name_suffix %}
+                        {
+                            "dnsLbl": {
+                                "attributes": {
+                                    "annotation": "orchestrator:aac",
+                                    "name": "{{ dns_label_name }}"
+                                }
+                            }
+                        }
+                        {%- endfor %}
+                        {%- endif %}
+                        {%- if vrf.pim is defined %}{{ comma1() }}
+                        {
+                            {% set ctrl = [] %}
+                            {% if vrf.pim.fast_convergence | default(defaults.apic.tenants.vrfs.pim.fast_convergence) %}{% set ctrl = ctrl + [("fast-conv")] %}{% endif %}
+                            {% if vrf.pim.strict_rfc | default(defaults.apic.tenants.vrfs.pim.strict_rfc) %}{% set ctrl = ctrl + [("strict-rfc-compliant")] %}{% endif %}
+                            "pimCtxP": {
+                                "attributes": {
+                                    "annotation": "orchestrator:aac",
+                                    "dn": "uni/tn-{{ tenant.name }}/ctx-{{ vrf_name}}/pimctxp",
+                                    "mtu": "{{ vrf.pim.mtu | default(defaults.apic.tenants.vrfs.pim.mtu) }}",
+                                    "ctrl": "{{ ctrl | join(',') }}",
+                                    "childAction": "deleteNonPresent"
+                                },
+                                "children": [
+                                    {
+                                        "pimResPol": {
+                                            "attributes": {
+                                                "annotation": "orchestrator:aac",
+                                                "max": "{{ vrf.pim.max_multicast_entries | default(defaults.apic.tenants.vrfs.pim.max_multicast_entries) }}",
+                                                "rsvd": "{{ vrf.pim.reserved_multicast_entries | default(defaults.apic.tenants.vrfs.pim.reserved_multicast_entries) }}",
+                                                "childAction": "deleteNonPresent"
+                                            },
+                                            "children": [
+                                                {% if vrf.pim.resource_policy_multicast_route_map is defined %}
+                                                {% set resource_policy_multicast_route_map_name = vrf.pim.resource_policy_multicast_route_map ~ defaults.apic.tenants.policies.multicast_route_maps.name_suffix %}
+                                                {
+                                                    "rtdmcRsFilterToRtMapPol": {
+                                                        "attributes": {
+                                                            "annotation": "orchestrator:aac",
+                                                            "tDn": "uni/tn-{{ tenant.name }}/rtmap-{{ resource_policy_multicast_route_map_name }}"
+                                                        }
+                                                    }
+                                                }
+                                                {% endif %}
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "pimStaticRPPol": {
+                                            "attributes": {
+                                                "annotation": "orchestrator:aac",
+                                                "childAction": "deleteNonPresent"
+                                            },
+                                            "children": [
+                                                {%- set comma2 = joiner(",") %}
+                                                {%- if vrf.pim.static_rps is defined %}
+                                                {%- for static_rp in vrf.pim.static_rps %}{{ comma2() }}
+                                                {
+                                                    "pimStaticRPEntryPol": {
+                                                        "attributes": {
+                                                            "annotation": "orchestrator:aac",
+                                                            "rpIp": "{{ static_rp.ip }}",
+                                                            "childAction": "deleteNonPresent"
+                                                        },
+                                                        "children": [
+                                                            {% if static_rp.multicast_route_map is defined %}
+                                                            {% set static_rp_route_map_name = static_rp.multicast_route_map ~ defaults.apic.tenants.policies.multicast_route_maps.name_suffix %}
+                                                            {
+                                                                "pimRPGrpRangePol": {
+                                                                    "attributes": {
+                                                                        "annotation": "orchestrator:aac",
+                                                                        "childAction": "deleteNonPresent"
+                                                                    },
+                                                                    "children": [
+                                                                        {
+                                                                            "rtdmcRsFilterToRtMapPol": {
+                                                                                "attributes": {
+                                                                                    "annotation": "orchestrator:aac",
+                                                                                    "tDn": "uni/tn-{{ tenant.name }}/rtmap-{{ static_rp_route_map_name }}"
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                    ]
+                                                                }
+                                                            }
+                                                            {% endif %}
+                                                        ]
+                                                    }
+                                                }
+                                                {%- endfor %}
+                                                {%- endif %}
+
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "pimFabricRPPol": {
+                                            "attributes": {
+                                                "annotation": "orchestrator:aac",
+                                                "childAction": "deleteNonPresent"
+                                            },
+                                            "children": [
+                                                {%- set comma2 = joiner(",") %}
+                                                {%- if vrf.pim.fabric_rps is defined %}
+                                                {%- for fabric_rp in vrf.pim.fabric_rps %}{{ comma2() }}
+                                                {
+                                                    "pimStaticRPEntryPol": {
+                                                        "attributes": {
+                                                            "annotation": "orchestrator:aac",
+                                                            "rpIp": "{{ fabric_rp.ip }}",
+                                                            "childAction": "deleteNonPresent"
+                                                        },
+                                                        "children": [
+                                                            {%if fabric_rp.multicast_route_map is defined %}
+                                                            {% set fabric_rp_route_map_name = fabric_rp.multicast_route_map ~ defaults.apic.tenants.policies.multicast_route_maps.name_suffix %}
+                                                            {
+                                                                "pimRPGrpRangePol": {
+                                                                    "attributes": {
+                                                                        "annotation": "orchestrator:aac",
+                                                                        "childAction": "deleteNonPresent"
+                                                                    },
+                                                                    "children": [
+                                                                        {
+                                                                            "rtdmcRsFilterToRtMapPol": {
+                                                                                "attributes": {
+                                                                                    "annotation": "orchestrator:aac",
+                                                                                    "tDn": "uni/tn-{{ tenant.name }}/rtmap-{{ fabric_rp_route_map_name }}"
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                    ]
+                                                                }
+                                                            }
+                                                            {% endif %}
+                                                        ]
+                                                    }
+                                                }
+                                                {%- endfor %}
+                                                {%- endif %}
+
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "pimBSRPPol": {
+                                            "attributes": {
+                                                "annotation": "orchestrator:aac",
+                                                {% set ctrl = [] %}
+                                                {% if vrf.pim.bsr_forward_updates | default(defaults.apic.tenants.vrfs.pim.bsr_forward_updates) %}{% set ctrl = ctrl + [("forward")] %}{% endif %}
+                                                {% if vrf.pim.bsr_listen_updates | default(defaults.apic.tenants.vrfs.pim.bsr_listen_updates) %}{% set ctrl = ctrl + [("listen")] %}{% endif %}
+                                                "ctrl": "{{ ctrl | join(',') }}",
+                                                "childAction": "deleteNonPresent"
+                                            },
+                                            "children": [
+                                                {% if vrf.pim.bsr_filter_multicast_route_map is defined %}
+                                                {% set bsr_filter_name = vrf.pim.bsr_filter_multicast_route_map ~ defaults.apic.tenants.policies.multicast_route_maps.name_suffix %}
+                                                {
+                                                    "pimBSRFilterPol": {
+                                                        "attributes": {
+                                                            "annotation": "orchestrator:aac",
+                                                            "childAction": "deleteNonPresent"
+                                                        },
+                                                        "children": [
+                                                            {
+                                                                "rtdmcRsFilterToRtMapPol": {
+                                                                    "attributes": {
+                                                                        "annotation": "orchestrator:aac",
+                                                                        "tDn": "uni/tn-{{ tenant.name }}/rtmap-{{ bsr_filter_name }}"
+                                                                    }
+                                                                }
+                                                            }
+                                                        ]
+                                                    }
+                                                }
+                                                {% endif %}
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "pimAutoRPPol": {
+                                            "attributes": {
+                                                "annotation": "orchestrator:aac",
+                                                {% set ctrl = [] %}
+                                                {% if vrf.pim.auto_rp_forward_updates | default(defaults.apic.tenants.vrfs.pim.auto_rp_forward_updates) %}{% set ctrl = ctrl + [("forward")] %}{% endif %}
+                                                {% if vrf.pim.auto_rp_listen_updates | default(defaults.apic.tenants.vrfs.pim.auto_rp_listen_updates) %}{% set ctrl = ctrl + [("listen")] %}{% endif %}
+                                                "ctrl": "{{ ctrl | join(',') }}",
+                                                "childAction": "deleteNonPresent"
+                                            },
+                                            "children": [
+                                                {% if vrf.pim.auto_rp_filter_multicast_route_map is defined %}
+                                                {% set auto_rp_filter_name = vrf.pim.auto_rp_filter_multicast_route_map ~ defaults.apic.tenants.policies.multicast_route_maps.name_suffix %}
+                                                {
+                                                    "pimMAFilterPol": {
+                                                        "attributes": {
+                                                            "annotation": "orchestrator:aac",
+                                                            "childAction": "deleteNonPresent"
+                                                        },
+                                                        "children": [
+                                                            {
+                                                                "rtdmcRsFilterToRtMapPol": {
+                                                                    "attributes": {
+                                                                        "annotation": "orchestrator:aac",
+                                                                        "tDn": "uni/tn-{{ tenant.name }}/rtmap-{{ auto_rp_filter_name }}"
+                                                                    }
+                                                                }
+                                                            }
+                                                        ]
+                                                    }
+                                                }
+                                                {% endif %}
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "pimASMPatPol": {
+                                            "attributes": {
+                                                "annotation": "orchestrator:aac",
+                                                "ctrl": "",
+                                                "childAction": "deleteNonPresent"
+                                            },
+                                            "children": [
+                                                {% if vrf.pim.asm_shared_range_multicast_route_map is defined %}
+                                                {% set asm_shared_range_multicast_route_map_name = vrf.pim.asm_shared_range_multicast_route_map ~ defaults.apic.tenants.policies.multicast_route_maps.name_suffix %}
+                                                {
+                                                    "pimSharedRangePol": {
+                                                        "attributes": {
+                                                            "annotation": "orchestrator:aac",
+                                                            "childAction": "deleteNonPresent"
+                                                        },
+                                                        "children": [
+                                                            {
+                                                                "rtdmcRsFilterToRtMapPol": {
+                                                                    "attributes": {
+                                                                        "annotation": "orchestrator:aac",
+                                                                        "tDn": "uni/tn-{{ tenant.name }}/rtmap-{{ asm_shared_range_multicast_route_map_name }}"
+                                                                    }
+                                                                }
+                                                            }
+                                                        ]
+                                                    }
+                                                },
+                                                {% endif %}
+                                                {
+                                                    "pimSGRangeExpPol": {
+                                                        "attributes": {
+                                                            "annotation": "orchestrator:aac",
+                                                            "sgExpItvl": "{{ vrf.pim.asm_sg_expiry | default(defaults.apic.tenants.vrfs.pim.asm_sg_expiry) }}"
+                                                        },
+                                                        "children": [
+                                                            {% if vrf.pim.asm_sg_expiry_multicast_route_map is defined %}
+                                                            {% set asm_sg_expiry_multicast_route_map_name = vrf.pim.asm_sg_expiry_multicast_route_map ~ defaults.apic.tenants.policies.multicast_route_maps.name_suffix %}
+                                                            {
+                                                                "rtdmcRsFilterToRtMapPol": {
+                                                                    "attributes": {
+                                                                        "annotation": "orchestrator:aac",
+                                                                        "tDn": "uni/tn-{{ tenant.name }}/rtmap-{{ asm_sg_expiry_multicast_route_map_name }}"
+                                                                    }
+                                                                }
+                                                            }
+                                                            {% endif %}
+                                                        ]
+                                                    }
+                                                },
+                                                {
+                                                    "pimRegTrPol": {
+                                                        "attributes": {
+                                                            "annotation": "orchestrator:aac",
+                                                            "maxRate": "{{ vrf.pim.asm_traffic_registry_max_rate | default(defaults.apic.tenants.vrfs.pim.asm_traffic_registry_max_rate) }}",
+                                                            "srcIp": "{{ vrf.pim.asm_traffic_registry_source_ip | default(defaults.apic.tenants.vrfs.pim.asm_traffic_registry_source_ip) }}"
+                                                        }
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "pimSSMPatPol": {
+                                            "attributes": {
+                                                "annotation": "orchestrator:aac",
+                                                "childAction": "deleteNonPresent"
+                                            },
+                                            "children": [
+                                                {% if vrf.pim.ssm_group_range_multicast_route_map is defined %}
+                                                {% set ssm_group_range_multicast_route_map_name = vrf.pim.ssm_group_range_multicast_route_map ~ defaults.apic.tenants.policies.multicast_route_maps.name_suffix %}
+                                                {
+                                                    "pimSSMRangePol": {
+                                                        "attributes": {
+                                                            "annotation": "orchestrator:aac",
+                                                            "childAction": "deleteNonPresent"
+                                                        },
+                                                        "children": [
+                                                            {
+                                                                "rtdmcRsFilterToRtMapPol": {
+                                                                    "attributes": {
+                                                                        "annotation": "orchestrator:aac",
+                                                                        "tDn": "uni/tn-{{ tenant.name }}/rtmap-{{ ssm_group_range_multicast_route_map_name }}"
+                                                                    }
+                                                                }
+                                                            }
+                                                        ]
+                                                    }
+                                                }
+                                                {% endif %}
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "pimInterVRFPol": {
+                                            "attributes": {
+                                                "annotation": "orchestrator:aac",
+                                                "childAction": "deleteNonPresent"
+                                            },
+                                            "children": [
+                                                {%- set comma2 = joiner(",") %}
+                                                {%- for pol in vrf.pim.inter_vrf_policies | default([]) %}{{ comma2() }}
+                                                {% set vrf_name = pol.vrf ~ defaults.apic.tenants.vrfs.name_suffix %}
+                                                {
+                                                    "pimInterVRFEntryPol": {
+                                                        "attributes": {
+                                                            "annotation": "orchestrator:aac",
+                                                            "srcVrfDn": "uni/tn-{{ pol.tenant }}/ctx-{{ vrf_name }}",
+                                                            "childAction": "deleteNonPresent"
+                                                        },
+                                                        "children": [
+                                                            {% if pol.multicast_route_map is defined %}
+                                                            {% set multicast_route_map_name = pol.multicast_route_map ~ defaults.apic.tenants.policies.multicast_route_maps.name_suffix %}
+                                                            {
+                                                                "rtdmcRsFilterToRtMapPol": {
+                                                                    "attributes": {
+                                                                        "annotation": "orchestrator:aac",
+                                                                        "tDn": "uni/tn-{{ tenant.name }}/rtmap-{{ multicast_route_map_name }}"
+                                                                    }
+                                                                }
+                                                            }
+                                                            {% endif %}
+                                                        ]
+                                                    }
+                                                }
+                                            {%- endfor %}
+
+                                            ]
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                        {%- endif %}
+                        {%- if vrf.pim.igmp_context_ssm_translate_policies is defined %} {{ comma1() }}
+                        {
+                            "igmpCtxP": {
+                                "attributes": {
+                                    "annotation": "orchestrator:aac",
+                                    "childAction": "deleteNonPresent"
+                                },
+                                "children": [
+                                    {%- set comma2 = joiner(",") %}
+                                    {%- for pol in vrf.pim.igmp_context_ssm_translate_policies | default([]) %}{{ comma2() }}
+                                    {
+                                        "igmpSSMXlateP": {
+                                            "attributes": {
+                                                "annotation": "orchestrator:aac",
+                                                "descr": "{{ pol.group_prefix }}-{{ pol.source_address }}",
+                                                "grpPfx": "{{ pol.group_prefix }}",
+                                                "srcAddr": "{{ pol.source_address }}"
+                                            }
+                                        }
+                                    }
+                                    {%- endfor%}
+
+                                ]
+                            }
+                        }
+                        {%- endif %}
+                        {%- if vrf.route_summarization_policies is defined %}
+                        {%- for pol in vrf.route_summarization_policies %}{{ comma1() }}
+                        {% set rsp_name = pol.name ~ defaults.apic.tenants.vrfs.route_summarization_policies.name_suffix %}
+                        {
+                            "fvCtxRtSummPol": {
+                                "attributes": {
+                                    "annotation": "orchestrator:aac",
+                                    "childAction": "deleteNonPresent",
+                                    "name": "{{ rsp_name }}"
+                                },
+                                "children": [
+                                    {%- set comma2 = joiner(",") %}
+                                    {%- for node in pol.nodes | default([]) %}{{ comma2() }}
+                                    {% set query = "nodes[?id==`" ~ node.id ~ "`].pod" %}
+                                    {% set pod = node.pod | default(((apic.node_policies | default()) | community.general.json_query(query))[0] | default(defaults.apic.tenants.vrfs.route_summarization_policies.nodes.pod)) %}
+                                    {
+                                        "fvRsNodeRtSummAtt": {
+                                            "attributes": {
+                                                "annotation": "orchestrator:aac",
+                                                "tDn": "topology/pod-{{ pod }}/node-{{ node.id }}"
+                                            }
+                                        }
+                                    }
+                                    {%- endfor%}
+
+                                    {%- for subnet in pol.subnets | default([]) %}{{ comma2() }}
+                                    {%- if subnet.bgp_route_summarization_policy is defined %}
+                                        {%- set brs_tdn = "uni/tn-" + tenant.name + "/bgprtsum-" + subnet.bgp_route_summarization_policy ~ defaults.apic.tenants.policies.bgp_route_summarization_policies.name_suffix %}
+                                    {%- else %}
+                                        {%- set brs_tdn = "uni/tn-common/bgprtsum-default" %}
+                                    {%- endif %}
+                                    {
+                                        "fvRtSummSubnet": {
+                                            "attributes": {
+                                                "annotation": "orchestrator:aac",
+                                                "prefix": "{{ subnet.prefix }}"
+                                            },
+                                            "children": [
+                                                {
+                                                    "fvRsSubnetToRtSummPol": {
+                                                        "attributes": {
+                                                            "annotation": "orchestrator:aac",
+                                                            "tDn": "{{ brs_tdn }}"
+                                                        }
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    }
+                                    {%- endfor%}
+
+                                ]
+                            }
+                        }
+                        {%- endfor %}
+                        {%- endif %}
+                        {%- if vrf.endpoint_retention_policy is defined %} {{ comma1() }}
+                        {% set endpoint_retention_policy_name = vrf.endpoint_retention_policy ~ defaults.apic.tenants.policies.endpoint_retention_policies.name_suffix %}
+                        {
+                            "fvRsCtxToEpRet": {
+                                "attributes": {
+                                    "annotation": "orchestrator:aac",
+                                    "tnFvEpRetPolName": "{{ endpoint_retention_policy_name }}"
+                                }
+                            }
+                        }
+                        {%- endif %}
+                    ]
+                }
+            }
+            {%- endfor %}
+
+        ]
+    }
+}

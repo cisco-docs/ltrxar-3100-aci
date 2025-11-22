@@ -1,0 +1,9 @@
+{
+    "epIpAgingP": {
+        "attributes": {
+            "annotation": "orchestrator:aac",
+            "adminSt": "{{ 'enabled' if apic.fabric_policies.ip_aging | default(defaults.apic.fabric_policies.ip_aging) else 'disabled' }}",
+            "dn": "uni/infra/ipAgingP-default"
+        }
+    }
+}

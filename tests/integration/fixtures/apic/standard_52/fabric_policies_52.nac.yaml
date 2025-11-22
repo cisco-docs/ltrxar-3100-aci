@@ -1,0 +1,92 @@
+---
+apic:
+  fabric_policies:
+    aaa:
+      security_domains:
+        - name: SEC1
+          restricted_rbac_domain: true
+        - name: SEC2
+      radius_providers:
+        - hostname_ip: 3.3.3.1
+          description: descr
+          port: 1815
+          protocol: chap
+          key: "123"
+          timeout: 6
+          retries: 2
+          mgmt_epg: oob
+          monitoring: true
+          monitoring_username: user1
+          monitoring_password: pass1
+          expected_state:
+            minimum_health: 0
+            maximum_critical_faults: 1000
+            maximum_major_faults: 1000
+            maximum_minor_faults: 1000
+        - hostname_ip: 3.3.3.2
+      login_domains:
+        - name: radius
+          realm: radius
+          description: login domain radius
+          radius_providers:
+            - hostname_ip: 3.3.3.1
+              priority: 1
+            - hostname_ip: 3.3.3.2
+    vmware_vmm_domains:
+      - name: VMM1
+        access_mode: read-write
+        delimiter: "="
+        tag_collection: true
+        vlan_pool: VMM1
+        vswitch:
+          cdp_policy: CDP-ENABLED
+          lldp_policy: LLDP-ENABLED
+          port_channel_policy: LACP-ACTIVE
+          mtu_policy: L2_8950
+          netflow_exporter_policy: VMM-EXPORTER1
+    system_performance:
+      admin_state: true
+      response_threshold: 400
+      top_slowest_requests: 7
+      calculation_window: 300
+    port_tracking:
+      admin_state: false
+      delay: 130
+      min_links: 1
+      include_apic: true
+    ep_loop_protection:
+      admin_state: true
+      detection_interval: 180
+      detection_multiplier: 10
+    leaf_interface_profiles:
+      - name: LEAF-INT-PROF2
+        selectors:
+          - name: SEL1
+            policy_group: ACC1
+            port_blocks:
+              - name: BLK1
+                description: INT-DESC
+                from_port: 1
+                to_port: 2
+            sub_port_blocks:
+              - name: SUBBLK1
+                description: SUBBLK-DESC
+                from_port: 1
+                from_sub_port: 1
+                to_sub_port: 2
+    spine_interface_profiles:
+      - name: SPINE-INT-PROF2
+        selectors:
+          - name: SEL1
+            policy_group: ACC1
+            port_blocks:
+              - name: BLK1
+                description: INT-DESC
+                from_port: 1
+                to_port: 2
+            sub_port_blocks:
+              - name: SUBBLK1
+                description: SUBBLK-DESC
+                from_port: 1
+                from_sub_port: 1
+                to_sub_port: 2

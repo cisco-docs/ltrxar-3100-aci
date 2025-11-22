@@ -1,0 +1,18 @@
+{# iterate_list_folder ndo.sites name item #}
+{% set query = "sites[?name==`" ~ item ~ "`]" %}
+{% set site = (ndo | community.general.json_query(query))[0] %}
+{
+    "common": {
+        "name": "{{ site.name }}",
+        "displayName": "{{ site.name }}",
+        "urls": [
+            {%- set comma1 = joiner(",") %}
+            {%- for url in site.apic_urls | default([]) %}{{ comma1() }}
+            "{{ url }}"
+            {%- endfor %}
+
+        ],
+        "platformType": "Apic",
+        "siteId": "{{ site.id }}"
+    }
+}

@@ -1,0 +1,39 @@
+{
+    "edrErrDisRecoverPol": {
+        "attributes": {
+            "annotation": "orchestrator:aac",
+            "dn": "uni/infra/edrErrDisRecoverPol-default",
+            "name": "default",
+            "errDisRecovIntvl": "{{ apic.fabric_policies.err_disabled_recovery.interval | default(defaults.apic.fabric_policies.err_disabled_recovery.interval) }}"
+        },
+        "children": [
+            {
+                "edrEventP": {
+                    "attributes": {
+                        "annotation": "orchestrator:aac",
+                        "event": "event-mcp-loop",
+                        "recover": "{{ 'yes' if apic.fabric_policies.err_disabled_recovery.mcp_loop | default(defaults.apic.fabric_policies.err_disabled_recovery.mcp_loop) else 'no' }}"
+                    }
+                }
+            },
+            {
+                "edrEventP": {
+                    "attributes": {
+                        "annotation": "orchestrator:aac",
+                        "event": "event-ep-move",
+                        "recover": "{{ 'yes' if apic.fabric_policies.err_disabled_recovery.ep_move | default(defaults.apic.fabric_policies.err_disabled_recovery.ep_move) else 'no' }}"
+                    }
+                }
+            },
+            {
+                "edrEventP": {
+                    "attributes": {
+                        "annotation": "orchestrator:aac",
+                        "event": "event-bpduguard",
+                        "recover": "{{ 'yes' if apic.fabric_policies.err_disabled_recovery.bpdu_guard | default(defaults.apic.fabric_policies.err_disabled_recovery.bpdu_guard) else 'no' }}"
+                    }
+                }
+            }
+        ]
+    }
+}

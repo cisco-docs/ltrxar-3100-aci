@@ -1,0 +1,7 @@
+---
+ndo:
+  undeploy_order: true
+  sites:
+    - name: APIC1
+      apic_urls:
+        - https://10.50.202.13
