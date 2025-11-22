@@ -126,18 +126,18 @@ test-integration:
   only:
     - master
 
-#test-idempotency:
-#  stage: test
-#  resource_group: apic
-#  script:
-#   - terraform init -input=false
-#   - terraform plan -input=false -detailed-exitcode
-#  dependencies:
-#    - deploy
-#  needs:
-#    - deploy
-#  only:
-#   - master
+test-idempotency:
+ stage: test
+ resource_group: apic
+ script:
+  - terraform init -input=false
+  - terraform plan -input=false -detailed-exitcode
+ dependencies:
+   - deploy
+ needs:
+   - deploy
+ only:
+  - master
 
 failure:
   stage: notify
