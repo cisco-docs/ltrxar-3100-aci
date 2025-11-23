@@ -9,18 +9,28 @@ apic:
       bridge_domains:
         - name: BD_VLAN300
           vrf: DEV
+          subnets:
+            - ip: 10.1.300.1/24
 
         - name: BD_VLAN301
           vrf: DEV
+          subnets:
+            - ip: 10.1.301.1/24
 
         - name: BD_VLAN302
           vrf: DEV
+          subnets:
+            - ip: 10.1.302.1/24
 
         - name: BD_VLAN303
           vrf: DEV
+          subnets:
+            - ip: 10.1.303.1/24
 
         - name: BD_VLAN304
           vrf: DEV
+          subnets:
+            - ip: 10.1.305.1/24
 
       application_profiles:
         - name: DEV

@@ -9,18 +9,28 @@ apic:
       bridge_domains:
         - name: BD_VLAN400
           vrf: UAT
+          subnets:
+            - ip: 10.1.400.1/24
 
         - name: BD_VLAN401
           vrf: UAT
+          subnets:
+            - ip: 10.1.401.1/24
 
         - name: BD_VLAN402
           vrf: UAT
+          subnets:
+            - ip: 10.1.402.1/24
 
         - name: BD_VLAN403
           vrf: UAT
+          subnets:
+            - ip: 10.1.403.1/24
 
         - name: BD_VLAN404
           vrf: UAT
+          subnets:
+            - ip: 10.1.404.1/24
 
       application_profiles:
         - name: UAT
