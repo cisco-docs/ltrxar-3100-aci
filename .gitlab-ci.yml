@@ -60,7 +60,7 @@ validate:
   stage: validate
   script:
     - set -o pipefail && terraform fmt -check |& tee fmt_output.txt
-    - set -o pipefail && iac-validate ./data/ |& tee validate_output.txt
+    - set -o pipefail && nac-validate ./data/ --rules ./validation/rules |& tee validate_output.txt
   artifacts:
     paths:
       - fmt_output.txt
@@ -110,7 +110,7 @@ deploy:
 test-integration:
   stage: test
   script:
-    - set -o pipefail && iac-test -d ./data -d ./defaults -t ./templates/apic/test -f ./jinja_filters -i tenants -o ./tests/results/aci |& tee test_output.txt
+    - set -o pipefail && nac-test -d ./data -d ./defaults -t ./templates/apic/test -f ./jinja_filters -i tenants -o ./tests/results/aci |& tee test_output.txt
   artifacts:
     when: always
     paths:
@@ -127,17 +127,17 @@ test-integration:
     - master
 
 test-idempotency:
- stage: test
- resource_group: apic
- script:
-  - terraform init -input=false
-  - terraform plan -input=false -detailed-exitcode
- dependencies:
-   - deploy
- needs:
-   - deploy
- only:
-  - master
+  stage: test
+  resource_group: apic
+  script:
+    - terraform init -input=false
+    - terraform plan -input=false -detailed-exitcode
+  dependencies:
+    - deploy
+  needs:
+    - deploy
+  only:
+    - master
 
 failure:
   stage: notify

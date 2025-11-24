@@ -7,7 +7,7 @@ class Rule:
     description = "Verify bridge domain VLAN number matches 3rd octet of IP address"
     severity = "MEDIUM"
 
-    # Regex to extract VLAN number from bridge domain names like BD_VLAN300, BD_VLAN301, etc.
+    # Regex to extract VLAN number from bridge domain names like BD_VLAN30, BD_VLAN31, etc.
     VLAN_PATTERN = re.compile(r"BD_VLAN(\d+)", re.IGNORECASE)
 
     @classmethod

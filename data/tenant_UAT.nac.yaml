@@ -7,59 +7,59 @@ apic:
         - name: UAT
 
       bridge_domains:
-        - name: BD_VLAN400
+        - name: BD_VLAN40
           vrf: UAT
           subnets:
-            - ip: 10.1.400.1/24
+            - ip: 10.1.40.1/24
 
-        - name: BD_VLAN401
+        - name: BD_VLAN41
           vrf: UAT
           subnets:
-            - ip: 10.1.401.1/24
+            - ip: 10.1.41.1/24
 
-        - name: BD_VLAN402
+        - name: BD_VLAN42
           vrf: UAT
           subnets:
-            - ip: 10.1.402.1/24
+            - ip: 10.1.42.1/24
 
-        - name: BD_VLAN403
+        - name: BD_VLAN43
           vrf: UAT
           subnets:
-            - ip: 10.1.403.1/24
+            - ip: 10.1.43.1/24
 
-        - name: BD_VLAN404
+        - name: BD_VLAN44
           vrf: UAT
           subnets:
-            - ip: 10.1.404.1/24
+            - ip: 10.1.44.1/24
 
       application_profiles:
         - name: UAT
           endpoint_groups:
-            - name: EPG_VLAN400
-              bridge_domain: BD_VLAN400
+            - name: EPG_VLAN40
+              bridge_domain: BD_VLAN40
               physical_domains:
                 - PHYSICAL1
               static_ports:
                 - node_id: 101
                   port: 4
-                  vlan: 400
+                  vlan: 40
 
-            - name: EPG_VLAN401
-              bridge_domain: BD_VLAN401
+            - name: EPG_VLAN41
+              bridge_domain: BD_VLAN41
               physical_domains:
                 - PHYSICAL1
 
-            - name: EPG_VLAN402
-              bridge_domain: BD_VLAN402
+            - name: EPG_VLAN42
+              bridge_domain: BD_VLAN42
               physical_domains:
                 - PHYSICAL1
 
-            - name: EPG_VLAN403
-              bridge_domain: BD_VLAN403
+            - name: EPG_VLAN43
+              bridge_domain: BD_VLAN43
               physical_domains:
                 - PHYSICAL1
 
-            - name: EPG_VLAN404
-              bridge_domain: BD_VLAN404
+            - name: EPG_VLAN44
+              bridge_domain: BD_VLAN44
               physical_domains:
                 - PHYSICAL1
