@@ -30,7 +30,7 @@ apic:
         - name: BD_VLAN34
           vrf: DEV
           subnets:
-            - ip: 10.1.35.1/24
+            - ip: 10.1.34.1/24
 
       application_profiles:
         - name: DEV
