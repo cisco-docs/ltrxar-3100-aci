@@ -97,6 +97,7 @@ plan:
 deploy:
   stage: deploy
   resource_group: apic
+  when: manual
   script:
     - terraform init -input=false
     - terraform apply -input=false -auto-approve plan.tfplan

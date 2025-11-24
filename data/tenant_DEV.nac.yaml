@@ -32,6 +32,11 @@ apic:
           subnets:
             - ip: 10.1.34.1/24
 
+        - name: BD_VLAN35
+          vrf: DEV
+          subnets:
+            - ip: 10.1.36.1/24
+
       application_profiles:
         - name: DEV
           endpoint_groups:
