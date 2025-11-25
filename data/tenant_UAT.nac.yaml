@@ -1,7 +1,7 @@
 ---
 apic:
   tenants:
-    - name: NAC-DEMO-UAT
+    - name: COH-NAC-DEMO-UAT
 
       vrfs:
         - name: UAT
