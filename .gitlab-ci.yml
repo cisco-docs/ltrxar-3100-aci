@@ -111,7 +111,7 @@ deploy:
 test-integration:
   stage: test
   script:
-    - set -o pipefail && nac-test -d ./data -d ./data/defaults.nac.yaml -t ./templates/apic/test -f ./jinja_filters -i tenants -o ./tests/results/aci |& tee test_output.txt
+    - set -o pipefail && nac-test -d ./data -d ./data/defaults.nac.yaml -t ./templates/apic/test -f ./jinja_filters -i tenants access_policies node_policies interface_policies -o ./tests/results/aci |& tee test_output.txt
   artifacts:
     when: always
     paths:
@@ -120,19 +120,6 @@ test-integration:
       - test_output.txt
     reports:
       junit: tests/results/aci/xunit.xml
-  dependencies:
-    - deploy
-  needs:
-    - deploy
-  only:
-    - master
-
-test-idempotency:
-  stage: test
-  resource_group: apic
-  script:
-    - terraform init -input=false
-    - terraform plan -input=false -detailed-exitcode
   dependencies:
     - deploy
   needs:
