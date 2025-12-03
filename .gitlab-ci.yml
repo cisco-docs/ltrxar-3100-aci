@@ -54,7 +54,7 @@ cache:
   paths:
     - .terraform
     - .terraform.lock.hcl
-    - defaults.yaml
+    - ./data/defaults.nac.yaml
 
 validate:
   stage: validate
@@ -111,7 +111,7 @@ deploy:
 test-integration:
   stage: test
   script:
-    - set -o pipefail && nac-test -d ./data -d ./defaults -t ./templates/apic/test -f ./jinja_filters -i tenants -o ./tests/results/aci |& tee test_output.txt
+    - set -o pipefail && nac-test -d ./data -d ./data/defaults.nac.yaml -t ./templates/apic/test -f ./jinja_filters -i tenants -o ./tests/results/aci |& tee test_output.txt
   artifacts:
     when: always
     paths:

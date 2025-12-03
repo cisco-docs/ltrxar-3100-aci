@@ -2,6 +2,7 @@
 
 defaults:
   apic:
+    auto_generate_access_leaf_switch_interface_profiles: true
     tenants:
       bridge_domains:
         unicast_routing: true
