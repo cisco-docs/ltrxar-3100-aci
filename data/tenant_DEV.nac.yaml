@@ -1,7 +1,7 @@
 ---
 apic:
   tenants:
-    - name: USPS-NAC-DEMO-DEV
+    - name: UTSW-NAC-DEMO-DEV
 
       vrfs:
         - name: DEV
@@ -35,7 +35,7 @@ apic:
         - name: BD_VLAN35
           vrf: DEV
           subnets:
-            - ip: 10.1.36.1/24
+            - ip: 10.1.35.1/24
 
       application_profiles:
         - name: DEV

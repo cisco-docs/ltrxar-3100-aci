@@ -102,7 +102,7 @@ apic:
         mcp_policy: MCP-ENABLED
         l2_policy: GLOBAL
         storm_control_policy: 10P
-        aaep: PHYSICAL1
+        aaep: AAEP1
       - name: 10G-VPC
         type: vpc
         link_level_policy: 10G
@@ -112,6 +112,6 @@ apic:
         mcp_policy: MCP-ENABLED
         l2_policy: GLOBAL
         storm_control_policy: 10P
-        aaep: PHYSICAL1
+        aaep: AAEP1
         port_channel_policy: LACP-ACTIVE
         port_channel_member_policy: FAST

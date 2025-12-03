@@ -24,7 +24,6 @@ apic:
         oob_address: 10.51.77.94/24
         oob_gateway: 10.51.77.254
         update_group: MG1
-        fabric_policy_group: ALL_LEAFS
         access_policy_group: ALL_LEAFS
 
       - id: 102
@@ -35,5 +34,4 @@ apic:
         oob_address: 10.51.77.95/24
         oob_gateway: 10.51.77.254
         update_group: MG2
-        fabric_policy_group: ALL_LEAFS
         access_policy_group: ALL_LEAFS
