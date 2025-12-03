@@ -11,26 +11,26 @@ apic:
     vpc_groups:
       mode: explicit
       groups:
-        - id: 101
-          switch_1: 101
-          switch_2: 102
+        - id: 401
+          switch_1: 401
+          switch_2: 402
 
     nodes:
-      - id: 101
+      - id: 401
         pod: 1
         role: leaf
-        serial_number: TEP-1-101
-        name: LEAF101
+        serial_number: TEP-1-401
+        name: LEAF401
         oob_address: 10.51.77.94/24
         oob_gateway: 10.51.77.254
         update_group: MG1
         access_policy_group: ALL_LEAFS
 
-      - id: 102
+      - id: 402
         pod: 1
         role: leaf
-        serial_number: TEP-1-102
-        name: LEAF102
+        serial_number: TEP-1-402
+        name: LEAF402
         oob_address: 10.51.77.95/24
         oob_gateway: 10.51.77.254
         update_group: MG2
