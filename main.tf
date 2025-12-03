@@ -21,7 +21,7 @@ module "aci" {
   manage_access_policies    = false
   manage_fabric_policies    = false
   manage_pod_policies       = false
-  manage_node_policies      = false
+  manage_node_policies      = true
   manage_interface_policies = false
   manage_tenants            = true
 
