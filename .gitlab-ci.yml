@@ -111,7 +111,7 @@ deploy:
 test-integration:
   stage: test
   script:
-    - set -o pipefail && nac-test -d ./data -d ./data/defaults.nac.yaml -t ./templates/apic/test -f ./jinja_filters -i tenants access_policies node_policies interface_policies -o ./tests/results/aci |& tee test_output.txt
+    - set -o pipefail && nac-test -d ./data -d ./data/defaults.nac.yaml -t ./templates/apic/test -f ./jinja_filters -i tenants -i access_policies -i node_policies -i interface_policies -o ./tests/results/aci |& tee test_output.txt
   artifacts:
     when: always
     paths:
