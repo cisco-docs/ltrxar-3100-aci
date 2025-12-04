@@ -115,3 +115,9 @@ apic:
         aaep: AAEP1
         port_channel_policy: LACP-ACTIVE
         port_channel_member_policy: FAST
+
+    switch_policies:
+      vpc_policies:
+        - name: VPC-POLICY
+          peer_dead_interval: 200
+          delay_restore_timer: 120
