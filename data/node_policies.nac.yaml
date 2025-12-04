@@ -15,6 +15,7 @@ apic:
           switch_1: 401
           switch_2: 402
           policy: VPC-POLICY
+          name: VPC-GROUP-401-402
 
     nodes:
       - id: 401
