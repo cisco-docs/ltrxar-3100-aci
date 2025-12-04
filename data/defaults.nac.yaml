@@ -1,4 +1,4 @@
-# Overwrite default values here - this file is included in all NAC runs by default
+# Overwrite default values here - this file is included in all NAC runs by default unless overridden
 
 defaults:
   apic:
