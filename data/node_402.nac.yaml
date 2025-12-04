@@ -2,6 +2,7 @@
 apic:
   auto_generate_access_leaf_switch_interface_profiles: true
   new_interface_configuration: false
+  auto_generate_switch_pod_profiles: false
   access_policies:
     leaf_switch_profile_name: "LEAF\\g<id>"
     leaf_interface_profile_name: "LEAF\\g<id>"
