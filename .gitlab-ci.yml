@@ -54,7 +54,6 @@ cache:
   paths:
     - .terraform
     - .terraform.lock.hcl
-    - ./data/defaults.nac.yaml
 
 validate:
   stage: validate
