@@ -1,7 +1,7 @@
 ---
 apic:
   tenants:
-    - name: UTSW-NAC-DEMO-DEV
+    - name: UTSW-DEMO-DEV
 
       vrfs:
         - name: DEV
