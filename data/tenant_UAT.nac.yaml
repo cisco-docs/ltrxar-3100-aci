@@ -1,7 +1,7 @@
 ---
 apic:
   tenants:
-    - name: UTSW-DEMO-UAT
+    - name: UTSW-SAC-DEMO-UAT
 
       vrfs:
         - name: UAT
