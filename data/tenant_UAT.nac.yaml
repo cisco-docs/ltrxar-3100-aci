@@ -1,7 +1,7 @@
 ---
 apic:
   tenants:
-    - name: UTSW-SAC-DEMO-UAT
+    - name: SAC-DEMO-UAT
 
       vrfs:
         - name: UAT
@@ -31,11 +31,6 @@ apic:
           vrf: UAT
           subnets:
             - ip: 10.1.44.1/24
-
-        - name: BD_VLAN45
-          vrf: UAT
-          subnets:
-            - ip: 10.1.46.1/24
 
       application_profiles:
         - name: UAT
