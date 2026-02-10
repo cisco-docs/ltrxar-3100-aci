@@ -746,7 +746,7 @@ defaults:
             admin_state: true
             mtu: 9216
             scheduling: wrr
-            bandwidth_percent: 20
+            bandwidth_percent: 40
             congestion_algorithm: tail-drop
             minimum_buffer: 0
             pfc_state: false

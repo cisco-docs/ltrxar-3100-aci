@@ -1,7 +1,7 @@
 ---
 apic:
   tenants:
-    - name: SAC-DEMO-UAT
+    - name: SAC-DEMO-OD-UAT
 
       vrfs:
         - name: UAT
