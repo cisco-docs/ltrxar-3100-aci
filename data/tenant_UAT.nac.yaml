@@ -1,7 +1,7 @@
 ---
 apic:
   tenants:
-    - name: SAC-DEMO-UAT
+    - name: SAC-UAT
 
       vrfs:
         - name: UAT
@@ -35,7 +35,7 @@ apic:
         - name: BD_VLAN45
           vrf: UAT
           subnets:
-            - ip: 10.1.46.1/24
+            - ip: 10.1.45.1/24
 
       application_profiles:
         - name: UAT

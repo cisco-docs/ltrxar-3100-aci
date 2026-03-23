@@ -1,5 +1,8 @@
 ---
-image: danischm/nac:latest
+image:
+  name: danischm/nac:latest
+  pull_policy: if-not-present
+
 stages:
   - validate
   - plan
@@ -25,7 +28,7 @@ variables:
     value: "gitlab-ci-token"
   TF_HTTP_PASSWORD:
     description: "GitLab Access Token"
-    value: "${CI_JOB_TOKEN}"
+    value: "${GITLAB_TOKEN}"
   WEBEX_ROOM_ID:
     description: "Cisco Webex Room ID"
   WEBEX_TOKEN:
@@ -33,27 +36,43 @@ variables:
   GITLAB_API_URL:
     description: "GitLab API v4 root URL"
     value: "${CI_API_V4_URL}"
+
+  # Per-branch Terraform state name
+  TF_STATE_NAME:
+    description: "Terraform state name (per branch)"
+    value: "${CI_COMMIT_REF_SLUG}"
+
   TF_HTTP_ADDRESS:
     description: "GitLab HTTP Address to store the TF state file"
-    value: "${GITLAB_API_URL}/projects/${CI_PROJECT_ID}/terraform/state/tfstate"
+    value: "${GITLAB_API_URL}/projects/${CI_PROJECT_ID}/terraform/state/${TF_STATE_NAME}"
   TF_HTTP_LOCK_ADDRESS:
     description: "GitLab HTTP Address to lock the TF state file"
-    value: ${TF_HTTP_ADDRESS}/lock
+    value: "${TF_HTTP_ADDRESS}/lock"
   TF_HTTP_LOCK_METHOD:
     description: "Method to lock TF state file"
     value: POST
   TF_HTTP_UNLOCK_ADDRESS:
     description: "GitLab HTTP Address to unlock the TF state file"
-    value: ${TF_HTTP_ADDRESS}/lock
+    value: "${TF_HTTP_ADDRESS}/lock"
   TF_HTTP_UNLOCK_METHOD:
     description: "Method to unlock TF state file"
     value: DELETE
+
+before_script:
+  - update-ca-certificates
+  - echo "http_proxy=$http_proxy"
+  - echo "https_proxy=$https_proxy"
+  - echo "NO_PROXY=$NO_PROXY"
+  - echo "no_proxy=$no_proxy"
+  - git config --global http.proxy "$http_proxy"
+  - git config --global https.proxy "$https_proxy"
 
 cache:
   key: terraform_modules_and_lock
   paths:
     - .terraform
     - .terraform.lock.hcl
+    - defaults.yaml
 
 validate:
   stage: validate
@@ -72,7 +91,12 @@ plan:
   stage: plan
   resource_group: apic
   script:
-    - terraform init -input=false
+    - terraform version
+    - env | egrep -i 'http.*proxy|no_proxy' || true
+    - git config --global --get http.proxy || true
+    - git config --global --get https.proxy || true
+    - terraform init -upgrade -input=false
+    - terraform providers
     - terraform plan -out=plan.tfplan -input=false
     - terraform show -no-color plan.tfplan > plan.txt
     - terraform show -json plan.tfplan | jq > plan.json
@@ -89,23 +113,51 @@ plan:
   dependencies: []
   needs:
     - validate
-  only:
-    - merge_requests
-    - master
+  rules:
+    - if: '$CI_COMMIT_TAG'
+      when: never
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME =~ /^devhub\/$/'
+      when: on_success
+    - if: '$CI_COMMIT_BRANCH =~ /^devhub\/$/'
+      when: on_success
+    - if: '$CI_COMMIT_BRANCH == "master"'
+      when: on_success
+    - when: never
 
 deploy:
   stage: deploy
   resource_group: apic
   when: manual
+  allow_failure: false
   script:
-    - terraform init -input=false
+    - export TF_LOG=DEBUG
+    - export TF_LOG_PATH=terraform-debug.log
     - terraform apply -input=false -auto-approve plan.tfplan
+    - echo "--- TF DEBUG LOG START ---"
+    - cat terraform-debug.log || echo "No debug log found"
+    - echo "--- TF DEBUG LOG END ---"
+    - echo "--- TERRAFORM OUTPUTS ---"
+    - terraform output > all_outputs.txt || echo "No outputs found"
+  artifacts:
+    paths:
+      - terraform-debug.log
+      - all_outputs.txt
+    when: always
+    expire_in: 1 week
   dependencies:
     - plan
   needs:
     - plan
-  only:
-    - master
+  rules:
+    - if: '$CI_COMMIT_TAG'
+      when: never
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME =~ /^devhub\/$/'
+      when: manual
+    - if: '$CI_COMMIT_BRANCH =~ /^devhub\/$/'
+      when: manual
+    - if: '$CI_COMMIT_BRANCH == "master"'
+      when: manual
+    - when: never
 
 test-integration:
   stage: test
@@ -123,8 +175,12 @@ test-integration:
     - deploy
   needs:
     - deploy
-  only:
-    - master
+  rules:
+    - if: '$CI_COMMIT_TAG'
+      when: never
+    - if: '$CI_COMMIT_BRANCH == "master"'
+      when: on_success
+    - when: never
 
 failure:
   stage: notify
@@ -160,9 +216,14 @@ success:
 
 destroy:
   stage: destroy
+  dependencies: []
+  variables:
+    TF_HTTP_PASSWORD: "${GITLAB_TOKEN}"
   script:
     - terraform init
     - terraform destroy -auto-approve
   rules:
-    - if: "$CI_COMMIT_TAG =~ /^cleanup-aci/"
-      when: always
+    - if: '$CI_COMMIT_BRANCH =~ /^devhub\/$/'
+      when: manual
+    - if: '$CI_COMMIT_BRANCH == "master"'
+      when: manual

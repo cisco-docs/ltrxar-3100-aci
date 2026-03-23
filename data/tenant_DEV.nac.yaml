@@ -1,7 +1,7 @@
 ---
 apic:
   tenants:
-    - name: SAC-DEMO-DEV
+    - name: SAC-DEV
 
       vrfs:
         - name: DEV
@@ -66,5 +66,10 @@ apic:
 
             - name: EPG_VLAN34
               bridge_domain: BD_VLAN34
+              physical_domains:
+                - PHYSICAL1
+
+            - name: EPG_VLAN35
+              bridge_domain: BD_VLAN35
               physical_domains:
                 - PHYSICAL1
