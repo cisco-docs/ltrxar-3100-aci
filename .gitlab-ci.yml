@@ -116,9 +116,9 @@ plan:
   rules:
     - if: '$CI_COMMIT_TAG'
       when: never
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME =~ /^devhub\/$/'
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME =~ /^devhub\//'
       when: on_success
-    - if: '$CI_COMMIT_BRANCH =~ /^devhub\/$/'
+    - if: '$CI_COMMIT_BRANCH =~ /^devhub\//'
       when: on_success
     - if: '$CI_COMMIT_BRANCH == "master"'
       when: on_success
@@ -151,9 +151,9 @@ deploy:
   rules:
     - if: '$CI_COMMIT_TAG'
       when: never
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME =~ /^devhub\/$/'
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME =~ /^devhub\//'
       when: manual
-    - if: '$CI_COMMIT_BRANCH =~ /^devhub\/$/'
+    - if: '$CI_COMMIT_BRANCH =~ /^devhub\//'
       when: manual
     - if: '$CI_COMMIT_BRANCH == "master"'
       when: manual
@@ -178,8 +178,12 @@ test-integration:
   rules:
     - if: '$CI_COMMIT_TAG'
       when: never
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME =~ /^devhub\//'
+      when: manual
+    - if: '$CI_COMMIT_BRANCH =~ /^devhub\//'
+      when: manual
     - if: '$CI_COMMIT_BRANCH == "master"'
-      when: on_success
+      when: manual
     - when: never
 
 failure:
@@ -223,7 +227,7 @@ destroy:
     - terraform init
     - terraform destroy -auto-approve
   rules:
-    - if: '$CI_COMMIT_BRANCH =~ /^devhub\/$/'
+    - if: '$CI_COMMIT_BRANCH =~ /^devhub\//'
       when: manual
     - if: '$CI_COMMIT_BRANCH == "master"'
       when: manual
