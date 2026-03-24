@@ -179,11 +179,11 @@ test-integration:
     - if: '$CI_COMMIT_TAG'
       when: never
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME =~ /^devhub\//'
-      when: manual
+      when: on_success
     - if: '$CI_COMMIT_BRANCH =~ /^devhub\//'
-      when: manual
+      when: on_success
     - if: '$CI_COMMIT_BRANCH == "master"'
-      when: manual
+      when: on_success
     - when: never
 
 failure:
