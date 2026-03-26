@@ -1,4 +1,4 @@
-# Services-as-Code (SaC) Pilot User Guide
+# Services-as-Code (SaC) User Guide
 ### ACI Network Automation — Getting Started
 
 ---
