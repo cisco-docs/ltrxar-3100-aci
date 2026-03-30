@@ -83,6 +83,7 @@ validate:
     paths:
       - fmt_output.txt
       - validate_output.txt
+    expire_in: 7 days
   cache: []
   rules:
     - if: $CI_COMMIT_TAG == null
@@ -108,6 +109,7 @@ plan:
       - plan.txt
       - plan.tfplan
       - plan_gitlab.json
+    expire_in: 7 days
     reports:
       terraform: plan_gitlab.json
   dependencies: []
@@ -143,7 +145,7 @@ deploy:
       - terraform-debug.log
       - all_outputs.txt
     when: always
-    expire_in: 1 week
+    expire_in: 7 days
   dependencies:
     - plan
   needs:
@@ -169,6 +171,7 @@ test-integration:
       - tests/results/aci/*.html
       - tests/results/aci/xunit.xml
       - test_output.txt
+    expire_in: 7 days
     reports:
       junit: tests/results/aci/xunit.xml
   dependencies:
@@ -200,6 +203,7 @@ failure:
       - fmt_output.txt
       - validate_output.txt
       - test_output.txt
+    expire_in: 7 days
   cache: []
 
 success:
@@ -216,6 +220,7 @@ success:
       - fmt_output.txt
       - validate_output.txt
       - test_output.txt
+    expire_in: 7 days
   cache: []
 
 destroy:
