@@ -375,7 +375,7 @@ Replace `<your-username>` with your actual username (e.g., `devhub/nsuvarna/sac-
 
 1. Open your browser and go to `http://cx-us-ps-gitlab.cisco.com`
 2. Navigate to **sac-devhub / sac-aci**
-3. Click **CI/CD** → **Pipelines** in the left sidebar
+3. Click **Build** → **Pipelines** in the left sidebar
 4. Find your pipeline (it will show your branch name). Click on it.
 5. You will see the pipeline stages: **validate → plan → deploy → ...**
 
