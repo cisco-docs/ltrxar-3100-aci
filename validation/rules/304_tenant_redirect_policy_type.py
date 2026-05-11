@@ -1,6 +1,6 @@
 class Rule:
     id = "304"
-    description = "Verify if destType match destionations for redirect policy"
+    description = "Verify if destType match destinations for redirect policy"
     severity = "HIGH"
 
     @classmethod

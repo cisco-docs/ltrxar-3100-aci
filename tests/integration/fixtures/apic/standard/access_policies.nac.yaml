@@ -220,12 +220,12 @@ apic:
           - from: 2000
             to: 2099
           - from: 134
-            to: 135
+            to: 139
             allocation: static
       - name: ROUTED1
         ranges:
           - from: 134
-            to: 135
+            to: 139
           - from: 300
             to: 305
       - name: ROUTED2
@@ -391,6 +391,25 @@ apic:
         - name: 30P
           rate: "30.000000"
           burst_rate: "40.000000"
+      port_security_policies:
+        - name: PS-FULL
+          description: Port Security Full Config
+          maximum_endpoints: 100
+          timeout: 120
+        - name: PS-MIN
+      priority_flow_control_policies:
+        - name: PFC-ON
+          description: Priority Flow Control On
+          admin_state: true
+          auto_state: false
+        - name: PFC-OFF
+          description: Priority Flow Control Off
+          admin_state: false
+          auto_state: false
+        - name: PFC-AUTO
+          description: Priority Flow Control Auto
+          auto_state: true
+        - name: PFC-MIN
       netflow_exporters:
         - name: EXPORTER1
           description: exporter 1
@@ -518,6 +537,7 @@ apic:
     spine_switch_policy_groups:
       - name: ALL_SPINES
         lldp_policy: LLDP-ENABLED
+        cdp_policy: CDP-ENABLED
         bfd_ipv4_policy: BFD-IPV4-POLICY
         bfd_ipv6_policy: BFD-IPV6-POLICY
       - name: DISABLE_LLDP
@@ -528,6 +548,8 @@ apic:
         forwarding_scale_policy: HIGH-DUAL-STACK
         bfd_ipv4_policy: BFD-IPV4-POLICY
         bfd_ipv6_policy: BFD-IPV6-POLICY
+        cdp_policy: CDP-ENABLED
+        lldp_policy: LLDP-ENABLED
       - name: DUAL-STACK
         forwarding_scale_policy: DUAL-STACK
 
@@ -593,7 +615,10 @@ apic:
         mcp_policy: MCP-ENABLED
         l2_policy: PORT-LOCAL
         storm_control_policy: 10P
+        port_security_policy: PS-FULL
+        priority_flow_control_policy: PFC-ON
         port_channel_policy: LACP-ACTIVE
+        port_channel_member_name: PG-Member
         port_channel_member_policy: FAST
         ingress_data_plane_policing_policy: AP_DPP1
         egress_data_plane_policing_policy: AP_DPP2
@@ -615,6 +640,10 @@ apic:
         port_channel_member_policy: FAST
         aaep: AAEP1
         macsec_interface_policy: MACSEC_INT1
+      - name: PC2
+        type: pc
+      - name: PC3
+        type: pc
       - name: VPC1
         type: vpc
         link_level_policy: 10G
@@ -656,11 +685,12 @@ apic:
         description: My Leaf Interface Profile
         selectors:
           - name: SEL1
-            policy_group: ACC1
+            policy_group: PC1
             port_blocks:
               - name: BLK1
                 description: INT-DESC
                 from_port: 1
+                port_channel_member_policy: PC1
             sub_port_blocks:
               - name: SUBBLK1
                 description: SUBBLK-DESC
@@ -696,6 +726,7 @@ apic:
               - name: BLK1
                 description: INT-DESC
                 from_port: 1
+          - name: SEL2
         expected_state:
           minimum_health: 0
           maximum_critical_faults: 1000

@@ -4,6 +4,8 @@ apic:
     - name: infra
       l3outs:
         - name: IPN
+          vrf: overlay-1
+          domain: ANS-L3
           nodes:
             - node_id: 1001
               router_id: 100.100.100.1
@@ -41,6 +43,28 @@ apic:
           remote_leaf: true
           vrf: overlay-1
           domain: ANS-L3
+          bgp_infra_peers:
+            - ip: 23.23.23.3
+              remote_as: 65333
+            - ip: 23.23.23.4
+              remote_as: 65333
+              description: "Infra-BGP-Peer"
+              ttl: 10
+              local_as: 655334
+              peer_type: wan
+              allow_self_as: true
+              disable_peer_as_check: true
+              as_override: true
+              next_hop_self: true
+              send_community: true
+              send_ext_community: true
+              password: C1sco123
+              bfd: true
+              admin_state: false
+              as_propagate: no-prepend
+              source_interface_type: l3out-loopback
+              data_plane_address: 23.23.23.5/32
+              peer_prefix_policy: BGP_PP1
           nodes:
             - node_id: 302
               router_id: 32.32.32.1

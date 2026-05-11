@@ -226,7 +226,7 @@
                         {%- endif %}
                         {%- if bd.netflow_monitor_policies is defined %}{{ comma2() }}
                         {%- set comma3 = joiner(",") %}
-                        {%- for monitor in bd.netflow_monitor_policies %}{{ comma3() }}                       
+                        {%- for monitor in bd.netflow_monitor_policies %}{{ comma3() }}
                         {% set monitor_name = monitor.name ~ defaults.apic.tenants.policies.netflow_monitors.name_suffix %}
                         {
                             "fvRsBDToNetflowMonitorPol": {
@@ -238,7 +238,17 @@
                             }
                         }
                         {%- endfor %}
-                        {%- endif %}                          
+                        {%- endif %}
+                        {%- if bd.legacy_mode_vlan is defined %}{{ comma2() }}
+                        {
+                            "fvAccP": {
+                                "attributes": {
+                                    "annotation": "orchestrator:aac",
+                                    "encap": "vlan-{{ bd.legacy_mode_vlan }}"
+                                }
+                            }
+                        }
+                        {%- endif %}
                         {%- if bd.nd_interface_policy is defined %}{{ comma2() }}
                         {% set nd_interface_policy_name = bd.nd_interface_policy ~ defaults.apic.tenants.policies.nd_interface_policies.name_suffix %}
                         {
@@ -261,6 +271,27 @@
                             }
                         }
                         {%- endif %}
+                        {%- if bd.vxlan_stretch is defined %}{{ comma2() }}
+                        {% set border_gateway_set_policy_name = bd.vxlan_stretch.border_gateway_set_policy ~ defaults.apic.tenants.policies.border_gateway_set_policy.name_suffix %}
+                        {
+                            "fvVxGwFabrics": {
+                                "attributes": {
+                                    "remoteVni": "{{ bd.vxlan_stretch.normalized_vni }}"
+                                },
+                                "children": [
+                                    {
+                                        "fvConsBgwSet": {
+                                            "attributes": {
+                                                "name": "{{ border_gateway_set_policy_name }}"
+                                            }
+                                        }
+                                    }
+
+                                ]
+                            }
+                        }
+                        {%- endif %}
+
                     ]
                 }
             }

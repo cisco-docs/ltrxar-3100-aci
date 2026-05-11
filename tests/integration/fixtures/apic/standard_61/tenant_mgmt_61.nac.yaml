@@ -1,0 +1,15 @@
+---
+apic:
+  tenants:
+    - name: mgmt
+      inb_endpoint_groups:
+        - name: INB
+          vlan: 2
+          bridge_domain: inb
+          static_routes:
+            - 192.168.2.1/32
+
+      oob_endpoint_groups:
+        - name: OOB
+          static_routes:
+            - 192.168.1.1/32

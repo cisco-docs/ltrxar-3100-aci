@@ -15,14 +15,24 @@ Verify Pod {{ pod.id }} Setup
     Should Be Equal JMESPath Json   ${r}    imdata[0].fabricSetupP.attributes.tepPool   {{ pod.tep_pool }}
 {% endif %}
 {% for rlpool in pod.remote_pools | default([]) %}
-    ${rl}=    Set Variable    imdata[0].fabricSetupP.children[?fabricExtSetupP.attributes.extPoolId=={{ rlpool.id }}] | [0]
+    ${rl}=    Set Variable    imdata[0].fabricSetupP.children[?fabricExtSetupP.attributes.extPoolId=='{{ rlpool.id }}'] | [0]
     Should Be Equal JMESPath Json   ${r}    ${rl}.fabricExtSetupP.attributes.extPoolId   {{ rlpool.id }}
     Should Be Equal JMESPath Json   ${r}    ${rl}.fabricExtSetupP.attributes.tepPool   {{ rlpool.remote_pool }}
 {% endfor %}
 {% for extpool in pod.external_tep_pools | default([]) %}
-    ${el}=    Set Variable    imdata[0].fabricSetupP.children[?fabricExtRoutablePodSubnet.attributes.pool=="{{ extpool.prefix }}"] | [0]
+    ${el}=    Set Variable    imdata[0].fabricSetupP.children[?fabricExtRoutablePodSubnet.attributes.pool=='{{ extpool.prefix }}'] | [0]
     Should Be Equal JMESPath Json   ${r}    ${el}.fabricExtRoutablePodSubnet.attributes.pool   {{ extpool.prefix }}
     Should Be Equal JMESPath Json   ${r}    ${el}.fabricExtRoutablePodSubnet.attributes.reserveAddressCount   {{ extpool.reserved_address_count }}
+{% endfor %}
+
+{% for resiliency_group in pod.resiliency_groups | default([]) %}
+    ${rg}=    Set Variable    imdata[0].fabricSetupP.children[?fabricRlGroupP.attributes.name=='{{ resiliency_group.name }}'] | [0]
+    Should Be Equal JMESPath Json   ${r}    ${rg}.fabricRlGroupP.attributes.name    {{ resiliency_group.name }}
+    Should Be Equal JMESPath Json   ${r}    ${rg}.fabricRlGroupP.attributes.descr   {{ resiliency_group.description | default() }}
+    {% for remote_pool_id in resiliency_group.remote_pool_ids | default([]) %}
+        ${rp}=    Set Variable    ${rg}.fabricRlGroupP.children[?fabricRsRlGroupToExtSetup.attributes.tDn=='uni/controller/setuppol/setupp-{{ pod.id }}/extsetupp-{{ remote_pool_id }}'] | [0]
+        Should Be Equal JMESPath Json   ${r}    ${rp}.fabricRsRlGroupToExtSetup.attributes.tDn    uni/controller/setuppol/setupp-{{ pod.id }}/extsetupp-{{ remote_pool_id }}
+    {% endfor %}
 {% endfor %}
 
 {% endfor %}

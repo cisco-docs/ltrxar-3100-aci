@@ -101,13 +101,38 @@ Verify Leaf Interface Policy Group {{ policy_group_name }}
     Should Be Equal JMESPath Json   ${r}    imdata[0].infraAccPortGrp.children[?infraRsStormctrlIfPol] | [0].infraRsStormctrlIfPol.attributes.tnStormctrlIfPolName   {{ storm_control_policy_name }}
 {% endif %}
 {% endif %}
+{% if pg.port_security_policy is defined %}
+{% set port_security_policy_name = pg.port_security_policy ~ defaults.apic.access_policies.interface_policies.port_security_policies.name_suffix %}
+{% if pg.type == "breakout" %}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraBrkoutPortGrp.children[?infraRsL2PortSecurityPol] | [0].infraRsL2PortSecurityPol.attributes.tnL2PortSecurityPolName   {{ port_security_policy_name }}
+{% elif pg.type in ["vpc", "pc"] %}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraAccBndlGrp.children[?infraRsL2PortSecurityPol] | [0].infraRsL2PortSecurityPol.attributes.tnL2PortSecurityPolName   {{ port_security_policy_name }}
+{% else %}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraAccPortGrp.children[?infraRsL2PortSecurityPol] | [0].infraRsL2PortSecurityPol.attributes.tnL2PortSecurityPolName   {{ port_security_policy_name }}
+{% endif %}
+{% endif %}
+{% if pg.priority_flow_control_policy is defined %}
+{% set priority_flow_control_policy_name = pg.priority_flow_control_policy ~ defaults.apic.access_policies.interface_policies.priority_flow_control_policies.name_suffix %}
+{% if pg.type == "breakout" %}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraBrkoutPortGrp.children[?infraRsQosPfcIfPol] | [0].infraRsQosPfcIfPol.attributes.tnQosPfcIfPolName   {{ priority_flow_control_policy_name }}
+{% elif pg.type in ["vpc", "pc"] %}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraAccBndlGrp.children[?infraRsQosPfcIfPol] | [0].infraRsQosPfcIfPol.attributes.tnQosPfcIfPolName   {{ priority_flow_control_policy_name }}
+{% else %}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraAccPortGrp.children[?infraRsQosPfcIfPol] | [0].infraRsQosPfcIfPol.attributes.tnQosPfcIfPolName   {{ priority_flow_control_policy_name }}
+{% endif %}
+{% endif %}
 {% if pg.port_channel_policy is defined and pg.type in ["vpc", "pc"] %}
 {% set port_channel_policy_name = pg.port_channel_policy ~ defaults.apic.access_policies.interface_policies.port_channel_policies.name_suffix %}
     Should Be Equal JMESPath Json   ${r}    imdata[0].infraAccBndlGrp.children[?infraRsLacpPol] | [0].infraRsLacpPol.attributes.tnLacpLagPolName   {{ port_channel_policy_name }}
 {% endif %}
 {% if pg.port_channel_member_policy is defined and pg.type in ["vpc", "pc"] %}
 {% set port_channel_member_policy_name = pg.port_channel_member_policy ~ defaults.apic.access_policies.interface_policies.port_channel_member_policies.name_suffix %}
-    Should Be Equal JMESPath Json   ${r}    imdata[0].infraAccBndlGrp.children[?infraAccBndlSubgrp] | [0].infraAccBndlSubgrp.attributes.name   {{ policy_group_name }}
+{% if pg.port_channel_member_name is defined %}
+{% set port_channel_member_name = pg.port_channel_member_name %}
+{% else %}
+{% set port_channel_member_name = policy_group_name %}
+{% endif %}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraAccBndlGrp.children[?infraAccBndlSubgrp] | [0].infraAccBndlSubgrp.attributes.name   {{ port_channel_member_name }}
     Should Be Equal JMESPath Json   ${r}    imdata[0].infraAccBndlGrp.children[?infraAccBndlSubgrp] | [0].infraAccBndlSubgrp.children[?infraRsLacpInterfacePol] | [0].infraRsLacpInterfacePol.attributes.tnLacpIfPolName   {{ port_channel_member_policy_name }}
 {% endif %}
 {% if pg.aaep is defined %}

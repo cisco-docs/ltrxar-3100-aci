@@ -200,14 +200,14 @@ Verify SR MPLS L3out {{ l3out_name }} Infra L3out {{ infra_l3out_name }} Configu
 {% if l3out.inbound_route_map is defined %}
 
 Verify SR MPLS L3out {{ l3out_name }} Inbound Route Map
-    ${route_map}=   Set Variable   imdata[0].l3extOut.children[?l3extConsLbl.attributes.name=={{ infra_l3out_name }}] | [0].l3extConsLbl.children[?l3extRsLblToProfile.attributes.direction=='import'] | [0]
+    ${route_map}=   Set Variable   imdata[0].l3extOut.children[?l3extConsLbl.attributes.name=='{{ infra_l3out_name }}'] | [0].l3extConsLbl.children[?l3extRsLblToProfile.attributes.direction=='import'] | [0]
     Should Be Equal JMESPath Json   ${r}   ${route_map}.l3extRsLblToProfile.attributes.tDn   uni/tn-{{ tenant.name }}/prof-{{ l3out.inbound_route_map }}
 
 {% endif %}
 {% if l3out.outbound_route_map is defined %}
 
 Verify SR MPLS L3out {{ l3out_name }} Outbound Route Map
-    ${route_map}=   Set Variable    imdata[0].l3extOut.children[?l3extConsLbl.attributes.name=={{ infra_l3out_name }}] | [0].l3extConsLbl.children[?l3extRsLblToProfile.attributes.direction=='export'] | [0]
+    ${route_map}=   Set Variable    imdata[0].l3extOut.children[?l3extConsLbl.attributes.name=='{{ infra_l3out_name }}'] | [0].l3extConsLbl.children[?l3extRsLblToProfile.attributes.direction=='export'] | [0]
     Should Be Equal JMESPath Json   ${r}   ${route_map}.l3extRsLblToProfile.attributes.tDn   uni/tn-{{ tenant.name }}/prof-{{ l3out.outbound_route_map }}
 
 {% endif %}

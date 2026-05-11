@@ -49,6 +49,28 @@
                             }
                         }
                         {%- endif %}
+                        {%- if pg.cdp_policy is defined %}{{ comma2() }}
+                        {% set cdp_policy_name = pg.cdp_policy ~ defaults.apic.access_policies.interface_policies.cdp_policies.name_suffix %}
+                        {
+                            "infraRsLeafPGrpToCdpIfPol": {
+                                "attributes": {
+                                    "annotation": "orchestrator:aac",
+                                    "tnCdpIfPolName ": "{{ cdp_policy_name }}"
+                                }
+                            }
+                        }
+                        {%- endif %}
+                        {%- if pg.lldp_policy is defined %}{{ comma2() }}
+                        {% set lldp_policy_name = pg.lldp_policy ~ defaults.apic.access_policies.interface_policies.lldp_policies.name_suffix %}
+                        {
+                            "infraRsLeafPGrpToLldpIfPol": {
+                                "attributes": {
+                                    "annotation": "orchestrator:aac",
+                                    "tnLldpIfPolName ": "{{ lldp_policy_name }}"
+                                }
+                            }
+                        }
+                        {%- endif %}
                     ]
                 }
             }

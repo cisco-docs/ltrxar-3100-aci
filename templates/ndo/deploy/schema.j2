@@ -181,22 +181,7 @@
                         }
                         {%- endfor %}
 
-                    ]
-                    {%- if bd.dhcp_relay_policy is defined %},
-                    {% set dhcp_relay_policy_name = bd.dhcp_relay_policy ~ defaults.ndo.policies.dhcp_relays.name_suffix %}
-                    "dhcpLabel": {
-                        "name": "{{ dhcp_relay_policy_name }}",
-                        "version": 1
-                        {%- if bd.dhcp_option_policy is defined %},
-                        {% set dhcp_option_name = bd.dhcp_option_policy ~ defaults.ndo.policies.dhcp_options.name_suffix %}
-                        "dhcpOptionLabel": {
-                            "name": "{{ dhcp_option_name }}",
-                            "version": 1
-                        }
-                        {%- endif %}
-
-                    }
-                    {%- endif %},
+                    ],
                     {% if bd.dhcp_policies is defined %}
                     "dhcpLabels": [
                         {%- set comma3 = joiner(",") %}

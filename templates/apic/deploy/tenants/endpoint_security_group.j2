@@ -141,6 +141,27 @@
                                         }
                                     }
                                     {%- endfor %}
+                                    {%- for sel in esg.ip_external_subnet_selectors | default([]) %}{{ comma3() }}
+                                    {
+                                        "fvExternalSubnetSelector": {
+                                            "attributes": {
+                                                "annotation": "orchestrator:aac",
+                                                "descr": "{{ sel.description | default() }}",
+                                                "ip": "{{ sel.ip }}",
+                                                "shared": "{{ 'yes' if sel.shared | default(defaults.apic.tenants.application_profiles.endpoint_security_groups.ip_external_subnet_selectors.shared) else 'no' }}"
+                                            }
+                                        }
+                                    }
+                                    {%- endfor %}
+                                    {%- if esg.normalized_pctag is defined %}{{ comma3() }}
+                                    {
+                                        "fvRemoteSGT": {
+                                            "attributes": {
+                                                "remotePcTag": "{{ esg.normalized_pctag }}"
+                                            }
+                                        }
+                                    }
+                                    {%- endif %}
 
                                 ]
                             }

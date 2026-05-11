@@ -1,0 +1,12 @@
+---
+ndo:
+  version: nd4.1
+  system_config:
+    banner:
+      type: critical
+      state: active
+      message: Fabric Managed by ACI As Code - NO GUI configuration changes are to be made direct on this fabric
+  sites:
+    - name: APIC1
+      apic_urls:
+        - https://10.48.161.121

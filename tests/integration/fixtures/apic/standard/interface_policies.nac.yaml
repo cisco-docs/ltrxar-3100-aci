@@ -20,9 +20,10 @@ apic:
             description: interface descr 2
             policy_group: PC1
           - port: 4
-            policy_group: ACC1
+            policy_group: PC2
           - port: 5
             description: reserved
+            policy_group: PC3
           - port: 6
             policy_group: VPC2
           - port: 10

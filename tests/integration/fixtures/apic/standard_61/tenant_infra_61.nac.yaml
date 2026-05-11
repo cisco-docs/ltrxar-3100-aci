@@ -1,0 +1,79 @@
+---
+apic:
+  tenants:
+    - name: infra
+      vxlan_l3outs:
+        - name: vxlan-l3out
+          description: vxlan l3out
+          border_gateway_set_policy: BorderGatewaySet
+
+          node_profiles:
+            - name: BGW-NP
+              description: Border Gateway Node Profile
+              vxlan_custom_qos_policy: VxlanCustomQos
+              nodes:
+                - node_id: 401
+                  pod_id: 1
+                  loopback: 1.1.1.1/32
+              interface_profiles:
+                - name: BWG-IP
+                  description: Border Gateway Interface Profile
+                  bfd_policy: BFD_POL
+                  interfaces:
+                    - node_id: 401
+                      port: 10
+                      mtu: 9000
+                      ip: 172.16.3.1/24
+                      bgp_peers:
+                        - ip: 172.16.3.10
+                          description: peer1
+                          remote_as: 65123
+                          admin_state: true
+                          password: Cisco@123
+                          bfd: true
+                          peer_prefix_policy: PEER_POL
+                          local_as: 123
+                          as_propagate: no-prepend
+                        - ip: 172.16.3.11
+                          remote_as: 65124
+
+      policies:
+        border_gateway_set_policy:
+          name: BorderGatewaySet
+          vxlan_site_id: 65122
+          external_data_plane_ips:
+            - pod_id: 1
+              ip: 10.2.3.4
+        remote_vxlan_fabrics:
+          - name: fabric-1
+            border_gateway_set_policy: BorderGatewaySet
+            remote_evpn_peers:
+              - ip: 172.16.2.10
+                remote_as: 65123
+                description: peer1
+                admin_state: true
+                disable_peer_as_check: true
+                password: Cisco@123
+                ttl: 12
+                peer_prefix_policy: PEER_POL
+                as_propagate: no-prepend
+                local_as: 123
+              - ip: 172.16.2.1
+                remote_as: 65124
+          - name: fabric-2
+
+        vxlan_custom_qos_policies:
+          - name: VxlanCustomQos
+            description: VXLAN Custom Qos Policy
+            ingress_rules:
+              - priority: level1
+                dscp_from: CS0
+                dscp_to: CS1
+                dscp_target: CS0
+                cos_target: 1
+            egress_rules:
+              - dscp_from: AF13
+                dscp_to: AF12
+                dscp_target: AF12
+                cos_target: 1
+          - name: VxlanCustomQos2

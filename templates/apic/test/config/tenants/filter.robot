@@ -33,6 +33,9 @@ Verify Tenant {{ tenant.name }} Filter {{ filter.name }} Entry {{ entry_name }}
     Should Be Equal JMESPath Json   ${r}   ${filter_entry}.attributes.etherT   {{ entry.ethertype | default(defaults.apic.tenants.filters.entries.ethertype) }}
 {% if entry.ethertype | default(defaults.apic.tenants.filters.entries.ethertype) in ['ip', 'ipv4', 'ipv6'] %}
     Should Be Equal JMESPath Json   ${r}   ${filter_entry}.attributes.prot   {{ entry.protocol | default(defaults.apic.tenants.filters.entries.protocol) }}
+{% if entry.match_only_fragments | default(defaults.apic.tenants.filters.entries.match_only_fragments) %}
+    Should Be Equal JMESPath Json   ${r}   ${filter_entry}.attributes.applyToFrag   {{ 'yes' if entry.match_only_fragments | default(defaults.apic.tenants.filters.entries.match_only_fragments) else 'no' }}
+{% endif %}
 {% if entry.protocol | default(defaults.apic.tenants.filters.entries.protocol) in ['tcp', 'udp'] %}
     Should Be Equal JMESPath Json   ${r}   ${filter_entry}.attributes.sFromPort   {{ get_protocol_from_port(entry.source_from_port | default(defaults.apic.tenants.filters.entries.source_from_port)) }}
     Should Be Equal JMESPath Json   ${r}   ${filter_entry}.attributes.sToPort   {{ get_protocol_from_port(entry.source_to_port| default(entry.source_from_port | default(defaults.apic.tenants.filters.entries.source_from_port))) }}

@@ -1,0 +1,74 @@
+---
+ndo:
+  tenant_templates:
+    tenant_policies:
+      - name: TP1
+        tenant: NDO1
+        sites:
+          - APIC1
+        dhcp_relay_policies:
+          - name: DRP1
+            description: DHCP Relay Policy
+            providers:
+              - name: P1
+                ip: 1.1.1.1
+                type: epg
+                schema: ABC
+                template: TEMPLATE1
+                application_profile: AP1
+                endpoint_group: EPG1
+                use_server_vrf: true
+              - name: P2
+                ip: 2.2.2.2
+                type: external_epg
+                schema: ABC
+                template: TEMPLATE1
+                external_endpoint_group: EXT-EPG1
+          - name: DRP2
+            providers:
+              - name: P3
+                ip: 3.3.3.3
+                type: epg
+                schema: ABC
+                template: TEMPLATE1
+                application_profile: AP1
+                endpoint_group: EPG2
+        ip_sla_policies:
+          - name: HTTP
+            description: HTTP SLA Policy
+            frequency: 120
+            multiplier: 4
+            sla_type: http
+            http_version: HTTP11
+            http_uri: /tmp
+            request_data_size: 1024
+            type_of_service: 2
+            timeout: 800
+            threshold: 800
+            ipv6_traffic_class: 2
+          - name: TCP
+            description: ICMP SLA Policy
+            sla_type: tcp
+            port: 44
+          - name: ICMP
+          - name: L2Path
+            sla_type: l2ping
+        multicast_route_maps:
+          - name: MRM1
+            description: Multicast Route Map
+            entries:
+              - order: 1
+                source_ip: 1.2.3.4/32
+                group_ip: 224.0.0.0/8
+                rp_ip: 3.4.5.6
+                action: permit
+              - order: 2
+                source_ip: 7.8.9.10/32
+                group_ip: 224.0.0.0/8
+          - name: MRM2
+            entries:
+              - order: 1
+                source_ip: 1.2.3.4/32
+                group_ip: 226.2.2.2/8
+                rp_ip: 5.6.7.8
+                action: permit

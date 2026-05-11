@@ -2,6 +2,27 @@
 apic:
   tenants:
     - name: infra
+      l3outs:
+        - name: INFRA_L3OUT
+          vrf: overlay-1
+          domain: ROUTED1
+          node_profiles:
+            - name: NODE_PROFILE
+              bgp:
+                name: BGP_PROT1
+                timer_policy: BGP_TIMER1
+                as_path_policy: BGP_AS_PATH1
+              nodes:
+                - node_id: 101
+                  router_id: 126.126.126.126
+              interface_profiles:
+                - name: INTERFACE_PROFILE
+                  interfaces:
+                    - node_id: 101
+                      port: 17
+                      ip: 14.14.14.1/24
+          external_endpoint_groups:
+            - name: RL_EPG
       sr_mpls_l3outs:
         - name: INFRA_SR_MPLS_L3
           description: Infra SR-MPLS L3out
@@ -38,6 +59,8 @@ apic:
                       bgp_peers:
                         - ip: 10.10.10.1
                           remote_as: 65123
+                          local_as: 31200
+                          peer_prefix_policy: BGP_PP1
                     - node_id: 102
                       channel: PC1
                       vlan: 101

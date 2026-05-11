@@ -13,7 +13,7 @@ Resource        ../../apic_common.resource
 {% set leaf_interface_profile_name = (node.id ~ ":" ~ node.name) | regex_replace("^(?P<id>.+):(?P<name>.+)$", (apic.access_policies.leaf_interface_profile_name | default(defaults.apic.access_policies.leaf_interface_profile_name))) %}
 {% set leaf_switch_selector_name = (node.id ~ ":" ~ node.name) | regex_replace("^(?P<id>.+):(?P<name>.+)$", (apic.access_policies.leaf_switch_selector_name | default(defaults.apic.access_policies.leaf_switch_selector_name))) %}
 
-Verify Access Leaf Switch Profile {{ leaf_switch_profile_name }}
+Verify (Auto-Generated) Access Leaf Switch Profile {{ leaf_switch_profile_name }}
     ${r}=   GET On Session   apic   /api/mo/uni/infra/nprof-{{ leaf_switch_profile_name }}.json   params=rsp-subtree=full
     Set Suite Variable   $r   ${r.json()}
     Should Be Equal JMESPath Json   ${r}    imdata[0].infraNodeP.attributes.name   {{ leaf_switch_profile_name }}

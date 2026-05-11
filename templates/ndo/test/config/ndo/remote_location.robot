@@ -1,3 +1,4 @@
+{% if ndo.version | default(defaults.ndo.version) != "nd4.1" %}
 *** Settings ***
 Documentation   Verify Remote Location
 Suite Setup     Login NDO
@@ -7,18 +8,19 @@ Resource        ../../ndo_common.resource
 *** Test Cases ***
 Get Remote Locations
     ${r}=   GET On Session   ndo   /api/v1/platform/remote-locations
-    Set Suite Variable   ${r}
+    Set Suite Variable   $r   ${r.json()}
 
 {% for remote in ndo.remote_locations | default([]) %}
 
 Verify Remote Location {{ remote.name }}
     ${remote}=   Set Variable   remoteLocations[?name=='{{ remote.name }}'] | [0]
-    Should Be Equal JMESPath Json   ${r.json()}   ${remote}.name   {{ remote.name }}
-    Should Be Equal JMESPath Json   ${r.json()}   ${remote}.description   {{ remote.description | default() }}
-    Should Be Equal JMESPath Json   ${r.json()}   ${remote}.credential.hostname   {{ remote.hostname_ip }}
-    Should Be Equal JMESPath Json Integer   ${r.json()}   ${remote}.credential.port   {{ remote.port | default(defaults.ndo.remote_locations.port) }}
-    Should Be Equal JMESPath Json   ${r.json()}   ${remote}.credential.remotePath   {{ remote.path | default(defaults.ndo.remote_locations.path) }}
-    Should Be Equal JMESPath Json   ${r.json()}   ${remote}.credential.protocolType   {{ remote.protocol | default(defaults.ndo.remote_locations.protocol) }}
-    Should Be Equal JMESPath Json   ${r.json()}   ${remote}.credential.authType   {{ remote.authentication | default(defaults.ndo.remote_locations.authentication) }}
+    Should Be Equal JMESPath Json   ${r}   ${remote}.name   {{ remote.name }}
+    Should Be Equal JMESPath Json   ${r}   ${remote}.description   {{ remote.description | default() }}
+    Should Be Equal JMESPath Json   ${r}   ${remote}.credential.hostname   {{ remote.hostname_ip }}
+    Should Be Equal JMESPath Json Integer   ${r}   ${remote}.credential.port   {{ remote.port | default(defaults.ndo.remote_locations.port) }}
+    Should Be Equal JMESPath Json   ${r}   ${remote}.credential.remotePath   {{ remote.path | default(defaults.ndo.remote_locations.path) }}
+    Should Be Equal JMESPath Json   ${r}   ${remote}.credential.protocolType   {{ remote.protocol | default(defaults.ndo.remote_locations.protocol) }}
+    Should Be Equal JMESPath Json   ${r}   ${remote}.credential.authType   {{ remote.authentication | default(defaults.ndo.remote_locations.authentication) }}
 
 {% endfor %}
+{% endif %}

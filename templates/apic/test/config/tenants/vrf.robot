@@ -41,21 +41,64 @@ Verify VRF {{ vrf_name }}
     Should Be Equal JMESPath Json   ${r}   imdata[0].fvCtx.children[?fvRsCtxToEpRet] | [0].fvRsCtxToEpRet.attributes.tnFvEpRetPolName   {{ endpoint_retention_policy_name }}
 {% endif %}
 
+{% if vrf.snmp_context is defined %}
+{% set snmp_context_name = vrf.snmp_context.name ~ defaults.apic.tenants.vrfs.snmp_context.name_suffix %}
+
+Verify VRF {{ vrf_name }} SNMP Context {{ snmp_context_name }}
+    ${snmp_context}=   Set Variable   imdata[0].fvCtx.children[?snmpCtxP.attributes.name=='{{ snmp_context_name }}'] | [0].snmpCtxP
+    Should Be Equal JMESPath Json   ${r}   ${snmp_context}.attributes.name   {{ snmp_context_name }}
+
+{% for community_profile in vrf.snmp_context.community_profiles | default([]) %}
+{% set community_profile_name = community_profile.name ~ defaults.apic.tenants.vrfs.snmp_context.community_profiles.name_suffix %}
+
+Verify VRF {{ vrf_name }} SNMP Context {{ snmp_context_name }} Community Profile {{ community_profile_name }}
+    ${snmp_context}=   Set Variable   imdata[0].fvCtx.children[?snmpCtxP.attributes.name=='{{ snmp_context_name }}'] | [0].snmpCtxP
+    ${comm_profile}=   Set Variable   ${snmp_context}.children[?snmpCommunityP.attributes.name=='{{ community_profile_name }}'] | [0].snmpCommunityP
+    Should Be Equal JMESPath Json   ${r}   ${comm_profile}.attributes.name   {{ community_profile_name }}
+    Should Be Equal JMESPath Json   ${r}   ${comm_profile}.attributes.descr   {{ community_profile.description | default("") }}
+
+{% endfor %}
+{% endif %}
+
+{% for prefix in vrf.leaked_internal_subnets | default([]) %}
+
+Verify VRF {{ vrf_name }} Leaked Internal Subnet {{ prefix.prefix }}
+    ${prefix}=   Set Variable   imdata[0].fvCtx.children[?leakRoutes] | [0].leakRoutes.children[?leakInternalSubnet.attributes.ip=='{{ prefix.prefix }}'] | [0].leakInternalSubnet
+    Should Be Equal JMESPath Json   ${r}   ${prefix}.attributes.ip   {{ prefix.prefix }}
+    Should Be Equal JMESPath Json   ${r}   ${prefix}.attributes.scope   {{ 'public' if prefix.public | default(defaults.apic.tenants.vrfs.leaked_internal_subnets.public) else 'private' }}
+
+{% for destination in prefix.destinations | default([]) %}
+{% set dest_vrf_name = destination.vrf ~ ('' if vrf.name in ('inb', 'obb', 'overlay-1') else defaults.apic.tenants.vrfs.name_suffix) %}
+
+Verify VRF {{ vrf_name }} Leaked Internal Subnet {{ prefix.prefix }} Destination {{ destination.tenant }} {{ dest_vrf_name }}
+    ${prefix}=   Set Variable   imdata[0].fvCtx.children[?leakRoutes] | [0].leakRoutes.children[?leakInternalSubnet.attributes.ip=='{{ prefix.prefix }}'] | [0].leakInternalSubnet
+    ${dest}=   Set Variable   ${prefix}.children[?leakTo.attributes.ctxName=='{{ dest_vrf_name }}' && leakTo.attributes.tenantName=='{{ destination.tenant }}'] | [0].leakTo
+    Should Be Equal JMESPath Json   ${r}   ${dest}.attributes.descr   {{ destination.description | default("") }}
+    Should Be Equal JMESPath Json   ${r}   ${dest}.attributes.ctxName   {{ dest_vrf_name }}
+    Should Be Equal JMESPath Json   ${r}   ${dest}.attributes.tenantName   {{ destination.tenant }}
+    Should Be Equal JMESPath Json   ${r}   ${dest}.attributes.scope   {{ ('public' if destination.public else 'private') if destination.public is defined else 'inherit' }}
+
+{% endfor %}
+{% endfor %}
+
+{# Test leaked_internal_prefixes (leakInternalPrefix) - APIC 5.2+ #}
 {% for prefix in vrf.leaked_internal_prefixes | default([]) %}
 
 Verify VRF {{ vrf_name }} Leaked Internal Prefix {{ prefix.prefix }}
-    ${prefix}=   Set Variable   imdata[0].fvCtx.children[?leakRoutes] | [0].leakRoutes.children[?leakInternalSubnet.attributes.ip=='{{ prefix.prefix }}'] | [0].leakInternalSubnet
+    ${prefix}=   Set Variable   imdata[0].fvCtx.children[?leakRoutes] | [0].leakRoutes.children[?leakInternalPrefix.attributes.ip=='{{ prefix.prefix }}'] | [0].leakInternalPrefix
     Should Be Equal JMESPath Json   ${r}   ${prefix}.attributes.ip   {{ prefix.prefix }}
     Should Be Equal JMESPath Json   ${r}   ${prefix}.attributes.scope   {{ 'public' if prefix.public | default(defaults.apic.tenants.vrfs.leaked_internal_prefixes.public) else 'private' }}
+    Should Be Equal JMESPath Json   ${r}   ${prefix}.attributes.ge   {{ prefix.from_prefix_length | default(defaults.apic.tenants.vrfs.leaked_internal_prefixes.from_prefix_length) }}
+    Should Be Equal JMESPath Json   ${r}   ${prefix}.attributes.le   {{ prefix.to_prefix_length | default(defaults.apic.tenants.vrfs.leaked_internal_prefixes.to_prefix_length) }}
 
 {% for destination in prefix.destinations | default([]) %}
-{% set vrf_name = destination.vrf ~ ('' if vrf.name in ('inb', 'obb', 'overlay-1') else defaults.apic.tenants.vrfs.name_suffix) %}
+{% set dest_vrf_name = destination.vrf ~ ('' if vrf.name in ('inb', 'obb', 'overlay-1') else defaults.apic.tenants.vrfs.name_suffix) %}
 
-Verify VRF {{ vrf_name }} Leaked Internal Prefix {{ prefix.prefix }} Destination {{ destination.tenant }} {{ vrf_name }}
-    ${prefix}=   Set Variable   imdata[0].fvCtx.children[?leakRoutes] | [0].leakRoutes.children[?leakInternalSubnet.attributes.ip=='{{ prefix.prefix }}'] | [0].leakInternalSubnet
-    ${dest}=   Set Variable   ${prefix}.children[?leakTo.attributes.ctxName=='{{ vrf_name }}' && leakTo.attributes.tenantName=='{{ destination.tenant }}'] | [0].leakTo
+Verify VRF {{ vrf_name }} Leaked Internal Prefix {{ prefix.prefix }} Destination {{ destination.tenant }} {{ dest_vrf_name }}
+    ${prefix}=   Set Variable   imdata[0].fvCtx.children[?leakRoutes] | [0].leakRoutes.children[?leakInternalPrefix.attributes.ip=='{{ prefix.prefix }}'] | [0].leakInternalPrefix
+    ${dest}=   Set Variable   ${prefix}.children[?leakTo.attributes.ctxName=='{{ dest_vrf_name }}' && leakTo.attributes.tenantName=='{{ destination.tenant }}'] | [0].leakTo
     Should Be Equal JMESPath Json   ${r}   ${dest}.attributes.descr   {{ destination.description | default("") }}
-    Should Be Equal JMESPath Json   ${r}   ${dest}.attributes.ctxName   {{ vrf_name }}
+    Should Be Equal JMESPath Json   ${r}   ${dest}.attributes.ctxName   {{ dest_vrf_name }}
     Should Be Equal JMESPath Json   ${r}   ${dest}.attributes.tenantName   {{ destination.tenant }}
     Should Be Equal JMESPath Json   ${r}   ${dest}.attributes.scope   {{ ('public' if destination.public else 'private') if destination.public is defined else 'inherit' }}
 
@@ -67,8 +110,8 @@ Verify VRF {{ vrf_name }} Leaked Internal Prefix {{ prefix.prefix }} Destination
 Verify VRF {{ vrf_name }} Leaked External Prefix {{ prefix.prefix }}
     ${prefix}=   Set Variable   imdata[0].fvCtx.children[?leakRoutes] | [0].leakRoutes.children[?leakExternalPrefix.attributes.ip=='{{ prefix.prefix }}'] | [0].leakExternalPrefix
     Should Be Equal JMESPath Json   ${r}   ${prefix}.attributes.ip   {{ prefix.prefix }}
-    Should Be Equal JMESPath Json   ${r}   ${prefix}.attributes.le   {{ prefix.to_prefix_length | default('unspecified') }}
-    Should Be Equal JMESPath Json   ${r}   ${prefix}.attributes.ge   {{ prefix.from_prefix_length | default('unspecified') }}
+    Should Be Equal JMESPath Json   ${r}   ${prefix}.attributes.le   {{ prefix.to_prefix_length | default(defaults.apic.tenants.vrfs.leaked_external_prefixes.to_prefix_length) }}
+    Should Be Equal JMESPath Json   ${r}   ${prefix}.attributes.ge   {{ prefix.from_prefix_length | default(defaults.apic.tenants.vrfs.leaked_external_prefixes.from_prefix_length) }}
 
 {% for destination in prefix.destinations | default([]) %}
 {% set vrf_name = destination.vrf ~ ('' if vrf.name in ('inb', 'obb', 'overlay-1') else defaults.apic.tenants.vrfs.name_suffix) %}

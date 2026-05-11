@@ -27,6 +27,17 @@
                             }
                         }
                         {%- endif %}
+                        {% if pg.cdp_policy is defined %}{{ comma2() }}
+                        {% set cdp_policy_name = pg.cdp_policy ~ defaults.apic.access_policies.interface_policies.cdp_policies.name_suffix %}
+                        {
+                            "infraRsSpinePGrpToCdpIfPol": {
+                                "attributes": {
+                                    "annotation": "orchestrator:aac",
+                                    "tnCdpIfPolName": "{{ cdp_policy_name }}"
+                                }
+                            }
+                        }
+                        {%- endif %}
                         {%- if pg.bfd_ipv4_policy is defined %}{{ comma2() }}
                         {% set bfd_ipv4_policy_name = pg.bfd_ipv4_policy ~ defaults.apic.access_policies.switch_policies.bfd_ipv4_policies.name_suffix %}
                         {

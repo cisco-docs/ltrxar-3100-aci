@@ -27,10 +27,16 @@ Verify OOB Contract {{ contract_name }} Subject {{ subject_name }}
 
 {% for filter in subject.filters | default([]) %}
 {% set filter_name = filter.filter ~ defaults.apic.tenants.filters.name_suffix %}
+{% set directives = [] %}
+{% if filter.log | default(defaults.apic.tenants.oob_contracts.subjects.filters.log) %}{% set directives = directives + [("log")] %}{% endif %}
+{% if filter.no_stats | default(defaults.apic.tenants.oob_contracts.subjects.filters.no_stats) %}{% set directives = directives + [("no_stats")] %}{% endif %}
 
 Verify OOB Contract {{ contract_name }} Subject {{ subject_name }} Filter {{ filter_name }}
     ${filter}=   Set Variable   imdata[0].vzOOBBrCP.children[?vzSubj.attributes.name=='{{ subject_name }}'] | [0].vzSubj.children[?vzRsSubjFiltAtt.attributes.tnVzFilterName=='{{ filter_name }}'] | [0]
     Should Be Equal JMESPath Json   ${r}   ${filter}.vzRsSubjFiltAtt.attributes.tnVzFilterName   {{ filter_name }}
+    Should Be Equal JMESPath Json   ${r}   ${filter}.vzRsSubjFiltAtt.attributes.action   {{ filter.action | default(defaults.apic.tenants.oob_contracts.subjects.filters.action) }}
+    Should Be Equal JMESPath Json   ${r}   ${filter}.vzRsSubjFiltAtt.attributes.directives   {{ directives | join(',') }}
+    Should Be Equal JMESPath Json   ${r}   ${filter}.vzRsSubjFiltAtt.attributes.priorityOverride   {{ filter.priority | default(defaults.apic.tenants.oob_contracts.subjects.filters.priority) }}
 
 {% endfor %}
 

@@ -1,0 +1,99 @@
+{# iterate_list apic.tenants name item[2] #}
+{% set tenant = ((apic | default()) | community.general.json_query('tenants[?name==`' ~ item[2] ~ '`]'))[0] %}
+{
+    "fvTenant": {
+        "attributes": {
+            "dn": "uni/tn-{{ tenant.name }}",
+            "name": "{{ tenant.name }}"
+        },
+        "children": [
+            {%- set comma1 = joiner(",") %}
+            {% if tenant.name == "infra" %}
+            {%- for fabric in tenant.policies.remote_vxlan_fabrics | default([]) %}{{ comma1() }}
+            {% set fabric_name = fabric.name ~ defaults.apic.tenants.policies.remote_vxlan_fabrics.name_suffix %}
+            {
+                "vxlanRemoteFabric": {
+                    "attributes": {
+                        "name": "{{ fabric_name }}",
+                        "dn": "uni/tn-infra/vxlanremotefabric-{{ fabric_name }}",
+                        "childAction": "deleteNonPresent"
+                    },
+                    "children": [
+                        {%- set comma2 = joiner(",") %}
+                        {%- for peer in fabric.remote_evpn_peers | default([]) %}{{ comma2() }}
+                        {% set ctrl = [] %}
+                        {% set ctrl = ctrl + [("send-com")] %}
+                        {% set ctrl = ctrl + [("send-ext-com")] %}
+                        {%- if peer.allow_self_as | default(defaults.apic.tenants.policies.remote_vxlan_fabrics.remote_evpn_peers.allow_self_as) %}{% set ctrl = ctrl + [("allow-self-as")] %}{% endif %}
+                        {%- if peer.disable_peer_as_check | default(defaults.apic.tenants.policies.remote_vxlan_fabrics.remote_evpn_peers.disable_peer_as_check) %}{% set ctrl = ctrl + [("dis-peer-as-check")] %}{% endif %}
+                        {
+                            "bgpInfraPeerP": {
+                                "attributes": {
+                                    "addr": "{{ peer.ip }}",
+                                    "adminSt": "{{'enabled' if peer.admin_state | default(defaults.apic.tenants.policies.remote_vxlan_fabrics.remote_evpn_peers.admin_state) else 'disabled' }}",
+                                    "ctrl": "{{ ctrl | join(',') }}",
+                                    "descr": "{{ peer.description | default() }}",
+                                    "peerCtrl": "",
+                                    "peerT": "vxlan-bgw",
+                                    {% if peer.password is defined %}
+                                    "password": "{{ peer.password }}",
+                                    {% endif %}
+                                    "ttl": "{{ peer.ttl | default(defaults.apic.tenants.policies.remote_vxlan_fabrics.remote_evpn_peers.ttl) }}",
+                                    "childAction": "deleteNonPresent"
+                                },
+                                "children": [
+                                    {
+                                        "bgpAsP": {
+                                            "attributes": {
+                                                "annotation": "orchestrator:aac",
+                                                "asn": "{{ peer.remote_as }}"
+                                            }
+                                        }
+                                    }
+                                    {%- if peer.local_as is defined %},
+                                    {
+                                        "bgpLocalAsnP": {
+                                            "attributes": {
+                                                "annotation": "orchestrator:aac",
+                                                "localAsn": "{{ peer.local_as }}",
+                                                "asnPropagate" : "{{ peer.as_propagate | default(defaults.apic.tenants.policies.remote_vxlan_fabrics.remote_evpn_peers.as_propagate) }}"
+                                            }
+                                        }
+                                    }
+                                    {%- endif %}
+                                    {%- if peer.peer_prefix_policy is defined %},
+                                    {% set peer_prefix_policy_name = peer.peer_prefix_policy ~ defaults.apic.tenants.policies.bgp_peer_prefix_policies.name_suffix %}
+                                    {
+                                        "bgpRsPeerPfxPol": {
+                                            "attributes": {
+                                                "annotation": "orchestrator:aac",
+                                                "tnBgpPeerPfxPolName": "{{ peer_prefix_policy_name }}"
+                                            }
+                                        }
+                                    }
+                                    {%- endif %}
+
+                                ]
+                            }
+                        }
+                        {%- endfor %}
+                        {% if fabric.border_gateway_set_policy is defined %}{{ comma2() }}
+                        {% set border_gateway_set_policy = fabric.border_gateway_set_policy ~ defaults.apic.tenants.policies.border_gateway_set_policy.name_suffix%}
+                        {
+                            "vxlanRsRemoteFabricToBgwSet": {
+                                "attributes": {
+                                    "tDn": "uni/tn-infra/vxlanbgwset-{{ border_gateway_set_policy }}"
+                                }
+                            }
+                        }
+                        {% endif %}
+
+                    ]
+                }
+            }
+            {%- endfor %}
+            {% endif %}
+
+        ]
+    }
+}

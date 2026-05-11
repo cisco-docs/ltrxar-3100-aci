@@ -1,0 +1,13 @@
+---
+apic:
+  node_policies:
+    nodes:
+      - id: 401
+        pod: 1
+        role: leaf
+        type: border-gateway
+        set_role: true
+        serial_number: TEP-1-401
+        name: leaf-401
+        oob_address: 10.48.168.40/24
+        oob_gateway: 10.48.168.1

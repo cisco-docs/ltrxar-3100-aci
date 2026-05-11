@@ -20,6 +20,7 @@ module "ndo" {
   manage_site_connectivity = true
   manage_tenants           = true
   manage_schemas           = true
+  manage_tenant_templates  = true
   deploy_templates         = true
 
   write_default_values_file = "defaults.yaml"

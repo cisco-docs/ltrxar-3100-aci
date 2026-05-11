@@ -23,6 +23,8 @@ apic:
         - name: L3OUT_MICROBFD
           vrf: VRF1
           domain: ROUTED1
+          pim_policy: PIM1
+          igmp_interface_policy: IGMP_IF1
           dhcp_labels:
             - dhcp_relay_policy: DHCP-RELAY1
               dhcp_option_policy: DHCP-OPTION1
@@ -94,6 +96,20 @@ apic:
                   bgp_peers:
                     - ip: 34.34.34.36
                       remote_as: 65010
+
+        - name: L3OUT_NO_ROUTING
+          vrf: VRF1
+          domain: ROUTED1
+          nodes:
+            - node_id: 101
+              router_id: 5.5.5.5
+              router_id_as_loopback: false
+              interfaces:
+                - channel: PC3
+                  ip: 14.14.16.1/30
+                  micro_bfd:
+                    destination_ip: 14.14.16.2
+                    start_timer: 120
 
       policies:
         set_rules:

@@ -1,6 +1,7 @@
 {# iterate_list_folder ndo.remote_locations name item #}
 {% set query = "remote_locations[?name==`" ~ item ~ "`]" %}
 {% set remote = (ndo | community.general.json_query(query))[0] %}
+{% if ndo.version | default(defaults.ndo.version) != "nd4.1" %}
 {
     "name": "{{ remote.name }}",
     "description": "{{ remote.description | default() }}",
@@ -16,3 +17,4 @@
         "passPhrase": "{{ remote.passphrase | default() }}"
     }
 }
+{% endif %}

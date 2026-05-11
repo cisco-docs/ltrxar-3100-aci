@@ -17,8 +17,6 @@ Example-1: The following example defines the BGP-TIMER1 BGP Timer Policy in the 
 *   `graceful_restart_helper`: This boolean parameter (`true` or `false`) dictates whether the local BGP router acts as a graceful restart helper for its BGP peers. When enabled, it helps maintain routing stability by not immediately removing routes from a peer that is undergoing a restart. The example sets this to `false`. Enabling this is a strong best practice for enhancing network resilience during peer reloads.
 *   `maximum_as_limit`: This integer parameter sets a limit on the number of Autonomous Systems (ASes) allowed in the AS-Path attribute of a BGP route. Routes exceeding this limit are typically discarded, serving as a protective measure against routing loops or misconfigurations. The example sets this to 2. Setting this value greater than 0 is a recommended security and stability control, as it helps protect against routing loops or malicious activity.
 
-Example-2: Full example
-
 ```yaml
 apic:
   tenants:

@@ -1,0 +1,94 @@
+{# iterate_list apic.tenants name item[2] #}
+{% set tenant = ((apic | default()) | community.general.json_query('tenants[?name==`' ~ item[2] ~ '`]'))[0] %}
+{
+    "fvTenant": {
+        "attributes": {
+            "dn": "uni/tn-{{ tenant.name }}",
+            "name": "{{ tenant.name }}"
+        },
+        "children": [
+            {%- set comma1 = joiner(",") %}
+            {%- for vrf in tenant.vrfs | default([]) %}
+            {% set vrf_name = vrf.name ~ defaults.apic.tenants.vrfs.name_suffix %}
+            {% set border_gateway_set_policy_name = vrf.vxlan_stretch.border_gateway_set_policy | default("") %}
+            {%- if vrf.vxlan_stretch is defined %}{{ comma1() }}
+            {
+                "l3extOut": {
+                    "attributes": {
+                        "descr": "{{ l3out.description | default() }}",
+                        "dn": "uni/tn-{{ tenant.name }}/out-vxlan_vrf_{{ tenant.name }}_{{ vrf_name }}",
+                        "name": "vxlan_vrf_{{ tenant.name }}_{{ vrf_name }}"
+                    },
+                    "children": [
+                        {
+                            "vxlanExtP": {
+                                "attributes": {
+                                    "dn": "uni/tn-{{ tenant.name }}/out-vxlan_vrf_{{ tenant.name }}_{{ vrf_name }}/vxlanextp"
+                                }
+                            }
+                        },
+                        {
+                            "l3extInstP": {
+                                "attributes": {
+                                    "dn": "uni/tn-{{ tenant.name }}/out-vxlan_vrf_{{ tenant.name }}_{{ vrf_name }}/instP-vxlan_vrf_{{ tenant.name }}_{{ vrf_name }}_vxlanInstP",
+                                    "name": "vxlan_vrf_{{ tenant.name }}_{{ vrf_name }}_vxlanInstP"
+                                }
+                            }
+                        },
+                        {
+                            "l3extRsEctx": {
+                                "attributes": {
+                                    "dn": "uni/tn-{{ tenant.name }}/out-vxlan_vrf_{{ tenant.name }}_{{ vrf_name }}/rsectx",
+                                    "tnFvCtxName": "{{ vrf_name }}"
+                                }
+                            }
+                        },
+                        {
+                            "l3extVxGwFabrics": {
+                                "attributes": {
+                                    "dn": "uni/tn-{{ tenant.name }}/out-vxlan_vrf_{{ tenant.name }}_{{ vrf_name }}/vxgwfabrics",
+                                    "remoteVni": "{{ vrf.vxlan_stretch.normalized_vni }}"
+                                },
+                                "children": [
+                                    {
+                                        "l3extConsBgwSet": {
+                                            "attributes": {
+                                                "name": "{{ border_gateway_set_policy_name }}"
+                                            }
+                                        }
+                                    }
+                                    {%- if vrf.vxlan_stretch.import_route_map is defined %},
+                                    {% set import_route_map_name = vrf.vxlan_stretch.import_route_map ~ defaults.apic.tenants.policies.route_control_route_maps.name_suffix %}
+                                    {
+                                        "l3extRsVxGwToRtProfile": {
+                                            "attributes": {
+                                                "direction": "import",
+                                                "tDn": "uni/tn-{{ tenant.name }}/prof-{{ import_route_map_name }}"
+                                            }
+                                        }
+                                    }
+                                    {%- endif %}
+                                    {%- if vrf.vxlan_stretch.export_route_map is defined %},
+                                    {% set export_route_map_name = vrf.vxlan_stretch.export_route_map ~ defaults.apic.tenants.policies.route_control_route_maps.name_suffix %}
+                                    {
+                                        "l3extRsVxGwToRtProfile": {
+                                            "attributes": {
+                                                "direction": "export",
+                                                "tDn": "uni/tn-{{ tenant.name }}/prof-{{ export_route_map_name }}"
+                                            }
+                                        }
+                                    }
+                                    {%- endif %}
+
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+            {%- endif %}
+            {%- endfor %}
+
+        ]
+    }
+}

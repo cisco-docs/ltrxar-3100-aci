@@ -72,7 +72,34 @@
                                 ]
                             }
                         }
-                        {%- if vrf.leaked_internal_prefixes is defined or vrf.leaked_external_prefixes is defined %}{{ comma1() }}
+                        {%- if vrf.snmp_context is defined %}{{ comma1() }}
+                        {% set snmp_context_name = vrf.snmp_context.name ~ defaults.apic.tenants.vrfs.snmp_context.name_suffix %}
+                        {
+                            "snmpCtxP": {
+                            "attributes": {
+                                "annotation": "orchestrator:aac",
+                                "name": "{{ snmp_context_name }}"
+                                },
+                                "children": [
+                                    {%- set comma2 = joiner(",") %}
+                                    {%- for community_profile in vrf.snmp_context.community_profiles | default([]) %}{{ comma2() }}
+                                    {% set community_profile_name = community_profile.name ~ defaults.apic.tenants.vrfs.snmp_context.community_profiles.name_suffix %}
+                                    {
+                                        "snmpCommunityP": {
+                                            "attributes": {
+                                            "annotation": "orchestrator:aac",
+                                            "descr": "{{ community_profile.description | default("") }}",
+                                            "name": "{{ community_profile_name }}"
+                                            }
+                                        }
+                                    }
+                                    {%- endfor %}
+
+                                ]
+                            }
+                        }
+                        {% endif %}
+                        {%- if vrf.leaked_internal_subnets is defined or vrf.leaked_internal_prefixes is defined or vrf.leaked_external_prefixes is defined %}{{ comma1() }}
                         {
                             "leakRoutes": {
                                 "attributes": {
@@ -80,24 +107,25 @@
                                 },
                                 "children": [
                                     {%- set comma2 = joiner(",") %}
-                                    {%- for prefix in vrf.leaked_internal_prefixes | default([]) %}{{ comma2() }}
+                                    {# leakInternalSubnet - EPG/BD Subnets (leaked_internal_subnets) #}
+                                    {%- for prefix in vrf.leaked_internal_subnets | default([]) %}{{ comma2() }}
                                     {
                                         "leakInternalSubnet": {
                                             "attributes": {
                                                 "annotation": "orchestrator:aac",
                                                 "ip": "{{ prefix.prefix }}",
-                                                "scope": "{% if prefix.public | default(defaults.apic.tenants.vrfs.leaked_internal_prefixes.public) %}public{% else %}private{% endif %}"
+                                                "scope": "{% if prefix.public | default(defaults.apic.tenants.vrfs.leaked_internal_subnets.public) %}public{% else %}private{% endif %}"
                                             },
                                             "children": [
                                                 {%- set comma3 = joiner(",") %}
                                                 {%- for destination in prefix.destinations | default([]) %}{{ comma3() }}
-                                                {% set vrf_name = destination.vrf ~ ('' if vrf.name in ('inb', 'obb', 'overlay-1') else defaults.apic.tenants.vrfs.name_suffix) %}
+                                                {% set dest_vrf_name = destination.vrf ~ ('' if vrf.name in ('inb', 'obb', 'overlay-1') else defaults.apic.tenants.vrfs.name_suffix) %}
                                                 {
                                                     "leakTo": {
                                                         "attributes": {
                                                             "annotation": "orchestrator:aac",
                                                             "descr": "{{ destination.description | default("") }}",
-                                                            "ctxName": "{{ vrf_name }}",
+                                                            "ctxName": "{{ dest_vrf_name }}",
                                                             "tenantName": "{{ destination.tenant }}",
                                                             "scope": "{% if destination.public is defined %}{% if destination.public %}public{% else %}private{% endif %}{% else %}inherit{% endif %}"
                                                         }
@@ -109,25 +137,58 @@
                                         }
                                     }
                                     {%- endfor %}
+                                    {# leakInternalPrefix - Internal Prefixes (leaked_internal_prefixes) - scope attribute requires APIC 6.1+ #}
+                                    {%- for prefix in vrf.leaked_internal_prefixes | default([]) %}{{ comma2() }}
+                                    {
+                                        "leakInternalPrefix": {
+                                            "attributes": {
+                                                "annotation": "orchestrator:aac",
+                                                "ip": "{{ prefix.prefix }}",
+                                                "scope": "{% if prefix.public | default(defaults.apic.tenants.vrfs.leaked_internal_prefixes.public) %}public{% else %}private{% endif %}",
+                                                "ge": "{{ prefix.from_prefix_length | default(defaults.apic.tenants.vrfs.leaked_internal_prefixes.from_prefix_length) }}",
+                                                "le": "{{ prefix.to_prefix_length | default(defaults.apic.tenants.vrfs.leaked_internal_prefixes.to_prefix_length) }}"
+                                            },
+                                            "children": [
+                                                {%- set comma3 = joiner(",") %}
+                                                {%- for destination in prefix.destinations | default([]) %}{{ comma3() }}
+                                                {% set dest_vrf_name = destination.vrf ~ ('' if vrf.name in ('inb', 'obb', 'overlay-1') else defaults.apic.tenants.vrfs.name_suffix) %}
+                                                {
+                                                    "leakTo": {
+                                                        "attributes": {
+                                                            "annotation": "orchestrator:aac",
+                                                            "descr": "{{ destination.description | default("") }}",
+                                                            "ctxName": "{{ dest_vrf_name }}",
+                                                            "tenantName": "{{ destination.tenant }}",
+                                                            "scope": "{% if destination.public is defined %}{% if destination.public %}public{% else %}private{% endif %}{% else %}inherit{% endif %}"
+                                                        }
+                                                    }
+                                                }
+                                                {%- endfor %}
+
+                                            ]
+                                        }
+                                    }
+                                    {%- endfor %}
+                                    {# leakExternalPrefix - External Prefixes (leaked_external_prefixes) #}
                                     {%- for prefix in vrf.leaked_external_prefixes | default([]) %}{{ comma2() }}
                                     {
                                         "leakExternalPrefix": {
                                             "attributes": {
                                                 "annotation": "orchestrator:aac",
                                                 "ip": "{{ prefix.prefix }}",
-                                                "le": "{{ prefix.to_prefix_length | default('unspecified') }}",
-                                                "ge": "{{ prefix.from_prefix_length | default('unspecified') }}"
+                                                "le": "{{ prefix.to_prefix_length | default(defaults.apic.tenants.vrfs.leaked_external_prefixes.to_prefix_length) }}",
+                                                "ge": "{{ prefix.from_prefix_length | default(defaults.apic.tenants.vrfs.leaked_external_prefixes.from_prefix_length) }}"
                                             },
                                             "children": [
                                                 {%- set comma3 = joiner(",") %}
                                                 {%- for destination in prefix.destinations | default([]) %}{{ comma3() }}
-                                                {% set vrf_name = destination.vrf ~ ('' if vrf.name in ('inb', 'obb', 'overlay-1') else defaults.apic.tenants.vrfs.name_suffix) %}
+                                                {% set dest_vrf_name = destination.vrf ~ ('' if vrf.name in ('inb', 'obb', 'overlay-1') else defaults.apic.tenants.vrfs.name_suffix) %}
                                                 {
                                                     "leakTo": {
                                                         "attributes": {
                                                             "annotation": "orchestrator:aac",
                                                             "descr": "{{ destination.description | default("") }}",
-                                                            "ctxName": "{{ vrf_name }}",
+                                                            "ctxName": "{{ dest_vrf_name }}",
                                                             "tenantName": "{{ destination.tenant }}"
                                                         }
                                                     }
@@ -143,6 +204,7 @@
                             }
                         }
                         {%- endif %}
+
                         {%- if vrf.transit_route_tag_policy is defined %}{{ comma1() }}
                         {% set transit_route_tag_policy_name = vrf.transit_route_tag_policy ~ defaults.apic.tenants.policies.route_tag_policies.name_suffix %}
                         {

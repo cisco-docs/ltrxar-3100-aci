@@ -39,4 +39,8 @@ apic:
               description: My Desc
               filters:
                 - filter: ALL
+                  action: deny
+                  priority: level1
+                  log: true
+                  no_stats: true
 ```

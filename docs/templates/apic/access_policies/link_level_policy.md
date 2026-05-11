@@ -28,10 +28,11 @@ Example 2: The YAML snippet below demonstrates the flexibility of converting a f
 ```yaml
 apic:
   access_policies:
-    link_level_policies:
-        - name: 10G-CU
-          speed: 10G
-          auto: true
-          fec_mode: inherit
-          physical_media_type: sfp-10g-tx
+    interface_policies:
+      link_level_policies:
+          - name: 10G-CU
+            speed: 10G
+            auto: true
+            fec_mode: inherit
+            physical_media_type: sfp-10g-tx
 ```

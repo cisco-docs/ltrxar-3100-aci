@@ -125,6 +125,28 @@
                             }
                         }
                         {%- endif %}
+                        {%- if pg.port_security_policy is defined %}{{ comma2() }}
+                        {% set port_security_policy_name = pg.port_security_policy ~ defaults.apic.access_policies.interface_policies.port_security_policies.name_suffix %}
+                        {
+                            "infraRsL2PortSecurityPol": {
+                                "attributes": {
+                                    "annotation": "orchestrator:aac",
+                                    "tnL2PortSecurityPolName": "{{ port_security_policy_name }}"
+                                }
+                            }
+                        }
+                        {%- endif %}
+                        {%- if pg.priority_flow_control_policy is defined %}{{ comma2() }}
+                        {% set priority_flow_control_policy_name = pg.priority_flow_control_policy ~ defaults.apic.access_policies.interface_policies.priority_flow_control_policies.name_suffix %}
+                        {
+                            "infraRsQosPfcIfPol": {
+                                "attributes": {
+                                    "annotation": "orchestrator:aac",
+                                    "tnQosPfcIfPolName": "{{ priority_flow_control_policy_name }}"
+                                }
+                            }
+                        }
+                        {%- endif %}
                         {%- if pg.port_channel_policy is defined and pg.type in ["vpc", "pc"] %}{{ comma2() }}
                         {% set port_channel_policy_name = pg.port_channel_policy ~ defaults.apic.access_policies.interface_policies.port_channel_policies.name_suffix %}
                         {
@@ -138,11 +160,16 @@
                         {%- endif %}
                         {%- if pg.port_channel_member_policy is defined and pg.type in ["vpc", "pc"] %}{{ comma2() }}
                         {% set port_channel_member_policy_name = pg.port_channel_member_policy ~ defaults.apic.access_policies.interface_policies.port_channel_member_policies.name_suffix %}
+                        {%- if pg.port_channel_member_name is defined %}
+                        {% set port_channel_member_name = pg.port_channel_member_name %}
+                        {%- else %}
+                        {% set port_channel_member_name = policy_group_name %}
+                        {%- endif %}
                         {
                             "infraAccBndlSubgrp": {
                                 "attributes": {
                                     "annotation": "orchestrator:aac",
-                                    "name": "{{ policy_group_name }}"
+                                    "name": "{{ port_channel_member_name }}"
                                 },
                                 "children": [
                                     {

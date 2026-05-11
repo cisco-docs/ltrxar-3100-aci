@@ -47,7 +47,29 @@
                                         }
                                     }
                                     {%- endfor %}
-
+                                    {%- for resiliency_group in pod.resiliency_groups | default([]) %}{{ comma2() }}
+                                    {
+                                        "fabricRlGroupP": {
+                                            "attributes": {
+                                                "annotation": "orchestrator:aac",
+                                                "descr": "{{ resiliency_group.description | default('') }}",
+                                                "name": "{{ resiliency_group.name }}"
+                                            },
+                                            "children": [
+                                                {%- set comma3 = joiner(",") %}
+                                                {%- for remote_pool_id in resiliency_group.remote_pool_ids | default([]) %}{{ comma3() }}
+                                                {
+                                                    "fabricRsRlGroupToExtSetup": {
+                                                        "attributes": {
+                                                            "annotation": "orchestrator:aac",
+                                                            "tDn": "uni/controller/setuppol/setupp-{{ pod.id }}/extsetupp-{{ remote_pool_id }}"                                                        }
+                                                    }
+                                                }
+                                                {%- endfor %}
+                                            ]
+                                        }
+                                    }
+                                    {%- endfor %}
                                 ]
                             }
                         }

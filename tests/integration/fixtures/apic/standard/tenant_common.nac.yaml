@@ -1,0 +1,7 @@
+---
+apic:
+  tenants:
+    - name: 'common'
+      policies:
+        ip_sla_policies:
+          - name: SHARED_IP_SLA_POLICY

@@ -15,6 +15,12 @@ apic:
           enforcement_direction: egress
           enforcement_preference: unenforced
           transit_route_tag_policy: TRP1
+          snmp_context:
+            name: VRF1_SNMP_CTX
+            community_profiles:
+              - name: COMM-PROF1
+                description: Community Profile 1 Description
+              - name: COMM-PROF2
           bgp:
             timer_policy: BGP-TIMER1
             ipv6_address_family_context_policy: BAFCP-IPV6
@@ -181,6 +187,18 @@ apic:
           vrf: VRF1
           domain: ROUTED1
           bfd_policy: BFD1
+          import_route_map:
+            name: example-import-name
+            description: example-import-description
+            type: global
+            contexts:
+              - name: CONTEXT1
+          export_route_map:
+            name: example-export-name
+            description: example-export-description
+            type: global
+            contexts:
+              - name: CONTEXT1
           bgp:
             timer_policy: BGP-TIMER1
             as_path_policy: BGP-BEST-PATH1
@@ -195,6 +213,9 @@ apic:
             auth_key: cisco
             auth_key_id: 1
             policy: OIP1
+          nd_interface_policy: ND_INT1
+          ingress_data_plane_policing_policy: TEN_DPP1
+          egress_data_plane_policing_policy: TEN_DPP2
           bgp_peers:
             - ip: 14.14.14.12
               remote_as: 65010
@@ -246,6 +267,8 @@ apic:
                       track_list: TRACK_LIST_1
                     - ip: 7.1.1.1
                       ip_sla_policy: EXAMPLE
+                    - ip: 7.1.1.2
+                      ip_sla_policy: SHARED_IP_SLA_POLICY
                   track_list: TRACK_LIST_1
               interfaces:
                 - port: 10
@@ -253,13 +276,21 @@ apic:
                   ip: 7.7.7.7/24
                   mac: 00:22:BD:F8:19:11
                   mtu: "inherit"
-                - channel: VPC1
+                - channel: PC2
                   svi: true
                   autostate: true
                   vlan: 301
+                  ip: 14.14.13.1/24
+                  ip_shared: 14.13.13.3/24
+                  ip_shared_dhcp_relay: true
+                - channel: VPC1
+                  svi: true
+                  autostate: true
+                  vlan: 302
                   ip_a: 14.14.14.1/24
                   ip_b: 14.14.14.2/24
                   ip_shared: 14.14.14.3/24
+                  ip_shared_dhcp_relay: true
                   link_local_address: fe80::ffff:ffff:ffff:ffff
                   mode: native
                   bgp_peers:
@@ -283,13 +314,6 @@ apic:
                       import_route_control: ROUTE_MAP2
                     - ip: 14.14.14.15
                       remote_as: 65010
-                - floating_svi: true
-                  autostate: true
-                  vlan: 302
-                  ip: 24.24.24.24/24
-                  paths:
-                    - floating_ip: 24.24.24.25/24
-                      physical_domain: PHY1
           external_endpoint_groups:
             - name: L3OUT1-EPG1
               subnets:
@@ -337,6 +361,31 @@ apic:
             maximum_major_faults: 1000
             maximum_minor_faults: 1000
 
+        - name: L3OUT_EIGRP
+          vrf: VRF1
+          domain: ROUTED1
+          eigrp:
+            asn: 65000
+            interface_policy: EIGRP-IF1
+          node_profiles:
+            - name: NP1
+              interface_profiles:
+                - name: IP1
+                  interfaces:
+                  - floating_svi: true
+                    node_id: 101
+                    ip: 1.3.1.2/24
+                    vlan: 136
+                    paths:
+                      - floating_ip: 1.3.1.1/24
+                        forged_transmit: true
+                        promiscous_mode: true
+                        mac_change: true
+                        vmware_vmm_domain: VMM1
+                        elag: ELAGDefault
+          external_endpoint_groups:
+            - name: L3OUT_EIGRP-EPG1
+
         - name: L3OUT2
           ndo_managed: true
           vrf: VRF1
@@ -347,6 +396,7 @@ apic:
           l3_multicast_ipv4: true
           node_profiles:
             - name: NP1
+              description: Node Profile 1
               bgp:
                 name: BGP_PROT1
                 timer_policy: BGP-TIMER1
@@ -383,6 +433,7 @@ apic:
                     - prefix: 3.3.3.0/24
                       description: My Desc
                       preference: 1
+                      track_list: L3OUT2-STATIC-ROUTE-TRACK
                       next_hops:
                         - ip: 8.8.8.9
                           ip_sla_policy: EXAMPLE
@@ -396,6 +447,13 @@ apic:
                   qos_class: level3
                   custom_qos_policy: TEST_QOS_POLICY
                   nd_interface_policy: ND_INT1
+                  ospf:
+                    ospf_interface_profile_name: OSPF-IF-PROF-1
+                    policy: OSPF-POL-1
+                  eigrp:
+                    interface_profile_name: EIGRP-IF-PROF-1
+                    interface_policy: EIGRP-IF1
+                  bfd_policy: BFD-POL-1
                   netflow_monitor_policies:
                     - name: MONITOR1
                       ip_filter_type: ipv4
@@ -432,9 +490,15 @@ apic:
                       floating_svi: true
                       vlan: 304
                       ip: 34.34.34.34/24
+                      autostate: true
                       paths:
                         - floating_ip: 34.34.34.35/24
                           physical_domain: PHY1
+                          # The following attribute is not supported in 5.2(x). No need to add a whole new test fixture just for this.
+                          # vlan: 304
+                      bgp_peers:
+                        - ip: 8.7.7.8
+                          remote_as: 65010
           external_endpoint_groups:
             - name: EXT-EPG1
               ndo_managed: true
@@ -465,6 +529,9 @@ apic:
                   export_route_control: true
                   bgp_route_summarization: true
                   bgp_route_summarization_policy: "BGP_RS_POLICY1"
+                - prefix: 21.0.0.0/8
+                  export_route_control: true
+                  bgp_route_summarization: true
               contracts:
                 consumers:
                   - CON1
@@ -476,6 +543,12 @@ apic:
                   - IMPORT-CON1
                   - IMPORT-CON2
             - name: EXT-EPG2
+              contracts:
+                masters:
+                  - l3out: L3OUT2
+                    external_endpoint_group: EXT-EPG1
+                  - l3out: L3OUT1
+                    external_endpoint_group: L3OUT1-EPG1
           import_route_map:
             description: desc
             type: global
@@ -578,6 +651,7 @@ apic:
                   netflow: false
                   deployment_immediacy: lazy
                   resolution_immediacy: immediate
+                  port_binding: dynamic
                   allow_promiscuous: reject
                   forged_transmits: reject
                   mac_changes: reject
@@ -643,6 +717,18 @@ apic:
                     - 4.4.4.1
                     - 4.4.4.2
                     - 4.4.4.3
+                - name: ST_EP5
+                  mac: 00:00:00:00:00:05
+                  type: silent-host
+                  channel: VPC1
+                  vlan: 200
+                  node_id: 101
+                  node2_id: 102
+                - name: ST_EP6
+                  mac: 00:00:00:00:00:06
+                  type: silent-host
+                  channel: PC1
+                  vlan: 200
               contracts:
                 consumers:
                   - CON1
@@ -695,6 +781,7 @@ apic:
                   no_default_gateway: true
                   nlb_mode: mode-mcast-static
                   nlb_mac: 03:00:0C:CC:CC:CC
+                  ip_dataplane_learning: true
                 - ip: fd00:0:abcd:2::2/64
                   description: My IPv6 Desc
                   public: true
@@ -729,9 +816,16 @@ apic:
             - name: EPG3
               bridge_domain: BD1
               intra_epg_isolation: true
+              vmware_vmm_domains:
+                - name: VMM1
+                  vlan: 133
+                  primary_vlan: 135
+                  secondary_vlan: 134
             - name: EPG5
               bridge_domain: BD5
               preferred_group: true
+              vmware_vmm_domains:
+                - name: VMM1
           useg_endpoint_groups:
             - name: uSeg_EPG1
               bridge_domain: BD2
@@ -747,6 +841,7 @@ apic:
                 - name: VMM1
                   netflow: false
                   deployment_immediacy: lazy
+                  port_binding: static
                   elag: ELAGCustom
                   active_uplinks_order: 1,2
                   standby_uplinks: 3,4
@@ -932,7 +1027,7 @@ apic:
                   action: permit
                   priority: default
                   log: true
-                  no_stats: false
+                  no_stats: true
             provider_to_consumer:
               service_graph: TEMPLATE2
               qos_class: "level1"
@@ -974,6 +1069,10 @@ apic:
               destination_from_port: http
               destination_to_port: http
               stateful: true
+            - name: TCP_FRAGMENTS
+              ethertype: ip
+              protocol: tcp
+              match_only_fragments: true
             - name: HTTPS1
               destination_from_port: https
         - name: FILTER2
@@ -1075,11 +1174,8 @@ apic:
             description: a_description
             options:
               - name: OPTION1
-                id: 13
+                id: 79
                 data: DATA1
-              - name: OPTION2
-                id: 15
-                data: DATA2
           - name: DHCP-OPTION2
         route_tag_policies:
           - name: TAG1
@@ -1401,7 +1497,7 @@ apic:
             destination_ip: 1.2.3.4
             scope_type: bd
             scope: BD1
-            ip_sla_policy: EXAMPLE
+            ip_sla_policy: SHARED_IP_SLA_POLICY
         endpoint_retention_policies:
           - name: ERP1
             description: My Endpoint Retention policy
@@ -1411,6 +1507,41 @@ apic:
             local_endpoint_aging_interval: 180
             move_frequency: 0
           - name: ERP2
+        hsrp_interface_policies:
+          - name: HSRP_IF1
+            description: HSRP interface policy with BFD
+            bfd_enable: true
+            use_bia: false
+            delay: 5
+            reload_delay: 10
+          - name: HSRP_IF2
+            description: HSRP interface policy with BIA
+            bfd_enable: false
+            use_bia: true
+            delay: 0
+            reload_delay: 0
+          - name: HSRP_IF3
+        hsrp_group_policies:
+          - name: HSRP_GRP1
+            description: HSRP group policy with preemption
+            preempt: true
+            hello_interval: 1000
+            hold_interval: 3000
+            priority: 150
+            auth_type: md5
+            key: secure_key
+            preempt_delay_min: 60
+            preempt_delay_reload: 300
+            preempt_delay_max: 60
+            timeout: 90
+          - name: HSRP_GRP2
+            description: Default HSRP group policy
+            preempt: false
+            hello_interval: 3000
+            hold_interval: 10000
+            priority: 100
+            auth_type: simple
+          - name: HSRP_GRP3
         data_plane_policing_policies:
           - name: TEN_DPP1
             admin_state: true
@@ -1486,7 +1617,6 @@ apic:
             source_type: ptep
             destination_port: 123
             destination_ip: 1.2.3.4
-            dscp: AF41
         netflow_monitors:
           - name: MONITOR1
             description: monitor 1
@@ -1604,6 +1734,16 @@ apic:
                   - name: INT1
                     node_id: 101
                     port: 22
+          - name: Node-1
+          - name: Node-2
+          - name: CopyDevice-1
+            copy_device: true
+            function: None
+            service_type: COPY
+          - name: CopyDevice-2
+            copy_device: true
+            function: None
+            service_type: COPY
         redirect_policies:
           - name: PBR1
             alias: PBR1
@@ -1663,6 +1803,8 @@ apic:
                   l4l7_device: DEV-L2
                   concrete_device: DEV1-L2
                   interface: INT1
+          - name: PBR_SHARED_POLICY
+            ip_sla_policy: SHARED_IP_SLA_POLICY
         service_epg_policies:
           - name: SERVICE_EPG1
             description: My Desc
@@ -1721,11 +1863,50 @@ apic:
             device:
               name: DEV2
               node_name: node1
+              adjacency_type: L2
           - name: TEMPLATE-COPY
             template_type: OTHER
             device:
               tenant: ABC
               name: DEV-COPY
+              adjacency_type: L3
+          - name: PBR_SG_Minimal
+            devices:
+              - name: Node-1
+              - name: Node-2
+              - name: CopyDevice-1
+            connections:
+              - consumer_node: EPG-Consumer
+                provider_node: Node-1
+                copy_node: CopyDevice-1
+              - consumer_node: Node-1
+                provider_node: Node-2
+                copy_node: CopyDevice-1
+              - consumer_node: Node-2
+                provider_node: EPG-Provider
+          - name: PBR_SG_Full
+            devices:
+              - name: Node-1
+                node_name: N1
+                tenant: ABC
+              - name: CopyDevice-1
+                node_name: C1
+              - name: CopyDevice-2
+                template_type: FW_TRANS
+              - name: Node-2
+            connections:
+              - consumer_node: EPG-Consumer
+                provider_node: Node-1
+                copy_node: CopyDevice-1
+              - consumer_node: Node-1
+                provider_node: Node-2
+                copy_node: CopyDevice-2
+                adjacency_type: L2
+                unicast_route: false
+              - consumer_node: Node-2
+                provider_node: EPG-Provider
+                copy_node: CopyDevice-1
+                direct_connect: true
         device_selection_policies:
           - contract: CON1
             service_graph_template: TEMPLATE1

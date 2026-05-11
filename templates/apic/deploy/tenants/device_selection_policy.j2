@@ -11,12 +11,17 @@
             {%- for dsp in tenant.services.device_selection_policies | default([]) %}{{ comma1() }}
             {% set query = "service_graph_templates[?name==`" ~ dsp.service_graph_template ~ "`]" %}
             {% set sgt = (tenant.services | community.general.json_query(query))[0] %}
+            {% if sgt.devices is defined %}
+            {% set sgt_device = (sgt.devices | selectattr('device_name', 'equalto', dsp.device_name) | list)[0] %}
+            {% else %}
+            {% set sgt_device = sgt.device %}
+            {% endif %}
             {% set contract_name = dsp.contract ~ defaults.apic.tenants.contracts.name_suffix %}
             {% set sgt_name = dsp.service_graph_template ~ defaults.apic.tenants.services.service_graph_templates.name_suffix %}
             {% if dsp.device_name is defined %}
             {% set dev_name = dsp.device_name ~ defaults.apic.tenants.services.l4l7_devices.name_suffix %}
             {% else %}
-            {% set dev_name = sgt.device.name ~ defaults.apic.tenants.services.l4l7_devices.name_suffix %}
+            {% set dev_name = sgt_device.name ~ defaults.apic.tenants.services.l4l7_devices.name_suffix %}
             {% endif %}
             {
                 "vnsLDevCtx": {
@@ -33,7 +38,7 @@
                             "vnsRsLDevCtxToLDev": {
                                 "attributes": {
                                     "annotation": "orchestrator:aac",
-                                    "tDn": "uni/tn-{{ sgt.device.tenant | default(tenant.name) }}/lDevVip-{{ dev_name }}"
+                                    "tDn": "{% if sgt_device.tenant is defined and sgt_device.tenant != tenant.name %}uni/tn-{{ tenant.name }}/lDevIf-[uni/tn-{{ sgt_device.tenant }}/lDevVip-{{ dev_name }}]{% else %}uni/tn-{{ tenant.name }}/lDevVip-{{ dev_name }}{% endif %}"
                                 }
                             }
                         },
@@ -114,7 +119,7 @@
                                         "vnsRsLIfCtxToLIf": {
                                             "attributes": {
                                                 "annotation": "orchestrator:aac",
-                                                "tDn": "uni/tn-{{ sgt.device.tenant | default(tenant.name) }}/lDevVip-{{ dev_name }}/lIf-{{ int_name }}"
+                                                "tDn": "{% if sgt_device.tenant is defined and sgt_device.tenant != tenant.name %}uni/tn-{{ tenant.name }}/lDevIf-[uni/tn-{{ sgt_device.tenant }}/lDevVip-{{ dev_name }}]/lDevIfLIf-{{ int_name }}{% else %}uni/tn-{{ tenant.name }}/lDevVip-{{ dev_name }}/lIf-{{ int_name }}{% endif %}"
                                             }
                                         }
                                     }
@@ -197,7 +202,7 @@
                                         "vnsRsLIfCtxToLIf": {
                                             "attributes": {
                                                 "annotation": "orchestrator:aac",
-                                                "tDn": "uni/tn-{{ sgt.device.tenant | default(tenant.name) }}/lDevVip-{{ dev_name }}/lIf-{{ int_name }}"
+                                                "tDn": "{% if sgt_device.tenant is defined and sgt_device.tenant != tenant.name %}uni/tn-{{ tenant.name }}/lDevIf-[uni/tn-{{ sgt_device.tenant }}/lDevVip-{{ dev_name }}]/lDevIfLIf-{{ int_name }}{% else %}uni/tn-{{ tenant.name }}/lDevVip-{{ dev_name }}/lIf-{{ int_name }}{% endif %}"
                                             }
                                         }
                                     }
@@ -242,7 +247,7 @@
                                         "vnsRsLIfCtxToLIf": {
                                             "attributes": {
                                                 "annotation": "orchestrator:aac",
-                                                "tDn": "uni/tn-{{ sgt.device.tenant | default(tenant.name) }}/lDevVip-{{ dev_name }}/lIf-{{ int_name }}"
+                                                "tDn": "{% if sgt_device.tenant is defined and sgt_device.tenant != tenant.name %}uni/tn-{{ tenant.name }}/lDevIf-[uni/tn-{{ sgt_device.tenant }}/lDevVip-{{ dev_name }}]/lDevIfLIf-{{ int_name }}{% else %}uni/tn-{{ tenant.name }}/lDevVip-{{ dev_name }}/lIf-{{ int_name }}{% endif %}"
                                             }
                                         }
                                     }

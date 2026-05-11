@@ -44,7 +44,7 @@ Verify Login Domain {{ login_domain.name }} LDAP Provider Group
     Should Be Equal JMESPath Json   ${r}    imdata[0].aaaLdapProviderGroup.attributes.ldapGroupMapRef   {{ login_domain.ldap_group_map }}
 {% endif %}
 
-{% for prov in login_domain.ldap.providers | default([]) %}
+{% for prov in login_domain.ldap_providers | default([]) %}
 
 Verify Login Domain {{ login_domain.name }} LDAP Provider {{ prov.hostname_ip }}
     ${r}=   GET On Session   apic   api/node/mo/uni/userext/ldapext/ldapprovidergroup-{{ login_domain.name }}/providerref-{{ prov.hostname_ip }}.json

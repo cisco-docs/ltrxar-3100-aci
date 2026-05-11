@@ -11,6 +11,8 @@ Example-1: This data model specifies two IP addresses (`10.0.0.1` and `10.0.0.2`
 
 Track Members are the fundamental units of IP SLA monitoring. They represent endpoints or next-hop IP addresses whose reachability is continuously verified. The monitoring results dynamically influence network behavior, such as static route tracking, which can be associated with either an L3Out or a Bridge Domain (BD) and referenced by a Track List.
 
+If IP SLA Policy is not existing in configured Tenant's Data Model and it exists in `common` Tenant Data Model, then relation for ip_sla_policy attribute will reflect IP SLA Policy in `common` Tenant.
+
 ```yaml
 apic:
   tenants:

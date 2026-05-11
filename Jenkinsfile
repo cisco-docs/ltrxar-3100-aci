@@ -1,7 +1,7 @@
 pipeline {
     agent {
         docker {
-            image 'danischm/nac:0.1.6'
+            image 'danischm/nac:0.2.1'
             label 'digidev'
             args '-u root'
         }
@@ -51,19 +51,6 @@ pipeline {
         }
         stage('Test') {
             parallel {
-                stage('Test APIC 4.2') {
-                    steps {
-                        lock(resource: 'nac-ci-apic1-4.2.4i') {
-                            sh 'pytest -m "apic_42 and not terraform"'
-                        }
-                    }
-                    post {
-                        always {
-                            junit 'apic_4.2_xunit.xml'
-                            archiveArtifacts 'apic_4.2_*.html, apic_4.2_*.xml'
-                        }
-                    }
-                }
                 stage('Test APIC 5.2') {
                     steps {
                         lock(resource: 'nac-ci-apic1-5.2.1g') {
@@ -92,7 +79,7 @@ pipeline {
                 }
                 stage('Test APIC 6.1') {
                     steps {
-                        lock(resource: 'nac-ci-vapic1-6.1.4h') {
+                        lock(resource: 'nac-ci-vapic1-6.1.5e') {
                             sh 'pytest -m "apic_61 and not terraform"'
                         }
                     }
@@ -103,10 +90,36 @@ pipeline {
                         }
                     }
                 }
+                stage('Test APIC 6.2') {
+                    steps {
+                        lock(resource: 'nac-ci-apic1-6.2.1g') {
+                            sh 'pytest -m "apic_62 and not terraform"'
+                        }
+                    }
+                    post {
+                        always {
+                            junit 'apic_6.2_xunit.xml'
+                            archiveArtifacts 'apic_6.2_*.html, apic_6.2_*.xml'
+                        }
+                    }
+                }
                 stage('Test NDO 4.2') {
                     steps {
                         lock(resource: 'nac-ci-apic3-6.0.5h', extra: [[resource: 'nac-ci-nd1-3.0.1i']]) {
-                            sh 'pytest -m "ndo_42 and not terraform"'
+                            script {
+                                try {
+                                    sh 'pytest -m "ndo_42 and not terraform"'
+                                } catch (err) {
+                                    if (readFile('ndo_4.2_xunit.xml').contains('Site APIC1 missing or mismatched') ||
+                                        readFile('ndo_4.2_xunit.xml').contains('Site APIC1 not in Nexus Dashboard')) {
+                                        echo 'APIC site missing on NDO — running recovery ...'
+                                        sh 'python tests/integration/recover_ndo_setup.py --version 4.2'
+                                        sh 'pytest -m "ndo_42 and not terraform"'
+                                    } else {
+                                        throw err
+                                    }
+                                }
+                            }
                         }
                     }
                     post {
@@ -119,7 +132,20 @@ pipeline {
                 stage('Test NDO 4.3') {
                     steps {
                         lock(resource: 'nac-ci-apic2-6.0.5h', extra: [[resource: 'nac-ci-nd1-3.1.1n']]) {
-                            sh 'pytest -m "ndo_43 and not terraform"'
+                            script {
+                                try {
+                                    sh 'pytest -m "ndo_43 and not terraform"'
+                                } catch (err) {
+                                    if (readFile('ndo_4.3_xunit.xml').contains('Site APIC1 missing or mismatched') ||
+                                        readFile('ndo_4.3_xunit.xml').contains('Site APIC1 not in Nexus Dashboard')) {
+                                        echo 'APIC site missing on NDO — running recovery ...'
+                                        sh 'python tests/integration/recover_ndo_setup.py --version 4.3'
+                                        sh 'pytest -m "ndo_43 and not terraform"'
+                                    } else {
+                                        throw err
+                                    }
+                                }
+                            }
                         }
                     }
                     post {
@@ -132,13 +158,39 @@ pipeline {
                 stage('Test NDO 4.4') {
                     steps {
                         lock(resource: 'nac-ci-apic5-6.0.5h', extra: [[resource: 'nac-ci-nd1-3.2.1i']]) {
-                            sh 'pytest -m "ndo_44 and not terraform"'
+                            script {
+                                try {
+                                    sh 'pytest -m "ndo_44 and not terraform"'
+                                } catch (err) {
+                                    if (readFile('ndo_4.4_xunit.xml').contains('Site APIC1 missing or mismatched') ||
+                                        readFile('ndo_4.4_xunit.xml').contains('Site APIC1 not in Nexus Dashboard')) {
+                                        echo 'APIC site missing on NDO — running recovery ...'
+                                        sh 'python tests/integration/recover_ndo_setup.py --version 4.4'
+                                        sh 'pytest -m "ndo_44 and not terraform"'
+                                    } else {
+                                        throw err
+                                    }
+                                }
+                            }
                         }
                     }
                     post {
                         always {
                             junit 'ndo_4.4_xunit.xml'
                             archiveArtifacts 'ndo_4.4_*.html, ndo_4.4_*.xml'
+                        }
+                    }
+                }
+                stage('Test ND 4.1') {
+                    steps {
+                        lock(resource: 'nac-ci-vapic2-6.1.5e', extra: [[resource: 'nac-ci-nd1-4.1.1g']]) {
+                            sh 'pytest -s -m "ndo_nd41 and not terraform"'
+                        }
+                    }
+                    post {
+                        always {
+                            junit 'ndo_nd_4.1_xunit.xml'
+                            archiveArtifacts 'ndo_nd_4.1_*.html, ndo_nd_4.1_*.xml'
                         }
                     }
                 }

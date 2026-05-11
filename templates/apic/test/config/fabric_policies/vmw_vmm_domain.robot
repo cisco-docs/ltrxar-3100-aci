@@ -54,7 +54,7 @@ Verify VMware VMM Domain {{ vmm_name }} vSwitch Enhanced Lag Policy {{ elag_name
 Verify VMware VMM Domain {{ vmm_name }} Credential Policy {{ policy_name }}
     ${cp}=   Set Variable   imdata[0].vmmDomP.children[?vmmUsrAccP.attributes.name=='{{ policy_name }}'] | [0].vmmUsrAccP
     Should Be Equal JMESPath Json   ${r}    ${cp}.attributes.name   {{ policy_name }}
-    Should Be Equal JMESPath Json   ${r}    ${cp}.attributes.usr   {{ cp.username }}
+    Should Be Equal JMESPath Json   ${r}    ${cp}.attributes.usr   {{ cp.username | replace('\\', '\\\\') }}
 
 {% endfor %}
 

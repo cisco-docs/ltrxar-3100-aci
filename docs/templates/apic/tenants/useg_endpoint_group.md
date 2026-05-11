@@ -59,6 +59,7 @@ apic:
                 - name: VMM1
                   netflow: false
                   deployment_immediacy: lazy
+                  port_binding: dynamic
                   elag: ELAGCustom
                   active_uplinks_order: 1,2
                   standby_uplinks: 3,4

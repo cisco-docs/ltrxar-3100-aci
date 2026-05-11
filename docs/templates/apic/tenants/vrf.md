@@ -48,6 +48,12 @@ apic:
           enforcement_preference: unenforced
           transit_route_tag_policy: TRP1
           endpoint_retention_policy: ERP1
+          snmp_context:
+            name: VRF1_SNMP_CTX
+            community_profiles:
+              - name: COMM-PROF1
+                description: Community Profile 1 Description
+              - name: COMM-PROF2
           bgp:
             timer_policy: BGP-TIMER1
             ipv4_import_route_target:
@@ -71,13 +77,23 @@ apic:
               - CON1
             imported_consumers:
               - IMPORT-CON1
-          leaked_internal_prefixes:
+          leaked_internal_subnets:
             - prefix: 1.1.1.0/24
               public: true
               destinations:
                 - tenant: ABC
                   vrf: VRF2
                   public: false
+                  description: Leak to VRF2
+          leaked_internal_prefixes:
+            - prefix: 10.0.0.0/8
+              public: true
+              from_prefix_length: 16
+              to_prefix_length: 24
+              destinations:
+                - tenant: ABC
+                  vrf: VRF2
+                  public: true
                   description: Leak to VRF2
           leaked_external_prefixes:
             - prefix: 3.3.0.0/16

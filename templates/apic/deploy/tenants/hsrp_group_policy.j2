@@ -1,0 +1,36 @@
+{# iterate_list apic.tenants name item[2] #}
+{% set tenant = ((apic | default()) | community.general.json_query('tenants[?name==`' ~ item[2] ~ '`]'))[0] %}
+{
+    "fvTenant": {
+        "attributes": {
+            "dn": "uni/tn-{{ tenant.name }}",
+            "name": "{{ tenant.name }}"
+        },
+        "children": [
+            {%- set comma1 = joiner(",") %}
+            {%- for policy in tenant.policies.hsrp_group_policies | default([]) %}{{ comma1() }}
+            {% set policy_name = policy.name ~ defaults.apic.tenants.policies.hsrp_group_policies.name_suffix %}
+            {
+                "hsrpGroupPol": {
+                    "attributes": {
+                        "annotation": "orchestrator:aac",
+                        "name": "{{ policy_name }}",
+                        "dn": "uni/tn-{{ tenant.name }}/hsrpGroupPol-{{ policy_name }}",
+                        "descr": "{{ policy.description | default() }}",
+                        "ctrl": "{{ 'preempt' if policy.preempt | default(defaults.apic.tenants.policies.hsrp_group_policies.preempt) else '' }}",
+                        "helloIntvl": "{{ policy.hello_interval | default(defaults.apic.tenants.policies.hsrp_group_policies.hello_interval) }}",
+                        "holdIntvl": "{{ policy.hold_interval | default(defaults.apic.tenants.policies.hsrp_group_policies.hold_interval) }}",
+                        "prio": "{{ policy.priority | default(defaults.apic.tenants.policies.hsrp_group_policies.priority) }}",
+                        "type": "{{ policy.auth_type | default(defaults.apic.tenants.policies.hsrp_group_policies.auth_type) }}",
+                        "key": "{{ policy.key | default() }}",
+                        "preemptDelayMin": "{{ policy.preempt_delay_min | default(defaults.apic.tenants.policies.hsrp_group_policies.preempt_delay_min) }}",
+                        "preemptDelayReload": "{{ policy.preempt_delay_reload | default(defaults.apic.tenants.policies.hsrp_group_policies.preempt_delay_reload) }}",
+                        "preemptDelaySync": "{{ policy.preempt_delay_max | default(defaults.apic.tenants.policies.hsrp_group_policies.preempt_delay_max) }}",
+                        "timeout": "{{ policy.timeout | default(defaults.apic.tenants.policies.hsrp_group_policies.timeout) }}"
+                    }
+                }
+            }
+            {%- endfor %}
+        ]
+    }
+}

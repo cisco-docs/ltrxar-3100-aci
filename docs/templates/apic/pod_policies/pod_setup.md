@@ -38,3 +38,26 @@ apic:
       - id: 1
         policy: Policy1
 ```
+
+Example: This example shows the Autonomous RL Group feature configuration. This was introduced in 6.1(3) ACI release. The first section contains all the configurable attributes for this feature, while the second section contains an example of the minimal required configuration.
+
+```yaml
+apic:
+  pod_policies:
+    pods:
+      - id: 3
+        tep_pool: 10.3.0.0/16
+        data_plane_tep: 192.168.3.1
+        unicast_tep: 172.16.13.3
+        policy: POD3
+        resiliency_groups:
+          # Resiliency Group 1 with all the configurable atrributes
+          - name: 1
+            description: Resiliency Group 1
+            remote_pool_ids:
+              - 1
+              - 2
+              - 3
+          # Resiliency Group 2 with minimal required configuration
+          - name: 2
+```

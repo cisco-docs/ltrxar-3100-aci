@@ -33,6 +33,12 @@ apic:
       - name: VMM2
         vlan_pool: STATIC1
         allocation: static
+        vcenters:
+          - name: VC
+            hostname_ip: 20.20.20.20
+            datacenter: dc
+            dvs_version: '8.0'
+            credential_policy: CRED1
     ep_loop_protection:
       admin_state: true
       detection_interval: 180
@@ -44,6 +50,10 @@ apic:
       sr_global_block_maximum: 275999
     monitoring:
       syslogs:
+        - name: syslog1
+          destinations:
+            - hostname_ip: 2.2.2.5
+              protocol: udp
         - name: syslog3
           format: enhanced-log
 
@@ -77,6 +87,33 @@ apic:
             cluster_name: cluster_1
             credentials: credentials_element
             port: 9441
+
+    pod_policies:
+      management_access_policies:
+        - name: MGMT2
+          description: Management Access Policy TLSv1.3
+          telnet:
+            admin_state: false
+            port: 51023
+          ssh:
+            admin_state: true
+            port: 51022
+            dh14_sha1: true
+            dh14_sha256: true
+            dh16_sha512: true
+            ecdh_sha2_nistp256: true
+            ecdh_sha2_nistp384: true
+            ecdh_sha2_nistp521: true
+          https:
+            admin_state: true
+            port: 51443
+            tlsv1: false
+            tlsv1_1: false
+            tlsv1_2: true
+            tlsv1_3: true
+          http:
+            admin_state: true
+            port: 51080
 
     control_plane_mtu:
       mtu: 6000

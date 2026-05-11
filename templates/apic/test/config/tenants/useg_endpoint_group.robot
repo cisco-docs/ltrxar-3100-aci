@@ -39,6 +39,9 @@ Verify uSeg Endpoint Group {{ epg_name }} VMM Domain {{ vmm_name }}
 
     Should Be Equal JMESPath Json   ${r}   ${conn}.fvRsDomAtt.attributes.instrImedcy   {{ vmm.deployment_immediacy  | default(defaults.apic.tenants.application_profiles.useg_endpoint_groups.vmware_vmm_domains.deployment_immediacy) }}
     Should Be Equal JMESPath Json   ${r}   ${conn}.fvRsDomAtt.attributes.netflowPref   {{ 'enabled' if vmm.netflow | default(defaults.apic.tenants.application_profiles.useg_endpoint_groups.vmware_vmm_domains.netflow) else 'disabled' }}
+{% set port_binding_val = vmm.port_binding | default(defaults.apic.tenants.application_profiles.useg_endpoint_groups.vmware_vmm_domains.port_binding) %}
+{% set binding_type_map = {'dynamic': 'dynamicBinding', 'ephemeral': 'ephemeral', 'static': 'staticBinding', 'default': 'none'} %}
+    Should Be Equal JMESPath Json   ${r}   ${conn}.fvRsDomAtt.attributes.bindingType   {{ binding_type_map[port_binding_val] | default('none') }}
 {% if vmm.active_uplinks_order is defined or vmm.standby_uplinks is defined %}
     Should Be Equal JMESPath Json   ${r}   ${conn}.fvRsDomAtt.children[?fvUplinkOrderCont] | [0].fvUplinkOrderCont.attributes.active   {{ vmm.active_uplinks_order | default() }}
     Should Be Equal JMESPath Json   ${r}   ${conn}.fvRsDomAtt.children[?fvUplinkOrderCont] | [0].fvUplinkOrderCont.attributes.standby   {{ vmm.standby_uplinks | default() }}
@@ -63,7 +66,7 @@ Verify uSeg Endpoint Group {{ epg_name }} Static Leaf {{ sl.node_id }}
     {% set app_profile_name = (master.application_profile | default(ap_name)) %}
 Verify EPG Contract Master 'uni/tn-{{ tenant.name }}/ap-{{ app_profile_name }}/epg-{{ master.endpoint_group }}'
     ${con_master}=   Set Variable   imdata[0].fvAEPg.children[?fvRsSecInherited.attributes.tDn=='uni/tn-{{ tenant.name }}/ap-{{ app_profile_name }}/epg-{{ master.endpoint_group }}'] | [0]
-    Should Not Be Empty   ${con_master}.fvRsSecInherited.attributes.tDn
+    Should Be Equal JMESPath Json   ${r}   ${con_master}.fvRsSecInherited.attributes.tDn   uni/tn-{{ tenant.name }}/ap-{{ app_profile_name }}/epg-{{ master.endpoint_group }}
 {% endfor %}
 
 {% for contract in epg.contracts.providers | default([]) %}

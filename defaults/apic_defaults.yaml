@@ -6,7 +6,7 @@ defaults:
     auto_generate_pod_profiles: false
     auto_generate_fabric_leaf_switch_interface_profiles: false
     auto_generate_fabric_spine_switch_interface_profiles: false
-    auto_generate_access_leaf_switch_interface_profiles: true
+    auto_generate_access_leaf_switch_interface_profiles: false
     auto_generate_access_spine_switch_interface_profiles: false
     new_interface_configuration: false
     interface_selector_description: false
@@ -99,6 +99,7 @@ defaults:
       l2_port_mtu: 9000
       pod_policy_groups:
         name_suffix: ""
+        bgp_route_reflector_policy: default
       pod_profiles:
         name_suffix: ""
         selectors:
@@ -142,20 +143,20 @@ defaults:
             aes128_gcm: true
             aes192_ctr: true
             aes256_ctr: true
-            aes256_gcm: false
+            aes256_gcm: true
             chacha: true
             hmac_sha1: true
             hmac_sha2_256: true
             hmac_sha2_512: true
-            curve25519_sha256: false
-            curve25519_sha256_libssh: false
+            curve25519_sha256: true
+            curve25519_sha256_libssh: true
             dh1_sha1: false
             dh14_sha1: false
-            dh14_sha256: false
-            dh16_sha512: false
-            ecdh_sha2_nistp256: false
-            ecdh_sha2_nistp384: false
-            ecdh_sha2_nistp521: false
+            dh14_sha256: true
+            dh16_sha512: true
+            ecdh_sha2_nistp256: true
+            ecdh_sha2_nistp384: true
+            ecdh_sha2_nistp521: true
           https:
             admin_state: true
             client_cert_auth_state: false
@@ -163,7 +164,7 @@ defaults:
             port: 443
             key_ring: default
             tlsv1: false
-            tlsv1_1: true
+            tlsv1_1: false
             tlsv1_2: true
             tlsv1_3: false
           http:
@@ -392,11 +393,6 @@ defaults:
             mgmt_epg: inb
         syslogs:
           name_suffix: ""
-          audit: true
-          events: true
-          faults: true
-          session: false
-          minimum_severity: warnings
           format: aci
           show_millisecond: false
           show_timezone: false
@@ -411,6 +407,22 @@ defaults:
             severity: warnings
             admin_state: true
             mgmt_epg: inb
+        policies:
+          name_suffix: ""
+          fault_severity_policies:
+            name_suffix: ""
+            faults:
+              initial_severity: "inherit"
+              target_severity: "inherit"
+          snmp_traps:
+            name_suffix: ""
+          syslogs:
+            name_suffix: ""
+            audit: true
+            events: true
+            faults: true
+            session: false
+            minimum_severity: warnings
       span:
         destination_groups:
           name_suffix: ""
@@ -548,19 +560,19 @@ defaults:
             name_suffix: ""
       monitoring:
         policies:
-          name_suffix: ""
-          snmp_traps:
             name_suffix: ""
-          syslogs:
-            name_suffix: ""
-            audit: true
-            events: true
-            faults: true
-            session: false
-            minimum_severity: warnings
-          fault_severity_policies:
-            initial_severity: inherit
-            target_severity: inherit
+            snmp_traps:
+              name_suffix: ""
+            syslogs:
+              name_suffix: ""
+              audit: true
+              events: true
+              faults: true
+              session: false
+              minimum_severity: warnings
+            fault_severity_policies:
+              initial_severity: inherit
+              target_severity: inherit
       interface_policies:
         cdp_policies:
           name_suffix: ""
@@ -635,6 +647,14 @@ defaults:
           rate_pps: unspecified
           burst_rate: "100.000000"
           burst_pps: unspecified
+        port_security_policies:
+          name_suffix: ""
+          maximum_endpoints: 0
+          timeout: 60
+        priority_flow_control_policies:
+          name_suffix: ""
+          admin_state: true
+          auto_state: true
         spanning_tree_policies:
           name_suffix: ""
           bpdu_guard: false
@@ -746,7 +766,7 @@ defaults:
             admin_state: true
             mtu: 9216
             scheduling: wrr
-            bandwidth_percent: 40
+            bandwidth_percent: 20
             congestion_algorithm: tail-drop
             minimum_buffer: 0
             pfc_state: false
@@ -884,8 +904,19 @@ defaults:
         data_plane_learning: true
         enforcement_direction: ingress
         enforcement_preference: enforced
+        leaked_internal_subnets:
+          public: false
+          destinations:
+            public: false
         leaked_internal_prefixes:
           public: false
+          from_prefix_length: unspecified
+          to_prefix_length: unspecified
+          destinations:
+            public: false
+        leaked_external_prefixes:
+          from_prefix_length: unspecified
+          to_prefix_length: unspecified
         pim:
           mtu: 1500
           bsr_forward_updates: false
@@ -904,6 +935,10 @@ defaults:
           name_suffix: ""
           nodes:
             pod: 1
+        snmp_context:
+          name_suffix: ""
+          community_profiles:
+            name_suffix: ""
       bridge_domains:
         name_suffix: ""
         ndo_managed: false
@@ -975,6 +1010,20 @@ defaults:
           multicast_address_family: true
           admin_state: true
           as_propagate: none
+        bgp_infra_peers:
+          name_suffix: ""
+          peer_type: wan
+          allow_self_as: false
+          disable_peer_as_check: false
+          send_community: false
+          send_ext_community: false
+          next_hop_self: false
+          as_override: false
+          ttl: 2
+          bfd: false
+          admin_state: true
+          as_propagate: none
+          source_interface_type: l3out-loopback
         redistribution_route_maps:
           source: static
         dhcp_labels:
@@ -1000,6 +1049,9 @@ defaults:
             multipod_direct: false
             autostate: false
             floating_svi: false
+            forged_transmit: false
+            mac_change: false
+            promiscous_mode: false
             ip: 0.0.0.0
             mac: 00:22:BD:F8:19:FF
             mtu: inherit
@@ -1051,6 +1103,20 @@ defaults:
             multicast_address_family: true
             admin_state: true
             as_propagate: none
+          bgp_infra_peers:
+            name_suffix: ""
+            peer_type: wan
+            allow_self_as: false
+            disable_peer_as_check: false
+            send_community: false
+            send_ext_community: false
+            next_hop_self: false
+            as_override: false
+            ttl: 2
+            bfd: false
+            admin_state: true
+            as_propagate: none
+            source_interface_type: l3out-loopback
           nodes:
             pod: 1
             router_id_as_loopback: true
@@ -1077,6 +1143,9 @@ defaults:
               svi: false
               autostate: false
               floating_svi: false
+              forged_transmit: false
+              mac_change: false
+              promiscous_mode: false
               multipod_direct: false
               ip: 0.0.0.0
               mac: 00:22:BD:F8:19:FF
@@ -1168,6 +1237,7 @@ defaults:
             netflow: false
             deployment_immediacy: lazy
             resolution_immediacy: pre-provision
+            port_binding: default
             allow_promiscuous: reject
             forged_transmits: reject
             mac_changes: reject
@@ -1204,6 +1274,9 @@ defaults:
               name_suffix: ""
               start_ip: 0.0.0.0
               end_ip: 0.0.0.0
+          static_aaeps:
+            deployment_immediacy: lazy
+            mode: regular
         useg_endpoint_groups:
           name_suffix: ""
           flood_in_encap: false
@@ -1213,6 +1286,7 @@ defaults:
           vmware_vmm_domains:
             name_suffix: ""
             deployment_immediacy: immediate
+            port_binding: default
             netflow: false
           useg_attributes:
             match_type: any
@@ -1242,6 +1316,8 @@ defaults:
           preferred_group: false
           tag_selectors:
             operator: equals
+          ip_external_subnet_selectors:
+            shared: false
       inb_endpoint_groups:
         name_suffix: ""
         subnets:
@@ -1288,6 +1364,24 @@ defaults:
             route_leaking: false
             security: false
             aggregate_shared_route_control: false
+      vxlan_l3outs:
+        name_suffix: ""
+        node_profiles:
+          name_suffix: ""
+          nodes:
+            router_id_as_loopback: false
+          interface_profiles:
+            name_suffix: ""
+            interfaces:
+              pod_id: 1
+              module: 1
+              mac: 00:22:BD:F8:19:FF
+              mtu: inherit
+              bgp_peers:
+                bfd: false
+                unicast_address_family: true
+                admin_state: true
+                as_propagate: none
       contracts:
         name_suffix: ""
         scope: context
@@ -1326,12 +1420,18 @@ defaults:
         scope: context
         subjects:
           name_suffix: ""
+          filters:
+            action: permit
+            priority: default
+            log: false
+            no_stats: false
       filters:
         name_suffix: ""
         entries:
           name_suffix: ""
           ethertype: ip
           protocol: tcp
+          match_only_fragments: false
           source_from_port: unspecified
           destination_from_port: unspecified
           stateful: false
@@ -1425,6 +1525,23 @@ defaults:
           name_suffix: ""
           options:
             name_suffix: ""
+        hsrp_interface_policies:
+          name_suffix: ""
+          bfd_enable: false
+          use_bia: false
+          delay: 0
+          reload_delay: 0
+        hsrp_group_policies:
+          name_suffix: ""
+          preempt: false
+          hello_interval: 3000
+          hold_interval: 10000
+          priority: 100
+          auth_type: simple
+          preempt_delay_min: 0
+          preempt_delay_reload: 0
+          preempt_delay_max: 0
+          timeout: 0
         data_plane_policing_policies:
           name_suffix: ""
           admin_state: false
@@ -1655,6 +1772,25 @@ defaults:
           name_suffix: ""
         netflow_records:
           name_suffix: ""
+        border_gateway_set_policy:
+          name_suffix: ""
+        remote_vxlan_fabrics:
+          name_suffix: ""
+          remote_evpn_peers:
+            admin_state: true
+            allow_self_as: false
+            disable_peer_as_check: false
+            as_propagate: none
+            ttl: 2
+        vxlan_custom_qos_policies:
+          name_suffix: ""
+          ingress_rules:
+            priority: unspecified
+            dscp_target: unspecified
+            cos_target: unspecified
+          egress_rules:
+            cos_target: unspecified
+            dscp_target: unspecified
       services:
         l4l7_devices:
           name_suffix: ""
@@ -1708,6 +1844,14 @@ defaults:
             direct_connect: false
           provider:
             direct_connect: false
+          device:
+            adjacency_type: "L3"
+          connections:
+            adjacency_type: "L2"
+            unicast_route: true
+            direct_connect: false
+          devices:
+            template_type: OTHER
         device_selection_policies:
           consumer:
             l3_destination: true

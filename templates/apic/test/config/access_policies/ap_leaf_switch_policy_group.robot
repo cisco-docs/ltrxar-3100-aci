@@ -24,5 +24,13 @@ Verify Leaf Switch Policy Group {{ policy_group_name }}
 {% set bfd_ipv6_policy = pg.bfd_ipv6_policy ~ defaults.apic.access_policies.switch_policies.bfd_ipv6_policies.name_suffix %}
     Should Be Equal JMESPath Json   ${r}    imdata[0].infraAccNodePGrp.children[?infraRsBfdIpv6InstPol] | [0].infraRsBfdIpv6InstPol.attributes.tnBfdIpv6InstPolName   {{ bfd_ipv6_policy }}
 {% endif %}
+{% if pg.cdp_policy is defined %}
+{% set cdp_policy = pg.cdp_policy ~ defaults.apic.access_policies.interface_policies.cdp_policies.name_suffix %}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraAccNodePGrp.children[?infraRsLeafPGrpToCdpIfPol] | [0].infraRsLeafPGrpToCdpIfPol.attributes.tnCdpIfPolName   {{ cdp_policy }}
+{% endif %}
+{% if pg.lldp_policy is defined %}
+{% set lldp_policy = pg.lldp_policy ~ defaults.apic.access_policies.interface_policies.lldp_policies.name_suffix %}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraAccNodePGrp.children[?infraRsLeafPGrpToLldpIfPol] | [0].infraRsLeafPGrpToLldpIfPol.attributes.tnLldpIfPolName   {{ lldp_policy }}
+{% endif %}
 
 {% endfor %}

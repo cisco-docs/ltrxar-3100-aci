@@ -62,7 +62,7 @@ apic:
       - id: 301
         pod: 1
         role: leaf
-        set_role: true
+#        set_role: true
         type: remote-leaf-wan
         serial_number: TEP-1-301
         name: RLEAF301
@@ -77,7 +77,7 @@ apic:
       - id: 302
         pod: 1
         role: leaf
-        set_role: true
+#        set_role: true
         type: remote-leaf-wan
         serial_number: TEP-1-302
         name: RLEAF302
@@ -87,7 +87,7 @@ apic:
       - id: 2001
         pod: 2
         role: spine
-        set_role: true
+#        set_role: true
         serial_number: TEP-1-2001
         name: SPINE2001
         update_group: MG1

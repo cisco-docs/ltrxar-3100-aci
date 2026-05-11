@@ -43,6 +43,12 @@ apic:
 
     ptp:
       admin_state: false
+      global_domain: 0
+      profile: aes67
+      announce_interval: 1
+      announce_timeout: 3
+      sync_interval: -3
+      delay_interval: -2
 
     ip_aging: false
 
@@ -197,22 +203,24 @@ apic:
         - name: CA1
           certificate_chain: |
             -----BEGIN CERTIFICATE-----
-            MIIC2jCCAcICCQDFcJLlj4fzhjANBgkqhkiG9w0BAQsFADAvMQswCQYDVQQGEwJE
-            RTERMA8GA1UEBwwITGFMYUxhbmQxDTALBgNVBAoMBENTQ08wHhcNMjAwNzAxMTQw
-            NjQ3WhcNMjYwMjA4MTQwNjQ3WjAvMQswCQYDVQQGEwJERTERMA8GA1UEBwwITGFM
-            YUxhbmQxDTALBgNVBAoMBENTQ08wggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEK
-            AoIBAQCiq0iWqZwzsox8gEGo52Mk2iHbiKHMfXHYgWvzcOLMR2AHWjz5zcAtGW4J
-            3yUcAP7SGYe7NvVwEc9D1TFOjaMz4dUPE9XhTBdvLpD2czfAWPa+5RakyvP7MsVN
-            DPyI5mUnz6+5E5dunxXg8RgkzixO3qrjRCxm43L/yyBRr6N1h0D5Lh03WeZQc4gj
-            X5R48ychf4uCLd/lPbBa3+5eLZaL+sOAH2Q/BPU12toqdSY9BpN5x11YJUZ/X2gr
-            CQN443SrmcXdkb3ykF5JknbQhCuPW0X1grb8yko7DoQE6NP+TeT4K6aYtsVEvV2n
-            Dldr6pRtKpJYwTuWrn8D06iIaaM/AgMBAAEwDQYJKoZIhvcNAQELBQADggEBAJ9f
-            sTG4uuKYb737YKhwCxYoLAki58ofCCk2kQEUEFKXSHOX2QSvjtRhWl6g9AWO/SLG
-            hOK2DQhwCcoR9zxfG/sWWc7zCdv8w1PXHtmBGqUZn76qXFF0G+nuY57XPJ0NKKj/
-            G2Bs/g1TgyYzhErtxV/hmctgnnm4PfEQJYGNwCWkITxEg1lTQbN9JxsLpCZFldYW
-            kE8Np68n0/ljx9ywqv0iUWkVDo30rs0Fo1uqDwHhAzuzRGFDrh97sAzVJ8ZH/Ge8
-            Z0TC0TaX1BnUh5wsRz8hSlVAfgYQtQSarq9k9iLHDVcbffsYZbQKer6ftEGTTKOd
-            DBPQR1dcBaa218Bjxl0=
+            MIIDPzCCAiegAwIBAgIUG7MsJ+LeQL/sPy2WOz73kxtLlGAwDQYJKoZIhvcNAQEL
+            BQAwLzELMAkGA1UEBhMCREUxETAPBgNVBAcMCExhTGFMYW5kMQ0wCwYDVQQKDARD
+            U0NPMB4XDTIzMDYwMTAwMDAwMFoXDTM2MDIwNzA5MTUyNlowLzELMAkGA1UEBhMC
+            REUxETAPBgNVBAcMCExhTGFMYW5kMQ0wCwYDVQQKDARDU0NPMIIBIjANBgkqhkiG
+            9w0BAQEFAAOCAQ8AMIIBCgKCAQEApRVk02CZxTna0L3diAMoVdybkipVvEV1/qdx
+            u0OD/Yo+ylWhDF8e5flrC12uI7I4WOL4YR+/EI5mC1FifX7e2SdG88M/5tKppYoY
+            gTGLX4u6xxM6oX6uHyp0GJBJEW1AtBizm44zhUJu971sQsv4TukeUJCEYM5nxKxB
+            kdj9DZKjDClWF4cmFfFPjctBTJV3lNjHFLA93AAmMGAiTFeVs4Q7fugux8wC0Ela
+            41e5lAlNK6NNsz0VemJ0RTIF00OgGhDtmKMrhktDD3wY8twYtexnQS9Fwwy38htq
+            yfNU53hOa4EXgH4eO/muwWa1eBkf42xxWXQjwEI1YoA4pwYnQwIDAQABo1MwUTAd
+            BgNVHQ4EFgQU5Ai+OUsiw+NwfgkfKwVDpoGCKlgwHwYDVR0jBBgwFoAU5Ai+OUsi
+            w+NwfgkfKwVDpoGCKlgwDwYDVR0TAQH/BAUwAwEB/zANBgkqhkiG9w0BAQsFAAOC
+            AQEAXTuYbtfRyV6buSC3eGi7gofo93DTPWtiFUYGop09mo80+hwY1izDaeDnCeEy
+            SsrphLYDqgmpAzS0T+WrQrl94m8VoTa+7qVgH4KKA5nTOal/WMufE/7HjFOm7sr5
+            BNKvzznBap4wot7B2lDaflLDLkxHJFyr7MFPcZhtg3SYPgZZHzdj4SfTh5VDjV1u
+            tWAQQdoLNAEk2TkfAIku5jmMaKC5x99/JYXKAiN9EBrx2bFFqbDEA+13HCjKpGd6
+            8QOfXWBzrBEl3fHan+P3aqzDFeu7ndnu4hLeIY4CanQNkMusJjP00VsdqXy9ttHx
+            Ot+ZalwzQnbo6x+l+vBbNMPW1g==
             -----END CERTIFICATE-----
 
       # comment out keyrings to avoid restart of nginx
@@ -304,6 +312,16 @@ apic:
           maximum_critical_faults: 1000
           maximum_major_faults: 1000
           maximum_minor_faults: 1000
+      - name: remote2
+        description: OOB mgmt EPG remote location
+        hostname_ip: 5.6.7.8
+        protocol: sftp
+        path: "/backup"
+        port: 22
+        auth_type: password
+        username: admin
+        password: admin123
+        mgmt_epg: oob
 
     schedulers:
       - name: scheduler1
@@ -343,13 +361,14 @@ apic:
               mgmt_epg: inb
             - hostname_ip: 2.2.2.3
               community: test2
+            - hostname_ip: 2.2.2.4
+              community: test3
+              mgmt_epg: oob
         - name: trap2
 
       syslogs:
         - name: syslog1
           description: desc1
-          session: true
-          minimum_severity: debugging
           admin_state: false
           format: nxos
           show_millisecond: false
@@ -368,7 +387,73 @@ apic:
               severity: emergencies
               mgmt_epg: inb
             - hostname_ip: 2.2.2.3
+              mgmt_epg: oob
         - name: syslog2
+      policies:
+        - name: common
+          description: "This is a common policy for policy monitoring."
+          fault_severity_policies:
+            - class: snmpClient
+              faults:
+                - fault_id: F1368
+                  description: "Fault 1368 nice description"
+                  initial_severity: minor
+                  target_severity: major
+            - class: snmpConfIssues
+            - class: snmpTrapDest
+              faults:
+                - fault_id: F1450
+                  description: "Fault 1450 cool description"
+                - fault_id: F1449
+                  description: "Fault 1449 superb description"
+                  initial_severity: minor
+                  target_severity: critical
+          snmp_traps:
+            - name: policy_trap1
+              destination_group: trap1
+            - name: policy_trap2
+          syslogs:
+            - name: policy_syslog1
+              description: desc1
+              session: true
+              audit: false
+              events: false
+              faults: false
+              minimum_severity: debugging
+              destination_group: syslog1
+            - name: policy_syslog2
+        - name: Custom_Policy
+          description: "This is a custom policy for policy monitoring."
+          fault_severity_policies:
+            - class: snmpClient
+              faults:
+                - fault_id: F1368
+                  description: "Fault 1368 nice description"
+                  initial_severity: minor
+                  target_severity: major
+            - class: snmpConfIssues
+            - class: snmpTrapDest
+              faults:
+                - fault_id: F1450
+                  description: "Fault 1450 cool description"
+                - fault_id: F1449
+                  description: "Fault 1449 superb description"
+                  initial_severity: minor
+                  target_severity: critical
+          snmp_traps:
+            - name: policy_trap1
+              destination_group: trap2
+            - name: policy_trap2
+          syslogs:
+            - name: policy_syslog1
+              description: desc1
+              session: true
+              audit: false
+              events: false
+              faults: false
+              minimum_severity: debugging
+              destination_group: syslog2
+            - name: policy_syslog2
 
     fabric_bgp_as: 65009
 
@@ -401,6 +486,10 @@ apic:
               auth_key_id: 1
               preferred: false
               mgmt_epg: oob
+            - hostname_ip: 1.1.1.15
+              auth_key_id: 1
+              preferred: false
+              mgmt_epg: inb
           ntp_keys:
             - id: 1
               key: key1
@@ -433,29 +522,64 @@ apic:
               entries:
                 - name: NMS1
                   ip: 1.1.1.1
+            - name: CLIENTS_OOB
+              mgmt_epg: oob
+              entries:
+                - name: NMS2
+                  ip: 1.1.1.2
+          trap_forwarders:
+            - ip: 10.10.10.10
+              port: 162
 
-      # management_access_policies:
-      #   - name: MGMT1
-      #     telnet:
-      #       admin_state: true
-      #     ssh:
-      #       port: 22
-      #       hmac_sha1: false
-      #       chacha: false
-      #     https:
-      #       tlsv1: true
-      #     http:
-      #       admin_state: true
-      #       port: 8080
+      management_access_policies:
+        - name: MGMT1
+          description: Management Access Policy 1
+          telnet:
+            admin_state: true
+            port: 50023
+          ssh:
+            admin_state: true
+            port: 50022
+            password_auth: false
+            aes128_ctr: true
+            aes128_gcm: true
+            aes192_ctr: true
+            aes256_ctr: true
+            aes256_gcm: true
+            chacha: true
+            hmac_sha1: true
+            hmac_sha2_256: true
+            hmac_sha2_512: true
+            curve25519_sha256: true
+            curve25519_sha256_libssh: true
+            dh1_sha1: true
+            dh14_sha1: true
+            dh14_sha256: true
+            dh16_sha512: true
+            ecdh_sha2_nistp256: true
+            ecdh_sha2_nistp384: true
+            ecdh_sha2_nistp521: true
+          https:
+            admin_state: true
+            client_cert_auth_state: false
+            dh: "2048"
+            port: 50443
+            tlsv1_2: true
+            key_ring: default
+          http:
+            admin_state: true
+            port: 50080
 
     pod_policy_groups:
       - name: POD1
+        description: Pod1 description
         snmp_policy: SNMP1
         date_time_policy: NTP1
+        bgp_route_reflector_policy: default
       - name: POD2
         snmp_policy: SNMP1
         date_time_policy: NTP1
-        # management_access_policy: MGMT1
+        management_access_policy: MGMT1
 
     pod_profiles:
       - name: PODX
@@ -788,6 +912,12 @@ apic:
             key_name: abcdef0123456789
             pre_shared_key: deadbeefcafebabefeedface12345678deadbeefcafebabefeedface12345678
             start_time: now
+            end_time: infinite
+          - name: fabric-secondary-key-spine
+            description: Secondary encryption key
+            key_name: 0123456789abcdef
+            pre_shared_key: cafebabefeedface12345678deadbeefcafebabefeedface12345678deadbeef
+            start_time: "2025-01-01T00:00:00.000+00:00"
             end_time: infinite
     macsec_interfaces_policies:
       - name: fabric-macsec-interface-1

@@ -85,11 +85,11 @@ Verify L3out {{ l3out_name }} Profiles
 {% endif %}
 {% if l3out.pim_policy is defined %}
 {% set pim_name = l3out.pim_policy ~ defaults.apic.tenants.policies.pim_policies.name_suffix %}
-    Should Be Equal JMESPath Json   ${r}   imdata[0].l3extOut.children[?l3extLNodeP] | [0].l3extLNodeP.children[?l3extLIfP] | [0].l3extLIfP.children[?pimRsIfPol] | [0].pimRsIfPol.attributes.tDn   uni/tn-{{tenant.name}}/pimifpol-{{ pim_name }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].l3extOut.children[?l3extLNodeP] | [0].l3extLNodeP.children[?l3extLIfP] | [0].l3extLIfP.children[?pimIfP] | [0].pimIfP.children[?pimRsIfPol] | [0].pimRsIfPol.attributes.tDn   uni/tn-{{tenant.name}}/pimifpol-{{ pim_name }}
 {% endif %}
 {% if l3out.igmp_interface_policy is defined %}
 {% set igmp_name = l3out.igmp_interface_policy ~ defaults.apic.tenants.policies.igmp_interface_policies.name_suffix %}
-    Should Be Equal JMESPath Json   ${r}   imdata[0].l3extOut.children[?l3extLNodeP] | [0].l3extLNodeP.children[?l3extLIfP] | [0].l3extLIfP.children[?igmpRsIfPol] | [0].igmpRsIfPol.attributes.tDn   uni/tn-{{tenant.name}}/igmpIfPol-{{ igmp_name }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].l3extOut.children[?l3extLNodeP] | [0].l3extLNodeP.children[?l3extLIfP] | [0].l3extLIfP.children[?igmpIfP] | [0].igmpIfP.children[?igmpRsIfPol] | [0].igmpRsIfPol.attributes.tDn   uni/tn-{{tenant.name}}/igmpIfPol-{{ igmp_name }}
 {% endif %}
 {% if l3out.custom_qos_policy is defined %}
 {% set custom_qos_policy_name = l3out.custom_qos_policy ~ defaults.apic.tenants.policies.custom_qos.name_suffix %}
@@ -102,7 +102,7 @@ Verify L3out {{ l3out_name }} Profiles
 {% endif %}
 {% if l3out.ingress_data_plane_policing_policy is defined %}
     {% set dpp_name = l3out.ingress_data_plane_policing_policy ~ defaults.apic.tenants.policies.data_plane_policing_policies.name_suffix %}
-    Should Be Equal JMESPath Json   ${r}   imdata[0].l3extOut.children[?l3extRsIngressQosDppPol] | [0].l3extRsIngressQosDppPol.attributes.tnQosDppPolName   {{ dpp_name }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].l3extOut.children[?l3extLNodeP] | [0].l3extLNodeP.children[?l3extLIfP] | [0].l3extLIfP.children[?l3extRsIngressQosDppPol] | [0].l3extRsIngressQosDppPol.attributes.tnQosDppPolName   {{ dpp_name }}
 {% endif %}
 {% if l3out.egress_data_plane_policing_policy is defined %}
     {% set dpp_name = l3out.egress_data_plane_policing_policy ~ defaults.apic.tenants.policies.data_plane_policing_policies.name_suffix %}
@@ -123,7 +123,6 @@ Verify L3out {{ l3out_name }} Node {{ node.node_id }}
     Should Be Equal JMESPath Json   ${r}   ${node}.children[?l3extLoopBackIfP.attributes.addr=='{{ lp }}'] | [0].l3extLoopBackIfP.attributes.addr   {{ lp }}
 {% endfor %}
 {% endif %}
-
 {% if ( tenant.name == 'infra' ) and ( l3out.multipod | default(defaults.apic.tenants.l3outs.multipod) ) and not ( l3out.remote_leaf | default(defaults.apic.tenants.l3outs.remote_leaf) ) %}
     Should Be Equal JMESPath Json   ${r}   ${node}.children[?l3extInfraNodeP] | [0].l3extInfraNodeP.attributes.fabricExtCtrlPeering   yes
 {% endif %}
@@ -168,6 +167,7 @@ Verify L3out {{ l3out_name }} Node {{ node.node_id }} Static Route {{ sr.prefix 
 
 {% endfor %}
 
+{% if tenant.name != "infra" | default([]) %}
 {% for peer in l3out.bgp_peers | default([]) %}
 {% set ctrl = [] %}
 {% if peer.allow_self_as | default(defaults.apic.tenants.l3outs.bgp_peers.allow_self_as) %}{% set ctrl = ctrl + [("allow-self-as")] %}{% endif %}
@@ -187,7 +187,7 @@ Verify L3out {{ l3out_name }} Node {{ node.node_id }} Static Route {{ sr.prefix 
 {% if peer.multicast_address_family | default(defaults.apic.tenants.l3outs.bgp_peers.multicast_address_family) %}{% set af = af + [("af-mcast")] %}{% endif %}
 {% if peer.unicast_address_family | default(defaults.apic.tenants.l3outs.bgp_peers.unicast_address_family) %}{% set af = af + [("af-ucast")] %}{% endif %}
 
-Verify L3out {{ l3out_name }} Node Profile {{ l3out_np_name }} BGP Peer {{ peer.ip }}
+Verify L3out {{ l3out_name }} Node Profile {{ l3out_np_name }} BGP Peer {{ peer.ip }} (Node Profile level)
     ${np}=   Set Variable   imdata[0].l3extOut.children[?l3extLNodeP.attributes.name=='{{ l3out_np_name }}'] | [0]
     ${peer}=   Set Variable   ${np}.l3extLNodeP.children[?bgpPeerP.attributes.addr=='{{ peer.ip }}'] | [0]
     Should Be Equal JMESPath Json   ${r}   ${peer}.bgpPeerP.attributes.addr   {{ peer.ip }}
@@ -221,6 +221,52 @@ Verify L3out {{ l3out_name }} Node Profile {{ l3out_np_name }} BGP Peer {{ peer.
 {% endif %}
 
 {% endfor %}
+{% endif %}
+
+{% if tenant.name == "infra" | default([]) %}
+{% for infra_peer in l3out.bgp_infra_peers | default([]) %}
+{% set peer_type = infra_peer.peer_type | default(defaults.apic.tenants.l3outs.bgp_infra_peers.peer_type) %}
+{% if peer_type == 'wan' or peer_type == "mdp-wan" %}
+{% set ctrl = [] %}
+{% if infra_peer.allow_self_as | default(defaults.apic.tenants.l3outs.bgp_infra_peers.allow_self_as) %}{% set ctrl = ctrl + [("allow-self-as")] %}{% endif %}
+{% if infra_peer.as_override | default(defaults.apic.tenants.l3outs.bgp_infra_peers.as_override) %}{% set ctrl = ctrl + [("as-override")] %}{% endif %}
+{% if infra_peer.disable_peer_as_check | default(defaults.apic.tenants.l3outs.bgp_infra_peers.disable_peer_as_check) %}{% set ctrl = ctrl + [("dis-peer-as-check")] %}{% endif %}
+{% if infra_peer.next_hop_self | default(defaults.apic.tenants.l3outs.bgp_infra_peers.next_hop_self) %}{% set ctrl = ctrl + [("nh-self")] %}{% endif %}
+{% if infra_peer.send_community | default(defaults.apic.tenants.l3outs.bgp_infra_peers.send_community) %}{% set ctrl = ctrl + [("send-com")] %}{% endif %}
+{% if infra_peer.send_ext_community | default(defaults.apic.tenants.l3outs.bgp_infra_peers.send_ext_community) %}{% set ctrl = ctrl + [("send-ext-com")] %}{% endif %}
+
+{% set peer_ctrl = [] %}
+{% if infra_peer.bfd | default(defaults.apic.tenants.l3outs.bgp_infra_peers.bfd) %}{% set peer_ctrl = peer_ctrl + [("bfd")] %}{% endif %}
+
+Verify L3out {{ l3out_name }} Node Profile {{ l3out_np_name }} BGP Infra Peer {{ infra_peer.ip }}
+    ${np}=   Set Variable   imdata[0].l3extOut.children[?(@.l3extLNodeP.attributes.name=='{{ l3out_np_name }}')] | [0]
+    ${infra_peer}=   Set Variable   ${np}.l3extLNodeP.children[?(@.bgpInfraPeerP.attributes.addr=='{{ infra_peer.ip }}')] | [0]
+    Should Be Equal JMESPath Json   ${r}   ${infra_peer}.bgpInfraPeerP.attributes.addr   {{ infra_peer.ip }}
+    Should Be Equal JMESPath Json   ${r}   ${infra_peer}.bgpInfraPeerP.children[?bgpAsP] | [0].bgpAsP.attributes.asn   {{ infra_peer.remote_as }}
+    Should Be Equal JMESPath Json   ${r}   ${infra_peer}.bgpInfraPeerP.attributes.adminSt   {{ 'enabled' if infra_peer.admin_state | default(defaults.apic.tenants.l3outs.bgp_infra_peers.admin_state) else 'disabled' }}
+    Should Be Equal JMESPath Json   ${r}   ${infra_peer}.bgpInfraPeerP.attributes.descr   {{ infra_peer.description | default() }}
+    Should Be Equal JMESPath Json   ${r}   ${infra_peer}.bgpInfraPeerP.attributes.ctrl   {{ ctrl | join(',') }}
+    Should Be Equal JMESPath Json   ${r}   ${infra_peer}.bgpInfraPeerP.attributes.peerCtrl   {{ peer_ctrl | join(',') }}
+    Should Be Equal JMESPath Json   ${r}   ${infra_peer}.bgpInfraPeerP.attributes.peerT    {{ peer_type }}
+    Should Be Equal JMESPath Json   ${r}   ${infra_peer}.bgpInfraPeerP.attributes.ttl   {{ infra_peer.ttl | default(defaults.apic.tenants.l3outs.bgp_infra_peers.ttl) }}
+{% if peer_type == 'wan' %}
+    Should Be Equal JMESPath Json   ${r}   ${infra_peer}.bgpInfraPeerP.attributes.srcIfT    {{ infra_peer.source_interface_type | default(defaults.apic.tenants.l3outs.bgp_infra_peers.source_interface_type) }}
+{% if infra_peer.source_interface_type | default(defaults.apic.tenants.l3outs.bgp_infra_peers.source_interface_type) == 'routable-loopback' %}
+    Should Be Equal JMESPath Json   ${r}   ${infra_peer}.bgpInfraPeerP.attributes.dataPlaneAddr    {{ infra_peer.data_plane_address | default() }}
+{% endif %}
+{% endif %}
+{% if infra_peer.local_as is defined %}
+    Should Be Equal JMESPath Json   ${r}   ${infra_peer}.bgpInfraPeerP.children[?bgpLocalAsnP] | [0].bgpLocalAsnP.attributes.asnPropagate   {{ infra_peer.as_propagate | default(defaults.apic.tenants.l3outs.bgp_infra_peers.as_propagate) }}
+    Should Be Equal JMESPath Json   ${r}   ${infra_peer}.bgpInfraPeerP.children[?bgpLocalAsnP] | [0].bgpLocalAsnP.attributes.localAsn   {{ infra_peer.local_as }}
+{% endif %}
+{% if infra_peer.peer_prefix_policy is defined %}
+{% set peer_prefix_policy_name = infra_peer.peer_prefix_policy ~ defaults.apic.tenants.policies.bgp_peer_prefix_policies.name_suffix %}
+    Should Be Equal JMESPath Json   ${r}   ${infra_peer}.bgpInfraPeerP.children[?bgpRsPeerPfxPol] | [0].bgpRsPeerPfxPol.attributes.tnBgpPeerPfxPolName   {{ peer_prefix_policy_name }}
+{% endif %}
+{% endif %}
+
+{% endfor %}
+{% endif %}
 
 {% for node in l3out.nodes | default([]) %}
 {% for int in node.interfaces | default([]) %}
@@ -328,16 +374,19 @@ Verify L3out {{ l3out_name }} Node {{ node.node_id }} Interface {{ loop.index }}
     ${int}=   Set Variable   imdata[0].l3extOut.children[?l3extLNodeP] | [0].l3extLNodeP.children[?l3extLIfP] | [0].l3extLIfP.children[?l3extVirtualLIfP.attributes.nodeDn=='topology/pod-{{ pod | default(defaults.apic.tenants.l3outs.nodes.interfaces.pod) }}/node-{{ node.node_id }}' && l3extVirtualLIfP.attributes.encap=='vlan-{{ int.vlan }}'] | [0]
     ${path}=   Set Variable   ${int}.l3extVirtualLIfP.children[?l3extRsDynPathAtt.attributes.floatingAddr=='{{ path.floating_ip }}'] | [0]
     Should Be Equal JMESPath Json   ${r}   ${path}.l3extRsDynPathAtt.attributes.floatingAddr   {{ path.floating_ip }}
-    {% if path.vlan is defined and path.physical_domain is defined%}
+    Should Be Equal JMESPath Json   ${r}   ${path}.l3extRsDynPathAtt.attributes.forgedTransmit   {{ 'Enabled' if path.forged_transmit | default(defaults.apic.tenants.l3outs.nodes.interfaces.forged_transmit) else 'Disabled' }}
+    Should Be Equal JMESPath Json   ${r}   ${path}.l3extRsDynPathAtt.attributes.macChange   {{ 'Enabled' if path.mac_change | default(defaults.apic.tenants.l3outs.nodes.interfaces.mac_change) else 'Disabled' }}
+    Should Be Equal JMESPath Json   ${r}   ${path}.l3extRsDynPathAtt.attributes.promMode   {{ 'Enabled' if path.promiscous_mode | default(defaults.apic.tenants.l3outs.nodes.interfaces.promiscous_mode) else 'Disabled' }}
+    {% if path.vlan is defined %}
     Should Be Equal JMESPath Json   ${r}   ${path}.l3extRsDynPathAtt.attributes.encap   vlan-{{ path.vlan }}
     {% endif %}
     {% if path.physical_domain is defined %}
     Should Be Equal JMESPath Json   ${r}   ${path}.l3extRsDynPathAtt.attributes.tDn   uni/phys-{{ path.physical_domain }}
     {% elif path.vmware_vmm_domain is defined %}
     Should Be Equal JMESPath Json   ${r}   ${path}.l3extRsDynPathAtt.attributes.tDn   uni/vmmp-VMware/dom-{{ path.vmware_vmm_domain }}
+    {% endif %}
     {% if path.elag is defined and path.vmware_vmm_domain is defined %}
     Should Be Equal JMESPath Json   ${r}   ${path}.l3extRsDynPathAtt.children[?l3extVirtualLIfPLagPolAtt] | [0].l3extVirtualLIfPLagPolAtt.children[?l3extRsVSwitchEnhancedLagPol] | [0].l3extRsVSwitchEnhancedLagPol.attributes.tDn   uni/vmmp-VMware/dom-{{ path.vmware_vmm_domain }}/vswitchpolcont/enlacplagp-{{ path.elag }}
-    {% endif %}
     {% endif %}
 
 {% endfor %}
@@ -493,6 +542,7 @@ Verify L3out {{ l3out_name }} BGP Protocol Profile
 Verify L3out {{ l3out_name }} Node Profile {{ l3out_np_name }}
     ${np}=   Set Variable   imdata[0].l3extOut.children[?l3extLNodeP.attributes.name=='{{ l3out_np_name }}'] | [0]
     Should Be Equal JMESPath Json   ${r}   ${np}.l3extLNodeP.attributes.name   {{ l3out_np_name }}
+    Should Be Equal JMESPath Json   ${r}   ${np}.l3extLNodeP.attributes.descr   {{ np.description | default() }}
 
 {% if np.bfd_multihop_node_policy is defined %}
 {% set bfd_multihop_node_policy_name = np.bfd_multihop_node_policy ~ defaults.apic.tenants.policies.bfd_multihop_node_policies.name_suffix %}
@@ -559,6 +609,7 @@ Verify L3out {{ l3out_name }} Node Profile {{ l3out_np_name }} Node {{ node.node
 
 {% endfor %}
 
+{% if tenant.name != "infra" | default([]) %}
 {% for peer in np.bgp_peers | default([]) %}
 {% set ctrl = [] %}
 {% if peer.allow_self_as | default(defaults.apic.tenants.l3outs.node_profiles.bgp_peers.allow_self_as) %}{% set ctrl = ctrl + [("allow-self-as")] %}{% endif %}
@@ -612,6 +663,52 @@ Verify L3out {{ l3out_name }} Node Profile {{ l3out_np_name }} BGP Peer {{ peer.
 {% endif %}
 
 {% endfor %}
+{% endif %}
+
+{% if tenant.name == "infra" | default([]) %}
+{% for infra_peer in np.bgp_infra_peers | default([]) %}
+{% set peer_type = infra_peer.peer_type | default(defaults.apic.tenants.l3outs.node_profiles.bgp_infra_peers.peer_type) %}
+{% if peer_type == 'wan' or peer_type == "mdp-wan" %}
+{% set ctrl = [] %}
+{% if infra_peer.allow_self_as | default(defaults.apic.tenants.l3outs.node_profiles.bgp_infra_peers.allow_self_as) %}{% set ctrl = ctrl + [("allow-self-as")] %}{% endif %}
+{% if infra_peer.as_override | default(defaults.apic.tenants.l3outs.node_profiles.bgp_infra_peers.as_override) %}{% set ctrl = ctrl + [("as-override")] %}{% endif %}
+{% if infra_peer.disable_peer_as_check | default(defaults.apic.tenants.l3outs.node_profiles.bgp_infra_peers.disable_peer_as_check) %}{% set ctrl = ctrl + [("dis-peer-as-check")] %}{% endif %}
+{% if infra_peer.next_hop_self | default(defaults.apic.tenants.l3outs.node_profiles.bgp_infra_peers.next_hop_self) %}{% set ctrl = ctrl + [("nh-self")] %}{% endif %}
+{% if infra_peer.send_community | default(defaults.apic.tenants.l3outs.node_profiles.bgp_infra_peers.send_community) %}{% set ctrl = ctrl + [("send-com")] %}{% endif %}
+{% if infra_peer.send_ext_community | default(defaults.apic.tenants.l3outs.node_profiles.bgp_infra_peers.send_ext_community) %}{% set ctrl = ctrl + [("send-ext-com")] %}{% endif %}
+
+{% set peer_ctrl = [] %}
+{% if infra_peer.bfd | default(defaults.apic.tenants.l3outs.node_profiles.bgp_infra_peers.bfd) %}{% set peer_ctrl = peer_ctrl + [("bfd")] %}{% endif %}
+
+Verify L3out {{ l3out_name }} Node Profile {{ l3out_np_name }} BGP Infra Peer {{ infra_peer.ip }}
+    ${np}=   Set Variable   imdata[0].l3extOut.children[?(@.l3extLNodeP.attributes.name=='{{ l3out_np_name }}')] | [0]
+    ${infra_peer}=   Set Variable   ${np}.l3extLNodeP.children[?(@.bgpInfraPeerP.attributes.addr=='{{ infra_peer.ip }}')] | [0]
+    Should Be Equal JMESPath Json   ${r}   ${infra_peer}.bgpInfraPeerP.attributes.addr   {{ infra_peer.ip }}
+    Should Be Equal JMESPath Json   ${r}   ${infra_peer}.bgpInfraPeerP.children[?bgpAsP] | [0].bgpAsP.attributes.asn   {{ infra_peer.remote_as }}
+    Should Be Equal JMESPath Json   ${r}   ${infra_peer}.bgpInfraPeerP.attributes.adminSt   {{ 'enabled' if infra_peer.admin_state | default(defaults.apic.tenants.l3outs.node_profiles.bgp_infra_peers.admin_state) else 'disabled' }}
+    Should Be Equal JMESPath Json   ${r}   ${infra_peer}.bgpInfraPeerP.attributes.descr   {{ infra_peer.description | default() }}
+    Should Be Equal JMESPath Json   ${r}   ${infra_peer}.bgpInfraPeerP.attributes.ctrl   {{ ctrl | join(',') }}
+    Should Be Equal JMESPath Json   ${r}   ${infra_peer}.bgpInfraPeerP.attributes.peerCtrl   {{ peer_ctrl | join(',') }}
+    Should Be Equal JMESPath Json   ${r}   ${infra_peer}.bgpInfraPeerP.attributes.peerT    {{ peer_type }}
+    Should Be Equal JMESPath Json   ${r}   ${infra_peer}.bgpInfraPeerP.attributes.ttl   {{ infra_peer.ttl | default(defaults.apic.tenants.l3outs.node_profiles.bgp_infra_peers.ttl) }}
+{% if peer_type == 'wan' %}
+    Should Be Equal JMESPath Json   ${r}   ${infra_peer}.bgpInfraPeerP.attributes.srcIfT    {{ infra_peer.source_interface_type | default(defaults.apic.tenants.l3outs.node_profiles.bgp_infra_peers.source_interface_type) }}
+{% if infra_peer.source_interface_type | default(defaults.apic.tenants.l3outs.node_profiles.bgp_infra_peers.source_interface_type) == 'routable-loopback' %}
+    Should Be Equal JMESPath Json   ${r}   ${infra_peer}.bgpInfraPeerP.attributes.dataPlaneAddr    {{ infra_peer.data_plane_address | default() }}
+{% endif %}
+{% endif %}
+{% if infra_peer.local_as is defined %}
+    Should Be Equal JMESPath Json   ${r}   ${infra_peer}.bgpInfraPeerP.children[?bgpLocalAsnP] | [0].bgpLocalAsnP.attributes.asnPropagate   {{ infra_peer.as_propagate | default(defaults.apic.tenants.l3outs.node_profiles.bgp_infra_peers.as_propagate) }}
+    Should Be Equal JMESPath Json   ${r}   ${infra_peer}.bgpInfraPeerP.children[?bgpLocalAsnP] | [0].bgpLocalAsnP.attributes.localAsn   {{ infra_peer.local_as }}
+{% endif %}
+{% if infra_peer.peer_prefix_policy is defined %}
+{% set peer_prefix_policy_name = infra_peer.peer_prefix_policy ~ defaults.apic.tenants.policies.bgp_peer_prefix_policies.name_suffix %}
+    Should Be Equal JMESPath Json   ${r}   ${infra_peer}.bgpInfraPeerP.children[?bgpRsPeerPfxPol] | [0].bgpRsPeerPfxPol.attributes.tnBgpPeerPfxPolName   {{ peer_prefix_policy_name }}
+{% endif %}
+{% endif %}
+
+{% endfor %}
+{% endif %}
 
 {% endfor %}
 
@@ -766,7 +863,7 @@ Verify L3out {{ l3out_name }} Node Profile {{ l3out_np_name }} Interface Profile
         {% endif %}
     {% endif %}
 {% else %}
-    ${int}=   Set Variable   imdata[0].l3extOut.children[?l3extLNodeP] | [0].l3extLNodeP.children[?l3extLIfP] | [0].l3extLIfP.children[?l3extVirtualLIfP.attributes.nodeDn=='topology/pod-{{ pod | default(defaults.apic.tenants.l3outs.node_profiles.interface_profiles.interfaces.pod) }}/node-{{ int.node_id }}' && l3extVirtualLIfP.attributes.encap=='vlan-{{ int.vlan }}'] | [0]
+    ${int}=   Set Variable   imdata[0].l3extOut.children[?l3extLNodeP.attributes.name=='{{ l3out_np_name }}'] | [0].l3extLNodeP.children[?l3extLIfP.attributes.name=='{{ l3out_ip_name }}'] | [0].l3extLIfP.children[?l3extVirtualLIfP.attributes.nodeDn=='topology/pod-{{ pod | default(defaults.apic.tenants.l3outs.node_profiles.interface_profiles.interfaces.pod) }}/node-{{ int.node_id }}' && l3extVirtualLIfP.attributes.encap=='vlan-{{ int.vlan }}'] | [0]
     Should Be Equal JMESPath Json   ${r}   ${int}.l3extVirtualLIfP.attributes.addr   {{ int.ip }}
     Should Be Equal JMESPath Json   ${r}   ${int}.l3extVirtualLIfP.attributes.descr   {{ int.description | default() }}
     Should Be Equal JMESPath Json   ${r}   ${int}.l3extVirtualLIfP.attributes.ifInstT   ext-svi
@@ -783,20 +880,22 @@ Verify L3out {{ l3out_name }} Node Profile {{ l3out_np_name }} Interface Profile
 {% for path in int.paths | default([]) %}
 
 Verify L3out {{ l3out_name }} Node Profile {{ l3out_np_name }} Interface Profile {{ l3out_ip_name }} Interface {{ loop.index }} Path {{ path.floating_ip }}
-    ${int}=   Set Variable   imdata[0].l3extOut.children[?l3extLNodeP] | [0].l3extLNodeP.children[?l3extLIfP] | [0].l3extLIfP.children[?l3extVirtualLIfP.attributes.nodeDn=='topology/pod-{{ pod | default(defaults.apic.tenants.l3outs.node_profiles.interface_profiles.interfaces.pod) }}/node-{{ int.node_id }}' && l3extVirtualLIfP.attributes.encap=='vlan-{{ int.vlan }}'] | [0]
+    ${int}=   Set Variable   imdata[0].l3extOut.children[?l3extLNodeP.attributes.name=='{{ l3out_np_name }}'] | [0].l3extLNodeP.children[?l3extLIfP.attributes.name=='{{ l3out_ip_name }}'] | [0].l3extLIfP.children[?l3extVirtualLIfP.attributes.nodeDn=='topology/pod-{{ pod | default(defaults.apic.tenants.l3outs.node_profiles.interface_profiles.interfaces.pod) }}/node-{{ int.node_id }}' && l3extVirtualLIfP.attributes.encap=='vlan-{{ int.vlan }}'] | [0]
     ${path}=   Set Variable   ${int}.l3extVirtualLIfP.children[?l3extRsDynPathAtt.attributes.floatingAddr=='{{ path.floating_ip }}'] | [0]
     Should Be Equal JMESPath Json   ${r}   ${path}.l3extRsDynPathAtt.attributes.floatingAddr   {{ path.floating_ip }}
-    Should Be Equal JMESPath Json   ${r}   ${path}.l3extRsDynPathAtt.attributes.floatingAddr   {{ path.floating_ip }}
-    {% if path.vlan is defined and path.physical_domain is defined%}
+    Should Be Equal JMESPath Json   ${r}   ${path}.l3extRsDynPathAtt.attributes.forgedTransmit   {{ 'Enabled' if path.forged_transmit | default(defaults.apic.tenants.l3outs.node_profiles.interface_profiles.interfaces.forged_transmit) else 'Disabled' }}
+    Should Be Equal JMESPath Json   ${r}   ${path}.l3extRsDynPathAtt.attributes.macChange   {{ 'Enabled' if path.mac_change | default(defaults.apic.tenants.l3outs.node_profiles.interface_profiles.interfaces.mac_change) else 'Disabled' }}
+    Should Be Equal JMESPath Json   ${r}   ${path}.l3extRsDynPathAtt.attributes.promMode   {{ 'Enabled' if path.promiscous_mode | default(defaults.apic.tenants.l3outs.node_profiles.interface_profiles.interfaces.promiscous_mode) else 'Disabled' }}
+    {% if path.vlan is defined %}
     Should Be Equal JMESPath Json   ${r}   ${path}.l3extRsDynPathAtt.attributes.encap   vlan-{{ path.vlan }}
     {% endif %}
     {% if path.physical_domain is defined %}
     Should Be Equal JMESPath Json   ${r}   ${path}.l3extRsDynPathAtt.attributes.tDn   uni/phys-{{ path.physical_domain }}
     {% elif path.vmware_vmm_domain is defined %}
     Should Be Equal JMESPath Json   ${r}   ${path}.l3extRsDynPathAtt.attributes.tDn   uni/vmmp-VMware/dom-{{ path.vmware_vmm_domain }}
+    {% endif %}
     {% if path.elag is defined and path.vmware_vmm_domain is defined %}
     Should Be Equal JMESPath Json   ${r}   ${path}.l3extRsDynPathAtt.children[?l3extVirtualLIfPLagPolAtt] | [0].l3extVirtualLIfPLagPolAtt.children[?l3extRsVSwitchEnhancedLagPol] | [0].l3extRsVSwitchEnhancedLagPol.attributes.tDn   uni/vmmp-VMware/dom-{{ path.vmware_vmm_domain }}/vswitchpolcont/enlacplagp-{{ path.elag }}
-    {% endif %}
     {% endif %}
 {% endfor %}
 {% endif %}
@@ -845,7 +944,7 @@ Verify L3out {{ l3out_name }} Node Profile {{ l3out_np_name }} Interface Profile
     ${int}=   Set Variable   ${ip}.l3extLIfP.children[?l3extRsPathL3OutAtt.attributes.tDn=='{{ tDn }}'] | [0].l3extRsPathL3OutAtt
     ${peer}=   Set Variable   ${int}.children[?bgpPeerP.attributes.addr=='{{ peer.ip }}'] | [0]
 {% else %}
-    ${int}=   Set Variable   imdata[0].l3extOut.children[?l3extLIfP] | [0].l3extLIfP.children[?l3extVirtualLIfP.attributes.nodeDn=='topology/pod-{{ pod | default(defaults.apic.tenants.l3outs.node_profiles.interface_profiles.interfaces.pod) }}/node-{{ int.node_id }}' && l3extVirtualLIfP.attributes.encap=='vlan-{{ int.vlan }}'] | [0]
+    ${int}=   Set Variable   ${ip}.l3extLIfP.children[?l3extVirtualLIfP.attributes.nodeDn=='topology/pod-{{ pod | default(defaults.apic.tenants.l3outs.node_profiles.interface_profiles.interfaces.pod) }}/node-{{ int.node_id }}' && l3extVirtualLIfP.attributes.encap=='vlan-{{ int.vlan }}'] | [0]
     ${peer}=   Set Variable   ${int}.l3extVirtualLIfP.children[?bgpPeerP.attributes.addr=='{{ peer.ip }}'] | [0]
 {% endif %}
     Should Be Equal JMESPath Json   ${r}   ${peer}.bgpPeerP.attributes.addr   {{ peer.ip }}
@@ -884,9 +983,9 @@ Verify L3out {{ l3out_name }} Node Profile {{ l3out_np_name }} Interface Profile
 {% endfor %}
 
 {% if int.micro_bfd is defined %}
-    Should Be Equal JMESPath Json   ${r}   ${int}.bfdMicroBfdP.attributes.adminState   yes
-    Should Be Equal JMESPath Json   ${r}   ${int}.bfdMicroBfdP.attributes.dst   {{ int.micro_bfd.destination_ip }}
-    Should Be Equal JMESPath Json   ${r}   ${int}.bfdMicroBfdP.attributes.stTm   {{ int.micro_bfd.start_timer | default(defaults.apic.tenants.l3outs.node_profiles.interface_profiles.interfaces.micro_bfd.start_timer )}}
+    Should Be Equal JMESPath Json   ${r}   ${int}.children[?bfdMicroBfdP] | [0].bfdMicroBfdP.attributes.adminState   yes
+    Should Be Equal JMESPath Json   ${r}   ${int}.children[?bfdMicroBfdP] | [0].bfdMicroBfdP.attributes.dst   {{ int.micro_bfd.destination_ip }}
+    Should Be Equal JMESPath Json   ${r}   ${int}.children[?bfdMicroBfdP] | [0].bfdMicroBfdP.attributes.stTm   {{ int.micro_bfd.start_timer | default(defaults.apic.tenants.l3outs.node_profiles.interface_profiles.interfaces.micro_bfd.start_timer )}}
 {% endif %}
 
 {% endfor %}
@@ -895,7 +994,7 @@ Verify L3out {{ l3out_name }} Node Profile {{ l3out_np_name }} Interface Profile
 {% for dhcp_label in ip.dhcp_labels | default([]) %}
 {% set dhcp_relay_policy_name = dhcp_label.dhcp_relay_policy ~ defaults.apic.tenants.policies.dhcp_relay_policies.name_suffix %}
 
-Verify L3out {{ l3out_name }} Node Profile {{ l3out_np_name }} Interface Profile {{ l3out_ip_name }} DHCP Label {{ dhcp_relay_policy_name }}
+Verify L3out {{ l3out_name }} Node Profile {{ l3out_np_name }} Interface Profile {{ l3out_ip_name }} DHCP Label {{ dhcp_relay_policy_name }} (Interface Profile level)
 
     ${dhcp}=   Set Variable   imdata[0].l3extOut.children[?l3extLNodeP] | [0].l3extLNodeP.children[?l3extLIfP] | [0].l3extLIfP.children[?dhcpLbl.attributes.name=='{{ dhcp_relay_policy_name }}'] | [0]
     Should Be Equal JMESPath Json   ${r}   ${dhcp}.dhcpLbl.attributes.name   {{ dhcp_relay_policy_name }}
@@ -912,7 +1011,7 @@ Verify L3out {{ l3out_name }} Node Profile {{ l3out_np_name }} Interface Profile
 
 {% if np.bgp is defined %}
 
-Verify L3out {{ l3out_name }} BGP Protocol Profile
+Verify L3out {{ l3out_name }} BGP Protocol Profile (Node Profile level)
 
 {% if np.bgp.name is defined | default() %}
     Should Be Equal JMESPath Json   ${r}   imdata[0].l3extOut.children[?l3extLNodeP] | [0].l3extLNodeP.children[?bgpProtP] | [0].bgpProtP.attributes.name  {{ np.bgp.name }}
@@ -1122,6 +1221,17 @@ Verify L3out {{ l3out_name }} External EPG {{ eepg_name }}
     Should Be Equal JMESPath Json   ${r}   ${eepg}.l3extInstP.attributes.prio   {{ epg.qos_class | default(defaults.apic.tenants.l3outs.external_endpoint_groups.qos_class) }}
     Should Be Equal JMESPath Json   ${r}   ${eepg}.l3extInstP.attributes.targetDscp   {{ epg.target_dscp | default(defaults.apic.tenants.l3outs.external_endpoint_groups.target_dscp) }}
 
+{% for master in epg.contracts.masters | default([]) %}
+{% set master_l3out_name = (master.l3out | default(l3out.name)) ~ defaults.apic.tenants.l3outs.name_suffix %}
+{% set master_eepg_name = master.external_endpoint_group ~ defaults.apic.tenants.l3outs.external_endpoint_groups.name_suffix %}
+
+Verify L3out {{ l3out_name }} External EPG {{ eepg_name }} Contract Master {{ master_l3out_name }} / {{ master_eepg_name }}
+    ${eepg}=   Set Variable   imdata[0].l3extOut.children[?l3extInstP.attributes.name=='{{ eepg_name }}'] | [0].l3extInstP
+    ${con_master}=   Set Variable   ${eepg}.children[?fvRsSecInherited.attributes.tDn=='uni/tn-{{ tenant.name }}/out-{{ master_l3out_name }}/instP-{{ master_eepg_name }}'] | [0]
+    Should Be Equal JMESPath Json   ${r}   ${con_master}.fvRsSecInherited.attributes.tDn   uni/tn-{{ tenant.name }}/out-{{ master_l3out_name }}/instP-{{ master_eepg_name }}
+
+{% endfor %}
+
 {%- for route_control_profile in epg.route_control_profiles | default([]) %}
 {% set route_control_profile_name = route_control_profile.name ~ defaults.apic.tenants.l3outs.external_endpoint_groups.route_control_profiles.name_suffix %}
 
@@ -1204,7 +1314,7 @@ Verify L3out {{ l3out_name }} External EPG {{ eepg_name }} Consumed Contract {{ 
 {% for contract in epg.contracts.imported_consumers | default([]) %}
 {% set contract_name = contract ~ defaults.apic.tenants.imported_contracts.name_suffix %}
 
-Verify L3out {{ l3out_name }} External EPG {{ eepg_name }} Consumed Contract {{ contract_name }}
+Verify L3out {{ l3out_name }} External EPG {{ eepg_name }} Imported Consumed Contract {{ contract_name }}
     ${eepg}=   Set Variable   imdata[0].l3extOut.children[?l3extInstP.attributes.name=='{{ eepg_name }}'] | [0]
     ${contract}=   Set Variable   ${eepg}.l3extInstP.children[?fvRsConsIf.attributes.tnVzCPIfName=='{{ contract_name }}'] | [0]
     Should Be Equal JMESPath Json   ${r}   ${contract}.fvRsConsIf.attributes.tnVzCPIfName   {{ contract_name }}

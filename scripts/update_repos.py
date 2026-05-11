@@ -118,6 +118,10 @@ REPOS = [
                 "src": "../schemas/apic_schema.yaml",
                 "dst": "./.schema.yaml",
             },
+            {
+                "src": "../.ci/tf-import-aci.py",
+                "dst": "./.ci/tf-import-aci.py",
+            },
         ],
     },
     {

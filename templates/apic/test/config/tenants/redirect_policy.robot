@@ -29,15 +29,19 @@ Verify Redirect Policy {{ pol_name }}
     Should Be Equal JMESPath Json   ${r}   imdata[0].vnsSvcRedirectPol.attributes.AnycastEnabled   {{ 'yes' if pol.anycast | default(defaults.apic.tenants.services.redirect_policies.anycast) else 'no' }}
     Should Be Equal JMESPath Json   ${r}   imdata[0].vnsSvcRedirectPol.attributes.thresholdEnable   {{ 'yes' if pol.threshold | default(defaults.apic.tenants.services.redirect_policies.threshold) else 'no' }}
 
-{% if pol.sla_policy is defined %}
-{% set ip_sla_name = pol.sla_policy ~ defaults.apic.tenants.policies.ip_sla_policies.name_suffix %}
-
+{% if pol.ip_sla_policy is defined %}
+{% set ip_sla_name = pol.ip_sla_policy ~ defaults.apic.tenants.policies.ip_sla_policies.name_suffix %}
+{% set current_tenant_query = "policies.ip_sla_policies[?name=='" ~ ip_sla_name ~ "']" %}
+{% set common_tenant_query = "tenants[?name=='common'] | [0].policies.ip_sla_policies[?name=='" ~ ip_sla_name ~ "']" %}
+{% set current_tenant_ip_sla_policy = ((tenant | community.general.json_query(current_tenant_query)) or []) | length > 0 %}
+{% set common_tenant_ip_sla_policy = ((apic | community.general.json_query(common_tenant_query)) or []) | length > 0 %}
+{% set ip_sla_tenant = "common" if (not current_tenant_ip_sla_policy and common_tenant_ip_sla_policy) else tenant.name %}
 Verify Redirect Policy {{ pol_name }} IP SLA Policy
-    Should Be Equal JMESPath Json   ${r}   imdata[0].vnsSvcRedirectPol.children[?vnsRsIPSLAMonitoringPol] | [0].vnsRsIPSLAMonitoringPol.attributes.tDn   uni/tn-{{ tenant.name }}/ipslaMonitoringPol-{{ ip_sla_name }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].vnsSvcRedirectPol.children[?vnsRsIPSLAMonitoringPol] | [0].vnsRsIPSLAMonitoringPol.attributes.tDn   uni/tn-{{ ip_sla_tenant }}/ipslaMonitoringPol-{{ ip_sla_name }}
 
 {% endif %}
 
-{% if pol.resilient_hashing | default(defaults.apic.tenants.services.redirect_policies.resilient_hashing) == "enabled" and pol.redirect_backup_policy is defined %}
+{% if pol.resilient_hashing | default(defaults.apic.tenants.services.redirect_policies.resilient_hashing) and pol.redirect_backup_policy is defined %}
 {% set backup_pol_name = pol.redirect_backup_policy ~ defaults.apic.tenants.services.redirect_backup_policies.name_suffix %}
 
 Verify Redirect Policy {{ pol_name }} Backup Policy

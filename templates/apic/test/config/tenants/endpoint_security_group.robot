@@ -102,5 +102,22 @@ Verify Endpoint Security Group {{ esg_name }} IP Subnet Selector {{ sel.value }}
 
 {% endfor %}
 
+{% for sel in esg.ip_external_subnet_selectors | default([]) %}
+
+Verify Endpoint Security Group {{ esg_name }} IP External Subnet Selector {{ sel.ip }}
+    ${con}=   Set Variable   imdata[0].fvESg.children[?fvExternalSubnetSelector.attributes.ip=='{{ sel.ip }}'] | [0]
+    Should Be Equal JMESPath Json   ${r}   ${con}.fvExternalSubnetSelector.attributes.descr   {{ sel.description | default() }}
+    Should Be Equal JMESPath Json   ${r}   ${con}.fvExternalSubnetSelector.attributes.ip   {{ sel.ip }}
+    Should Be Equal JMESPath Json   ${r}   ${con}.fvExternalSubnetSelector.attributes.shared   {{ 'yes' if sel.shared | default(defaults.apic.tenants.application_profiles.endpoint_security_groups.ip_external_subnet_selectors.shared) else 'no' }}
+
+{% endfor %}
+
+{% if esg.normalized_pctag is defined %}
+
+Verify Endpoint Security Group {{ esg_name }} Normalized PcTag {{ esg.normalized_pctag }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].fvESg.children[?fvRemoteSGT] | [0].fvRemoteSGT.attributes.remotePcTag   {{ esg.normalized_pctag }}
+
+{% endif %}
+
 {% endfor %}
 {% endfor %}

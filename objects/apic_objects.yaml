@@ -323,11 +323,10 @@ objects:
     test_types:
       - config
     aci_classes:
-      - syslogSrc
-      - snmpSrc
+      - monCommonPol
+      - monFabricPol
     paths:
-      - apic.fabric_policies.monitoring.snmp_traps.name
-      - apic.fabric_policies.monitoring.syslogs.name
+      - apic.fabric_policies.monitoring.policies
   - name: CA Certificate
     template: ca_cert
     folder: fabric_policies
@@ -1029,11 +1028,30 @@ objects:
       - config
     paths:
       - apic.access_policies.interface_policies.storm_control_policies
+  - name: Port Security Policy
+    template: port_security_policy
+    folder: access_policies
+    aci_classes:
+      - l2PortSecurityPol
+    test_types:
+      - config
+    paths:
+      - apic.access_policies.interface_policies.port_security_policies
+  - name: Priority Flow Control Policy
+    template: priority_flow_control_policy
+    folder: access_policies
+    aci_classes:
+      - qosPfcIfPol
+    test_types:
+      - config
+    paths:
+      - apic.access_policies.interface_policies.priority_flow_control_policies
   - name: Netflow Exporter
     template: netflow_exporter
     folder: access_policies
     aci_classes:
       - netflowExporterPol
+    match_dn: 'uni\/infra\/exporterpol-.*'
     test_types:
       - config
     paths:
@@ -1052,6 +1070,7 @@ objects:
     folder: access_policies
     aci_classes:
       - netflowRecordPol
+    match_dn: 'uni\/infra\/recordpol-.*'
     test_types:
       - config
     paths:
@@ -1061,6 +1080,7 @@ objects:
     folder: access_policies
     aci_classes:
       - netflowMonitorPol
+    match_dn: 'uni\/infra\/monitorpol-.*'
     test_types:
       - config
     paths:
@@ -1499,6 +1519,18 @@ tenant_objects:
       - health
     paths:
       - apic.tenants.vrfs
+  - name: VXLAN VRF Stretch
+    template: vxlan_vrf_stretch
+    folder: tenants
+    aci_classes:
+      - l3extOut
+    match_dn: 'uni\/tn-%%TENANT%%\/out-vxlan_vrf_.*'
+    scope:
+      - user
+    test_types:
+      - config
+    paths:
+      - apic.tenants.vrfs.vxlan_stretch
   - name: Bridge Domain
     template: bridge_domain
     folder: tenants
@@ -1520,7 +1552,7 @@ tenant_objects:
     aci_classes:
       - l3extOut
     match_dn: 'uni\/tn-%%TENANT%%\/out-.*'
-    match_attribute: mplsEnabled
+    match_attribute: '(mplsEnable|vxlanEnabled)'
     match_attribute_not_value: "yes"
     delete_ignore:
       - uni/tn-common/out-default/rsectx
@@ -2020,6 +2052,45 @@ tenant_objects:
       - apic.tenants.policies.monitoring.policies
     test_types:
       - config
+  - name: Tenant Netflow Exporter
+    template: tenant_netflow_exporter
+    folder: tenants
+    aci_classes:
+      - netflowExporterPol
+    match_dn: 'uni\/tn-%%TENANT%%\/exporterpol-.*'
+    scope:
+      - user
+      - mgmt
+    test_types:
+      - config
+    paths:
+      - apic.tenants.policies.netflow_exporters
+  - name: Tenant Netflow Record
+    template: tenant_netflow_record
+    folder: tenants
+    aci_classes:
+      - netflowRecordPol
+    match_dn: 'uni\/tn-%%TENANT%%\/recordpol-.*'
+    scope:
+      - user
+      - mgmt
+    test_types:
+      - config
+    paths:
+      - apic.tenants.policies.netflow_records
+  - name: Tenant Netflow Monitor
+    template: tenant_netflow_monitor
+    folder: tenants
+    aci_classes:
+      - netflowMonitorPol
+    match_dn: 'uni\/tn-%%TENANT%%\/monitorpol-.*'
+    scope:
+      - user
+      - mgmt
+    test_types:
+      - config
+    paths:
+      - apic.tenants.policies.netflow_monitors
   - name: Redirect Policy
     template: redirect_policy
     folder: tenants
@@ -2267,6 +2338,77 @@ tenant_objects:
       - config
     paths:
       - apic.tenants.policies.track_members
+  - name: HSRP Interface Policy
+    template: hsrp_interface_policy
+    folder: tenants
+    aci_classes:
+      - hsrpIfPol
+    scope:
+      - user
+      - mgmt
+    test_types:
+      - config
+    paths:
+      - apic.tenants.policies.hsrp_interface_policies
+  - name: HSRP Group Policy
+    template: hsrp_group_policy
+    folder: tenants
+    aci_classes:
+      - hsrpGroupPol
+    scope:
+      - user
+      - mgmt
+    test_types:
+      - config
+    paths:
+      - apic.tenants.policies.hsrp_group_policies
+  - name: VXLAN Custom QoS Policy
+    template: vxlan_custom_qos_policy
+    folder: tenants
+    aci_classes:
+      - qosVxlanCustomPol
+    scope:
+      - infra
+    test_types:
+      - config
+    paths:
+      - apic.tenants.policies.vxlan_custom_qos_policies
+  - name: Remote VXLAN Fabric
+    template: remote_vxlan_fabric
+    folder: tenants
+    aci_classes:
+      - vxlanRemoteFabric
+    scope:
+      - infra
+    test_types:
+      - config
+    paths:
+      - apic.tenants.policies.remote_vxlan_fabrics
+  - name: Border Gateway Set
+    template: border_gateway_set_policy
+    folder: tenants
+    aci_classes:
+      - vxlanBgwSet
+    scope:
+      - infra
+    test_types:
+      - config
+    paths:
+      - apic.tenants.policies.border_gateway_set_policy
+  - name: VXLAN L3out
+    template: vxlan_l3out
+    folder: tenants
+    aci_classes:
+      - l3extOut
+    match_dn: 'uni\/tn-infra\/out-.*'
+    match_attribute: vxlanEnabled
+    match_attribute_value: "yes"
+    scope:
+      - infra
+    test_types:
+      - config
+    paths:
+      - apic.tenants.vxlan_l3outs
 test_objects:
   - name: System
     template: system

@@ -10,7 +10,7 @@ Resource        ../../apic_common.resource
 {% set pod_profile_name = (pod.id) | regex_replace("^(?P<id>.+)$", (apic.fabric_policies.pod_profile_name | default(defaults.apic.fabric_policies.pod_profile_name))) %}
 {% set pod_profile_pod_selector_name = (pod.id) | regex_replace("^(?P<id>.+)$", (apic.fabric_policies.pod_profile_pod_selector_name | default(defaults.apic.fabric_policies.pod_profile_pod_selector_name))) %}
 
-Verify Pod Profile {{ pod_profile_name }}
+Verify (Auto-Generated) Pod Profile {{ pod_profile_name }}
     ${r}=   GET On Session   apic   /api/mo/uni/fabric/podprof-{{ pod_profile_name }}.json   params=rsp-subtree=full
     Set Suite Variable   $r   ${r.json()}
     Should Be Equal JMESPath Json   ${r}    imdata[0].fabricPodP.attributes.name   {{ pod_profile_name }}

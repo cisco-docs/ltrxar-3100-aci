@@ -13,7 +13,7 @@ Resource        ../../apic_common.resource
 {% set leaf_interface_profile_name = (node.id ~ ":" ~ node.name) | regex_replace("^(?P<id>.+):(?P<name>.+)$", (apic.fabric_policies.leaf_interface_profile_name | default(defaults.apic.fabric_policies.leaf_interface_profile_name))) %}
 {% set leaf_switch_selector_name = (node.id ~ ":" ~ node.name) | regex_replace("^(?P<id>.+):(?P<name>.+)$", (apic.fabric_policies.leaf_switch_selector_name | default(defaults.apic.fabric_policies.leaf_switch_selector_name))) %}
 
-Verify Fabric Leaf Switch Profile {{ leaf_switch_profile_name }}
+Verify (Auto-Generated) Fabric Leaf Switch Profile {{ leaf_switch_profile_name }}
     ${r}=   GET On Session   apic   /api/mo/uni/fabric/leprof-{{ leaf_switch_profile_name }}.json   params=rsp-subtree=full
     Set Suite Variable   $r   ${r.json()}
     Should Be Equal JMESPath Json   ${r}    imdata[0].fabricLeafP.attributes.name   {{ leaf_switch_profile_name }}
@@ -32,7 +32,7 @@ Verify Fabric Leaf Switch Profile {{ leaf_switch_profile_name }} Node Block
     Should Be Equal JMESPath Json   ${r}    imdata[0].fabricLeafP.children[?fabricLeafS] | [0].fabricLeafS.children[?fabricNodeBlk] | [0].fabricNodeBlk.attributes.name   {{ node.id }}
     Should Be Equal JMESPath Json   ${r}    imdata[0].fabricLeafP.children[?fabricLeafS] | [0].fabricLeafS.children[?fabricNodeBlk] | [0].fabricNodeBlk.attributes.to_   {{ node.id }}
 
-Verify Fabric Leaf Switch Profile {{ leaf_switch_profile_name }} Interface Profile
+Verify (Auto-Generated) Fabric Leaf Switch Profile {{ leaf_switch_profile_name }} Interface Profile
     Should Be Equal JMESPath Json   ${r}    imdata[0].fabricLeafP.children[?fabricRsLePortP] | [0].fabricRsLePortP.attributes.tDn   uni/fabric/leportp-{{ leaf_interface_profile_name }}
 
 {% endif %}

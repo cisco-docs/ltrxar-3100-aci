@@ -1,0 +1,57 @@
+{# iterate_list apic.tenants name item[2] #}
+{% set tenant = ((apic | default()) | community.general.json_query('tenants[?name==`' ~ item[2] ~ '`]'))[0] %}
+{
+    "fvTenant": {
+        "attributes": {
+            "dn": "uni/tn-{{ tenant.name }}",
+            "name": "{{ tenant.name }}"
+        },
+        "children": [
+            {%- set comma1 = joiner(",") %}
+            {%- for qos_policy in tenant.policies.vxlan_custom_qos_policies | default([]) %}{{ comma1() }}
+            {% set policy_name = qos_policy.name ~ defaults.apic.tenants.policies.vxlan_custom_qos_policies.name_suffix %}
+            {
+                "qosVxlanCustomPol": {
+                    "attributes": {
+                        "name": "{{ policy_name }}",
+                        "descr": "{{ qos_policy.description | default() }}",
+                        "dn": "uni/tn-{{ tenant.name }}/qosvxlancustom-{{ policy_name }}",
+                        "childAction": "deleteNonPresent"
+                    }
+                    ,
+                    "children": [
+                        {%- set comma2 = joiner(",") %}
+                        {%- for ir in qos_policy.ingress_rules | default([]) %}{{ comma2() }}
+                        {
+                            "qosVxlanIngressRule": {
+                                "attributes": {
+                                    "from": "{{ ir.dscp_from }}",
+                                    "prio": "{{ ir.priority | default(defaults.apic.tenants.policies.vxlan_custom_qos_policies.ingress_rules.priority) }}",
+                                    "target": "{{ ir.dscp_target | default(defaults.apic.tenants.policies.vxlan_custom_qos_policies.ingress_rules.dscp_target) }}",
+                                    "targetCos": "{{ ir.cos_target | default(defaults.apic.tenants.policies.vxlan_custom_qos_policies.ingress_rules.cos_target) }}",
+                                    "to": "{{ ir.dscp_to }}"
+                                }
+                            }
+                        }
+                        {%- endfor %}
+                        {%- for er in qos_policy.egress_rules | default([]) %}{{ comma2() }}
+                        {
+                            "qosVxlanEgressRule": {
+                                "attributes": {
+                                    "from": "{{ er.dscp_from }}",
+                                    "target": "{{ er.dscp_target | default(defaults.apic.tenants.policies.vxlan_custom_qos_policies.egress_rules.dscp_target) }}",
+                                    "targetCos": "{{ er.cos_target | default(defaults.apic.tenants.policies.vxlan_custom_qos_policies.egress_rules.cos_target) }}",
+                                    "to": "{{ er.dscp_to }}"
+                                }
+                            }
+                        }
+                        {%- endfor %}
+
+                    ]
+                }
+            }
+            {%- endfor %}
+
+        ]
+    }
+}

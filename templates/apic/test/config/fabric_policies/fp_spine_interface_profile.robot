@@ -11,7 +11,7 @@ Resource        ../../apic_common.resource
 {% if node.role == "spine" %}
 {% set spine_interface_profile_name = (node.id ~ ":" ~ node.name) | regex_replace("^(?P<id>.+):(?P<name>.+)$", (apic.fabric_policies.spine_interface_profile_name | default(defaults.apic.fabric_policies.spine_interface_profile_name))) %}
 
-Verify Fabric Spine Interface Profile {{ spine_interface_profile_name }}
+Verify (Auto-Generated) Fabric Spine Interface Profile {{ spine_interface_profile_name }}
     ${r}=   GET On Session   apic   /api/mo/uni/fabric/spportp-{{ spine_interface_profile_name }}.json
     Set Suite Variable   $r   ${r.json()}
     Should Be Equal JMESPath Json   ${r}    imdata[0].fabricSpPortP.attributes.name   {{ spine_interface_profile_name }}

@@ -65,6 +65,7 @@ apic:
               shutdown: true
               intra_esg_isolation: true
               preferred_group: true
+              normalized_pctag: 1001
               contracts:
                 consumers:
                   - CON3
@@ -89,4 +90,9 @@ apic:
               ip_subnet_selectors:
                 - value: 10.1.1.0/24
                   description: IP Subnet Selector 1
+              ip_external_subnet_selectors:
+                - ip: 10.10.10.0/24
+                  shared: true
+                  description: IPExternal Subnet Selector
+
 ```

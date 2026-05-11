@@ -89,6 +89,7 @@
                                 ]
                             }
                         },
+                        {% if sgt.device is defined %}
                         {%- set ten = sgt.device.tenant | default(tenant.name) %}
                         {%- set query1 = "tenants[?name==`" ~ ten ~ "`]" %}
                         {%- set query2 = "services.l4l7_devices[?name==`" ~ sgt.device.name ~ "`]" %}
@@ -160,7 +161,7 @@
                             "vnsAbsConnection": {
                                 "attributes": {
                                     "annotation": "orchestrator:aac",
-                                    "adjType": "L2",
+                                    "adjType": "{{ sgt.device.adjacency_type | default(defaults.apic.tenants.services.service_graph_templates.device.adjacency_type) }}",
                                     "connDir": "provider",
                                     "connType": "external",
                                     "directConnect": "{{ 'yes' if sgt.consumer.direct_connect | default(defaults.apic.tenants.services.service_graph_templates.consumer.direct_connect) else 'no' }}",
@@ -201,7 +202,7 @@
                             "vnsAbsConnection": {
                                 "attributes": {
                                     "annotation": {% if sgt.ndo_managed | default(defaults.apic.tenants.services.service_graph_templates.ndo_managed) %}"orchestrator:msc-shadow:no"{% else %}"orchestrator:aac"{% endif %},
-                                    "adjType": "L3",
+                                    "adjType": "{{ sgt.device.adjacency_type | default(defaults.apic.tenants.services.service_graph_templates.device.adjacency_type) }}",
                                     "connDir": "provider",
                                     "connType": "external",
                                     "directConnect": "{{ 'yes' if sgt.consumer.direct_connect | default(defaults.apic.tenants.services.service_graph_templates.consumer.direct_connect) else 'no' }}",
@@ -233,7 +234,7 @@
                             "vnsAbsConnection": {
                                 "attributes": {
                                     "annotation": {% if sgt.ndo_managed | default(defaults.apic.tenants.services.service_graph_templates.ndo_managed) %}"orchestrator:msc-shadow:no"{% else %}"orchestrator:aac"{% endif %},
-                                    "adjType": "L3",
+                                    "adjType": "{{ sgt.device.adjacency_type | default(defaults.apic.tenants.services.service_graph_templates.device.adjacency_type) }}",
                                     "connDir": "provider",
                                     "connType": "external",
                                     "directConnect": "{{ 'yes' if sgt.provider.direct_connect | default(defaults.apic.tenants.services.service_graph_templates.provider.direct_connect) else 'no' }}",
@@ -261,6 +262,154 @@
                                 ]
                             }
                         }
+                        {% endif %}
+                        {% else %}
+                        {%- set comma_devices = joiner(",") %}
+                        {%- for device in sgt.devices | default([]) %}{{ comma_devices() }}
+                        {%- set dev_ten = device.tenant | default(tenant.name) %}
+                        {%- set query1 = "tenants[?name==`" ~ dev_ten ~ "`]" %}
+                        {%- set query2 = "services.l4l7_devices[?name==`" ~ device.name ~ "`]" %}
+                        {%- set t = (apic | community.general.json_query(query1))[0] %}
+                        {%- set dev = (t | community.general.json_query(query2))[0] %}
+                        {%- set dev_name = device.name ~ defaults.apic.tenants.services.l4l7_devices.name_suffix %}
+                        {
+                            "vnsAbsNode": {
+                                "attributes": {
+                                    "annotation": {% if sgt.ndo_managed | default(defaults.apic.tenants.services.service_graph_templates.ndo_managed) %}"orchestrator:msc-shadow:no"{% else %}"orchestrator:aac"{% endif %},
+                                    "funcTemplateType": "{{ device.template_type | default(sgt.template_type) | default(defaults.apic.tenants.services.service_graph_templates.devices.template_type) }}",
+                                    "funcType": "{{ dev.function | default(defaults.apic.tenants.services.l4l7_devices.function) }}",
+                                    "isCopy": "{{ 'yes' if dev.copy_device | default(defaults.apic.tenants.services.l4l7_devices.copy_device) else 'no' }}",
+                                    "managed": "{{ 'yes' if dev.managed | default(defaults.apic.tenants.services.l4l7_devices.managed) else 'no' }}",
+                                    "name": "{{ device.node_name | default(device.name) }}",
+                                    "routingMode": "{{ 'Redirect' if sgt.redirect | default(defaults.apic.tenants.services.service_graph_templates.redirect) else 'unspecified' }}",
+                                    "sequenceNumber": "{{ loop.index0 }}",
+                                    "shareEncap": "{{ 'yes' if sgt.share_encapsulation | default(defaults.apic.tenants.services.service_graph_templates.share_encapsulation) else 'no' }}",
+                                    "childAction": "deleteNonPresent"
+                                },
+                                "children": [
+                                    {
+                                        "vnsRsNodeToLDev": {
+                                            "attributes": {
+                                                "annotation": {% if sgt.ndo_managed | default(defaults.apic.tenants.services.service_graph_templates.ndo_managed) %}""{% else %}"orchestrator:aac"{% endif %},
+                                                {% if tenant.name == dev_ten %}
+                                                "tDn": "uni/tn-{{ dev_ten }}/lDevVip-{{ dev_name }}"
+                                                {% else %}
+                                                "tDn": "uni/tn-{{ tenant.name }}/lDevIf-[uni/tn-{{ dev_ten }}/lDevVip-{{ dev_name }}]"
+                                                {% endif %}
+                                            }
+                                        }
+                                    },
+                                    {% if dev.copy_device | default(defaults.apic.tenants.services.l4l7_devices.copy_device) %}
+                                    {
+                                        "vnsAbsFuncConn": {
+                                            "attributes": {
+                                                "annotation": "orchestrator:aac",
+                                                "attNotify": "no",
+                                                "name": "copy"
+                                            }
+                                        }
+                                    }
+                                    {% else %}
+                                    {
+                                        "vnsAbsFuncConn": {
+                                            "attributes": {
+                                                "annotation": {% if sgt.ndo_managed | default(defaults.apic.tenants.services.service_graph_templates.ndo_managed) %}"orchestrator:msc-shadow:no"{% else %}"orchestrator:aac"{% endif %},
+                                                "attNotify": "no",
+                                                "name": "provider"
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "vnsAbsFuncConn": {
+                                            "attributes": {
+                                                "annotation": {% if sgt.ndo_managed | default(defaults.apic.tenants.services.service_graph_templates.ndo_managed) %}"orchestrator:msc-shadow:no"{% else %}"orchestrator:aac"{% endif %},
+                                                "attNotify": "no",
+                                                "name": "consumer"
+                                            }
+                                        }
+                                    }
+                                    {% endif %}
+                                ]
+                            }
+                        }
+                        {%- endfor %},
+                        {%- set comma_conns = joiner(",") %}
+                        {%- for conn in sgt.connections | default([]) %}{{ comma_conns() }}
+                        {%- set conn_name = "C" ~ loop.index %}
+                        {%- set ns = namespace(copy_node=none, consumer_node=conn.consumer_node, provider_node=conn.provider_node) %}
+                        {%- if conn.copy_node is defined %}
+                        {%-   set ns.copy_node = conn.copy_node %}
+                        {%-   for device in sgt.devices | default([]) %}
+                        {%-     if device.name == conn.copy_node %}
+                        {%-       set ns.copy_node = device.node_name | default(device.name) %}
+                        {%-     endif %}
+                        {%-   endfor %}
+                        {%- endif %}
+                        {%- if conn.consumer_node != "EPG-Consumer" %}
+                        {%-   for device in sgt.devices | default([]) %}
+                        {%-     if device.name == conn.consumer_node %}
+                        {%-       set ns.consumer_node = device.node_name | default(device.name) %}
+                        {%-     endif %}
+                        {%-   endfor %}
+                        {%- endif %}
+                        {%- if conn.provider_node != "EPG-Provider" %}
+                        {%-   for device in sgt.devices | default([]) %}
+                        {%-     if device.name == conn.provider_node %}
+                        {%-       set ns.provider_node = device.node_name | default(device.name) %}
+                        {%-     endif %}
+                        {%-   endfor %}
+                        {%- endif %}
+                        {
+                            "vnsAbsConnection": {
+                                "attributes": {
+                                    "annotation": {% if sgt.ndo_managed | default(defaults.apic.tenants.services.service_graph_templates.ndo_managed) %}"orchestrator:msc-shadow:no"{% else %}"orchestrator:aac"{% endif %},
+                                    "adjType": "{{ conn.adjacency_type | default(defaults.apic.tenants.services.service_graph_templates.connections.adjacency_type) }}",
+                                    "connDir": "provider",
+                                    "connType": "external",
+                                    "directConnect": "{{ 'yes' if conn.direct_connect | default(defaults.apic.tenants.services.service_graph_templates.connections.direct_connect) else 'no' }}",
+                                    "name": "{{ conn_name }}",
+                                    "unicastRoute": "{{ 'yes' if conn.unicast_route | default(defaults.apic.tenants.services.service_graph_templates.connections.unicast_route) else 'no' }}",
+                                    "childAction": "deleteNonPresent"
+                                },
+                                "children": [
+                                    {% if ns.copy_node is not none %}
+                                    {
+                                        "vnsRsAbsCopyConnection": {
+                                            "attributes": {
+                                                "annotation": {% if sgt.ndo_managed | default(defaults.apic.tenants.services.service_graph_templates.ndo_managed) %}"orchestrator:msc-shadow:no"{% else %}"orchestrator:aac"{% endif %},
+                                                "tDn": "uni/tn-{{ tenant.name }}/AbsGraph-{{ sgt_name }}/AbsNode-{{ ns.copy_node }}/AbsFConn-copy"
+                                            }
+                                        }
+                                    },
+                                    {% endif %}
+                                    {
+                                        "vnsRsAbsConnectionConns": {
+                                            "attributes": {
+                                                "annotation": {% if sgt.ndo_managed | default(defaults.apic.tenants.services.service_graph_templates.ndo_managed) %}"orchestrator:msc-shadow:no"{% else %}"orchestrator:aac"{% endif %},
+                                                {% if conn.consumer_node == "EPG-Consumer" %}
+                                                "tDn": "uni/tn-{{ tenant.name }}/AbsGraph-{{ sgt_name }}/AbsTermNodeCon-T1/AbsTConn"
+                                                {% else %}
+                                                "tDn": "uni/tn-{{ tenant.name }}/AbsGraph-{{ sgt_name }}/AbsNode-{{ ns.consumer_node }}/AbsFConn-consumer"
+                                                {% endif %}
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "vnsRsAbsConnectionConns": {
+                                            "attributes": {
+                                                "annotation": {% if sgt.ndo_managed | default(defaults.apic.tenants.services.service_graph_templates.ndo_managed) %}"orchestrator:msc-shadow:no"{% else %}"orchestrator:aac"{% endif %},
+                                                {% if conn.provider_node == "EPG-Provider" %}
+                                                "tDn": "uni/tn-{{ tenant.name }}/AbsGraph-{{ sgt_name }}/AbsTermNodeProv-T2/AbsTConn"
+                                                {% else %}
+                                                "tDn": "uni/tn-{{ tenant.name }}/AbsGraph-{{ sgt_name }}/AbsNode-{{ ns.provider_node }}/AbsFConn-provider"
+                                                {% endif %}
+                                            }
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                        {%- endfor %}
                         {% endif %}
                     ]
                 }

@@ -54,6 +54,17 @@ apic:
         forwarding_scale_policy: MCAST-HEAVY
       - name: MAX_LPM
         forwarding_scale_policy: MAX-LPM
+    leaf_interface_profiles:
+      - name: LEAF-INT-PROF3
+        selectors:
+          - name: SEL1
+            policy_group: PC1
+            sub_port_blocks:
+              - name: SUBBLK1
+                description: SUBBLK-DESC
+                from_port: 1
+                from_sub_port: 1
+                port_channel_member_policy: PC1
 
     aaeps:
       - name: AAEP1

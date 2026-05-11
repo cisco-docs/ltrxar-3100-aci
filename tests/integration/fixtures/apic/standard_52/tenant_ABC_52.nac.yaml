@@ -4,15 +4,16 @@ apic:
     - name: ABC
       vrfs:
         - name: VRF1
-          leaked_internal_prefixes:
+          leaked_internal_subnets:
             - prefix: 1.1.1.0/24
               public: true
               destinations:
-                - description: Internal Prefix 1
+                - description: Internal Subnet 1
                   tenant: ABC
                   vrf: VRF2
                   public: false
             - prefix: 2.2.2.0/24
+
           leaked_external_prefixes:
             - prefix: 3.3.0.0/16
               from_prefix_length: 24
@@ -107,9 +108,36 @@ apic:
                   vlan: 134
                   paths:
                     - floating_ip: 1.1.1.1/24
+                      forged_transmit: true
+                      promiscous_mode: true
+                      mac_change: true
                       vmware_vmm_domain: VMM1
                       elag: ELAGDefault
-
+        - name: L3OUT_SVI2
+          vrf: VRF1
+          domain: ROUTED1
+          node_profiles:
+            - name: NP1
+              nodes:
+                - node_id: 103
+                  router_id: 10.10.10.10
+                  router_id_as_loopback: false
+                - node_id: 104
+                  router_id: 12.12.12.12
+                  router_id_as_loopback: false
+              interface_profiles:
+                - name: IP1
+                  interfaces:
+                    - floating_svi: true
+                      node_id: 103
+                      ip: 3.1.1.1/24
+                      vlan: 135
+                      paths:
+                        - floating_ip: 4.1.1.1/24
+                          forged_transmit: true
+                          promiscous_mode: true
+                          vmware_vmm_domain: VMM1
+                          elag: ELAGDefault
         - name: L3OUT_DUALSTACK
           vrf: VRF1
           domain: ROUTED1

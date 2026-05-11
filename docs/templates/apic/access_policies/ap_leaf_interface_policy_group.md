@@ -79,9 +79,12 @@ apic:
         l2_policy: PORT-LOCAL
         storm_control_policy: 10P
         port_channel_policy: LACP-ACTIVE
+        port_channel_member_name: PG-Member
         port_channel_member_policy: FAST
         ingress_data_plane_policing_policy: DPP1
         egress_data_plane_policing_policy: DPP2
+        port_security_policy: PORT-SEC1
+        priority_flow_control_policy: PFC1
         aaep: AAEP1
         netflow_monitor_policies:
           - name: MONITOR1

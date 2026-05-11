@@ -11,7 +11,7 @@ Resource        ../../apic_common.resource
 {% if node.role == "leaf" %}
 {% set leaf_interface_profile_name = (node.id ~ ":" ~ node.name) | regex_replace("^(?P<id>.+):(?P<name>.+)$", (apic.access_policies.leaf_interface_profile_name | default(defaults.apic.access_policies.leaf_interface_profile_name))) %}
 
-Verify Access Leaf Interface Profile {{ leaf_interface_profile_name }}
+Verify (Auto-Generated) Access Leaf Interface Profile {{ leaf_interface_profile_name }}
     ${r}=   GET On Session   apic   /api/mo/uni/infra/accportprof-{{ leaf_interface_profile_name }}.json
     Set Suite Variable   $r   ${r.json()}
     Should Be Equal JMESPath Json   ${r}    imdata[0].infraAccPortP.attributes.name   {{ leaf_interface_profile_name }}
@@ -63,6 +63,10 @@ Verify Access Leaf Interface Profile {{ leaf_interface_profile_name }} Selector 
     Should Be Equal JMESPath Json   ${r}    ${blk}.infraPortBlk.attributes.fromPort   {{ blk.from_port }}
     Should Be Equal JMESPath Json   ${r}    ${blk}.infraPortBlk.attributes.toCard   {{ blk.to_module | default(blk.from_module | default(defaults.apic.access_policies.leaf_interface_profiles.selectors.port_blocks.from_module)) }}
     Should Be Equal JMESPath Json   ${r}    ${blk}.infraPortBlk.attributes.toPort   {{ blk.to_port | default(blk.from_port) }}
+{% if blk.port_channel_member_policy is defined %}
+{% set port_channel_member_policy = blk.port_channel_member_policy ~ defaults.apic.access_policies.interface_policies.port_channel_member_policies.name_suffix %}
+    Should Be Equal JMESPath Json   ${r}    ${blk}.infraPortBlk.children[?infraRsAccBndlSubgrp] | [0].infraRsAccBndlSubgrp.attributes.tDn   uni/infra/funcprof/accbundle-{{ policy_group_name }}/accsubbndl-{{ port_channel_member_policy }}
+{% endif %}
 
 {% endfor %}
 
@@ -79,6 +83,10 @@ Verify Access Leaf Interface Profile {{ leaf_interface_profile_name }} Selector 
     Should Be Equal JMESPath Json   ${r}    ${blk}.infraSubPortBlk.attributes.toPort   {{ sub_blk.to_port | default(sub_blk.from_port) }}
     Should Be Equal JMESPath Json   ${r}    ${blk}.infraSubPortBlk.attributes.fromSubPort   {{ sub_blk.from_sub_port }}
     Should Be Equal JMESPath Json   ${r}    ${blk}.infraSubPortBlk.attributes.toSubPort   {{ sub_blk.to_sub_port | default(sub_blk.from_sub_port) }}
+{% if sub_blk.port_channel_member_policy is defined %}
+{% set port_channel_member_policy = sub_blk.port_channel_member_policy ~ defaults.apic.access_policies.interface_policies.port_channel_member_policies.name_suffix %}
+    Should Be Equal JMESPath Json   ${r}    ${blk}.infraSubPortBlk.children[?infraRsSubPortAccBndlSubgrp] | [0].infraRsSubPortAccBndlSubgrp.attributes.tDn   uni/infra/funcprof/accbundle-{{ policy_group_name }}/accsubbndl-{{ port_channel_member_policy }}
+{% endif %}
 
 {% endfor %}
 

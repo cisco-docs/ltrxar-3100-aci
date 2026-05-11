@@ -56,6 +56,7 @@ Verify L4L7 Device {{ dev_name }} Concrete Device {{ cd_name }} Interface {{ int
 {% if dev.active_active | default(defaults.apic.tenants.services.l4l7_devices.active_active) and int.vlan is defined %}
     Should Be Equal JMESPath Json   ${r}   ${con}.attributes.encap   vlan-{{ int.vlan }}
 {% endif %}
+{% if int.vnic_name is not defined %}
 {% if int.node_id is defined and int.channel is not defined %}
 {% set query = "nodes[?id==`" ~ int.node_id ~ "`].pod" %}
 {% set pod = int.pod_id | default((apic.node_policies | community.general.json_query(query))[0] | default('1')) %}
@@ -87,6 +88,7 @@ Verify L4L7 Device {{ dev_name }} Concrete Device {{ cd_name }} Interface {{ int
     Should Be Equal JMESPath Json   ${r}   ${con}.children[?vnsRsCIfPathAtt] | [0].vnsRsCIfPathAtt.attributes.tDn   topology/pod-{{ pod }}/protpaths-{{ node }}-{{ node2 }}/pathep-[{{ policy_group_name }}]
 {% else %}
     Should Be Equal JMESPath Json   ${r}   ${con}.children[?vnsRsCIfPathAtt] | [0].vnsRsCIfPathAtt.attributes.tDn   topology/pod-{{ pod }}/paths-{{ node }}/pathep-[{{ policy_group_name }}]
+{% endif %}
 {% endif %}
 {% endif %}
 

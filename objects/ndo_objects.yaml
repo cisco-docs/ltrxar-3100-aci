@@ -77,21 +77,12 @@ objects:
       - ndo.schemas
     doc_paths:
       - ndo.schemas.name
-  - name: DHCP Relay Policy
-    template: dhcp_relay
-    api_path: policies/dhcp/relay
-    object_ids: "{{ ndo | default() | community.general.json_query('policies.dhcp_relays[*].name') }}"
-    folder: ndo
+  - name: Tenant Policy
+    template: tenant_policy
+    api_path: templates
+    object_ids: "{{ ndo | default() | community.general.json_query('tenant_templates.tenant_policies[*].name') }}"
+    folder: tenant_templates
     test_types:
       - config
     paths:
-      - ndo.policies.dhcp_relays
-  - name: DHCP Option Policy
-    template: dhcp_option
-    api_path: policies/dhcp/option
-    object_ids: "{{ ndo | default() | community.general.json_query('policies.dhcp_options[*].name') }}"
-    folder: ndo
-    test_types:
-      - config
-    paths:
-      - ndo.policies.dhcp_options
+      - ndo.tenant_templates.tenant_policies

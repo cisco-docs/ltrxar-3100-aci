@@ -76,7 +76,7 @@ class Rule:
         "apic.pod_policies.tep_pool",
         "apic.pod_policies.data_plane_tep",
         "apic.node_policies.update_groups.name",
-        "apic.node_policies.vpc_groups.groups.id",
+        "apic.node_policies.vpc_groups.groups.name",
         "apic.node_policies.nodes.id",
         "apic.node_policies.nodes.name",
         "apic.node_policies.nodes.serial_number",
@@ -222,6 +222,24 @@ class Rule:
         "ndo.schemas.templates.sites.name",
     ]
 
+    # Tenant *name* uniqueness only: ignore duplicate tenant names when that tenant entry
+    # has managed: false. Does not skip recursion into the tenant; child paths (vrfs, l3outs,
+    # etc.) are validated independently with their own path keys.
+    paths_ignore_managed_false = frozenset({"apic.tenants.name", "ndo.tenants.name"})
+
+    @classmethod
+    def _skip_unmanaged_tenant_for_tenant_name_uniqueness(
+        cls, full_path, search_path, item
+    ):
+        if full_path not in cls.paths_ignore_managed_false:
+            return False
+        # Only apply at the real leaf for tenant name (not nested calls with shortened search_path).
+        if search_path != full_path:
+            return False
+        if not isinstance(item, dict):
+            return False
+        return item.get("managed") is False
+
     @classmethod
     def match_path(cls, inventory, full_path, search_path):
         results = []
@@ -241,6 +259,10 @@ class Rule:
         if isinstance(inv_element, list):
             for i in inv_element:
                 if not isinstance(i, dict):
+                    continue
+                if cls._skip_unmanaged_tenant_for_tenant_name_uniqueness(
+                    full_path, search_path, i
+                ):
                     continue
                 value = i.get(path_elements[-1])
                 if isinstance(value, list):

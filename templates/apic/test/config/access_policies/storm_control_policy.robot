@@ -6,8 +6,13 @@ Resource        ../../apic_common.resource
 
 *** Test Cases ***
 {% macro get_float_rate(rate) %}
-    {{ (rate | string).split('.')[0] ~ '.000000' | default(rate) }}
+{%- if rate -%}
+{{ "%.6f"|format(rate|float) }}
+{%- else -%}
+{{ rate }}
+{%- endif -%}
 {% endmacro %}
+
 
 {% for policy in apic.access_policies.interface_policies.storm_control_policies | default([]) %}
 {% set storm_control_policy_name = policy.name ~ defaults.apic.access_policies.interface_policies.storm_control_policies.name_suffix %}
@@ -20,7 +25,7 @@ Verify Storm Control Policy {{ storm_control_policy_name }}
     Should Be Equal JMESPath Json   ${r}    imdata[0].stormctrlIfPol.attributes.descr   {{ policy.description | default() }}
     Should Be Equal JMESPath Json   ${r}    imdata[0].stormctrlIfPol.attributes.stormCtrlAction   {{ policy.action | default(defaults.apic.access_policies.interface_policies.storm_control_policies.action) }}
     Should Be Equal JMESPath Json   ${r}    imdata[0].stormctrlIfPol.attributes.bcBurstPps   {{ policy.broadcast_burst_pps | default(defaults.apic.access_policies.interface_policies.storm_control_policies.broadcast_burst_pps) }}
-    Should Be Equal JMESPath Json   ${r}    imdata[0].stormctrlIfPol.attributes.bcBurstRate   {{get_float_rate(policy.broadcast_burst_rate | default(defaults.apic.access_policies.interface_policies.storm_control_policies.broadcast_burst_rate)) }}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].stormctrlIfPol.attributes.bcBurstRate   {{ get_float_rate(policy.broadcast_burst_rate | default(defaults.apic.access_policies.interface_policies.storm_control_policies.broadcast_burst_rate)) }}
     Should Be Equal JMESPath Json   ${r}    imdata[0].stormctrlIfPol.attributes.bcRate   {{ get_float_rate(policy.broadcast_rate | default(defaults.apic.access_policies.interface_policies.storm_control_policies.broadcast_rate)) }}
     Should Be Equal JMESPath Json   ${r}    imdata[0].stormctrlIfPol.attributes.bcRatePps   {{ policy.broadcast_pps | default(defaults.apic.access_policies.interface_policies.storm_control_policies.broadcast_pps) }}
     Should Be Equal JMESPath Json   ${r}    imdata[0].stormctrlIfPol.attributes.mcBurstPps   {{ policy.multicast_burst_pps | default(defaults.apic.access_policies.interface_policies.storm_control_policies.multicast_burst_pps) }}

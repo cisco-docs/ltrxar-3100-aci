@@ -2,7 +2,7 @@
 *** Settings ***
 Documentation   Verify Bridge Domain
 Suite Setup     Login APIC
-Default Tags    apic   day2   config   tenants    bdoli
+Default Tags    apic   day2   config   tenants
 Resource        ../../../apic_common.resource
 
 *** Test Cases ***
@@ -28,6 +28,9 @@ Verify Bridge Domain {{ bd_name }}
     Should Be Equal JMESPath Json   ${r}   imdata[0].fvBD.attributes.mcastAllow   {{ 'yes' if bd.l3_multicast | default(defaults.apic.tenants.bridge_domains.l3_multicast) else 'no' }}
     {% if bd.multicast_arp_drop is defined %}
         Should Be Equal JMESPath Json   ${r}   imdata[0].fvBD.attributes.mcastARPDrop   {{ 'yes' if bd.multicast_arp_drop else 'no' }}
+    {% endif %}
+    {% if bd.legacy_mode_vlan is defined %}
+        Should Be Equal JMESPath Json   ${r}   imdata[0].fvBD.children[?fvAccP] | [0].fvAccP.attributes.encap   vlan-{{ bd.legacy_mode_vlan }}
     {% endif %}
     Should Be Equal JMESPath Json   ${r}   imdata[0].fvBD.attributes.multiDstPktAct   {{ bd.multi_destination_flooding | default(defaults.apic.tenants.bridge_domains.multi_destination_flooding) }}
     Should Be Equal JMESPath Json   ${r}   imdata[0].fvBD.attributes.nameAlias   {{ bd.alias | default() }}
@@ -130,6 +133,25 @@ Verify Bridge Domain {{ bd_name }} IGMP Snooping Policy
 {% set nd_interface_policy_name = bd.nd_interface_policy ~ defaults.apic.tenants.policies.nd_interface_policies.name_suffix %}
 Verify Bridge Domain {{ bd_name }} ND Interface Policy
     Should Be Equal JMESPath Json   ${r}   imdata[0].fvBD.children[?fvRsBDToNdP] | [0].fvRsBDToNdP.attributes.tnNdIfPolName   {{ nd_interface_policy_name }}
+{% endif %}
+
+{% if bd.vxlan_stretch is defined %}
+{% set bd_name = bd.name ~ defaults.apic.tenants.bridge_domains.name_suffix %}
+
+Verify VXLAN Stretch Bridge Domain {{ bd_name }}
+    ${r}=   GET On Session   apic   /api/mo/uni/tn-{{ tenant.name }}/BD-{{ bd_name }}.json   params=rsp-subtree=full&rsp-prop-include=config-only
+    Set Suite Variable   $r   ${r.json()}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].fvBD.attributes.name   {{ bd_name }}
+
+Verify VXLAN Stretch Bridge Domain {{ bd_name }} Gateway Fabrics
+    Should Be Equal JMESPath Json   ${r}   imdata[0].fvBD.children[?fvVxGwFabrics] | [0].fvVxGwFabrics.attributes.remoteVni   {{ bd.vxlan_stretch.normalized_vni }}
+
+{% if bd.vxlan_stretch.border_gateway_set_policy is defined %}
+{% set border_gateway_set_policy_name = bd.vxlan_stretch.border_gateway_set_policy ~ defaults.apic.tenants.policies.border_gateway_set_policy.name_suffix %}
+Verify VXLAN Stretch Bridge Domain {{ bd_name }} Border Gateway Set
+    Should Be Equal JMESPath Json   ${r}   imdata[0].fvBD.children[?fvVxGwFabrics] | [0].fvVxGwFabrics.children[?fvConsBgwSet] | [0].fvConsBgwSet.attributes.name   {{ border_gateway_set_policy_name }}
+{% endif %}
+
 {% endif %}
 
 {% endfor %}

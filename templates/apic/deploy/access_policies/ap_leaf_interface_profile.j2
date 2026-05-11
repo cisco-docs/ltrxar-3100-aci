@@ -91,7 +91,20 @@
                                                 "name": "{{ block_name }}",
                                                 "toCard": "{{ blk.to_module | default(blk.from_module | default(defaults.apic.access_policies.leaf_interface_profiles.selectors.port_blocks.from_module)) }}",
                                                 "toPort": "{{ blk.to_port | default(blk.from_port) }}"
-                                            }
+                                            },
+                                            "children": [
+                                                {% if blk.port_channel_member_policy is defined %}
+                                                {% set port_channel_member_policy = blk.port_channel_member_policy ~ defaults.apic.access_policies.interface_policies.port_channel_member_policies.name_suffix %}
+                                                {
+                                                    "infraRsAccBndlSubgrp": {
+                                                        "attributes": {
+                                                            "annotation": "orchestrator:aac",
+                                                            "tDn": "uni/infra/funcprof/accbundle-{{ policy_group_name }}/accsubbndl-{{ port_channel_member_policy }}"
+                                                        }
+                                                    }
+                                                }
+                                                {% endif %}
+                                            ]
                                         }
                                     }
                                     {%- endfor %}
@@ -109,7 +122,20 @@
                                                 "toPort": "{{ sub_blk.to_port | default(sub_blk.from_port) }}",
                                                 "fromSubPort": "{{ sub_blk.from_sub_port }}",
                                                 "toSubPort": "{{ sub_blk.to_sub_port | default(sub_blk.from_sub_port) }}"
-                                            }
+                                            },
+                                            "children": [
+                                                {% if sub_blk.port_channel_member_policy is defined %}
+                                                {% set port_channel_member_policy = sub_blk.port_channel_member_policy ~ defaults.apic.access_policies.interface_policies.port_channel_member_policies.name_suffix %}
+                                                {
+                                                    "infraRsSubPortAccBndlSubgrp": {
+                                                        "attributes": {
+                                                            "annotation": "orchestrator:aac",
+                                                            "tDn": "uni/infra/funcprof/accbundle-{{ policy_group_name }}/accsubbndl-{{ port_channel_member_policy }}"
+                                                        }
+                                                    }
+                                                }
+                                                {% endif %}
+                                            ]
                                         }
                                     }
                                     {%- endfor %}

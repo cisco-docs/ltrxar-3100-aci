@@ -10,12 +10,17 @@ Resource        ../../../apic_common.resource
 {% for dsp in tenant.services.device_selection_policies | default([]) %}
 {% set query = "service_graph_templates[?name==`" ~ dsp.service_graph_template ~ "`]" %}
 {% set sgt = (tenant.services | community.general.json_query(query))[0] %}
+{% if sgt.devices is defined %}
+{% set sgt_device = (sgt.devices | selectattr('device_name', 'equalto', dsp.device_name) | list)[0] %}
+{% else %}
+{% set sgt_device = sgt.device %}
+{% endif %}
 {% set contract_name = dsp.contract ~ defaults.apic.tenants.contracts.name_suffix %}
 {% set sgt_name = dsp.service_graph_template ~ defaults.apic.tenants.services.service_graph_templates.name_suffix %}
 {% if dsp.device_name is defined %}
 {% set dev_name = dsp.device_name ~ defaults.apic.tenants.services.l4l7_devices.name_suffix %}
 {% else %}
-{% set dev_name = sgt.device.name ~ defaults.apic.tenants.services.l4l7_devices.name_suffix %}
+{% set dev_name = sgt_device.name ~ defaults.apic.tenants.services.l4l7_devices.name_suffix %}
 {% endif %}
 
 Verify Device Selection Policy Contract {{ contract_name }} Service Graph Template {{ sgt_name }}
@@ -24,7 +29,7 @@ Verify Device Selection Policy Contract {{ contract_name }} Service Graph Templa
     Should Be Equal JMESPath Json   ${r}   imdata[0].vnsLDevCtx.attributes.ctrctNameOrLbl   {{ contract_name }}
     Should Be Equal JMESPath Json   ${r}   imdata[0].vnsLDevCtx.attributes.graphNameOrLbl   {{ sgt_name }}
     Should Be Equal JMESPath Json   ${r}   imdata[0].vnsLDevCtx.attributes.nodeNameOrLbl   {{ dsp.node_name | default("N1") }}
-    Should Be Equal JMESPath Json   ${r}   imdata[0].vnsLDevCtx.children[?vnsRsLDevCtxToLDev] | [0].vnsRsLDevCtxToLDev.attributes.tDn   uni/tn-{{ sgt.device.tenant | default(tenant.name) }}/lDevVip-{{ dev_name }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].vnsLDevCtx.children[?vnsRsLDevCtxToLDev] | [0].vnsRsLDevCtxToLDev.attributes.tDn   {% if sgt_device.tenant is defined and sgt_device.tenant != tenant.name %}uni/tn-{{ tenant.name }}/lDevIf-[uni/tn-{{ sgt_device.tenant }}/lDevVip-{{ dev_name }}]{% else %}uni/tn-{{ tenant.name }}/lDevVip-{{ dev_name }}{% endif %}
 
 {% if dsp.consumer is defined and dsp.provider is defined %}
 Verify Device Selection Policy Contract {{ contract_name }} Service Graph Template {{ sgt_name }} Consumer
@@ -49,7 +54,7 @@ Verify Device Selection Policy Contract {{ contract_name }} Service Graph Templa
     Should Be Equal JMESPath Json   ${r}   ${consumer}.vnsLIfCtx.children[?vnsRsLIfCtxToInstP] | [0].vnsRsLIfCtxToInstP.attributes.redistribute   {{ redistribute | join(',') }}
     Should Be Equal JMESPath Json   ${r}   ${consumer}.vnsLIfCtx.children[?vnsRsLIfCtxToInstP] | [0].vnsRsLIfCtxToInstP.attributes.tDn   uni/tn-{{ dsp.consumer.external_endpoint_group.tenant | default(tenant.name) }}/out-{{ l3out_name }}/instP-{{ eepg_name }}
 {% set int_name = dsp.consumer.logical_interface ~ defaults.apic.tenants.services.l4l7_devices.logical_interfaces.name_suffix %}
-    Should Be Equal JMESPath Json   ${r}   ${consumer}.vnsLIfCtx.children[?vnsRsLIfCtxToLIf] | [0].vnsRsLIfCtxToLIf.attributes.tDn   uni/tn-{{ sgt.device.tenant | default(tenant.name) }}/lDevVip-{{ dev_name }}/lIf-{{ int_name }}
+    Should Be Equal JMESPath Json   ${r}   ${consumer}.vnsLIfCtx.children[?vnsRsLIfCtxToLIf] | [0].vnsRsLIfCtxToLIf.attributes.tDn   uni/tn-{% if sgt_device.tenant is defined and sgt_device.tenant != tenant.name %}{{ tenant.name }}/lDevIf-[uni/tn-{{ sgt_device.tenant }}/lDevVip-{{ dev_name }}]/lDevIfLIf-{{ int_name }}{% else %}{{ tenant.name }}/lDevVip-{{ dev_name }}/lIf-{{ int_name }}{% endif %}
 {% endif %}
 {% if dsp.consumer.service_epg_policy is defined %}
 {% set pol_name = dsp.consumer.service_epg_policy ~ defaults.apic.tenants.services.service_epg_policies.name_suffix %}
@@ -82,7 +87,7 @@ Verify Device Selection Policy Contract {{ contract_name }} Service Graph Templa
     Should Be Equal JMESPath Json   ${r}   ${provider}.vnsLIfCtx.children[?vnsRsLIfCtxToInstP] | [0].vnsRsLIfCtxToInstP.attributes.redistribute   {{ redistribute | join(',') }}
     Should Be Equal JMESPath Json   ${r}   ${provider}.vnsLIfCtx.children[?vnsRsLIfCtxToInstP] | [0].vnsRsLIfCtxToInstP.attributes.tDn   uni/tn-{{ dsp.provider.external_endpoint_group.tenant | default(tenant.name) }}/out-{{ l3out_name }}/instP-{{ eepg_name }}
 {% set int_name = dsp.provider.logical_interface ~ defaults.apic.tenants.services.l4l7_devices.logical_interfaces.name_suffix %}
-    Should Be Equal JMESPath Json   ${r}   ${provider}.vnsLIfCtx.children[?vnsRsLIfCtxToLIf] | [0].vnsRsLIfCtxToLIf.attributes.tDn   uni/tn-{{ sgt.device.tenant | default(tenant.name) }}/lDevVip-{{ dev_name }}/lIf-{{ int_name }}
+    Should Be Equal JMESPath Json   ${r}   ${provider}.vnsLIfCtx.children[?vnsRsLIfCtxToLIf] | [0].vnsRsLIfCtxToLIf.attributes.tDn   uni/tn-{% if sgt_device.tenant is defined and sgt_device.tenant != tenant.name %}{{ tenant.name }}/lDevIf-[uni/tn-{{ sgt_device.tenant }}/lDevVip-{{ dev_name }}]/lDevIfLIf-{{ int_name }}{% else %}{{ tenant.name }}/lDevVip-{{ dev_name }}/lIf-{{ int_name }}{% endif %}
 {% endif %}
 {% if dsp.provider.service_epg_policy is defined %}
 {% set pol_name = dsp.provider.service_epg_policy ~ defaults.apic.tenants.services.service_epg_policies.name_suffix %}
@@ -99,17 +104,16 @@ Verify Device Selection Policy Contract {{ contract_name }} Service Graph Templa
     ${copy}=   Set Variable   imdata[0].vnsLDevCtx.children[?vnsLIfCtx.attributes.connNameOrLbl=='copy'] | [0]
     Should Be Equal JMESPath Json   ${r}   ${copy}.vnsLIfCtx.attributes.l3Dest   {{ 'yes' if dsp.copy_service.l3_destination | default(defaults.apic.tenants.services.device_selection_policies.copy_service.l3_destination) else 'no'}}
     Should Be Equal JMESPath Json   ${r}   ${copy}.vnsLIfCtx.attributes.permitLog   {{ 'yes' if dsp.copy_service.permit_logging | default(defaults.apic.tenants.services.device_selection_policies.copy_service.permit_logging) else 'no'}}
-{% if dsp.copy.service_epg_policy is defined %}
+{% if dsp.copy_service.service_epg_policy is defined %}
 {% set pol_name = dsp.copy_service.service_epg_policy ~ defaults.apic.tenants.services.service_epg_policies.name_suffix %}
     Should Be Equal JMESPath Json   ${r}   ${copy}.vnsLIfCtx.children[?vnsRsLIfCtxToSvcEPgPol] | [0].vnsRsLIfCtxToSvcEPgPol.attributes.tDn   uni/tn-{{ tenant.name }}/svcCont/svcEPgPol-{{ pol_name }}
 {% endif %}
-{% if dsp.provider.custom_qos_policy is defined %}
+{% if dsp.copy_service.custom_qos_policy is defined %}
 {% set custom_qos_policy_name = dsp.copy_service.custom_qos_policy ~ defaults.apic.tenants.policies.custom_qos.name_suffix %}
     Should Be Equal JMESPath Json   ${r}   ${copy}.vnsLIfCtx.children[?vnsRsLIfCtxToCustQosPol] | [0].vnsRsLIfCtxToCustQosPol.attributes.tnQosCustomPolName   {{ custom_qos_policy_name }}
 {% endif %}
 {% set int_name = dsp.copy_service.logical_interface ~ defaults.apic.tenants.services.l4l7_devices.logical_interfaces.name_suffix %}
-    Should Be Equal JMESPath Json   ${r}   ${copy}.vnsLIfCtx.children[?vnsRsLIfCtxToLIf] | [0].vnsRsLIfCtxToLIf.attributes.tDn   uni/tn-{{ sgt.device.tenant | default(tenant.name) }}/lDevVip-{{ dev_name }}/lIf-{{ int_name }}
+    Should Be Equal JMESPath Json   ${r}   ${copy}.vnsLIfCtx.children[?vnsRsLIfCtxToLIf] | [0].vnsRsLIfCtxToLIf.attributes.tDn   uni/tn-{% if sgt_device.tenant is defined and sgt_device.tenant != tenant.name %}{{ tenant.name }}/lDevIf-[uni/tn-{{ sgt_device.tenant }}/lDevVip-{{ dev_name }}]/lDevIfLIf-{{ int_name }}{% else %}{{ tenant.name }}/lDevVip-{{ dev_name }}/lIf-{{ int_name }}{% endif %}
 {% endif %}
-
 
 {% endfor %}

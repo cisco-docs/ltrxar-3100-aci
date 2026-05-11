@@ -11,7 +11,7 @@ Resource        ../../apic_common.resource
 {% if node.role == "spine" %}
 {% set spine_interface_profile_name = (node.id ~ ":" ~ node.name) | regex_replace("^(?P<id>.+):(?P<name>.+)$", (apic.access_policies.spine_interface_profile_name | default(defaults.apic.access_policies.spine_interface_profile_name))) %}
 
-Verify Access Spine Interface Profile {{ spine_interface_profile_name }}
+Verify (Auto-Generated) Access Spine Interface Profile {{ spine_interface_profile_name }}
     ${r}=   GET On Session   apic   /api/mo/uni/infra/spaccportprof-{{ spine_interface_profile_name }}.json
     Set Suite Variable   $r   ${r.json()}
     Should Be Equal JMESPath Json   ${r}    imdata[0].infraSpAccPortP.attributes.name   {{ spine_interface_profile_name }}

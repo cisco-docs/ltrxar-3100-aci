@@ -101,12 +101,13 @@ apic:
                 - name: VMM1
                   u_segmentation: true
                   delimiter: '|'
-                  vlan:
+                  vlan: 123
                   primary_vlan: 100
                   secondary_vlan: 101
                   netflow: false
                   deployment_immediacy: lazy
                   resolution_immediacy: immediate
+                  port_binding: dynamic
                   allow_promiscuous: reject
                   forged_transmits: reject
                   mac_changes: reject
@@ -155,7 +156,7 @@ apic:
                 - ip: 5.50.5.5/32
                   no_default_gateway: true
                   next_hop_ip: 8.8.8.8
-                  ips_pools:
+                  ip_pools:
                     - name: POOL1
                       start_ip: 172.16.0.1
                       end_ip: 172.16.0.10
@@ -183,6 +184,20 @@ apic:
                   gateway_address: 11.11.11.254/24
                   from: 11.11.11.100
                   to: 11.11.11.200
+              static_aaeps:
+                - name: aaep_1
+                  encap: 102
+                  mode: regular
+                  deployment_immediacy: lazy
+                - name: aaep_2
+                  encap: 202
+                  mode: untagged
+                  deployment_immediacy: immediate
+                - name: aaep_3
+                  encap: 302
+                  mode: untagged
+                  deployment_immediacy: immediate
+                  primary_encap: 303
 ```
 
 Example-5: This is an example showing how to enable an optimization for static ports (applicable to Terraform users only). All static port bindings for the EPG will be created within the Terraform EPG resource instead of as a separate Terraform resource per static port binding.
@@ -206,4 +221,31 @@ apic:
               contracts:
                 consumers:
                   - CON1
+```
+
+Example-6: This is an example showing how to associate the EPG to an Attachable Entity Profile directly from the EPG. This feature was first introduced in ACI 6.1(3) code release.
+
+```yaml
+apic:
+  tenants:
+    - name: ABC
+      application_profiles:
+        - name: AP1
+          endpoint_groups:
+            - name: EPG1
+              bd: BD1
+              static_aaeps:
+                - name: aaep_1
+                  encap: 102
+                  mode: regular
+                  deployment_immediacy: lazy
+                - name: aaep_2
+                  encap: 202
+                  mode: untagged
+                  deployment_immediacy: immediate
+                - name: aaep_3
+                  encap: 302
+                  mode: untagged
+                  deployment_immediacy: immediate
+                  primary_encap: 303
 ```

@@ -12,6 +12,7 @@
                     "attributes": {
                         "annotation": "orchestrator:aac",
                         "name": "{{ pod_policy_group_name }}",
+                        "descr": "{{ pg.description | default() }}",
                         "dn": "uni/fabric/funcprof/podpgrp-{{ pod_policy_group_name }}"
                     },
                     "children": [
@@ -45,6 +46,16 @@
                                 "attributes": {
                                     "annotation": "orchestrator:aac",
                                     "tnCommPolName": "{{ management_access_policy_name }}"
+                                }
+                            }
+                        }
+                        {% endif %}
+                        {%- if pg.bgp_route_reflector_policy | default(defaults.apic.fabric_policies.pod_policy_groups.bgp_route_reflector_policy) is defined %}{{ comma2() }}
+                        {
+                            "fabricRsPodPGrpBGPRRP": {
+                                "attributes": {
+                                    "annotation": "orchestrator:aac",
+                                    "tnBgpInstPolName": "{{ pg.bgp_route_reflector_policy | default(defaults.apic.fabric_policies.pod_policy_groups.bgp_route_reflector_policy) }}"
                                 }
                             }
                         }

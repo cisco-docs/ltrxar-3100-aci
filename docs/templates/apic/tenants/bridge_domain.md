@@ -36,7 +36,7 @@ apic:
           unicast_routing: false
 ```
 
-Example-3: This is a single example of a configuration where all parameters are explicitly specified.
+Example-3: This example demonstrates a configuration where all parameters are explicitly specified. Note that the `bridge_domains.ip_dataplane_learning` parameter enables or disables IP data-plane learning for the PBR nodes, whereas the `subnets.ip_dataplane_learning` parameter controls IP data-plane learning for the specific subnet, such as when integrating with Active/Standby High Availability devices.
 
 ```yaml
 apic:
@@ -64,7 +64,7 @@ apic:
           nd_interface_policy: "ND_INTF_POL1"
           endpoint_retention_policy: ERP1
           netflow_monitor_policies:
-            - name: MONITOR1 
+            - name: MONITOR1
             - ip_filter_type: ipv4
           subnets:
             - ip: 1.1.1.1/24

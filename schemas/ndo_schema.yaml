@@ -9,8 +9,8 @@ ndo:
   sites: list(include('sites'), required=False) # @ref_name(Site)
   fabric_connectivity: include('fabric_connectivity', required=False)
   tenants: list(include('tenants'), required=False) # @ref_name(Tenant)
-  policies: include('policies', required=False)
   schemas: list(include('schemas'), required=False) # @ref_name(Schema)
+  tenant_templates: include('tenant_templates', required=False) # @ref_name(Tenant Template)
   undeploy_order: bool(required=False)
 
 system_config:
@@ -134,36 +134,6 @@ tenants_sites:
 tenants_users:
   name: str()
   domain: str(required=False)
-
-policies:
-  dhcp_relays: list(include('policies_dhcp_relays'), required=False) # @name(DHCP Relay Policies) @ref_name(DHCP Relay Policy)
-  dhcp_options: list(include('policies_dhcp_options'), required=False) # @name(DHCP Option Policies) @ref_name(DHCP Option Policy)
-
-policies_dhcp_relays:
-  name: regex('^[a-zA-Z0-9_.:-]{1,64}$')
-  description: regex('^[a-zA-Z0-9\\\\!#$%()*,-./:;@ _{|}~?&+]{1,128}$', required=False)
-  tenant: regex('^[a-zA-Z0-9_.:-]{1,64}$') # @ref_table(ndo.tenants)
-  providers: list(include('policies_dhcp_relays_providers'), required=False) # @name(DHCP Relay Policy Providers)
-
-policies_dhcp_relays_providers:
-  ip: ip()
-  tenant: regex('^[a-zA-Z0-9_.:-]{1,64}$') # @ref_table(ndo.tenants)
-  schema: str() # @ref_table(ndo.schemas)
-  template: str() # @ref_table(schemas.templates)
-  application_profile: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False) # @ref_table(schemas_templates.application_profiles)
-  endpoint_group: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False) # @ref_table(schemas_templates.endpoint_groups)
-  external_endpoint_group: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False) # @ref_table(schemas_templates.external_endpoint_groups)
-
-policies_dhcp_options:
-  name: regex('^[a-zA-Z0-9_.:-]{1,64}$')
-  description: regex('^[a-zA-Z0-9\\\\!#$%()*,-./:;@ _{|}~?&+]{1,128}$', required=False)
-  tenant: regex('^[a-zA-Z0-9_.:-]{1,64}$') # @ref_table(ndo.tenants)
-  options: list(include('policies_dhcp_options_options'), required=False) # @name(DHCP Option Policy Options)
-
-policies_dhcp_options_options:
-  name: regex('^[a-zA-Z0-9_.:-]{1,64}$')
-  id: int(min=1)
-  data: str()
 
 schemas:
   name: regex('^[a-zA-Z0-9\s+_.:-]{1,64}$')
@@ -360,8 +330,6 @@ t_bridge_domains:
   subnets: list(include('t_bd_subnets'), required=False) # @name(Bridge Domain Subnets)
   sites: list(include('t_bd_sites'), required=False) # @name(Bridge Domain Sites) @ref_name(Site)
   dhcp_policies: list(include('t_bd_dhcp_policies'), required=False)
-  dhcp_relay_policy: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False) # @ref_table(policies.dhcp_relays)
-  dhcp_option_policy: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False) # @ref_table(policies.dhcp_options)
 
 t_bd_vrf:
   name: regex('^[a-zA-Z0-9_.:-]{1,64}$') # @name(VRF Name) @ref_table(schemas_templates.vrfs)
@@ -377,8 +345,8 @@ t_bd_subnets:
   primary: bool(required=False)
 
 t_bd_dhcp_policies:
-  dhcp_relay_policy: regex('^[a-zA-Z0-9_.:-]{1,64}$') # @ref_table(policies.dhcp_relays)
-  dhcp_option_policy: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False) # @ref_table(policies.dhcp_options)
+  dhcp_relay_policy: regex('^[a-zA-Z0-9_.:-]{1,64}$')
+  dhcp_option_policy: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
 
 t_bd_sites:
   name: str() # @ref_table(ndo.sites)
@@ -553,3 +521,59 @@ t_service_graphs_nodes_sites:
   name: str() # @ref_table(ndo.sites)
   tenant: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False) # @ref_table(ndo.tenants)
   device: regex('^[a-zA-Z0-9_.:-]{1,64}$')
+
+tenant_templates:
+  tenant_policies: list(include('tenant_policies'), required=False) # @name(Tenant Policies) @ref_name(Tenant Policy)
+
+tenant_policies:
+  name: regex('^[a-zA-Z0-9_.:-]{1,64}$')
+  tenant: regex('^[a-zA-Z0-9_.:-]{1,64}$')
+  dhcp_relay_policies: list(include('tp_dhcp_relay_policies'), required=False) # @name(Ten Pol DHCP Relay Policies) @ref_name(DHCP Relay Policy)
+  ip_sla_policies: list(include('tp_ip_sla_policies'), required=False) # @name(IP SLA Policies) @ref_name(IP SLA Policy)
+  multicast_route_maps: list(include('tp_multicast_route_maps'), required=False) # @name(Multicast Route Maps) @ref_name(Multicast Route Map)
+  sites: list(str(), required=False) # @name(Tenant Policy Sites) @ref_name(Site)
+  deploy_order: int(min=1, max=3, required=False) # @description(Terraform only)
+
+tp_dhcp_relay_policies:
+  name: regex('^[a-zA-Z0-9_.:-]{1,64}$')
+  description: regex('^[a-zA-Z0-9\\!#$%()*,-./:;@ _{|}~?&+]{1,128}$', required=False)
+  providers: list(include('tp_dhcp_relay_policies_providers'), required=False) # @name(Ten Pol DHCP Relay Providers) @ref_name(Provider)
+
+tp_dhcp_relay_policies_providers:
+  name: regex('^[a-zA-Z0-9_.:-]{1,64}$')
+  ip: ip()
+  type: enum('epg', 'external_epg')
+  schema: regex('^[a-zA-Z0-9\s+_.:-]{1,64}$')
+  template: str()
+  application_profile: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
+  endpoint_group: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
+  l3out: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
+  external_endpoint_group: regex('^[a-zA-Z0-9_.:-]{1,64}$', required=False)
+  use_server_vrf: bool(required=False)
+
+tp_ip_sla_policies:
+  name: regex('^[a-zA-Z0-9_.:-]{1,64}$')
+  description: regex('^[a-zA-Z0-9\\\\!#$%()*,-./:;@ _{|}~?&+]{1,128}$', required=False)
+  frequency: int(min=1, max=300, required=False)
+  multiplier: int(min=1, max=100, required=False)
+  sla_type: enum('icmp', 'tcp', 'l2ping', 'http', required=False)
+  port: int(min=1, max=65535, required=False)
+  http_version: enum('HTTP10', 'HTTP11', required=False)
+  http_uri: regex('^/.{0,512}$', required=False)
+  request_data_size: int(min=0, max=17512, required=False)
+  type_of_service: int(min=0, max=255, required=False)
+  timeout: int(min=1, max=604800000, required=False)
+  threshold: int(min=1, max=604800000, required=False)
+  ipv6_traffic_class: int(min=0, max=255, required=False)
+
+tp_multicast_route_maps:
+  name: regex('^[a-zA-Z0-9_.:-]{1,64}$')
+  description: regex('^[a-zA-Z0-9\\\\!#$%()*,-./:;@ _{|}~?&+]{1,128}$', required=False)
+  entries: list(include('tp_multicast_route_map_entries'), required=False) # @name(Multicast Route Map Entries) @sheet_hidden()
+
+tp_multicast_route_map_entries:
+  order: int(min=0, max=65535)
+  source_ip: ip(required=False)
+  group_ip: ip(required=False)
+  rp_ip: ip(required=False)
+  action: enum('permit', 'deny', required=False)

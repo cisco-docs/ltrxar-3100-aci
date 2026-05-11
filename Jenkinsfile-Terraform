@@ -1,7 +1,7 @@
 pipeline {
     agent {
         docker {
-            image 'danischm/nac:0.1.6'
+            image 'danischm/nac:0.2.1'
             label 'digidev'
             args '-u root'
         }
@@ -32,19 +32,6 @@ pipeline {
     stages {
         stage('Tests') {
             parallel {
-                stage('Test APIC 4.2 Terraform') {
-                    steps {
-                        lock(resource: 'nac-ci-apic1-4.2.4i') {
-                            sh 'pytest -m "apic_42 and terraform"'
-                        }
-                    }
-                    post {
-                        always {
-                            junit 'apic_tf_4.2_xunit.xml'
-                            archiveArtifacts 'apic_tf_4.2_*.html, apic_tf_4.2_*.xml'
-                        }
-                    }
-                }
                 stage('Test APIC 5.2 Terraform') {
                     steps {
                         lock(resource: 'nac-ci-apic1-5.2.1g') {
@@ -73,8 +60,8 @@ pipeline {
                 }
                 stage('Test APIC 6.1 Terraform') {
                     steps {
-                        lock(resource: 'nac-ci-vapic1-6.1.4h') {
-                            sh 'pytest -m "apic_61 and terraform"'
+                        lock(resource: 'nac-ci-vapic1-6.1.5e') {
+                            sh 'pytest -s -m "apic_61 and terraform"'
                         }
                     }
                     post {
@@ -84,16 +71,64 @@ pipeline {
                         }
                     }
                 }
-                stage('Test APIC Terraform Upgrade') {
+                stage('Test APIC 6.2 Terraform') {
+                    steps {
+                        lock(resource: 'nac-ci-apic1-6.2.1g') {
+                            sh 'pytest -s -m "apic_62 and terraform"'
+                        }
+                    }
+                    post {
+                        always {
+                            junit 'apic_tf_6.2_xunit.xml'
+                            archiveArtifacts 'apic_tf_6.2_*.html, apic_tf_6.2_*.xml'
+                        }
+                    }
+                }
+                stage('Test APIC 6.0 Provider Main Branch') {
                     steps {
                         lock(resource: 'nac-ci-apic1-6.0.4c') {
+                            sh '''
+                                apt-get update && apt-get install -y wget
+                                wget -O go1.23.0.linux-amd64.tar.gz https://go.dev/dl/go1.23.0.linux-amd64.tar.gz
+                                tar -C /usr/local -xzf go1.23.0.linux-amd64.tar.gz
+                                rm go1.23.0.linux-amd64.tar.gz
+                                export PATH=$PATH:/usr/local/go/bin
+                                git clone --depth 1 https://github.com/CiscoDevNet/terraform-provider-aci.git /tmp/terraform-provider-aci
+                                cd /tmp/terraform-provider-aci
+                                go install
+                            '''
+                            sh '''
+                                cat > /root/.terraformrc << 'TFRC'
+provider_installation {
+  dev_overrides {
+    "CiscoDevNet/aci" = "/root/go/bin/"
+  }
+
+  direct {}
+}
+TFRC
+                            '''
+                            sh 'pytest -s -m "apic_60 and terraform and provider"'
+                            sh 'rm -f /root/.terraformrc'
+                        }
+                    }
+                    post {
+                        always {
+                            junit 'apic_tf_6.0_provider_xunit.xml'
+                            archiveArtifacts 'apic_tf_6.0_provider_*.html, apic_tf_6.0_provider_*.xml'
+                        }
+                    }
+                }
+                stage('Test APIC Terraform Upgrade') {
+                    steps {
+                        lock(resource: 'nac-ci-vapic1-6.1.5e') {
                             sh 'pytest -m "apic_upgrade and terraform"'
                         }
                     }
                     post {
                         always {
                             junit 'apic_tf_upgrade_xunit.xml'
-                            archiveArtifacts 'apic_tf_upgrade_*.html, apic_tf_upgrade_*.xml, apic_tf_upgrade_plan.txt'
+                            archiveArtifacts 'apic_tf_upgrade_*.html, apic_tf_upgrade_*.xml, apic_tf_upgrade_plan_before.txt, apic_tf_upgrade_plan_after.txt'
                         }
                     }
                 }
@@ -123,19 +158,6 @@ pipeline {
                         }
                     }
                 }
-                stage('Test NDO 4.3 Terraform Legacy Utils') {
-                    steps {
-                        lock(resource: 'nac-ci-apic2-6.0.5h', extra: [[resource: 'nac-ci-nd1-3.1.1n']]) {
-                            sh 'pytest -s -m "ndo_43_legacy_utils and terraform"'
-                        }
-                    }
-                    post {
-                        always {
-                            junit 'ndo_tf_4.3_legacy_utils_xunit.xml'
-                            archiveArtifacts 'ndo_tf_4.3_legacy_utils_*.html, ndo_tf_4.3_legacy_utils_*.xml'
-                        }
-                    }
-                }
                 stage('Test NDO 4.4 Terraform') {
                     steps {
                         lock(resource: 'nac-ci-apic5-6.0.5h', extra: [[resource: 'nac-ci-nd1-3.2.1i']]) {
@@ -146,6 +168,54 @@ pipeline {
                         always {
                             junit 'ndo_tf_4.4_xunit.xml'
                             archiveArtifacts 'ndo_tf_4.4_*.html, ndo_tf_4.4_*.xml'
+                        }
+                    }
+                }
+                stage('Test NDO 4.4 Provider Main Branch') {
+                    steps {
+                        lock(resource: 'nac-ci-apic5-6.0.5h', extra: [[resource: 'nac-ci-nd1-3.2.1i']]) {
+                            sh '''
+                                apt-get update && apt-get install -y wget
+                                wget -O go1.23.0.linux-amd64.tar.gz https://go.dev/dl/go1.23.0.linux-amd64.tar.gz
+                                tar -C /usr/local -xzf go1.23.0.linux-amd64.tar.gz
+                                rm go1.23.0.linux-amd64.tar.gz
+                                export PATH=$PATH:/usr/local/go/bin
+                                git clone --depth 1 https://github.com/CiscoDevNet/terraform-provider-mso.git /tmp/terraform-provider-mso
+                                cd /tmp/terraform-provider-mso
+                                go install
+                            '''
+                            sh '''
+                                cat > /root/.terraformrc << 'TFRC'
+provider_installation {
+  dev_overrides {
+    "CiscoDevNet/mso" = "/root/go/bin/"
+  }
+
+  direct {}
+}
+TFRC
+                            '''
+                            sh 'pytest -s -m "ndo_44 and terraform and provider"'
+                            sh 'rm -f /root/.terraformrc'
+                        }
+                    }
+                    post {
+                        always {
+                            junit 'ndo_tf_4.4_provider_xunit.xml'
+                            archiveArtifacts 'ndo_tf_4.4_provider_*.html, ndo_tf_4.4_provider_*.xml'
+                        }
+                    }
+                }
+                stage('Test NDO ND 4.1 Terraform') {
+                    steps {
+                        lock(resource: 'nac-ci-vapic2-6.1.5e', extra: [[resource: 'nac-ci-nd1-4.1.1g']]) {
+                            sh 'pytest -m "ndo_nd41 and terraform"'
+                        }
+                    }
+                    post {
+                        always {
+                            junit 'ndo_tf_nd_4.1_xunit.xml'
+                            archiveArtifacts 'ndo_tf_nd_4.1_*.html, ndo_tf_nd_4.1_*.xml'
                         }
                     }
                 }

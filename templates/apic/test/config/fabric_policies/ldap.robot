@@ -22,7 +22,7 @@ Verify LDAP Provider {{ prov.hostname_ip }}
     Should Be Equal JMESPath Json   ${r}    imdata[0].aaaLdapProvider.attributes.retries   {{ prov.retries | default(defaults.apic.fabric_policies.aaa.ldap.providers.retries) }}
     Should Be Equal JMESPath Json   ${r}    imdata[0].aaaLdapProvider.attributes.rootdn   {{ prov.rootdn | default() }}
     Should Be Equal JMESPath Json   ${r}    imdata[0].aaaLdapProvider.attributes.timeout   {{ prov.timeout | default(defaults.apic.fabric_policies.aaa.ldap.providers.timeout) }}
-{% if prov.monitoring | default(defaults.apic.fabric_policies.aaa.ldap.providers.server_monitoring) %}
+{% if prov.server_monitoring | default(defaults.apic.fabric_policies.aaa.ldap.providers.server_monitoring) %}
     Should Be Equal JMESPath Json   ${r}    imdata[0].aaaLdapProvider.attributes.monitoringUser   {{ prov.monitoring_username | default(defaults.apic.fabric_policies.aaa.ldap.providers.monitoring_username) }}
 {% endif %}
 {% set mgmt_epg = prov.mgmt_epg | default(defaults.apic.fabric_policies.aaa.ldap.providers.mgmt_epg) %}

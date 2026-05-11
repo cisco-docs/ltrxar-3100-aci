@@ -19,7 +19,7 @@
                         "filter": "{{ prov.filter | default() }}",
                         "key": "{{ prov.password | default() }}",
                         "monitorServer": "{{ 'enabled' if prov.server_monitoring | default(defaults.apic.fabric_policies.aaa.ldap.providers.server_monitoring) else 'disabled' }}",
-                        {% if prov.monitoring | default(defaults.apic.fabric_policies.aaa.ldap.providers.server_monitoring) %}
+                        {% if prov.server_monitoring | default(defaults.apic.fabric_policies.aaa.ldap.providers.server_monitoring) %}
                         "monitoringUser": "{{ prov.monitoring_username | default(defaults.apic.fabric_policies.aaa.ldap.providers.monitoring_username) }}",
                         "monitoringPassword": "{{ prov.monitoring_password | default() }}",
                         {% endif %}

@@ -1,0 +1,27 @@
+{
+    "infraInfra": {
+        "attributes": {
+            "dn": "uni/infra"
+        },
+        "children": [
+            {%- set comma1 = joiner(",") %}
+            {%- for policy in apic.access_policies.interface_policies.priority_flow_control_policies | default([]) %}{{ comma1() }}
+            {% set priority_flow_control_policy_name = policy.name ~ defaults.apic.access_policies.interface_policies.priority_flow_control_policies.name_suffix %}
+            {% set auto_state = policy.auto_state | default(defaults.apic.access_policies.interface_policies.priority_flow_control_policies.auto_state) %}
+            {% set admin_state = policy.admin_state | default(defaults.apic.access_policies.interface_policies.priority_flow_control_policies.admin_state) %}
+            {
+                "qosPfcIfPol": {
+                    "attributes": {
+                        "annotation": "orchestrator:aac",
+                        "name": "{{ priority_flow_control_policy_name }}",
+                        "descr": "{{ policy.description | default() }}",
+                        "dn": "uni/infra/pfc-{{ priority_flow_control_policy_name }}",
+                        "adminSt": "{% if auto_state %}auto{% elif admin_state %}on{% else %}off{% endif %}"
+                    }
+                }
+            }
+            {%- endfor %}
+
+        ]
+    }
+}

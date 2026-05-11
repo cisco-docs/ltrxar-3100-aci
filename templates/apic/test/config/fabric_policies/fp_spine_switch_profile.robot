@@ -13,7 +13,7 @@ Resource        ../../apic_common.resource
 {% set spine_interface_profile_name = (node.id ~ ":" ~ node.name) | regex_replace("^(?P<id>.+):(?P<name>.+)$", (apic.fabric_policies.spine_interface_profile_name | default(defaults.apic.fabric_policies.spine_interface_profile_name))) %}
 {% set spine_switch_selector_name = (node.id ~ ":" ~ node.name) | regex_replace("^(?P<id>.+):(?P<name>.+)$", (apic.fabric_policies.spine_switch_selector_name | default(defaults.apic.fabric_policies.spine_switch_selector_name))) %}
 
-Verify Fabric Spine Switch Profile {{ spine_switch_profile_name }}
+Verify (Auto-Generated) Fabric Spine Switch Profile {{ spine_switch_profile_name }}
     ${r}=   GET On Session   apic   /api/mo/uni/fabric/spprof-{{ spine_switch_profile_name }}.json   params=rsp-subtree=full
     Set Suite Variable   $r   ${r.json()}
     Should Be Equal JMESPath Json   ${r}    imdata[0].fabricSpineP.attributes.name   {{ spine_switch_profile_name }}
@@ -36,7 +36,7 @@ Verify Fabric Spine Switch Profile {{ spine_switch_profile_name }} Node Block
     Should Be Equal JMESPath Json   ${r}    ${block}.attributes.name   {{ node.id }}
     Should Be Equal JMESPath Json   ${r}    ${block}.attributes.to_   {{ node.id }}
 
-Verify Fabric Spine Switch Profile {{ spine_switch_profile_name }} Interface Profile
+Verify (Auto-Generated) Fabric Spine Switch Profile {{ spine_switch_profile_name }} Interface Profile
     ${profile}=   Set Variable   imdata[0].fabricSpineP.children[?fabricRsSpPortP.attributes.tDn=='uni/fabric/spportp-{{ spine_interface_profile_name }}'] | [0].fabricRsSpPortP
     Should Be Equal JMESPath Json   ${r}    ${profile}.attributes.tDn   uni/fabric/spportp-{{ spine_interface_profile_name }}
 

@@ -64,7 +64,7 @@ Verify Track List for L3out {{ l3out_name }} Node {{ node.node_id }} Static Rout
 {% if nh.ip_sla_policy is defined %}
 {% set list_name = vrf_name ~ "_" ~ nh.ip ~ defaults.apic.tenants.policies.track_lists.name_suffix %}
 
-Verify Track List for L3out {{ l3out_name }} Node {{ node.node_id }} Static Route {{ sr.prefix }} Next Hop {{ nh.ip }}
+Verify Track List for L3out {{ l3out_name }} (Auto-Generated) Node {{ node.node_id }} Static Route {{ sr.prefix }} Next Hop {{ nh.ip }}
     ${r}=   GET On Session   apic   /api/mo/uni/tn-{{ tenant.name }}/tracklist-{{list_name}}.json    params=rsp-subtree=full
     Set Suite Variable   $r   ${r.json()}
     ${mem}=   Set Variable    imdata[0].fvTrackList.children[?fvRsOtmListMember.attributes.tDn=='uni/tn-{{ tenant.name }}/trackmember-{{ list_name }}'] | [0]

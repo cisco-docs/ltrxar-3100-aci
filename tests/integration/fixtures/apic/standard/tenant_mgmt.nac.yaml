@@ -13,6 +13,8 @@ apic:
             providers:
               - STD-CON1
               - STD-CON2
+            imported_consumers:
+              - IMPORTED-CON1
           subnets:
             - ip: 1.1.1.1/24
               public: true
@@ -82,6 +84,11 @@ apic:
               description: My Desc
               filters:
                 - filter: ALL
+                  action: deny
+                  priority: level1
+                  log: true
+                  no_stats: true
+                - filter: FILTER2
           expected_state:
             minimum_health: 0
             maximum_critical_faults: 1000

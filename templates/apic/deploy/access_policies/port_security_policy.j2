@@ -1,0 +1,26 @@
+{
+    "infraInfra": {
+        "attributes": {
+            "dn": "uni/infra"
+        },
+        "children": [
+            {%- set comma1 = joiner(",") %}
+            {%- for policy in apic.access_policies.interface_policies.port_security_policies | default([]) %}{{ comma1() }}
+            {% set port_security_policy_name = policy.name ~ defaults.apic.access_policies.interface_policies.port_security_policies.name_suffix %}
+            {
+                "l2PortSecurityPol": {
+                    "attributes": {
+                        "annotation": "orchestrator:aac",
+                        "name": "{{ port_security_policy_name }}",
+                        "descr": "{{ policy.description | default() }}",
+                        "dn": "uni/infra/portsecurityP-{{ port_security_policy_name }}",
+                        "maximum": "{{ policy.maximum_endpoints | default(defaults.apic.access_policies.interface_policies.port_security_policies.maximum_endpoints) }}",
+                        "timeout": "{{ policy.timeout | default(defaults.apic.access_policies.interface_policies.port_security_policies.timeout) }}"
+                    }
+                }
+            }
+            {%- endfor %}
+
+        ]
+    }
+}

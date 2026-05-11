@@ -79,3 +79,18 @@ apic:
               source_from_port: 80
               source_to_port: 80
 ```
+
+Example-5: This configures a `FILTER1` filter with an entry named `TCP_FRAGMENTS` that matches TCP fragments only. When an entry has `match_only_fragments` enabled, the rest of the options (e.g. `source_from_port`, `destination_from_port`, `source_to_port`, `destination_to_port` and `stateful`) are not available for configuration.
+
+```yaml
+apic:
+  tenants:
+    - name: ABC
+      filters:
+        - name: FILTER1
+          entries:
+            - name: TCP_FRAGMENTS
+              ethertype: ip
+              protocol: tcp
+              match_only_fragments: true
+```

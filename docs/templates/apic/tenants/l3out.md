@@ -23,6 +23,18 @@ The following table maps the subnet flags of external endpoint groups to the cor
 |`aggregate_export_route_control`|`Aggregate Export`|
 |`aggregate_shared_route_control`|`Aggregate Shared Routes`|
 
+L3out BGP Peering can be estabilished via Interface Profiles or Node Profiles.
+The infra tenant differentiates between BGP Infra Peers, which are configured in the Node Profile, and BGP Peers, which are configured in the Interface Profile.
+BGP Infra Peers are limited only to Node Profiles in `infra` Tenant.
+BGP Infra Peer Type and Source Interface Loopback cannot be modified.
+The following table maps the BGP Peer Type of BGP Infra Peer to the corresponding GUI terminology:
+|Peer Type|GUI Terminology|
+|---|---|
+|`wan`|`WAN Connectivity. By default every infra peer is a wan peer. Example use-case: Remote-Leaf or IPN.`|
+|`mdp-wan`|`MDP Connectivity. IPN/ISN use-case with BGW to interconnect multiple ACI pods or sites.`|
+
+If IP SLA Policy is not existing in configured Tenant's Data Model and it exists in `common` Tenant Data Model, then relation for ip_sla_policy attribute will reflect IP SLA Policy in `common` Tenant.
+
 Location in GUI:
 
 - `Tenants` » `XXX` » `Networking` » `L3outs`
@@ -65,6 +77,29 @@ apic:
               contracts:
                 consumers:
                   - CON1
+```
+
+External EPG with contract masters (inherit contracts from another L3out external EPG):
+
+```yaml
+apic:
+  tenants:
+    - name: ABC
+      l3outs:
+        - name: L3OUT1
+          vrf: VRF1
+          domain: ROUTED1
+          external_endpoint_groups:
+            - name: EXT-EPG1
+              subnets:
+                - prefix: 0.0.0.0/0
+            - name: EXT-EPG2
+              subnets:
+                - prefix: 10.0.0.0/8
+              contracts:
+                masters:
+                  - l3out: L3OUT1
+                    external_endpoint_group: EXT-EPG1
 ```
 
 SVI example:
@@ -167,6 +202,7 @@ apic:
           domain: ROUTED1
           node_profiles:
             - name: NODE_101
+              description: Node Profile 101
               bgp:
                 name: BGP_PROT1
                 timer_policy: BGP_TIMER1
@@ -204,6 +240,77 @@ apic:
             - name: EXT-EPG1
               subnets:
                 - prefix: 0.0.0.0/0
+```
+
+Example with Node BGP Peering (BGP Infra Peers) for Remote Leaf use-case in `infra` Tenant.
+In case of Interface BGP Peering, bgp_peers instead of bgp_infra_peers must be used:
+
+```yaml
+apic:
+  tenants:
+    - name: infra
+      l3outs:
+        - name: intersite
+          vrf: overlay-1
+          domain: ROUTED1
+          node_profiles:
+            - name: NODE_101
+              bgp:
+                name: BGP_PROT1
+                timer_policy: BGP_TIMER1
+                as_path_policy: BGP_AS_PATH1
+              nodes:
+                - node_id: 101
+                  router_id: 5.5.5.5
+              bgp_infra_peers:
+                - ip: 10.10.10.10
+                  remote_as: 61111
+                  peer-type: wan
+                  ttl: 10
+                  local_as: 31200
+                  allow_self_as: true
+                  disable_peer_as_check: true
+                  password: admin
+                  peer_prefix_policy: BGP_PP1
+                  bfd: true
+              interface_profiles:
+                - name: NODE_101
+                  interfaces:
+                    - node_id: 101
+                      port: 10
+                      ip: 14.14.14.1/24
+          external_endpoint_groups:
+            - name: RL_EPG
+```
+
+Example with BGP Peers for IPN
+
+```yaml
+apic:
+  tenants:
+    - name: infra
+      l3outs:
+        - name: L3OUT1
+          vrf: overlay-1
+          domain: IPN
+          node_profiles:
+            - name: NODE_101
+              nodes:
+                - node_id: 101
+                  router_id: 5.5.5.5
+              interface_profiles:
+                - name: NODE_101
+                  interfaces:
+                    - node_id: 101
+                      port: 10
+                      ip: 14.14.14.1/24
+                      vlan: 4
+                      svi: false
+                      bgp_peers:
+                        - ip: 10.10.10.10
+                          remote_as: 61111
+          external_endpoint_groups:
+            - name: intersite
 ```
 
 Full example:
@@ -528,4 +635,61 @@ apic:
                 - prefix: 0.0.0.0/0
                   export_route_control: true
                   import_security: false
+```
+Example: This example show the L3OUT configuration using floating svi and security attributes forged transmit, mac address chamnge and promiscous mode.
+
+```yaml
+apic:
+  tenants:
+    - name: ABC
+      vrfs:
+        - name: VRF1
+      l3outs:
+      #This example shows the sample config yaml file to use the auto-generated floating svi using the security attributes.
+        - name: L3OUT_SVI
+          vrf: VRF1
+          domain: ROUTED1
+          nodes:
+            - node_id: 101
+              router_id: 5.5.5.5
+              router_id_as_loopback: false
+              interfaces:
+                - floating_svi: true
+                  node_id: 101
+                  ip: 1.1.1.2/24
+                  vlan: 134
+                  paths:
+                    - floating_ip: 1.1.1.1/24
+                      forged_transmit: true
+                      promiscous_mode: true
+                      mac_change: true
+                      vmware_vmm_domain: VMM1
+                      elag: ELAGDefault
+        #The example below shows config yaml structure to use logical interfaces profiles to configure the floating svi security attributes.
+        - name: L3OUT_SVI2
+          vrf: VRF1
+          domain: ROUTED1
+          node_profiles:
+            - name: NP1
+              nodes:
+                - node_id: 103
+                  router_id: 10.10.10.10
+                  router_id_as_loopback: false
+                - node_id: 104
+                  router_id: 12.12.12.12
+                  router_id_as_loopback: false
+              interface_profiles:
+                - name: IP1
+                  interfaces:
+                    - floating_svi: true
+                      node_id: 103
+                      ip: 3.1.1.1/24
+                      vlan: 135
+                      paths:
+                        - floating_ip: 4.1.1.1/24
+                          forged_transmit: true
+                          promiscous_mode: true
+                          mac_change: true
+                          vmware_vmm_domain: VMM1
+                          elag: ELAGDefault
 ```

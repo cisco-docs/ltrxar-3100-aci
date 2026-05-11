@@ -1,0 +1,67 @@
+---
+apic:
+  tenants:
+    - name: ABC
+
+      bridge_domains:
+        - name: BD6
+          vrf: VRF1
+          legacy_mode_vlan: 135
+        - name: BD7
+          vrf: VRF5
+          vxlan_stretch:
+            border_gateway_set_policy: BorderGatewaySet
+            normalized_vni: 1002
+
+      application_profiles:
+        - name: AP3
+          endpoint_security_groups:
+            - name: ESG4
+              vrf: VRF5
+              normalized_pctag: 1001
+              ip_external_subnet_selectors:
+                - ip: 10.2.1.0/24
+                  description: IP External Subnet Selector 1
+                  shared: true
+                - ip: 10.3.1.0/24
+                  description: IP External Subnet Selector 2
+                  shared: false
+          endpoint_groups:
+            - name: EPG1
+              bridge_domain: BD1
+              static_aaeps:
+                - name: aaep_1
+                  encap: 102
+                  mode: untagged
+                  deployment_immediacy: immediate
+                  primary_encap: 103
+                - name: aaep_2
+                  encap: 202
+
+      vrfs:
+        # VRF5 is unique to APIC 6.1+ testing - tests leaked_internal_prefixes with scope attribute
+        - name: VRF5
+          leaked_internal_prefixes:
+            - prefix: 10.0.0.0/8
+              public: true
+              from_prefix_length: 16
+              to_prefix_length: 24
+              destinations:
+                - tenant: ABC
+                  vrf: VRF1
+                  public: true
+                  description: Leak 10.x to VRF1 (public)
+            - prefix: 172.16.0.0/12
+              public: false
+              from_prefix_length: 20
+              to_prefix_length: 28
+              destinations:
+                - tenant: ABC
+                  vrf: VRF1
+                  public: false
+                  description: Leak 172.16.x to VRF1 (private)
+          vxlan_stretch:
+            border_gateway_set_policy: BorderGatewaySet
+            normalized_vni: 1003
+            import_route_map: import-rm
+            export_route_map: export-rm

@@ -69,7 +69,9 @@
                                         "fvRsDomAtt": {
                                             "attributes": {
                                                 "annotation": "orchestrator:aac",
-                                                "bindingType": "none",
+                                                {% set port_binding_val = vmm.port_binding | default(defaults.apic.tenants.application_profiles.endpoint_groups.vmware_vmm_domains.port_binding) %}
+                                                {% set binding_type_map = {'dynamic': 'dynamicBinding', 'ephemeral': 'ephemeral', 'static': 'staticBinding', 'default': 'none'} %}
+                                                "bindingType": "{{ binding_type_map[port_binding_val] | default('none') }}",
                                                 {% if vmm.u_segmentation | default(defaults.apic.tenants.application_profiles.endpoint_groups.vmware_vmm_domains.u_segmentation) %}{% set useg = 'useg' %}{% else %}{% set useg = 'encap' %}{% endif %}
                                                 "classPref": "{{ useg }}",
                                                 "delimiter": "{{ vmm.delimiter | default(defaults.apic.tenants.application_profiles.endpoint_groups.vmware_vmm_domains.delimiter) }}",
@@ -609,7 +611,27 @@
                                         }
                                     }
                                     {%- endif %}
-
+                                    {%- if epg.static_aaeps is defined %}
+                                    {%- for aaep in epg.static_aaeps | default([]) %}{{ comma3() }}
+                                    {% set aaep_name = aaep.name ~ defaults.apic.access_policies.aaeps.name_suffix %}
+                                    {% set query = "aaeps[?name==`" ~ aaep_name ~ "`].name" %}
+                                    {% set aaep_target = (apic.access_policies | community.general.json_query(query))[0] | default([])%}
+                                    {
+                                        "fvRsAepAtt": {
+                                            "attributes": {
+                                                "annotation": "{{ "FORMED" if aaep_target else "MISSING_TARGET" }}",
+                                                "encap": "vlan-{{ aaep.encap }}",
+                                                "instrImedcy": "{{ aaep.deployment_immediacy | default(defaults.apic.tenants.application_profiles.endpoint_groups.static_aaeps.deployment_immediacy) }}",
+                                                "mode": "{{ aaep.mode | default(defaults.apic.tenants.application_profiles.endpoint_groups.static_aaeps.mode) }}",
+                                                {%- if aaep.primary_encap is defined %}
+                                                "primaryEncap": "vlan-{{ aaep.primary_encap }}",
+                                                {%- endif %}
+                                                "tnInfraAttEntityPName": "{{ aaep_name }}"
+                                            }
+                                        }
+                                    }
+                                    {%- endfor %}
+                                    {%- endif %}
                                 ]
                             }
                         }

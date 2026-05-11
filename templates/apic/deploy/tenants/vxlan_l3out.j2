@@ -1,0 +1,256 @@
+{# iterate_list apic.tenants name item[2] #}
+{% set tenant = ((apic | default()) | community.general.json_query('tenants[?name==`' ~ item[2] ~ '`]'))[0] %}
+{
+    "fvTenant": {
+        "attributes": {
+            "dn": "uni/tn-{{ tenant.name }}",
+            "name": "{{ tenant.name }}"
+        },
+        "children": [
+            {%- set comma1 = joiner(",") %}
+            {% if tenant.name == 'infra' %}
+            {%- for l3out in tenant.vxlan_l3outs | default([]) %}{{ comma1() }}
+            {% set l3out_name = l3out.name ~ defaults.apic.tenants.vxlan_l3outs.name_suffix %}
+            {
+                "l3extOut": {
+                    "attributes": {
+                        "descr": "{{ l3out.description | default() }}",
+                        "dn": "uni/tn-{{ tenant.name }}/out-{{ l3out_name }}",
+                        "name": "{{ l3out_name }}",
+                        "nameAlias": "{{ l3out.alias | default() }}"
+                    },
+                    "children": [
+                        {%- set comma2 = joiner(",") %}
+                        {
+                            "vxlanExtP": {
+                                "attributes": {
+                                    "dn": "uni/tn-{{ tenant.name }}/out-{{ l3out_name }}/vxlanextp"
+                                }
+                            }
+                        },
+                        {% set border_gateway_set_policy_name = l3out.border_gateway_set_policy ~ defaults.apic.tenants.policies.border_gateway_set_policy.name_suffix %}
+                        {
+                            "l3extRsProvBgwSet": {
+                                "attributes": {
+                                    "tDn": "uni/tn-{{ tenant.name }}/vxlanbgwset-{{ border_gateway_set_policy_name }}"
+                                }
+                            }
+                        },
+                        {%- for np in l3out.node_profiles | default([]) %}
+                        {%- set l3out_np_name = np.name ~ defaults.apic.tenants.vxlan_l3outs.node_profiles.name_suffix %}{{ comma2() }}
+                        {
+                            "l3extLNodeP": {
+                                "attributes": {
+                                    "dn": "uni/tn-{{ tenant.name }}/out-{{ l3out_name }}/lnodep-{{ l3out_np_name }}",
+                                    "name": "{{ l3out_np_name }}",
+                                    "childAction": "deleteNonPresent"
+                                },
+                                "children": [
+                                    {%- set comma3 = joiner(",") %}
+                                    {%- for node in np.nodes | default([]) %}
+                                    {%- set query = "nodes[?id==`" ~ node.node_id ~ "`].pod" %}
+                                    {%- set pod = node.pod_id | default(((apic.node_policies | default()) | community.general.json_query(query))[0] | default('1')) %}{{ comma3() }}
+                                    {
+                                        "l3extRsNodeL3OutAtt": {
+                                            "attributes": {
+                                                "rtrId": "{{ node.router_id | default('0.0.0.0') }}",
+                                                "rtrIdLoopBack": "no",
+                                                "tDn": "topology/pod-{{ pod | default(defaults.apic.tenants.vxlan_l3outs.node_profiles.nodes.pod) }}/node-{{ node.node_id }}",
+                                                "childAction": "deleteNonPresent"
+                                            },
+                                            "children": [
+                                                {
+                                                    "l3extLoopBackIfP": {
+                                                        "attributes": {
+                                                            "addr": "{{ node.loopback }}"
+                                                        }
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    }
+                                    {%- endfor %}
+                                    {%- if np.vxlan_custom_qos_policy is defined %}{{ comma3() }}
+                                    {
+                                        "l3extRsLNodePVxlanCustQosPol": {
+                                            "attributes": {
+                                                "dn": "uni/tn-{{ tenant.name }}/out-{{ l3out_name }}/lnodep-{{ l3out_np_name }}/rslNodePVxlanCustQosPol",
+                                                "tDn": "uni/tn-{{ tenant.name }}/qosvxlancustom-{{ np.vxlan_custom_qos_policy }}"
+                                            }
+                                        }
+                                    }
+                                    {%- endif %}
+                                    {%- for ip in np.interface_profiles | default([]) %}{{ comma3() }}
+                                    {% set l3out_ip_name = ip.name ~ defaults.apic.tenants.vxlan_l3outs.node_profiles.interface_profiles.name_suffix %}
+                                    {
+                                        "l3extLIfP": {
+                                            "attributes": {
+                                                "name": "{{ l3out_ip_name }}",
+                                                "descr": "{{ ip.description | default() }}",
+                                                "childAction": "deleteNonPresent"
+                                            },
+                                            "children": [
+                                                {%- set comma4 = joiner(",") %}
+                                                {%- if ip.bfd_policy is defined %}{{ comma4() }}
+                                                {% set bfd_name = ip.bfd_policy ~ defaults.apic.tenants.policies.bfd_interface_policies.name_suffix %}
+                                                {
+                                                    "bfdIfP": {
+                                                        "attributes": {
+                                                            "type": "none",
+                                                            "childAction": "deleteNonPresent"
+                                                        },
+                                                        "children": [
+                                                            {
+                                                                "bfdRsIfPol": {
+                                                                    "attributes": {
+                                                                        "tnBfdIfPolName": "{{ bfd_name }}"
+                                                                    }
+                                                                }
+                                                            }
+                                                        ]
+                                                    }
+                                                }
+                                                {%- endif %}
+                                                {%- for int in ip.interfaces | default([]) %}{{ comma4() }}
+                                                {% if int.port is defined %}
+                                                    {% set type = 'ap' %}
+                                                    {% set query = "nodes[?id==`" ~ int.node_id ~ "`].pod" %}
+                                                    {% set pod = int.pod_id | default(((apic.node_policies | default()) | community.general.json_query(query))[0] | default('1')) %}
+                                                {% else %}
+                                                    {% set policy_group_name = int.channel ~ defaults.apic.access_policies.leaf_interface_policy_groups.name_suffix %}
+                                                    {% set query = "leaf_interface_policy_groups[?name==`" ~ int.channel ~ "`].type" %}
+                                                    {% set type = (apic.access_policies | community.general.json_query(query))[0] %}
+                                                    {% if int.node_id is defined %}
+                                                        {% set node = int.node_id %}
+                                                    {% else %}
+                                                        {% set query = "nodes[?interfaces[?policy_group==`" ~ int.channel ~ "`]].id" %}
+                                                        {% set node = (apic.interface_policies | default() | community.general.json_query(query))[0] %}
+                                                    {% endif %}
+                                                    {% set query = "nodes[?id==`" ~ node ~ "`].pod" %}
+                                                    {% set pod = int.pod_id | default(((apic.node_policies | default()) | community.general.json_query(query))[0] | default('1')) %}
+                                                {% endif %}
+                                                {
+                                                    "l3extRsPathL3OutAtt": {
+                                                        "attributes": {
+                                                            "addr": "{{ int.ip }}",
+                                                            "autostate": "disabled",
+                                                            "descr": "{{ int.description | default() }}",
+                                                            "encapScope": "local",
+                                                            {% if int.vlan is defined %}
+                                                            "ifInstT": "sub-interface",
+                                                            "encap": "vlan-{{ int.vlan }}",
+                                                            {% else %}
+                                                            "ifInstT": "l3-port",
+                                                            {% endif %}
+                                                            "ipv6Dad": "enabled",
+                                                            "llAddr": "::",
+                                                            "mac": "{{ int.mac | default(defaults.apic.tenants.vxlan_l3outs.node_profiles.interface_profiles.interfaces.mac) }}",
+                                                            "mode": "regular",
+                                                            "mtu": "{{ int.mtu | default(defaults.apic.tenants.vxlan_l3outs.node_profiles.interface_profiles.interfaces.mtu) }}",
+                                                            {% if type == 'ap' %}
+                                                            "tDn": "topology/pod-{{ pod | default(defaults.apic.tenants.vxlan_l3outs.node_profiles.interface_profiles.interfaces.pod) }}/paths-{{ int.node_id }}/pathep-[eth{{ int.module | default(defaults.apic.tenants.vxlan_l3outs.node_profiles.interface_profiles.interfaces.module) }}/{{ int.port }}]",
+                                                            {% elif type == 'pc' %}
+                                                            "tDn": "topology/pod-{{ pod | default(defaults.apic.tenants.vxlan_l3outs.node_profiles.interface_profiles.interfaces.pod) }}/paths-{{ node }}/pathep-[{{ policy_group_name }}]",
+                                                            {% endif %}
+                                                            "childAction": "deleteNonPresent"
+                                                        },
+                                                        "children": [
+                                                            {%- set comma5 = joiner(",") %}
+                                                            {% for peer in int.bgp_peers | default([]) %}{{ comma5() }}
+                                                            {% set peer_ctrl = [] %}
+                                                            {% if peer.bfd | default(defaults.apic.tenants.vxlan_l3outs.node_profiles.interface_profiles.interfaces.bgp_peers.bfd) %}{% set peer_ctrl = peer_ctrl + [("bfd")] %}{% endif %}
+                                                            {
+                                                                "bgpPeerP": {
+                                                                    "attributes": {
+                                                                        "addr": "{{ peer.ip }}",
+                                                                        "addrTCtrl": "af-ucast",
+                                                                        "adminSt": "{{ 'enabled' if peer.admin_state | default(defaults.apic.tenants.vxlan_l3outs.node_profiles.interface_profiles.interfaces.bgp_peers.admin_state) else 'disabled' }}",
+                                                                        "descr": "{{ peer.description | default() }}",
+                                                                        {% if peer.password is defined %}
+                                                                        "password": "{{ peer.password }}",
+                                                                        {% endif %}
+                                                                        "peerCtrl": "{{ peer_ctrl | join(',') }}",
+                                                                        "childAction": "deleteNonPresent"
+                                                                    },
+                                                                    "children": [
+                                                                        {
+                                                                            "bgpAsP": {
+                                                                                "attributes": {
+                                                                                   "asn": "{{ peer.remote_as }}"
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                        {%- if peer.local_as is defined %},
+                                                                        {
+                                                                            "bgpLocalAsnP": {
+                                                                                "attributes": {
+                                                                                    "localAsn": "{{ peer.local_as }}",
+                                                                                    "asnPropagate" : "{{ peer.as_propagate | default(defaults.apic.tenants.vxlan_l3outs.node_profiles.interface_profiles.interfaces.bgp_peers.as_propagate) }}"
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                        {%- endif %}
+                                                                        {%- if peer.peer_prefix_policy is defined %},
+                                                                        {% set peer_prefix_policy_name = peer.peer_prefix_policy ~ defaults.apic.tenants.policies.bgp_peer_prefix_policies.name_suffix %}
+                                                                        {
+                                                                            "bgpRsPeerPfxPol": {
+                                                                                "attributes": {
+                                                                                    "tnBgpPeerPfxPolName": "{{ peer_prefix_policy_name }}"
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                        {%- endif %}
+
+                                                                    ]
+                                                                }
+                                                            }
+                                                            {%- endfor %}
+
+                                                        ]
+                                                    }
+                                                }
+                                                {%- endfor %}
+
+                                            ]
+                                        }
+                                    }
+                                    {%- endfor %}
+
+                                ]
+                            }
+                        }
+                        {%- endfor %}{{ comma2() }}
+                        {
+                            "bgpExtP": {
+                                "attributes": {
+                                    "dn": "uni/tn-{{ tenant.name }}/out-{{ l3out_name }}/bgpExtP"
+                                }
+                            }
+                        }{{ comma2() }}
+                        {
+                            "l3extRsEctx": {
+                                "attributes": {
+                                    "dn": "uni/tn-{{ tenant.name }}/out-{{ l3out_name }}/rsectx",
+                                    "tnFvCtxName": "overlay-1"
+                                }
+                            }
+                        },
+                        {
+                            "l3extInstP": {
+                                "attributes": {
+                                    "annotation": "orchestrator:aac",
+                                    "dn": "uni/tn-{{ tenant.name }}/out-{{ l3out_name }}/instP-{{ l3out_name }}_vxlanInstP",
+                                    "name": "{{ l3out_name }}_vxlanInstP",
+                                    "childAction": "deleteNonPresent"
+                                }
+                            }
+                        }
+                    ]
+                }
+            }
+            {%- endfor %}
+            {%- endif %}
+
+        ]
+    }
+}

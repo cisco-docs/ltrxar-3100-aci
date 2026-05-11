@@ -1,4 +1,4 @@
-{# iterate_list apic.tenants name item[2] #}
+{# iterate_list_chunked apic.tenants name item[2] application_profiles.endpoint_groups 50 #}
 *** Settings ***
 Documentation   Verify Endpoint Group
 Suite Setup     Login APIC
@@ -56,6 +56,9 @@ Verify Endpoint Group {{ epg_name }} VMM Domain {{ vmm_name }}
 {% endif %}
     Should Be Equal JMESPath Json   ${r}   ${conn}.fvRsDomAtt.attributes.resImedcy   {{ vmm.resolution_immediacy | default(defaults.apic.tenants.application_profiles.endpoint_groups.vmware_vmm_domains.resolution_immediacy) }}
     Should Be Equal JMESPath Json   ${r}   ${conn}.fvRsDomAtt.attributes.switchingMode   native
+{% set port_binding_val = vmm.port_binding | default(defaults.apic.tenants.application_profiles.endpoint_groups.vmware_vmm_domains.port_binding) %}
+{% set binding_type_map = {'dynamic': 'dynamicBinding', 'ephemeral': 'ephemeral', 'static': 'staticBinding', 'default': 'none'} %}
+    Should Be Equal JMESPath Json   ${r}   ${conn}.fvRsDomAtt.attributes.bindingType   {{ binding_type_map[port_binding_val] | default('none') }}
     Should Be Equal JMESPath Json   ${r}   ${conn}.fvRsDomAtt.attributes.customEpgName   {{ vmm.custom_epg_name | default() }}
 
     Should Be Equal JMESPath Json   ${r}   ${conn}.fvRsDomAtt.children[?vmmSecP] | [0].vmmSecP.attributes.allowPromiscuous   {{ vmm.allow_promiscuous | default(defaults.apic.tenants.application_profiles.endpoint_groups.vmware_vmm_domains.allow_promiscuous) }}
@@ -247,7 +250,7 @@ Verify Endpoint Group {{ epg_name }} Static Endpoint {{ st_ep.mac }}
     {% set app_profile_name = (master.application_profile | default(ap_name)) %}
 Verify EPG Contract Master 'uni/tn-{{ tenant.name }}/ap-{{ app_profile_name }}/epg-{{ master.endpoint_group }}'
     ${con_master}=   Set Variable   imdata[0].fvAEPg.children[?fvRsSecInherited.attributes.tDn=='uni/tn-{{ tenant.name }}/ap-{{ app_profile_name }}/epg-{{ master.endpoint_group }}'] | [0]
-    Should Not Be Empty   ${con_master}.fvRsSecInherited.attributes.tDn
+    Should Be Equal JMESPath Json   ${r}   ${con_master}.fvRsSecInherited.attributes.tDn   uni/tn-{{ tenant.name }}/ap-{{ app_profile_name }}/epg-{{ master.endpoint_group }}
 {% endfor %}
 
 {% for contract in epg.contracts.providers | default([]) %}
@@ -391,6 +394,25 @@ Verify Endpoint Group {{ epg_name }} Trust Control Policy {{ trust_control_polic
 {% set dpp_name = epg.data_plane_policing_policy ~ defaults.apic.tenants.policies.data_plane_policing_policies.name_suffix %}
 Verify Endpoint Group {{ epg_name }} Data Plane Policing Policy
     Should Be Equal JMESPath Json   ${r}   imdata[0].fvAEPg.children[?fvRsDppPol] | [0].fvRsDppPol.attributes.tnQosDppPolName   {{ dpp_name }}
+{% endif %}
+
+{% if epg.static_aaeps is defined %}
+{% for aaep in epg.static_aaeps | default([]) %}
+{% set aaep_name = aaep.name ~ defaults.apic.access_policies.aaeps.name_suffix %}
+{% set query = "aaeps[?name==`" ~ aaep_name ~ "`].name" %}
+{% set aaep_target = (apic.access_policies | community.general.json_query(query))[0] | default([])%}
+
+Verify Endpoint Group {{ epg_name }} Static AAEP {{ aaep_name }}
+  ${aaep}=   Set Variable   imdata[0].fvAEPg.children[?fvRsAepAtt.attributes.tnInfraAttEntityPName=='{{ aaep_name }}'] | [0]
+  Should Be Equal JMESPath Json   ${r}   ${aaep}.fvRsAepAtt.attributes.annotation   {{ "FORMED" if aaep_target else "MISSING_TARGET" }}
+  Should Be Equal JMESPath Json   ${r}   ${aaep}.fvRsAepAtt.attributes.tnInfraAttEntityPName   {{ aaep_name }}
+  Should Be Equal JMESPath Json   ${r}   ${aaep}.fvRsAepAtt.attributes.encap   vlan-{{ aaep.encap }}
+  Should Be Equal JMESPath Json   ${r}   ${aaep}.fvRsAepAtt.attributes.instrImedcy  {{ aaep.deployment_immediacy | default(defaults.apic.tenants.application_profiles.endpoint_groups.static_aaeps.deployment_immediacy) }}
+  Should Be Equal JMESPath Json   ${r}   ${aaep}.fvRsAepAtt.attributes.mode  {{ aaep.mode | default(defaults.apic.tenants.application_profiles.endpoint_groups.static_aaeps.mode) }}
+{% if aaep.primary_encap is defined %}
+  Should Be Equal JMESPath Json   ${r}   ${aaep}.fvRsAepAtt.attributes.primaryEncap   vlan-{{ aaep.primary_encap }}
+{% endif %}
+{% endfor %}
 {% endif %}
 
 {% endfor %}

@@ -1,0 +1,32 @@
+{# iterate_list apic.tenants name item[2] #}
+{% set tenant = ((apic | default()) | community.general.json_query('tenants[?name==`' ~ item[2] ~ '`]'))[0] %}
+{
+    "fvTenant": {
+        "attributes": {
+            "dn": "uni/tn-{{ tenant.name }}",
+            "name": "{{ tenant.name }}"
+        },
+        "children": [
+            {%- set comma1 = joiner(",") %}
+            {%- for policy in tenant.policies.hsrp_interface_policies | default([]) %}{{ comma1() }}
+            {% set policy_name = policy.name ~ defaults.apic.tenants.policies.hsrp_interface_policies.name_suffix %}
+            {% set ctrl = [] %}
+            {% if policy.bfd_enable | default(defaults.apic.tenants.policies.hsrp_interface_policies.bfd_enable) %}{% set ctrl = ctrl + [("bfd")] %}{% endif %}
+            {% if policy.use_bia | default(defaults.apic.tenants.policies.hsrp_interface_policies.use_bia) %}{% set ctrl = ctrl + [("bia")] %}{% endif %}
+            {
+                "hsrpIfPol": {
+                    "attributes": {
+                        "annotation": "orchestrator:aac",
+                        "name": "{{ policy_name }}",
+                        "dn": "uni/tn-{{ tenant.name }}/hsrpIfPol-{{ policy_name }}",
+                        "descr": "{{ policy.description | default() }}",
+                        "ctrl": "{{ ctrl | join(',') }}",
+                        "delay": "{{ policy.delay | default(defaults.apic.tenants.policies.hsrp_interface_policies.delay) }}",
+                        "reloadDelay": "{{ policy.reload_delay | default(defaults.apic.tenants.policies.hsrp_interface_policies.reload_delay) }}"
+                    }
+                }
+            }
+            {%- endfor %}
+        ]
+    }
+}

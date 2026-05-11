@@ -441,3 +441,6 @@ schemas/schema.json
 .coverage-backup/
 coverage_manifest.json
 coverage_missing.txt
+
+# AIs
+.claude

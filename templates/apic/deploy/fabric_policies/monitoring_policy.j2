@@ -1,59 +1,184 @@
 {
-    "monCommonPol": {
+    "fabricInst": {
         "attributes": {
-            "dn": "uni/fabric/moncommon"
+            "dn": "uni/fabric"
         },
         "children": [
-            {%- set comma1 = joiner(",") %}
-            {%- for snmp in apic.fabric_policies.monitoring.snmp_traps | default([]) %}{{ comma1() }}
-            {% set snmp_policy_name = snmp.name ~ defaults.apic.fabric_policies.monitoring.snmp_traps.name_suffix %}
+            {%- set comma2 = joiner(",") %}
+            {%- for policy in apic.fabric_policies.monitoring.policies | default([]) if policy.name == "common" %}{{ comma2() }}
             {
-                "snmpSrc": {
+                "monCommonPol": {
                     "attributes": {
-                        "annotation": "orchestrator:aac",
-                        "dn": "uni/fabric/moncommon/snmpsrc-{{ snmp_policy_name }}",
-                        "name": "{{ snmp_policy_name }}",
-                        "childAction": "deleteNonPresent"
+                        "dn": "uni/fabric/moncommon",
+                        "descr": "{{ policy.description | default() }}"
                     },
                     "children": [
+                        {%- set comma1 = joiner(",") %}
+                        {%- for snmp in policy.snmp_traps | default([]) %}{{ comma1() }}
+                        {% set snmp_policy_name = snmp.name ~ defaults.apic.fabric_policies.monitoring.policies.snmp_traps.name_suffix %}
                         {
-                            "snmpRsDestGroup": {
+                            "snmpSrc": {
                                 "attributes": {
                                     "annotation": "orchestrator:aac",
-                                    "tDn": "uni/fabric/snmpgroup-{{ snmp_policy_name }}"
-                                }
+                                    "dn": "uni/fabric/moncommon/snmpsrc-{{ snmp_policy_name }}",
+                                    "name": "{{ snmp_policy_name }}",
+                                    "childAction": "deleteNonPresent"
+                                },
+                                "children": [
+                                    {% if snmp.destination_group is defined %}
+                                    {% set destination_group_name = snmp.destination_group ~ defaults.apic.fabric_policies.monitoring.snmp_traps.name_suffix %}
+                                    {
+                                        "snmpRsDestGroup": {
+                                            "attributes": {
+                                                "annotation": "orchestrator:aac",
+                                                "tDn": "uni/fabric/snmpgroup-{{ destination_group_name }}"
+                                            }
+                                        }
+                                    }
+                                    {%- endif %}
+
+                                ]
                             }
                         }
+                        {%- endfor %}
+                        {%- for syslog in policy.syslogs | default([]) %}{{ comma1() }}
+                        {% set syslog_policy_name = syslog.name ~ defaults.apic.fabric_policies.monitoring.policies.syslogs.name_suffix %}
+                        {% set include = [] %}
+                        {% if syslog.audit | default(defaults.apic.fabric_policies.monitoring.policies.syslogs.audit) %}{% set include = include + [("audit")] %}{% endif %}
+                        {% if syslog.events | default(defaults.apic.fabric_policies.monitoring.policies.syslogs.events) %}{% set include = include + [("events")] %}{% endif %}
+                        {% if syslog.faults | default(defaults.apic.fabric_policies.monitoring.policies.syslogs.faults) %}{% set include = include + [("faults")] %}{% endif %}
+                        {% if syslog.session | default(defaults.apic.fabric_policies.monitoring.policies.syslogs.session) %}{% set include = include + [("session")] %}{% endif %}
+                        {
+                            "syslogSrc": {
+                                "attributes": {
+                                    "annotation": "orchestrator:aac",
+                                    "dn": "uni/fabric/moncommon/slsrc-{{ syslog_policy_name }}",
+                                    "name": "{{ syslog_policy_name }}",
+                                    "incl":  "{{ include | join(',') }}",
+                                    "minSev": "{{ syslog.minimum_severity | default(defaults.apic.fabric_policies.monitoring.policies.syslogs.minimum_severity) }}",
+                                    "childAction": "deleteNonPresent"
+                                },
+                                "children": [
+                                    {% if syslog.destination_group is defined %}
+                                    {% set destination_group_name = syslog.destination_group ~ defaults.apic.fabric_policies.monitoring.syslogs.name_suffix %}
+                                    {
+                                        "syslogRsDestGroup": {
+                                            "attributes": {
+                                                "annotation": "orchestrator:aac",
+                                                "tDn": "uni/fabric/slgroup-{{ destination_group_name }}"
+                                            }
+                                        }
+                                    }
+                                    {%- endif %}
+
+                                ]
+                            }
+                        }
+                        {%- endfor %}
+
                     ]
                 }
             }
             {%- endfor %}
-            {%- for syslog in apic.fabric_policies.monitoring.syslogs | default([]) %}{{ comma1() }}
-            {% set syslog_policy_name = syslog.name ~ defaults.apic.fabric_policies.monitoring.syslogs.name_suffix %}
-            {% set include = [] %}
-            {% if syslog.audit | default(defaults.apic.fabric_policies.monitoring.syslogs.audit) %}{% set include = include + [("audit")] %}{% endif %}
-            {% if syslog.events | default(defaults.apic.fabric_policies.monitoring.syslogs.events) %}{% set include = include + [("events")] %}{% endif %}
-            {% if syslog.faults | default(defaults.apic.fabric_policies.monitoring.syslogs.faults) %}{% set include = include + [("faults")] %}{% endif %}
-            {% if syslog.session | default(defaults.apic.fabric_policies.monitoring.syslogs.session) %}{% set include = include + [("session")] %}{% endif %}
+            {%- for policy in apic.fabric_policies.monitoring.policies | default([]) if policy.name != 'common' %}{{ comma2() }}
+            {% set policy_name = policy.name ~ defaults.apic.fabric_policies.monitoring.policies.name_suffix %}
             {
-                "syslogSrc": {
+                "monFabricPol": {
                     "attributes": {
-                        "annotation": "orchestrator:aac",
-                        "dn": "uni/fabric/moncommon/slsrc-{{ syslog_policy_name }}",
-                        "name": "{{ syslog_policy_name }}",
-                        "incl":  "{{ include | join(',') }}",
-                        "minSev": "{{ syslog.minimum_severity | default(defaults.apic.fabric_policies.monitoring.syslogs.minimum_severity) }}",
-                        "childAction": "deleteNonPresent"
+                        "dn": "uni/fabric/monfab-{{ policy_name }}",
+                        "name": "{{ policy_name }}",
+                        "descr": "{{ policy.description | default() }}"
                     },
                     "children": [
+                        {%- set comma3 = joiner(",") %}
+                        {%- for cl in policy.fault_severity_policies | default([]) %}{{ comma3() }}
                         {
-                            "syslogRsDestGroup": {
+                            "monFabricTarget": {
                                 "attributes": {
-                                    "annotation": "orchestrator:aac",
-                                    "tDn": "uni/fabric/slgroup-{{ syslog_policy_name }}"
-                                }
+                                    "scope": "{{ cl.class }}"
+                                },
+                                "children": [
+                                    {%- set comma4 = joiner(",") %}
+                                    {%- for fault in cl.faults | default([]) %}{{ comma4() }}
+                                    {
+                                        "faultSevAsnP": {
+                                            "attributes": {
+                                                "code": "{{ fault.fault_id | default(defaults.apic.fabric_policies.monitoring.policies.fault_severity_policies.faults.fault_id) }}",
+                                                "descr": "{{ fault.description | default() }}",
+                                                "initial": "{{ fault.initial_severity | default(defaults.apic.fabric_policies.monitoring.policies.fault_severity_policies.faults.initial_severity) }}",
+                                                "target": "{{ fault.target_severity | default(defaults.apic.fabric_policies.monitoring.policies.fault_severity_policies.faults.target_severity) }}"
+                                            }
+                                        }
+                                    }
+                                    {%- endfor %}
+
+                                ]
                             }
                         }
+                        {%- endfor %}
+
+                        {%- for snmp in policy.snmp_traps | default([]) %}{{ comma3() }}
+                        {% set snmp_policy_name = snmp.name ~ defaults.apic.fabric_policies.monitoring.policies.snmp_traps.name_suffix %}
+                        {
+                            "snmpSrc": {
+                                "attributes": {
+                                    "annotation": "orchestrator:aac",
+                                    "dn": "uni/fabric/monfab-{{ policy_name }}/snmpsrc-{{ snmp_policy_name }}",
+                                    "name": "{{ snmp_policy_name }}",
+                                    "childAction": "deleteNonPresent"
+                                },
+                                "children": [
+                                    {% if snmp.destination_group is defined %}
+                                    {% set destination_group_name = snmp.destination_group ~ defaults.apic.fabric_policies.monitoring.snmp_traps.name_suffix %}
+                                    {
+                                        "snmpRsDestGroup": {
+                                            "attributes": {
+                                                "annotation": "orchestrator:aac",
+                                                "tDn": "uni/fabric/snmpgroup-{{ destination_group_name }}"
+                                            }
+                                        }
+                                    }
+                                    {% endif %}
+
+                                ]
+                            }
+                        }
+                        {%- endfor %}
+                        {%- for syslog in policy.syslogs | default([]) %}{{ comma3() }}
+                        {% set syslog_policy_name = syslog.name ~ defaults.apic.fabric_policies.monitoring.policies.syslogs.name_suffix %}
+                        {% set include = [] %}
+                        {% if syslog.audit | default(defaults.apic.fabric_policies.monitoring.policies.syslogs.audit) %}{% set include = include + [("audit")] %}{% endif %}
+                        {% if syslog.events | default(defaults.apic.fabric_policies.monitoring.policies.syslogs.events) %}{% set include = include + [("events")] %}{% endif %}
+                        {% if syslog.faults | default(defaults.apic.fabric_policies.monitoring.policies.syslogs.faults) %}{% set include = include + [("faults")] %}{% endif %}
+                        {% if syslog.session | default(defaults.apic.fabric_policies.monitoring.policies.syslogs.session) %}{% set include = include + [("session")] %}{% endif %}
+                        {
+                            "syslogSrc": {
+                                "attributes": {
+                                    "annotation": "orchestrator:aac",
+                                    "dn": "uni/fabric/monfab-{{ policy_name }}/slsrc-{{ syslog_policy_name }}",
+                                    "name": "{{ syslog_policy_name }}",
+                                    "incl":  "{{ include | join(',') }}",
+                                    "minSev": "{{ syslog.minimum_severity | default(defaults.apic.fabric_policies.monitoring.policies.syslogs.minimum_severity) }}",
+                                    "childAction": "deleteNonPresent"
+                                },
+                                "children": [
+                                    {% if syslog.destination_group is defined %}
+                                    {% set destination_group_name = syslog.destination_group ~ defaults.apic.fabric_policies.monitoring.syslogs.name_suffix %}
+                                    {
+                                        "syslogRsDestGroup": {
+                                            "attributes": {
+                                                "annotation": "orchestrator:aac",
+                                                "tDn": "uni/fabric/slgroup-{{ destination_group_name }}"
+                                            }
+                                        }
+                                    }
+                                    {% endif %}
+
+                                ]
+                            }
+                        }
+                        {%- endfor %}
+
                     ]
                 }
             }

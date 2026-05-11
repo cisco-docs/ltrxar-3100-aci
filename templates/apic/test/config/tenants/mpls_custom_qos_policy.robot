@@ -8,7 +8,7 @@ Resource        ../../../apic_common.resource
 *** Test Cases ***
 {% set tenant = ((apic | default()) | community.general.json_query('tenants[?name==`' ~ item[2] ~ '`]'))[0] %}
 {% for qos_policy in tenant.policies.mpls_custom_qos_policy | default([]) %}
-{% set policy_name = qos_policy.name ~ defaults.apic.tenants.policies.mpls_custom_qos_policy.name_suffix %}
+{% set policy_name = qos_policy.name ~ defaults.apic.tenants.policies.mpls_custom_qos_policies.name_suffix %}
 
 Verify MPLS Custom QoS Policy {{ policy_name }}
     ${r}=   GET On Session   apic   /api/mo/uni/tn-{{ tenant.name }}/qosmplscustom-{{ policy_name }}.json

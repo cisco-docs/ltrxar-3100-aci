@@ -13,6 +13,7 @@ apic:
     spine_switch_policy_groups:
       - name: ALL_SPINES
         lldp_policy: LLDP-ENABLED
+        cdp_policy: CDP-ENABLED
         bfd_ipv4_policy: BFD-IPV4-POLICY
         bfd_ipv6_policy: BFD-IPV6-POLICY
 ```

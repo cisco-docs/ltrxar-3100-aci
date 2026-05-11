@@ -16,6 +16,10 @@ Verify Spine Switch Policy Group {{ policy_group_name }}
 {% set lldp_policy_name = pg.lldp_policy ~ defaults.apic.access_policies.interface_policies.lldp_policies.name_suffix %}
     Should Be Equal JMESPath Json   ${r}    imdata[0].infraSpineAccNodePGrp.children[?infraRsSpinePGrpToLldpIfPol] | [0].infraRsSpinePGrpToLldpIfPol.attributes.tnLldpIfPolName   {{ lldp_policy_name }}
 {% endif %}
+{% if pg.cdp_policy is defined %}
+{% set cdp_policy_name = pg.cdp_policy ~ defaults.apic.access_policies.interface_policies.cdp_policies.name_suffix %}
+    Should Be Equal JMESPath Json   ${r}    imdata[0].infraSpineAccNodePGrp.children[?infraRsSpinePGrpToCdpIfPol] | [0].infraRsSpinePGrpToCdpIfPol.attributes.tnCdpIfPolName   {{ cdp_policy_name }}
+{% endif %}
 {% if pg.bfd_ipv4_policy is defined %}
 {% set bfd_ipv4_policy = pg.bfd_ipv4_policy ~ defaults.apic.access_policies.switch_policies.bfd_ipv4_policies.name_suffix %}
     Should Be Equal JMESPath Json   ${r}    imdata[0].infraSpineAccNodePGrp.children[?infraRsSpineBfdIpv4InstPol] | [0].infraRsSpineBfdIpv4InstPol.attributes.tnBfdIpv4InstPolName   {{ bfd_ipv4_policy }}

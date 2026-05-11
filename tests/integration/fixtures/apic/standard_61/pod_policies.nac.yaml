@@ -1,0 +1,17 @@
+---
+apic:
+  pod_policies:
+    pods:
+      - id: 4
+        tep_pool: 10.4.0.0/16
+        data_plane_tep: 192.168.4.1
+        unicast_tep: 172.16.14.4
+        policy: POD1
+        resiliency_groups:
+          - name: RSG1
+            description: Resiliency Group 1
+            remote_pool_ids:
+              - 1
+              - 2
+              - 3
+          - name: RSG2

@@ -11,7 +11,7 @@ Resource        ../../apic_common.resource
 {% if node.role == "leaf" %}
 {% set leaf_interface_profile_name = (node.id ~ ":" ~ node.name) | regex_replace("^(?P<id>.+):(?P<name>.+)$", (apic.fabric_policies.leaf_interface_profile_name | default(defaults.apic.fabric_policies.leaf_interface_profile_name))) %}
 
-Verify Fabric Leaf Interface Profile {{ leaf_interface_profile_name }}
+Verify (Auto-Generated) Fabric Leaf Interface Profile {{ leaf_interface_profile_name }}
     ${r}=   GET On Session   apic   /api/mo/uni/fabric/leportp-{{ leaf_interface_profile_name }}.json
     Set Suite Variable   $r   ${r.json()}
     Should Be Equal JMESPath Json   ${r}    imdata[0].fabricLePortP.attributes.name   {{ leaf_interface_profile_name }}

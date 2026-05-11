@@ -1,0 +1,51 @@
+{# iterate_list apic.tenants name item[2] #}
+{% set tenant = ((apic | default()) | community.general.json_query('tenants[?name==`' ~ item[2] ~ '`]'))[0] %}
+{
+    "fvTenant": {
+        "attributes": {
+            "dn": "uni/tn-{{ tenant.name }}",
+            "name": "{{ tenant.name }}"
+        },
+        "children": [
+            {%- set comma1 = joiner(",") %}
+            {% if tenant.name == "infra" %}
+            {% if tenant.policies.border_gateway_set_policy is defined %}
+            {% set policy_name = tenant.policies.border_gateway_set_policy.name ~ defaults.apic.tenants.policies.border_gateway_set_policy.name_suffix %}
+            {
+                "vxlanBgwSet": {
+                    "attributes": {
+                        "name": "{{ policy_name }}",
+                        "dn": "uni/tn-infra/vxlanbgwset-{{ policy_name }}",
+                        "childAction": "deleteNonPresent"
+                    }
+                    ,
+                    "children": [
+                        {%- set comma2 = joiner(",") %}
+                        {%- for ip in tenant.policies.border_gateway_set_policy.external_data_plane_ips | default([]) %}{{ comma2() }}
+                        {
+                            "vxlanExtAnycastIP": {
+                                "attributes": {
+                                    "addr": "{{ ip.ip }}",
+                                    "podId": "{{ ip.pod_id }}"
+                                }
+                            }
+                        }
+                        {%- endfor %}
+
+                    ]
+                }
+            },
+            {
+                "vxlanSite": {
+                    "attributes": {
+                        "dn": "uni/tn-infra/vxlansite",
+                        "id": "{{ tenant.policies.border_gateway_set_policy.vxlan_site_id }}"
+                    }
+                }
+            }
+            {%- endif %}
+            {% endif %}
+
+        ]
+    }
+}

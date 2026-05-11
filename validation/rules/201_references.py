@@ -1,3 +1,8 @@
+# APIC system objects (e.g. system-default) exist on the fabric; skip reference
+# validation for them so users can reference them without defining them in YAML.
+SYSTEM_OBJECT_PREFIX = "system-"
+
+
 class Rule:
     id = "201"
     description = "Verify references"
@@ -160,6 +165,7 @@ class Rule:
             "references": [
                 "apic.access_policies.leaf_interface_policy_groups.aaep",
                 "apic.access_policies.spine_interface_policy_groups.aaep",
+                "apic.tenants.application_profiles.endpoint_groups.static_aaeps.name",
             ],
         },
         {
@@ -195,17 +201,25 @@ class Rule:
             elif isinstance(inv_element, list):
                 for i in inv_element:
                     r = cls.match_path(
-                        i, full_path, ".".join(path_elements[idx:]), targets
+                        i,
+                        full_path,
+                        ".".join(path_elements[idx:]),
+                        targets,
                     )
                     results.extend(r)
                 return results
             if inv_element is None:
                 return results
+
+        def is_missing_reference(value):
+            s = str(value)
+            return s not in targets and not s.startswith(SYSTEM_OBJECT_PREFIX)
+
         if isinstance(inv_element, list):
             for e in inv_element:
-                if str(e) not in targets:
+                if is_missing_reference(e):
                     results.append(full_path + " - " + str(e))
-        elif str(inv_element) not in targets:
+        elif is_missing_reference(inv_element):
             results.append(full_path + " - " + str(inv_element))
         return results
 

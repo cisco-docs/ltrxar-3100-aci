@@ -15,6 +15,8 @@ To monitor destination health and prevent traffic black-holing, the IP SLA Polic
 - apic.tenants.policies.ip_sla_policies
 - apic.tenants.services.redirect_health_groups
 
+If IP SLA Policy is not existing in configured Tenant's Data Model and it exists in `common` Tenant Data Model, then relation for ip_sla_policy will reflect IP SLA Policy in `common` Tenant.
+
 ```yaml
 apic:
   tenants:

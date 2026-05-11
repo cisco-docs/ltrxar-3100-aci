@@ -1,0 +1,104 @@
+{# iterate_list_folder ndo.tenant_templates.tenant_policies name item #}
+{% set query = "tenant_templates.tenant_policies[?name==`" ~ item ~ "`]" %}
+{% set tenant_policy = (ndo | community.general.json_query(query))[0] %}
+{
+    "displayName": "{{ tenant_policy.name }}",
+    "templateType": "tenantPolicy",
+    "tenantPolicyTemplate": {
+        "template": {
+            "tenantId": "%%tenants%{{ tenant_policy.tenant }}%%",
+            "dhcpRelayPolicies": [
+                {%- set comma1 = joiner(",") %}
+                {%- for policy in tenant_policy.dhcp_relay_policies | default([]) %}{{ comma1() }}
+                {% set policy_name = policy.name ~ defaults.ndo.tenant_templates.tenant_policies.dhcp_relay_policies.name_suffix %}
+                {
+                    "name": "{{ policy_name }}",
+                    "description": "{{ policy.description | default() }}",
+                    "providers": [
+                        {%- set comma2 = joiner(",") %}
+                        {%- for provider in policy.providers | default([]) %}{{ comma2() }}
+                        {
+                            "ip": "{{ provider.ip }}",
+                            {% if provider.type == 'epg' %}
+                            {% set ap_name = provider.application_profile ~ defaults.ndo.schemas.templates.application_profiles.name_suffix %}
+                            {% set epg_name = provider.endpoint_group ~ defaults.ndo.schemas.templates.application_profiles.endpoint_groups.name_suffix %}
+                            "epgRef": "%%schemas/templates/anps/epgs%{{ provider.schema }}/{{ provider.template }}/{{ ap_name }}/{{ epg_name }}%%",
+                            {% elif provider.type == 'external_epg' %}
+                            {% set extepg_name = provider.external_endpoint_group ~ defaults.ndo.schemas.templates.external_endpoint_groups.name_suffix %}
+                            "externalEpgRef": "%%schemas/templates/externalEpgs%{{ provider.schema }}/{{ provider.template }}/{{ extepg_name }}%%",
+                            {% endif %}
+                            "useServerVrf": {{ 'true' if provider.use_server_vrf | default(defaults.ndo.tenant_templates.tenant_policies.dhcp_relay_policies.providers.use_server_vrf) else 'false' }}
+                        }
+                        {%- endfor %}
+
+                    ]
+                }
+                {%- endfor %}
+
+            ],
+            "mcastRouteMapPolicies": [
+                {%- set comma1 = joiner(",") %}
+                {%- for policy in tenant_policy.multicast_route_maps | default([]) %}{{ comma1() }}
+                {% set policy_name = policy.name ~ defaults.ndo.tenant_templates.tenant_policies.multicast_route_maps.name_suffix %}
+                {
+                    "name": "{{ policy_name }}",
+                    "description": "{{ policy.description | default() }}",
+                    "mcastRtMapEntryList": [
+                        {%- set comma2 = joiner(",") %}
+                        {%- for entry in policy.entries %}{{ comma2() }}
+                        {
+                            {% if entry.source_ip is defined %}
+                            "source": "{{ entry.source_ip }}",
+                            {% endif %}
+                            {% if entry.group_ip is defined %}
+                            "group": "{{ entry.group_ip  }}",
+                            {% endif %}
+                            "order": {{ entry.order }},
+                            "rp": "{{ entry.rp_ip | default(defaults.ndo.tenant_templates.tenant_policies.multicast_route_maps.entries.rp_ip)}}",
+                            "action": "{{ entry.action | default(defaults.ndo.tenant_templates.tenant_policies.multicast_route_maps.entries.action)}}"
+                        }
+                        {%- endfor %}
+
+                    ]
+                }
+                {%- endfor %}
+
+            ],
+            "ipslaMonitoringPolicies": [
+                {%- set comma1 = joiner(",") %}
+                {%- for policy in tenant_policy.ip_sla_policies | default([]) %}{{ comma1() }}
+                {% set ip_sla_policy_name = policy.name ~ defaults.ndo.tenant_templates.tenant_policies.ip_sla_policies.name_suffix %}
+                {
+                    "name": "{{ ip_sla_policy_name }}",
+                    "description": "{{ policy.description | default() }}",
+                    "slaType": "{{ policy.sla_type | default(defaults.ndo.tenant_templates.tenant_policies.ip_sla_policies.sla_type) }}",
+                    {% if policy.sla_type | default(defaults.ndo.tenant_templates.tenant_policies.ip_sla_policies.sla_type) == 'http' %}
+                    "slaPort": 80,
+                    {% else %}
+                    "slaPort": {{ policy.port | default(defaults.ndo.tenant_templates.tenant_policies.ip_sla_policies.port) }},
+                    {% endif %}
+                    "httpVersion": "{{ policy.http_version | default(defaults.ndo.tenant_templates.tenant_policies.ip_sla_policies.http_version) }}",
+                    "httpUri": "{{ policy.http_uri | default(defaults.ndo.tenant_templates.tenant_policies.ip_sla_policies.http_uri) }}",
+                    "slaFrequency": {{ policy.frequency | default(defaults.ndo.tenant_templates.tenant_policies.ip_sla_policies.frequency) }},
+                    "slaDetectMultiplier": {{ policy.multiplier | default(defaults.ndo.tenant_templates.tenant_policies.ip_sla_policies.multiplier) }},
+                    "reqDataSize": {{ policy.request_data_size | default(defaults.ndo.tenant_templates.tenant_policies.ip_sla_policies.request_data_size) }},
+                    "ipv4ToS": {{ policy.type_of_service | default(defaults.ndo.tenant_templates.tenant_policies.ip_sla_policies.type_of_service) }},
+                    "timeout": {{ policy.timeout | default(defaults.ndo.tenant_templates.tenant_policies.ip_sla_policies.timeout) }},
+                    "threshold": {{ policy.threshold | default(defaults.ndo.tenant_templates.tenant_policies.ip_sla_policies.threshold) }},
+                    "ipv6TrfClass": {{ policy.ipv6_traffic_class | default(defaults.ndo.tenant_templates.tenant_policies.ip_sla_policies.ipv6_traffic_class) }}
+                }
+                {%- endfor %}
+
+            ]
+        },
+        "sites": [
+            {%- set comma2 = joiner(",") %}
+            {%- for site in tenant_policy.sites | default([]) %}{{ comma2() }}
+            {
+                "siteId": "%%sites%{{ site }}%%"
+            }
+            {%- endfor %}
+
+        ]
+    }
+}

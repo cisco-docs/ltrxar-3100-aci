@@ -10,6 +10,11 @@ Resource        ../../../apic_common.resource
 {% for member in tenant.policies.track_members | default([]) %}
 {% set member_name = member.name ~ defaults.apic.tenants.policies.track_members.name_suffix %}
 {% set ip_sla_name = member.ip_sla_policy ~ defaults.apic.tenants.policies.ip_sla_policies.name_suffix %}
+{% set current_tenant_query = "policies.ip_sla_policies[?name=='" ~ ip_sla_name ~ "']" %}
+{% set common_tenant_query = "tenants[?name=='common'] | [0].policies.ip_sla_policies[?name=='" ~ ip_sla_name ~ "']" %}
+{% set current_tenant_ip_sla_policy = ((tenant | community.general.json_query(current_tenant_query)) or []) | length > 0 %}
+{% set common_tenant_ip_sla_policy = ((apic | community.general.json_query(common_tenant_query)) or []) | length > 0 %}
+{% set ip_sla_tenant = "common" if (not current_tenant_ip_sla_policy and common_tenant_ip_sla_policy) else tenant.name %}
 
 Verify Track Member {{ member.name }}
     ${r}=   GET On Session   apic   /api/mo/uni/tn-{{ tenant.name }}/trackmember-{{ member_name }}.json    params=rsp-subtree=full
@@ -22,7 +27,7 @@ Verify Track Member {{ member.name }}
 {% elif member.scope_type == "bd" %}
     Should Be Equal JMESPath Json   ${r}   imdata[0].fvTrackMember.attributes.scopeDn   uni/tn-{{ tenant.name }}/BD-{{ member.scope }}
 {% endif %}
-    Should Be Equal JMESPath Json   ${r}   imdata[0].fvTrackMember.children[?fvRsIpslaMonPol] | [0].fvRsIpslaMonPol.attributes.tDn   uni/tn-{{ tenant.name }}/ipslaMonitoringPol-{{ ip_sla_name }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].fvTrackMember.children[?fvRsIpslaMonPol] | [0].fvRsIpslaMonPol.attributes.tDn   uni/tn-{{ ip_sla_tenant }}/ipslaMonitoringPol-{{ ip_sla_name }}
 
 {% endfor %}
 
@@ -39,6 +44,11 @@ Verify Track Member {{ member.name }}
 {% if nh.ip_sla_policy is defined %}
 {% set member_name = vrf_name ~ "_" ~ nh.ip %}
 {% set ip_sla_name = nh.ip_sla_policy ~ defaults.apic.tenants.policies.ip_sla_policies.name_suffix %}
+{% set current_tenant_query = "policies.ip_sla_policies[?name=='" ~ ip_sla_name ~ "']" %}
+{% set common_tenant_query = "tenants[?name=='common'] | [0].policies.ip_sla_policies[?name=='" ~ ip_sla_name ~ "']" %}
+{% set current_tenant_ip_sla_policy = ((tenant | community.general.json_query(current_tenant_query)) or []) | length > 0 %}
+{% set common_tenant_ip_sla_policy = ((apic | community.general.json_query(common_tenant_query)) or []) | length > 0 %}
+{% set ip_sla_tenant = "common" if (not current_tenant_ip_sla_policy and common_tenant_ip_sla_policy) else tenant.name %}
 
 Verify Track Member for for L3out {{ l3out_name }} Node {{ node.node_id }} Static Route {{ sr.prefix }} Next Hop {{ nh.ip }}
     ${r}=   GET On Session   apic   /api/mo/uni/tn-{{ tenant.name }}/trackmember-{{ member_name }}.json    params=rsp-subtree=full
@@ -46,7 +56,7 @@ Verify Track Member for for L3out {{ l3out_name }} Node {{ node.node_id }} Stati
     Should Be Equal JMESPath Json   ${r}   imdata[0].fvTrackMember.attributes.name  {{ member_name }}
     Should Be Equal JMESPath Json   ${r}   imdata[0].fvTrackMember.attributes.dstIpAddr   {{ nh.ip }}
     Should Be Equal JMESPath Json   ${r}   imdata[0].fvTrackMember.attributes.scopeDn   uni/tn-{{ tenant.name }}/out-{{ l3out_name }}
-    Should Be Equal JMESPath Json   ${r}   imdata[0].fvTrackMember.children[?fvRsIpslaMonPol] | [0].fvRsIpslaMonPol.attributes.tDn   uni/tn-{{ tenant.name }}/ipslaMonitoringPol-{{ ip_sla_name }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].fvTrackMember.children[?fvRsIpslaMonPol] | [0].fvRsIpslaMonPol.attributes.tDn   uni/tn-{{ ip_sla_tenant }}/ipslaMonitoringPol-{{ ip_sla_name }}
 {% endif %}
 {% endfor %}
 {% endfor %}
@@ -62,6 +72,11 @@ Verify Track Member for for L3out {{ l3out_name }} Node {{ node.node_id }} Stati
 {% if nh.ip_sla_policy is defined %}
 {% set member_name = vrf_name ~ "_" ~ nh.ip %}
 {% set ip_sla_name = nh.ip_sla_policy ~ defaults.apic.tenants.policies.ip_sla_policies.name_suffix %}
+{% set current_tenant_query = "policies.ip_sla_policies[?name=='" ~ ip_sla_name ~ "']" %}
+{% set common_tenant_query = "tenants[?name=='common'] | [0].policies.ip_sla_policies[?name=='" ~ ip_sla_name ~ "']" %}
+{% set current_tenant_ip_sla_policy = ((tenant | community.general.json_query(current_tenant_query)) or []) | length > 0 %}
+{% set common_tenant_ip_sla_policy = ((apic | community.general.json_query(common_tenant_query)) or []) | length > 0 %}
+{% set ip_sla_tenant = "common" if (not current_tenant_ip_sla_policy and common_tenant_ip_sla_policy) else tenant.name %}
 
 Verify Track Member for L3out {{ l3out_name }} Node {{ node.node_id }} Static Route {{ sr.prefix }} Next Hop {{ nh.ip }}
     ${r}=   GET On Session   apic   /api/mo/uni/tn-{{ tenant.name }}/trackmember-{{ member_name }}.json    params=rsp-subtree=full
@@ -69,7 +84,7 @@ Verify Track Member for L3out {{ l3out_name }} Node {{ node.node_id }} Static Ro
     Should Be Equal JMESPath Json   ${r}   imdata[0].fvTrackMember.attributes.name  {{ member_name }}
     Should Be Equal JMESPath Json   ${r}   imdata[0].fvTrackMember.attributes.dstIpAddr   {{ nh.ip }}
     Should Be Equal JMESPath Json   ${r}   imdata[0].fvTrackMember.attributes.scopeDn   uni/tn-{{ tenant.name }}/out-{{ l3out_name }}
-    Should Be Equal JMESPath Json   ${r}   imdata[0].fvTrackMember.children[?fvRsIpslaMonPol] | [0].fvRsIpslaMonPol.attributes.tDn   uni/tn-{{ tenant.name }}/ipslaMonitoringPol-{{ ip_sla_name }}
+    Should Be Equal JMESPath Json   ${r}   imdata[0].fvTrackMember.children[?fvRsIpslaMonPol] | [0].fvRsIpslaMonPol.attributes.tDn   uni/tn-{{ ip_sla_tenant }}/ipslaMonitoringPol-{{ ip_sla_name }}
 {% endif %}
 {% endfor %}
 {% endfor %}

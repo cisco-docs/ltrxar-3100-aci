@@ -29,6 +29,23 @@ API_ENDPOINT_MAPPINGS = {
         "container": "schemas",
         "key": "displayName",
     },
+    "templates/summaries": {
+        "container": None,
+        "key": "templateName",
+        "id_key": "templateId",
+    },
+    "schemas/templates/anps/epgs": {
+        "container": "epg",
+        "key": "name",
+        "id_key": "uuid",
+        # This will require special handling for hierarchical lookup
+    },
+    "schemas/templates/externalEpgs": {
+        "container": "externalEpg",
+        "key": "name",
+        "id_key": "uuid",
+        # This will require special handling for hierarchical lookup
+    },
 }
 
 
@@ -43,6 +60,11 @@ class Ndo(object):
 
     def _query_objs(self, path, key=None, api_version="v1", **kwargs):
         """Retrieve objects via REST GET and optionally filter by key"""
+
+        # Handle hierarchical EPG and external EPG lookups
+        if path in ["schemas/templates/anps/epgs", "schemas/templates/externalEpgs"]:
+            return self._query_nested_epg(key, path)
+
         found = []
         resp = self.builtin.run_keyword(
             "Get On Session", self.session_name, "/mso/api/" + api_version + "/" + path
@@ -71,6 +93,75 @@ class Ndo(object):
                 found.append(obj)
         return found
 
+    def _query_nested_epg(self, search_key, path):
+        """Handle nested EPG/external EPG queries for Robot Framework tests"""
+        if search_key is None:
+            return []
+
+        # Parse the composite key based on path type
+        if path == "schemas/templates/anps/epgs":
+            # Format: "schema_name/template_name/anp_name/epg_name"
+            key_parts = search_key.split("/")
+            if len(key_parts) != 4:
+                raise Exception(
+                    "EPG key must be in format 'schema_name/template_name/anp_name/epg_name', got: '{}'".format(
+                        search_key
+                    )
+                )
+            schema_name, template_name, anp_name, epg_name = key_parts
+        elif path == "schemas/templates/externalEpgs":
+            # Format: "schema_name/template_name/external_epg_name"
+            key_parts = search_key.split("/")
+            if len(key_parts) != 3:
+                raise Exception(
+                    "External EPG key must be in format 'schema_name/template_name/external_epg_name', got: '{}'".format(
+                        search_key
+                    )
+                )
+            schema_name, template_name, external_epg_name = key_parts
+        else:
+            raise Exception("Unsupported path type: '{}'".format(path))
+
+        # First resolve schema_name to schema_id using existing lookup
+        schema_obj = self._lookup("schemas/list-identity", schema_name, use_cache=True)
+        if not schema_obj or "id" not in schema_obj:
+            raise Exception("Failed to resolve schema '{}' to ID".format(schema_name))
+        schema_id = schema_obj["id"]
+
+        # Construct the full API path
+        if path == "schemas/templates/anps/epgs":
+            api_path = "schemas/{}/templates/{}/anps/{}/epgs/{}".format(
+                schema_id, template_name, anp_name, epg_name
+            )
+        else:  # externalEpgs
+            api_path = "schemas/{}/templates/{}/externalEpgs/{}".format(
+                schema_id, template_name, external_epg_name
+            )
+
+        # Make the API call
+        resp = self.builtin.run_keyword(
+            "Get On Session", self.session_name, "/mso/api/v1/" + api_path
+        )
+
+        if resp.status_code != 200:
+            raise Exception(
+                "Failed to query {}: status {}, response: {}".format(
+                    api_path, resp.status_code, resp.text
+                )
+            )
+
+        result = resp.json()
+
+        # Return as a single-item list to match expected format
+        # The response structure is {"epg": {...}} or {"externalEpg": {...}}
+        container_key = (
+            "epg" if path == "schemas/templates/anps/epgs" else "externalEpg"
+        )
+        if container_key in result:
+            return [result[container_key]]
+        else:
+            return []
+
     def _lookup(self, path, search_key, use_cache=True):
         """Lookup object by key either from a cache or via REST GET"""
 
@@ -83,6 +174,29 @@ class Ndo(object):
                     return obj
             return None
 
+        # Handle EPG and external EPG lookups specially
+        if path in ["schemas/templates/anps/epgs", "schemas/templates/externalEpgs"]:
+            # For composite key lookups, call _query_objs with the actual search_key
+            if use_cache and path in self.lookup_cache:
+                # Check if we already have the result in cache
+                for obj in self.lookup_cache[path]:
+                    if (
+                        obj.get("name") == search_key.split("/")[-1]
+                    ):  # Match by final name part
+                        return obj
+
+            # Query for the specific composite key
+            result = self._query_objs(path, key=search_key)
+            if not self.lookup_cache.get(path):
+                self.lookup_cache[path] = []
+            if result:
+                self.lookup_cache[path].extend(
+                    result if isinstance(result, list) else [result]
+                )
+                return result[0] if isinstance(result, list) else result
+            return {}
+
+        # Original logic for non-composite lookups
         container = API_ENDPOINT_MAPPINGS.get(path, {}).get("container")
         key = API_ENDPOINT_MAPPINGS.get(path, {}).get("key")
         obj = check_cache(key)
