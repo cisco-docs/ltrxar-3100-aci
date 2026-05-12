@@ -115,6 +115,15 @@ apic:
         aaep: AAEP1
         port_channel_policy: LACP-ACTIVE
         port_channel_member_policy: FAST
+      - name: 10G-ROUTED
+        type: access
+        link_level_policy: 10G
+        cdp_policy: CDP-ENABLED
+        lldp_policy: LLDP-ENABLED
+        spanning_tree_policy: BPDU-FILTER
+        mcp_policy: MCP-DISABLED
+        l2_policy: GLOBAL
+        aaep: AAEP1
 
     switch_policies:
       vpc_policies:
