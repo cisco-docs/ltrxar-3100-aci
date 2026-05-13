@@ -1,19 +1,11 @@
 ---
-# Tenant SVCS — full multidomain-aware definition.
+# Tenant SVCS — collapsed to 2 EPGs (EPG-Shared, EPG-DB) per the
+# multi-domain/design.md §3 mapping. Mirror of tenant_PROD with SVCS values.
+# Both L3Outs share LEAF102 eth1/1 via dot1q sub-interfaces (3010 PROD,
+# 3020 SVCS). BGP peer on SVCS L3Out also Idle — no physical wire.
 #
-# Mirror of tenant_PROD with SVCS-specific values:
-#   - VRF SVCS
-#   - 6 bridge domains BD_VLAN40..45 (192.168.20-25.0/24), public:true,
-#     associated with L3OUT-SDWAN-SVCS for advertisement
-#   - Contract CT-SVCS-PERMIT-ANY
-#   - L3OUT-SDWAN-SVCS on border leaf node 403, eth1/1 sub-interface VLAN 3020,
-#     IP 10.100.20.1/30, EBGP peer 10.100.20.2 remote-as 65200 local-as 65100
-#   - External EPG EXT-EPG-SVCS with 0.0.0.0/0 and aggregate import/export
-#   - Application profile SVCS with EPG_VLAN40..45 binding the same contract
-#
-# Soft references: node 403 lives in multi-domain/aci/. See tenant_PROD.nac.yaml
-# header for the soft-reference behavior. Two L3Outs share eth1/1 on node 403
-# via different dot1q VLANs (3010 PROD, 3020 SVCS).
+# L3OUT-SDWAN-SVCS: LEAF102 eth1/1 sub-interface VLAN 3020,
+#   IP 10.100.20.1/30, EBGP peer 10.100.20.2 remote-as 65200 local-as 65100.
 apic:
   tenants:
     - name: SVCS
@@ -22,7 +14,7 @@ apic:
         - name: SVCS
 
       bridge_domains:
-        - name: BD_VLAN40
+        - name: BD-Shared
           vrf: SVCS
           unicast_routing: true
           subnets:
@@ -31,47 +23,11 @@ apic:
           l3outs:
             - L3OUT-SDWAN-SVCS
 
-        - name: BD_VLAN41
+        - name: BD-DB
           vrf: SVCS
           unicast_routing: true
           subnets:
             - ip: 192.168.21.1/24
-              public: true
-          l3outs:
-            - L3OUT-SDWAN-SVCS
-
-        - name: BD_VLAN42
-          vrf: SVCS
-          unicast_routing: true
-          subnets:
-            - ip: 192.168.22.1/24
-              public: true
-          l3outs:
-            - L3OUT-SDWAN-SVCS
-
-        - name: BD_VLAN43
-          vrf: SVCS
-          unicast_routing: true
-          subnets:
-            - ip: 192.168.23.1/24
-              public: true
-          l3outs:
-            - L3OUT-SDWAN-SVCS
-
-        - name: BD_VLAN44
-          vrf: SVCS
-          unicast_routing: true
-          subnets:
-            - ip: 192.168.24.1/24
-              public: true
-          l3outs:
-            - L3OUT-SDWAN-SVCS
-
-        - name: BD_VLAN45
-          vrf: SVCS
-          unicast_routing: true
-          subnets:
-            - ip: 192.168.25.1/24
               public: true
           l3outs:
             - L3OUT-SDWAN-SVCS
@@ -93,8 +49,8 @@ apic:
           import_route_control_enforcement: true
           export_route_control_enforcement: true
           nodes:
-            - node_id: 403
-              router_id: 10.255.100.3
+            - node_id: 102
+              router_id: 10.255.100.102
               interfaces:
                 - port: 1
                   vlan: 3020
@@ -125,8 +81,8 @@ apic:
       application_profiles:
         - name: SVCS
           endpoint_groups:
-            - name: EPG_VLAN40
-              bridge_domain: BD_VLAN40
+            - name: EPG-Shared
+              bridge_domain: BD-Shared
               physical_domains:
                 - PHYSICAL1
               contracts:
@@ -135,52 +91,12 @@ apic:
                 providers:
                   - CT-SVCS-PERMIT-ANY
               static_ports:
-                - node_id: 402
+                - node_id: 101
                   port: 4
                   vlan: 40
 
-            - name: EPG_VLAN41
-              bridge_domain: BD_VLAN41
-              physical_domains:
-                - PHYSICAL1
-              contracts:
-                consumers:
-                  - CT-SVCS-PERMIT-ANY
-                providers:
-                  - CT-SVCS-PERMIT-ANY
-
-            - name: EPG_VLAN42
-              bridge_domain: BD_VLAN42
-              physical_domains:
-                - PHYSICAL1
-              contracts:
-                consumers:
-                  - CT-SVCS-PERMIT-ANY
-                providers:
-                  - CT-SVCS-PERMIT-ANY
-
-            - name: EPG_VLAN43
-              bridge_domain: BD_VLAN43
-              physical_domains:
-                - PHYSICAL1
-              contracts:
-                consumers:
-                  - CT-SVCS-PERMIT-ANY
-                providers:
-                  - CT-SVCS-PERMIT-ANY
-
-            - name: EPG_VLAN44
-              bridge_domain: BD_VLAN44
-              physical_domains:
-                - PHYSICAL1
-              contracts:
-                consumers:
-                  - CT-SVCS-PERMIT-ANY
-                providers:
-                  - CT-SVCS-PERMIT-ANY
-
-            - name: EPG_VLAN45
-              bridge_domain: BD_VLAN45
+            - name: EPG-DB
+              bridge_domain: BD-DB
               physical_domains:
                 - PHYSICAL1
               contracts:

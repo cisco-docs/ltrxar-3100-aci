@@ -1,4 +1,11 @@
 ---
+# LEAF102 — border leaf for both L3OUT-SDWAN-PROD (VLAN 3010) and
+# L3OUT-SDWAN-SVCS (VLAN 3020). Both L3Outs share eth1/1 via two dot1q
+# sub-interfaces. Port 1 must use the 10G-ROUTED policy group (MCP-DISABLED,
+# no spanning-tree filter required since the interface is L3-routed).
+#
+# ACI sim has no data plane, so the L3Out BGP peers will sit Idle/Active —
+# documented and expected per multi-domain/design.md §11.
 apic:
   auto_generate_access_leaf_switch_interface_profiles: true
   access_policies:
@@ -9,20 +16,21 @@ apic:
     leaf_interface_selector_sub_port_name: "ETH\\g<mod>-\\g<port>-\\g<sport>"
   interface_policies:
     nodes:
-      - id: 401
+      - id: 102
         interfaces:
           - port: 1
-            policy_group: 10G-ACCESS
+            description: L3OUT-SDWAN-PROD (VLAN 3010) + L3OUT-SDWAN-SVCS (VLAN 3020) sub-interfaces
+            policy_group: 10G-ROUTED
           - port: 2
             policy_group: 10G-ACCESS
           - port: 3
             policy_group: 10G-ACCESS
           - port: 4
-            policy_group: 10G-VPC
+            policy_group: 10G-ACCESS
           - port: 5
-            policy_group: 10G-VPC
+            policy_group: 10G-ACCESS
           - port: 6
-            policy_group: 10G-VPC
+            policy_group: 10G-ACCESS
           - port: 11
             description: reserved
             shutdown: true

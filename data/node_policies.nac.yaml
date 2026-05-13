@@ -1,4 +1,7 @@
 ---
+# ACI simulator constraint: only nodes 101 and 102 exist as physical leafs.
+# Node 101 = compute leaf (single, no VPC pair under sim constraint).
+# Node 102 = border leaf hosting both PROD and SVCS L3Outs on eth1/1.
 apic:
   node_policies:
     inb_endpoint_group: INB1
@@ -8,31 +11,22 @@ apic:
       - name: MG1
       - name: MG2
 
-    vpc_groups:
-      mode: explicit
-      groups:
-        - id: 401
-          switch_1: 401
-          switch_2: 402
-          policy: VPC-POLICY
-          name: VPC-GRP-401-402
-
     nodes:
-      - id: 401
+      - id: 101
         pod: 1
         role: leaf
-        serial_number: TEP-1-401
-        name: LEAF401
+        serial_number: TEP-1-101
+        name: LEAF101
         oob_address: 10.51.77.94/24
         oob_gateway: 10.51.77.254
         update_group: MG1
         access_policy_group: ALL_LEAFS
 
-      - id: 402
+      - id: 102
         pod: 1
         role: leaf
-        serial_number: TEP-1-402
-        name: LEAF402
+        serial_number: TEP-1-102
+        name: LEAF102
         oob_address: 10.51.77.95/24
         oob_gateway: 10.51.77.254
         update_group: MG2
