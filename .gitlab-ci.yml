@@ -38,13 +38,13 @@ variables:
     value: "${CI_API_V4_URL}"
 
   # Per-branch Terraform state name
-  TF_STATE_NAME:
-    description: "Terraform state name (per branch)"
-    value: "${CI_COMMIT_REF_SLUG}"
+  # TF_STATE_NAME:
+  #   description: "Terraform state name (per branch)"
+  #   value: "${CI_COMMIT_REF_SLUG}"
 
   TF_HTTP_ADDRESS:
     description: "GitLab HTTP Address to store the TF state file"
-    value: "${GITLAB_API_URL}/projects/${CI_PROJECT_ID}/terraform/state/${TF_STATE_NAME}"
+    value: "${GITLAB_API_URL}/projects/${CI_PROJECT_ID}/terraform/state/tfstate"
   TF_HTTP_LOCK_ADDRESS:
     description: "GitLab HTTP Address to lock the TF state file"
     value: "${TF_HTTP_ADDRESS}/lock"
