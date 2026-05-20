@@ -234,5 +234,7 @@ destroy:
   rules:
     - if: '$CI_COMMIT_BRANCH =~ /^devhub\//'
       when: manual
+      allow_failure: true
     - if: '$CI_COMMIT_BRANCH == "master"'
       when: manual
+      allow_failure: true
