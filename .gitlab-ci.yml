@@ -124,6 +124,8 @@ plan:
       when: on_success
     - if: '$CI_COMMIT_BRANCH == "master"'
       when: on_success
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      when: on_success
     - when: never
 
 deploy:
@@ -159,6 +161,8 @@ deploy:
       when: manual
     - if: '$CI_COMMIT_BRANCH == "master"'
       when: manual
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      when: manual
     - when: never
 
 test-integration:
@@ -186,6 +190,8 @@ test-integration:
     - if: '$CI_COMMIT_BRANCH =~ /^devhub\//'
       when: on_success
     - if: '$CI_COMMIT_BRANCH == "master"'
+      when: on_success
+    - if: '$CI_COMMIT_BRANCH == "main"'
       when: on_success
     - when: never
 
@@ -239,5 +245,8 @@ destroy:
       when: manual
       allow_failure: true
     - if: '$CI_COMMIT_BRANCH == "master"'
+      when: manual
+      allow_failure: true
+    - if: '$CI_COMMIT_BRANCH == "main"'
       when: manual
       allow_failure: true
