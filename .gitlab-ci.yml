@@ -36,12 +36,6 @@ variables:
   GITLAB_API_URL:
     description: "GitLab API v4 root URL"
     value: "${CI_API_V4_URL}"
-
-  # Per-branch Terraform state name
-  # TF_STATE_NAME:
-  #   description: "Terraform state name (per branch)"
-  #   value: "${CI_COMMIT_REF_SLUG}"
-
   TF_HTTP_ADDRESS:
     description: "GitLab HTTP Address to store the TF state file"
     value: "${GITLAB_API_URL}/projects/${CI_PROJECT_ID}/terraform/state/tfstate"
@@ -124,10 +118,6 @@ plan:
       when: on_success
     - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
       when: on_success
-    # - if: '$CI_COMMIT_BRANCH == "master"'
-    #   when: on_success
-    # - if: '$CI_COMMIT_BRANCH == "main"'
-    #   when: on_success
     - when: never
 
 deploy:
@@ -163,10 +153,6 @@ deploy:
       when: manual
     - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
       when: manual
-    # - if: '$CI_COMMIT_BRANCH == "master"'
-    #   when: manual
-    # - if: '$CI_COMMIT_BRANCH == "main"'
-    #   when: manual
     - when: never
 
 test-integration:
@@ -195,10 +181,6 @@ test-integration:
       when: on_success
     - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
       when: on_success
-    # - if: '$CI_COMMIT_BRANCH == "master"'
-    #   when: on_success
-    # - if: '$CI_COMMIT_BRANCH == "main"'
-    #   when: on_success
     - when: never
 
 failure:
@@ -255,9 +237,3 @@ destroy:
     - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
       when: manual
       allow_failure: true
-    # - if: '$CI_COMMIT_BRANCH == "master"'
-    #   when: manual
-    #   allow_failure: true
-    # - if: '$CI_COMMIT_BRANCH == "main"'
-    #   when: manual
-    #   allow_failure: true
