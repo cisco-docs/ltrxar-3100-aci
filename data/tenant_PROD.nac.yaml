@@ -1,6 +1,5 @@
 ---
-# Tenant PROD — collapsed to 2 EPGs (EPG-Servers, EPG-Web) per the
-# multi-domain/design.md §3 mapping. ACI is narrative-only in this lab
+# Tenant PROD — collapsed to 2 EPGs (EPG-Servers, EPG-Web). ACI is narrative-only in this lab
 # (sim has no data plane); the L3Out is configured against LEAF102 but
 # the BGP peer will sit Idle since there is no physical wire on the
 # SDWAN side. APIC will raise a fault for the down peer — expected.
