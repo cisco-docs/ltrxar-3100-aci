@@ -5,7 +5,6 @@
 # no spanning-tree filter required since the interface is L3-routed).
 #
 # ACI sim has no data plane, so the L3Out BGP peers will sit Idle/Active —
-# documented and expected per multi-domain/design.md §11.
 apic:
   auto_generate_access_leaf_switch_interface_profiles: true
   access_policies:

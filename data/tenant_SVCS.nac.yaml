@@ -1,6 +1,5 @@
 ---
-# Tenant SVCS — collapsed to 2 EPGs (EPG-Shared, EPG-DB) per the
-# multi-domain/design.md §3 mapping. Mirror of tenant_PROD with SVCS values.
+# Tenant SVCS — collapsed to 2 EPGs (EPG-Shared, EPG-DB). Mirror of tenant_PROD with SVCS values.
 # Both L3Outs share LEAF102 eth1/1 via dot1q sub-interfaces (3010 PROD,
 # 3020 SVCS). BGP peer on SVCS L3Out also Idle — no physical wire.
 #
